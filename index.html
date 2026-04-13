@@ -1,15 +1,1442 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Weber-Buric Real Estate Mexico</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Weber-Buric Real Estate Mexico | Luxury Property Sales – Riviera Maya</title>
+<meta name="description" content="Licensed Swiss-European real estate brokers in Playa del Carmen. Buy, sell and invest in luxury properties across Riviera Maya."/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23f5f0e8'/%3E%3Cpolyline points='8,14 20,50 32,26 44,50 56,14' stroke='%232c3e50' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Cpath d='M44,28 C44,21 36,18 32,24 C28,18 20,21 20,28 C20,34 26,40 32,46 C38,40 44,34 44,28Z' fill='%23C0614A'/%3E%3C/svg%3E"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#f5f0e8;color:#2c3e50;font-family:'Montserrat',sans-serif;overflow-x:hidden;font-size:16px}
+
+:root{
+  --gold:#b8935a;--gold-l:#d4aa72;--terra:#C0614A;
+  --dark:#1e2a35;--dark2:#243040;
+  --bg:#f5f0e8;--bg2:#ede7d8;--wht:#ffffff;
+  --text:#2c3e50;--mid:#5a6a7a;--dim:#8a9aaa;
+  --border:rgba(184,147,90,0.22);
+  --sh:0 8px 32px rgba(44,62,80,.1);
+  --sh-lg:0 20px 60px rgba(44,62,80,.18);
+  /* Label colors */
+  --lbl-feat:#b8935a;   /* gold - featured */
+  --lbl-sale:#1e2a35;   /* navy - for sale */
+  --lbl-invest:#5a3e7a; /* purple - investment */
+  --lbl-rent:#C0614A;   /* terracotta - rental */
+  --lbl-new:#2e7d52;    /* green - new */
+}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:72px;padding:0 5vw;display:flex;align-items:center;justify-content:space-between;background:rgba(245,240,232,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);transition:height .3s,box-shadow .3s}
+.nav.scrolled{height:58px;box-shadow:0 2px 24px rgba(44,62,80,.08)}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-logo svg{height:40px;width:auto;transition:height .3s}
+.nav.scrolled .nav-logo svg{height:30px}
+.nav-wm{display:flex;flex-direction:column;gap:1px}
+.nav-wm-main{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:var(--dark);letter-spacing:.5px;line-height:1}
+.nav-wm-sub{font-size:7.5px;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none}
+.nav-links a{font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--mid);text-decoration:none;transition:color .3s}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{padding:9px 22px!important;border:1px solid var(--gold)!important;color:var(--gold)!important;transition:background .3s,color .3s!important}
+.nav-cta:hover{background:var(--gold)!important;color:#fff!important}
+.burger{display:none;flex-direction:column;justify-content:center;gap:6px;cursor:pointer;background:none;border:none;padding:8px;z-index:1000;position:relative}
+.burger span{display:block;width:24px;height:1.5px;background:var(--dark);transition:all .35s ease;transform-origin:center}
+.burger.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
+.burger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.burger.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
+
+/* MOBILE MENU */
+.mob-menu{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transform:translateX(100%);transition:transform .4s cubic-bezier(.77,0,.175,1)}
+.mob-menu.open{transform:translateX(0)}
+.mob-menu a{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,9vw,52px);font-weight:300;color:var(--dark);text-decoration:none;padding:10px 0;letter-spacing:2px;transition:color .3s;display:block;text-align:center}
+.mob-menu a:hover{color:var(--gold)}
+.mob-line{width:40px;height:1px;background:var(--border);margin:16px 0}
+
+/* HERO CAROUSEL */
+.hero{position:relative;height:100vh;min-height:560px;overflow:hidden}
+.c-track{display:flex;height:100%;transition:transform .9s cubic-bezier(.77,0,.175,1)}
+.c-slide{flex-shrink:0;width:100%;height:100%;position:relative;overflow:hidden}
+.c-slide.active .c-bg{transform:scale(1)}
+.c-slide::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(30,42,53,.78) 0%,rgba(30,42,53,.38) 60%,rgba(30,42,53,.08) 100%)}
+.c-slide::before{content:'';position:absolute;bottom:0;left:0;right:0;height:220px;z-index:1;background:linear-gradient(to top,rgba(245,240,232,.88),transparent)}
+.c-content{position:absolute;bottom:160px;left:8vw;z-index:10;max-width:560px}
+.c-tag{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold-l);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.c-tag::before{content:'';display:block;width:28px;height:1px;background:var(--gold-l)}
+.c-title{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,5.5vw,66px);font-weight:300;line-height:1.05;color:#fff;margin-bottom:10px}
+.c-title em{font-style:italic;color:var(--gold-l)}
+.c-price{font-size:14px;font-weight:400;color:var(--gold-l);letter-spacing:1px;margin-bottom:14px}
+.c-desc{font-size:14px;font-weight:300;line-height:1.9;color:rgba(255,255,255,.85);max-width:440px;margin-bottom:20px}
+.c-specs{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:20px}
+.c-spec{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.c-spec strong{color:#fff;font-weight:500}
+.c-btn{display:inline-flex;align-items:center;gap:10px;padding:12px 28px;border:1px solid rgba(255,255,255,.55);color:#fff;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;font-family:'Montserrat',sans-serif;transition:background .3s;cursor:pointer;background:none;font-weight:500}
+.c-btn:hover{background:rgba(255,255,255,.15);border-color:#fff}
+.c-nav{position:absolute;bottom:90px;left:8vw;z-index:10;display:flex;align-items:center;gap:12px}
+.c-dot{width:24px;height:2px;background:rgba(255,255,255,.3);cursor:pointer;border:none;padding:0;transition:background .3s,width .3s}
+.c-dot.active{background:#fff;width:40px}
+.c-arrows{position:absolute;right:5vw;bottom:82px;z-index:10;display:flex;gap:10px}
+.c-arrow{width:42px;height:42px;border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(255,255,255,.08);transition:background .3s}
+.c-arrow:hover{background:rgba(255,255,255,.2)}
+
+/* SEARCH */
+/* SEARCH — Riviera Select style */
+.search-wrap{background:var(--bg);border-bottom:1px solid var(--border);padding:20px 5vw 18px}
+.s-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
+.s-tab{padding:12px 0;margin-right:32px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--dim);cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .3s,border-color .3s;font-family:'Montserrat',sans-serif;font-weight:500}
+.s-tab.active{color:var(--dark);border-bottom-color:var(--gold);font-weight:600}
+.s-tab:hover{color:var(--dark)}
+.s-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.s-field{display:flex;flex-direction:column;gap:6px}
+.s-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600}
+.s-select{background:#fff;border:1px solid rgba(44,62,80,.18);outline:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:300;color:var(--dark);cursor:pointer;width:100%;padding:10px 12px;border-radius:2px;transition:border-color .3s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b8935a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.s-select:focus{border-color:var(--gold)}
+.s-select option,.s-select optgroup{background:#fff;color:var(--dark)}
+.s-form-footer{display:flex;align-items:center;justify-content:space-between;margin-top:6px;grid-column:1/-1}
+.s-btn{padding:13px 36px;background:var(--dark);border:none;cursor:pointer;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#fff;font-family:'Montserrat',sans-serif;font-weight:600;transition:background .3s;border-radius:2px}
+.s-btn:hover{background:var(--gold)}
+.s-clear{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);cursor:pointer;background:none;border:none;font-family:'Montserrat',sans-serif;transition:color .3s;padding:0}
+.s-clear:hover{color:var(--terra)}
+
+/* SECTIONS */
+.sec{padding:80px 5vw;background:var(--bg)}
+.sec.alt{background:var(--bg2)}
+.sec.wht{background:#fff}
+.sec-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:44px;flex-wrap:wrap;gap:16px}
+.sec-lbl{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:10px;font-weight:500}
+.sec-lbl::before{content:'';display:block;width:24px;height:1px;background:var(--gold)}
+.sec-ttl{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,4vw,46px);font-weight:300;color:var(--dark);line-height:1.1}
+.sec-ttl em{font-style:italic;color:var(--gold)}
+.see-all{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);text-decoration:none;display:flex;align-items:center;gap:8px;transition:gap .3s;white-space:nowrap;font-weight:500}
+.see-all:hover{gap:14px}
+
+/* LABELS */
+.lbl{position:absolute;top:14px;left:14px;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:6px 12px;font-weight:700;z-index:2;border-radius:2px;color:#fff}
+.lbl-feat{background:var(--lbl-feat)}
+.lbl-sale{background:var(--lbl-sale)}
+.lbl-invest{background:var(--lbl-invest)}
+.lbl-rent{background:var(--lbl-rent)}
+.lbl-new{background:var(--lbl-new)}
+
+/* PROPERTY CARDS */
+.p-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.p-card{background:#fff;border:1px solid var(--border);cursor:pointer;overflow:hidden;transition:box-shadow .35s,transform .35s;border-radius:3px}
+.p-card:hover{box-shadow:var(--sh-lg);transform:translateY(-4px)}
+.p-card.wide{grid-column:span 2}
+.p-img{position:relative;overflow:hidden;background:var(--bg2)}
+.p-card:hover .p-img-bg{transform:scale(1.05)}
+.p-body{padding:20px 22px 22px;background:#fff}
+.p-loc{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:5px;font-weight:500}
+.p-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--dark);margin-bottom:8px;line-height:1.2}
+.p-pin{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--gold);font-weight:500;margin-bottom:8px;cursor:pointer;transition:opacity .2s;width:fit-content}
+.p-pin:hover{opacity:.75}
+.p-pin svg{flex-shrink:0;transition:transform .2s}
+.p-pin:hover svg{transform:scale(1.2)}
+.map-drop{display:none;margin-bottom:10px;border-radius:2px;overflow:hidden;border:1px solid var(--border)}
+.map-drop.open{display:block}
+.map-drop iframe{width:100%;height:240px;border:none;display:block}
+.map-drop-close{display:flex;align-items:center;gap:6px;padding:8px 12px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mid);cursor:pointer;background:var(--bg2);border:none;font-family:'Montserrat',sans-serif;width:100%;transition:color .3s}
+.map-drop-close:hover{color:var(--gold)}
+.p-specs{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.p-spec{font-size:12.5px;color:var(--mid)}
+.p-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:12px}
+.p-price{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:300;color:var(--dark)}
+.p-price small{font-size:12px;font-family:'Montserrat',sans-serif;font-weight:300;color:var(--dim);margin-left:4px}
+.p-arrow{width:34px;height:34px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:background .3s,border-color .3s;flex-shrink:0}
+.p-card:hover .p-arrow{background:var(--gold);border-color:var(--gold)}
+
+/* STATS */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);background:var(--dark);border-top:3px solid var(--gold)}
+.stat{padding:44px 5vw;text-align:center;border-right:1px solid rgba(255,255,255,.08)}
+.stat:last-child{border-right:none}
+.stat-n{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,56px);font-weight:300;color:var(--gold);line-height:1;margin-bottom:8px}
+.stat-l{font-size:8.5px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.45)}
+
+/* NEIGHBORHOODS */
+.n-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.n-card{background:#fff;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:box-shadow .35s,transform .35s;border-radius:3px}
+.n-card:hover{box-shadow:var(--sh-lg);transform:translateY(-4px)}
+.n-card.wide{grid-column:span 3}
+.n-hero{position:relative;overflow:hidden}
+.n-card:hover .n-hero-img{transform:scale(1.04)}
+.n-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(30,42,53,.85) 0%,rgba(30,42,53,.15) 100%)}
+.n-hero-cnt{position:absolute;bottom:0;left:0;right:0;padding:22px 24px}
+.n-badge{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold-l);background:rgba(30,42,53,.6);padding:4px 11px;border:1px solid rgba(212,170,114,.35);display:inline-block;margin-bottom:7px}
+.n-name{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,2.8vw,30px);font-weight:300;color:#fff;line-height:1.1;margin-bottom:3px}
+.n-sub{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.n-pin{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--gold-l);font-weight:500;margin-top:6px;cursor:pointer;width:fit-content}
+.n-pin:hover{opacity:.8}
+.n-map{display:none;margin:0}
+.n-map.open{display:block}
+.n-map iframe{width:100%;height:220px;border:none;display:block}
+.n-body{padding:18px 22px 22px;background:#fff}
+.n-desc{font-size:14px;font-weight:300;line-height:1.9;color:var(--mid);margin-bottom:14px}
+.n-stats-row{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.n-sn{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--gold);line-height:1}
+.n-sl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);display:block;margin-top:2px}
+.n-pills{display:flex;flex-wrap:wrap;gap:6px}
+.n-pill{font-size:11px;padding:5px 12px;border:1px solid var(--border);color:var(--mid);border-radius:20px}
+
+/* ABOUT DARK */
+.about-wrap{background:var(--dark)}
+.about-split{display:grid;grid-template-columns:1fr 1fr}
+.about-l{padding:80px 5vw;border-right:1px solid rgba(255,255,255,.08)}
+.about-r{padding:80px 5vw;background:rgba(255,255,255,.03)}
+.a-lbl{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:10px;font-weight:500}
+.a-lbl::before{content:'';display:block;width:24px;height:1px;background:var(--gold)}
+.a-ttl{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,4vw,46px);font-weight:300;color:#fff;line-height:1.1;margin-bottom:20px}
+.a-ttl em{font-style:italic;color:var(--gold)}
+.a-txt{font-size:15px;font-weight:300;line-height:2;color:rgba(255,255,255,.65);max-width:500px;margin-bottom:24px}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:28px}
+.t-init{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:rgba(184,147,90,.18);line-height:1;margin-bottom:5px}
+.t-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;color:#fff;margin-bottom:3px}
+.t-cred{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:500}
+.t-bio{font-size:13px;font-weight:300;line-height:1.9;color:rgba(255,255,255,.5)}
+.mkt-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
+.swiss-flag{width:26px;height:26px;background:#E63030;border-radius:2px;flex-shrink:0;position:relative}
+.swiss-flag::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:14px;height:3px;background:#fff}
+.swiss-flag::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:3px;height:14px;background:#fff}
+.swiss-row p{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.45);line-height:1.7}
+.swiss-row p strong{color:#fff;font-weight:600}
+.usp-list{display:flex;flex-direction:column;gap:12px;margin:24px 0}
+.usp-ico{font-size:18px;flex-shrink:0;margin-top:2px}
+.usp strong{display:block;font-size:13px;color:#fff;margin-bottom:3px;font-weight:600}
+.usp span{font-size:14px;font-weight:300;color:rgba(255,255,255,.55);line-height:1.8}
+.btn-gold{padding:14px 32px;background:var(--gold);color:#fff;font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;font-family:'Montserrat',sans-serif;font-weight:600;transition:background .3s;display:inline-block;border:none;cursor:pointer;margin-top:24px}
+.btn-gold:hover{background:#9a7a45}
+
+/* BLOG */
+.b-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.b-card{background:#fff;border:1px solid var(--border);cursor:pointer;overflow:hidden;transition:box-shadow .35s,transform .35s;border-radius:3px}
+.b-card:hover{box-shadow:var(--sh);transform:translateY(-3px)}
+.b-card.wide{grid-column:span 2}
+.b-img{height:160px;position:relative;overflow:hidden;background:var(--bg2)}
+.b-card.wide .b-img{height:220px}
+.b-card:hover .b-img-bg{transform:scale(1.04)}
+.b-overlay{position:absolute;inset:0;background:rgba(30,42,53,.4)}
+.b-num{font-family:'Cormorant Garamond',serif;font-size:64px;font-weight:300;color:rgba(255,255,255,.12);user-select:none;position:relative;z-index:1;padding:14px 0 0 16px}
+.b-cat{position:absolute;top:14px;left:14px;font-size:8px;letter-spacing:2.5px;text-transform:uppercase;padding:5px 11px;background:var(--gold);color:#fff;z-index:2;font-weight:600}
+.b-body{padding:18px 20px 22px;background:#fff}
+.b-meta{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.b-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--dark);line-height:1.3;margin-bottom:8px}
+.b-card.wide .b-title{font-size:26px}
+.b-excerpt{font-size:14px;font-weight:300;line-height:1.9;color:var(--mid)}
+.b-read{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:none;background:none;cursor:pointer;font-family:'Montserrat',sans-serif;font-weight:600;padding:0;transition:gap .3s}
+.b-read:hover{gap:14px}
+
+/* PROPERTY DETAIL MODAL */
+.det-modal{position:fixed;inset:0;z-index:800;background:rgba(30,42,53,.7);display:none;align-items:center;justify-content:center;padding:20px}
+.det-modal.open{display:flex}
+.det-box{background:#fff;max-width:900px;width:100%;max-height:92vh;overflow-y:auto;border-radius:4px;box-shadow:var(--sh-lg);position:relative}
+.det-close{position:absolute;top:14px;right:14px;width:38px;height:38px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;color:var(--mid);font-size:15px;z-index:10;border-radius:50%;transition:background .3s,color .3s}
+.det-close:hover{background:var(--dark);color:#fff}
+.det-gal{position:relative;overflow:hidden;background:var(--dark)}
+.det-gal-img{width:100%;height:360px;background-size:cover;background-position:center}
+.det-gal-nav{position:absolute;bottom:14px;right:14px;display:flex;gap:8px}
+.det-gal-btn{width:36px;height:36px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .3s}
+.det-gal-btn:hover{background:rgba(255,255,255,.4)}
+.det-gal-cnt{position:absolute;bottom:16px;left:16px;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.8);background:rgba(30,42,53,.5);padding:4px 10px}
+.det-lbl{position:absolute;top:16px;left:16px;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;font-weight:700;color:#fff;border-radius:2px}
+.det-body{padding:28px 32px 36px}
+.det-loc{font-size:8.5px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;font-weight:500}
+.det-title{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,4vw,36px);font-weight:300;color:var(--dark);margin-bottom:10px;line-height:1.15}
+.det-map-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mid);margin-bottom:6px;cursor:pointer;width:fit-content}
+.det-map-row:hover{color:var(--gold)}
+.det-map-row svg{flex-shrink:0}
+.det-map-embed{display:none;margin-bottom:14px;border-radius:2px;overflow:hidden;border:1px solid var(--border)}
+.det-map-embed.open{display:block}
+.det-map-embed iframe{width:100%;height:240px;border:none;display:block}
+.det-map-close-btn{display:flex;align-items:center;padding:8px 12px;font-size:10px;letter-spacing:1.5px;color:var(--mid);cursor:pointer;background:var(--bg2);border:none;font-family:'Montserrat',sans-serif;width:100%;transition:color .3s}
+.det-map-close-btn:hover{color:var(--gold)}
+.det-price-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:22px}
+.det-price{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,4vw,40px);font-weight:300;color:var(--dark);line-height:1}
+.det-price small{font-size:12px;font-family:'Montserrat',sans-serif;font-weight:300;color:var(--dim);margin-left:6px}
+.det-ctas{display:flex;gap:10px;flex-wrap:wrap}
+.det-cta-main{padding:13px 24px;background:var(--gold);color:#fff;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;font-family:'Montserrat',sans-serif;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:background .3s}
+.det-cta-main:hover{background:#9a7a45}
+.det-cta-sec{padding:13px 20px;border:1px solid var(--border);color:var(--mid);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;font-family:'Montserrat',sans-serif;background:none;cursor:pointer;text-decoration:none;display:inline-block;transition:background .3s,color .3s}
+.det-cta-sec:hover{background:var(--bg2);color:var(--dark)}
+.det-specs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:24px}
+.det-spec-item{padding:14px 16px;background:#fff;text-align:center}
+.det-spec-n{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--dark);line-height:1}
+.det-spec-l{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);display:block;margin-top:3px}
+.det-desc{font-size:15px;font-weight:300;line-height:2;color:var(--mid);margin-bottom:20px}
+.det-feats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0}
+.det-feat{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--mid);font-weight:300}
+.det-feat::before{content:'';display:block;width:6px;height:6px;background:var(--gold);border-radius:50%;flex-shrink:0}
+
+/* NEIGHBORHOOD DETAIL MODAL */
+.ndet-modal{position:fixed;inset:0;z-index:800;background:rgba(30,42,53,.72);display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.ndet-modal.open{display:flex}
+.ndet-box{background:#fff;max-width:860px;width:100%;border-radius:4px;box-shadow:0 24px 80px rgba(30,42,53,.25);position:relative;margin:auto}
+.ndet-close{position:absolute;top:14px;right:14px;width:38px;height:38px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;color:var(--mid);font-size:15px;z-index:10;border-radius:50%;transition:background .3s,color .3s}
+.ndet-close:hover{background:var(--dark);color:#fff}
+.ndet-hero{position:relative;height:300px;overflow:hidden;border-radius:4px 4px 0 0}
+.ndet-hero-img{width:100%;height:100%;background-size:cover;background-position:center}
+.ndet-hero-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(30,42,53,.88) 0%,rgba(30,42,53,.2) 60%)}
+.ndet-hero-cnt{position:absolute;bottom:0;left:0;right:0;padding:26px 30px}
+.ndet-badge{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold-l);background:rgba(30,42,53,.6);padding:5px 12px;border:1px solid rgba(212,170,114,.35);display:inline-block;margin-bottom:10px}
+.ndet-name{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,5vw,40px);font-weight:300;color:#fff;line-height:1.1;margin-bottom:4px}
+.ndet-sub{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.65)}
+.ndet-body{padding:26px 30px 34px}
+.ndet-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:22px}
+.ndet-stat{padding:14px;background:#fff;text-align:center}
+.ndet-stat-n{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--gold);line-height:1}
+.ndet-stat-l{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);display:block;margin-top:3px}
+.ndet-map{width:100%;height:260px;border:none;display:block;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:22px}
+.ndet-desc{font-size:15px;font-weight:300;line-height:2;color:var(--mid);margin-bottom:20px}
+.ndet-pros{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:22px}
+.ndet-pro{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--mid);font-weight:300}
+.ndet-pro::before{content:'';display:block;width:6px;height:6px;background:var(--gold);border-radius:50%;flex-shrink:0}
+.ndet-inv-box{background:var(--bg2);border:1px solid var(--border);padding:18px 22px;margin-bottom:22px;border-radius:2px}
+.ndet-inv-title{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;font-weight:600}
+.ndet-inv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ndet-inv-item strong{display:block;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--dark)}
+.ndet-inv-item span{font-size:10px;letter-spacing:1px;color:var(--dim);text-transform:uppercase}
+.ndet-ctas{display:flex;gap:10px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--border)}
+
+/* ARTICLE MODAL */
+.art-modal{position:fixed;inset:0;z-index:900;background:rgba(245,240,232,.97);overflow-y:auto;display:none}
+.art-modal.open{display:block}
+.art-inner{max-width:720px;margin:0 auto;padding:100px 40px 80px}
+.art-close{position:fixed;top:24px;right:24px;width:44px;height:44px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;color:var(--gold);font-size:18px;transition:background .3s;z-index:10}
+.art-close:hover{background:var(--bg2)}
+.art-cat{font-size:9px;letter-spacing:3.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:10px;font-weight:500}
+.art-cat::before{content:'';display:block;width:24px;height:1px;background:var(--gold)}
+.art-h1{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,5vw,46px);font-weight:300;line-height:1.15;color:var(--dark);margin-bottom:20px}
+.art-meta{font-size:10px;letter-spacing:1.5px;color:var(--dim);margin-bottom:36px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.art-body{font-size:15px;font-weight:300;line-height:2;color:var(--text)}
+.art-body h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--dark);margin:40px 0 14px}
+.art-body h3{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;color:var(--gold);margin:28px 0 10px}
+.art-body p{margin-bottom:18px}
+.art-body ul{margin:0 0 18px 22px;display:flex;flex-direction:column;gap:7px}
+.art-body ul li::marker{color:var(--gold)}
+.art-body strong{color:var(--dark);font-weight:600}
+.art-hr{width:40px;height:1px;background:var(--gold);margin:32px 0}
+
+/* CTA + FOOTER */
+.cta-band{padding:80px 5vw;background:var(--dark2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:28px;border-top:3px solid var(--gold)}
+.cta-txt{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,4vw,46px);font-weight:300;color:#fff;line-height:1.15;max-width:560px}
+.cta-txt em{font-style:italic;color:var(--gold-l)}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap}
+.btn-g{padding:16px 36px;background:var(--gold);color:#fff;font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;font-family:'Montserrat',sans-serif;font-weight:600;transition:background .3s;display:inline-block;border:none;cursor:pointer}
+.btn-g:hover{background:#9a7a45}
+.btn-o{padding:16px 36px;border:1px solid rgba(255,255,255,.35);color:#fff;font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;font-family:'Montserrat',sans-serif;background:transparent;transition:background .3s;display:inline-block;cursor:pointer}
+.btn-o:hover{background:rgba(255,255,255,.1)}
+.footer{background:var(--dark);padding:60px 5vw 32px}
+.footer-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:44px;margin-bottom:48px}
+.f-brand{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:#fff;margin:14px 0 4px}
+.f-tag{font-size:8.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.f-desc{font-size:12px;font-weight:300;line-height:1.9;color:rgba(255,255,255,.45);max-width:260px}
+.f-col-t{font-size:8.5px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;font-weight:500}
+.f-links{list-style:none;display:flex;flex-direction:column;gap:11px}
+.f-links a{font-size:13px;font-weight:300;color:rgba(255,255,255,.45);text-decoration:none;transition:color .3s}
+.f-links a:hover{color:var(--gold)}
+.footer-bot{border-top:1px solid rgba(255,255,255,.08);padding-top:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.f-copy{font-size:10px;font-weight:300;color:rgba(255,255,255,.22)}
+.f-langs{display:flex;gap:12px}
+.f-lang{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.25);cursor:pointer;background:none;border:none;font-family:'Montserrat',sans-serif;transition:color .3s}
+.f-lang:hover,.f-lang.on{color:var(--gold)}
+
+/* RESPONSIVE */
+@media(max-width:1040px){
+  .p-grid,.n-grid,.b-grid{grid-template-columns:1fr 1fr}
+  .p-card.wide,.n-card.wide,.b-card.wide{grid-column:span 1}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .about-split{grid-template-columns:1fr}
+  .about-l{border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}
+  .det-specs-grid,.ndet-stats,.ndet-inv-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:900px){
+  .nav-links{display:none}
+  .burger{display:flex}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .stat{border-bottom:1px solid rgba(255,255,255,.08)}
+  .team-grid{grid-template-columns:1fr}
+  .det-feats,.ndet-pros{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .p-grid,.n-grid,.b-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
+  .s-form{grid-template-columns:1fr}
+  .cta-band{flex-direction:column;align-items:flex-start}
+  .hero{height:100svh}
+  .c-content{bottom:130px;left:6vw;right:6vw}
+  .art-inner,.det-body,.ndet-body{padding:80px 20px 60px}
+  .det-gal-img,.ndet-hero{height:220px}
+  .ndet-stats{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:480px){
+  .s-form{grid-template-columns:1fr 1fr;gap:8px}
+  .s-select{font-size:12px;padding:9px 10px}
+  .s-label{font-size:8px}
+  .search-wrap{padding:16px 4vw 14px}
+}
+
+/* KEN BURNS */
+.c-bg{transition:transform 8s ease-out;transform:scale(1)}
+.c-slide.active .c-bg{transform:scale(1.09)}
+
+/* SOCIAL ICONS */
+.social-row{display:flex;gap:11px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.soc-ico{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid rgba(255,255,255,.18);border-radius:5px;transition:transform .2s,opacity .2s,border-color .2s;text-decoration:none;flex-shrink:0}
+.soc-ico:hover{transform:scale(1.15);opacity:.8;border-color:rgba(184,147,90,.55)}
+
+/* CTA BAND ALIGNMENT */
+.cta-left{display:flex;flex-direction:column}
+.cta-addr{font-size:12px;font-weight:300;color:rgba(255,255,255,.5);margin-top:12px;line-height:1.9;display:flex;align-items:flex-start;gap:8px}
+.cta-addr::before{content:'';display:block;width:2px;height:14px;background:var(--gold);margin-top:3px;flex-shrink:0}
+.btn-wa{display:inline-flex!important;align-items:center;gap:9px}
+.btn-wa svg{flex-shrink:0}
+
+/* TEAM MODALS */
+.team-modal{position:fixed;inset:0;z-index:850;background:rgba(30,42,53,.78);display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.team-modal.open{display:flex}
+.tm-box{background:var(--bg);max-width:680px;width:100%;border-radius:4px;box-shadow:var(--sh-lg);position:relative;margin:auto}
+.tm-hdr{background:var(--dark);padding:32px 32px 28px;border-bottom:3px solid var(--gold);border-radius:4px 4px 0 0;position:relative}
+.tm-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-size:14px;border-radius:50%;transition:background .3s}
+.tm-close:hover{background:rgba(255,255,255,.2);color:#fff}
+.tm-init{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:rgba(184,147,90,.45);line-height:1;margin-bottom:12px;width:72px;height:72px;border:1px solid rgba(184,147,90,.28);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tm-name{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#fff;margin-bottom:4px;line-height:1.1}
+.tm-ttl{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:500}
+.tm-body{padding:28px 32px 32px}
+.tm-creds{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.tm-cred-pill{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border:1px solid var(--border);color:var(--mid);border-radius:20px}
+.tm-lang{font-size:13px;color:var(--mid);margin-bottom:16px;font-weight:300;line-height:1.9}
+.tm-lang strong{color:var(--dark);font-weight:600}
+.tm-bio{font-size:14px;font-weight:300;line-height:2;color:var(--mid);margin-bottom:20px}
+.tm-spec-lbl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;font-weight:600;display:flex;align-items:center;gap:8px}
+.tm-spec-lbl::before{content:'';display:block;width:18px;height:1px;background:var(--gold)}
+.tm-specs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px}
+.tm-spec-item{font-size:11px;padding:5px 12px;background:rgba(184,147,90,.07);border:1px solid var(--border);color:var(--dark);border-radius:2px}
+.tm-ctas{display:flex;gap:10px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--border)}
+
+/* ABOUT HOVER ENHANCEMENTS */
+.usp{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border:1px solid rgba(255,255,255,.08);border-left:3px solid transparent;background:rgba(255,255,255,.03);transition:border-color .3s,background .3s}
+.usp:hover{border-color:rgba(255,255,255,.08);border-left-color:var(--gold);background:rgba(184,147,90,.05)}
+.team-card{padding:22px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);border-radius:2px;transition:border-color .3s,background .3s;cursor:pointer}
+.team-card:hover{border-color:rgba(184,147,90,.5);background:rgba(184,147,90,.06)}
+.mkt-pill{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:6px 14px;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55);border-radius:20px;transition:all .2s;cursor:default}
+.mkt-pill:hover{background:rgba(184,147,90,.15);border-color:rgba(184,147,90,.55);color:rgba(255,255,255,.88)}
+.swiss-row{display:flex;align-items:center;gap:14px;margin-top:20px;padding:14px 16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);transition:border-color .3s,box-shadow .3s}
+.swiss-row:hover{border-color:rgba(184,147,90,.4);box-shadow:0 0 14px rgba(184,147,90,.12)}
+</style>
+</head>
+<body>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mobMenu">
+  <a href="#properties" onclick="closeMenu()">Properties</a>
+  <a href="#neighborhoods" onclick="closeMenu()">Neighborhoods</a>
+  <a href="#about" onclick="closeMenu()">About Us</a>
+  <a href="#blog" onclick="closeMenu()">Blog</a>
+  <div class="mob-line"></div>
+  <a href="#contact" onclick="closeMenu()" style="color:var(--gold)">Contact Us</a>
+</div>
+
+<!-- NAV -->
+<nav class="nav" id="mainNav">
+  <a href="#" class="nav-logo">
+    <svg viewBox="0 0 220 140" fill="none">
+      <polyline points="10,20 32,100 54,48 76,100 98,20" stroke="#2c3e50" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <line x1="112" y1="20" x2="112" y2="118" stroke="#2c3e50" stroke-width="5" stroke-linecap="round"/>
+      <path d="M112,20 Q158,20 158,52 Q158,68 140,72" stroke="#2c3e50" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <path d="M112,72 Q168,72 168,95 Q168,118 112,118" stroke="#2c3e50" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <path d="M152,44 C152,36 142,33 138,40 C134,33 124,36 124,44 C124,51 131,58 138,65 C145,58 152,51 152,44Z" fill="#C0614A"/>
+      <rect x="135" y="65" width="6" height="28" rx="3" fill="#C0614A"/>
+      <rect x="141" y="78" width="9" height="5" rx="2" fill="#C0614A"/>
+      <rect x="141" y="88" width="7" height="4" rx="2" fill="#C0614A"/>
+    </svg>
+    <div class="nav-wm"><span class="nav-wm-main">Weber-Buric</span><span class="nav-wm-sub">Real Estate Mexico</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#properties">Buy &amp; Sell</a></li>
+    <li><a href="#properties">Rentals</a></li>
+    <li><a href="#neighborhoods">Neighborhoods</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#blog">Blog</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+  <button class="burger" id="burgerBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- HERO CAROUSEL -->
+<section class="hero" id="home">
+  <div class="c-track" id="cTrack">
+    <div class="c-slide active">
+      <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80" class="c-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+      <div class="c-content">
+        <p class="c-tag">&#11088; Featured Sale &middot; Playacar Fase II</p>
+        <h2 class="c-title">Casa &Aacute;rbol<br><em>Luxury Villa</em></h2>
+        <p class="c-price">$85,000,000 MXN &nbsp;&bull;&nbsp; ~$4,300,000 USD</p>
+        <p class="c-desc">Fully renovated 5-bedroom villa in Playa del Carmen's most exclusive gated community. Private pool, solar system, wine cellar, Corten steel facade.</p>
+        <div class="c-specs"><span class="c-spec"><strong>5</strong> Beds</span><span class="c-spec"><strong>5</strong> Baths</span><span class="c-spec"><strong>430 m&sup2;</strong></span><span class="c-spec"><strong>Pool + Solar</strong></span></div>
+        <button class="c-btn" onclick="openDet(0)">View Property &rarr;</button>
+      </div>
+    </div>
+    <div class="c-slide">
+      <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1600&q=80" class="c-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+      <div class="c-content">
+        <p class="c-tag">For Sale &middot; Corasol</p>
+        <h2 class="c-title">Beachfront<br>Penthouse 3BR</h2>
+        <p class="c-price">$780,000 USD</p>
+        <p class="c-desc">Premium penthouse with direct Caribbean access and resort amenities. Turnkey luxury investment.</p>
+        <div class="c-specs"><span class="c-spec"><strong>3</strong> Beds</span><span class="c-spec"><strong>3</strong> Baths</span><span class="c-spec"><strong>240 m&sup2;</strong></span><span class="c-spec"><strong>Beachfront</strong></span></div>
+        <button class="c-btn" onclick="openDet(1)">View Property &rarr;</button>
+      </div>
+    </div>
+    <div class="c-slide">
+      <img src="https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=1600&q=80" class="c-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+      <div class="c-content">
+        <p class="c-tag">For Rent &middot; Tulum</p>
+        <h2 class="c-title">Jungle Villa<br><em>Eco Luxury</em></h2>
+        <p class="c-price">$600 USD / night</p>
+        <p class="c-desc">Eco-luxury villa in Tulum's jungle zone with private cenote access, rooftop terrace, and infinity pool. Full concierge service available.</p>
+        <div class="c-specs"><span class="c-spec"><strong>4</strong> Beds</span><span class="c-spec"><strong>5</strong> Baths</span><span class="c-spec"><strong>380 m&sup2;</strong></span><span class="c-spec"><strong>Cenote</strong></span></div>
+        <button class="c-btn" onclick="openDet(4)">View Property &rarr;</button>
+      </div>
+    </div>
+    <div class="c-slide">
+      <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1600&q=80" class="c-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+      <div class="c-content">
+        <p class="c-tag">Investment &middot; Puerto Aventuras</p>
+        <h2 class="c-title">Marina Residence<br><em>ROI Ready</em></h2>
+        <p class="c-price">$185,000 USD</p>
+        <p class="c-desc">Proven investment property with verified rental income in the exclusive marina community. Boat slips, beach access, and 24h security.</p>
+        <div class="c-specs"><span class="c-spec"><strong>2</strong> Beds</span><span class="c-spec"><strong>2</strong> Baths</span><span class="c-spec"><strong>140 m&sup2;</strong></span><span class="c-spec"><strong>Marina</strong></span></div>
+        <button class="c-btn" onclick="openDet(2)">View Property &rarr;</button>
+      </div>
+    </div>
+  </div>
+  <div class="c-nav">
+    <button class="c-dot active" onclick="goTo(0)"></button>
+    <button class="c-dot" onclick="goTo(1)"></button>
+    <button class="c-dot" onclick="goTo(2)"></button>
+    <button class="c-dot" onclick="goTo(3)"></button>
+  </div>
+  <div class="c-arrows">
+    <button class="c-arrow" onclick="cPrev()"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    <button class="c-arrow" onclick="cNext()"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+  </div>
+</section>
+
+<!-- SEARCH -->
+<div class="search-wrap">
+  <div class="s-tabs">
+    <button class="s-tab active" id="tab-s" onclick="showForm('s')">Buy</button>
+    <button class="s-tab" id="tab-r" onclick="showForm('r')">Rent</button>
+    <button class="s-tab" id="tab-i" onclick="showForm('i')">Invest</button>
+  </div>
+
+  <!-- BUY FORM -->
+  <div class="s-form" id="form-s">
+    <div class="s-field">
+      <label class="s-label">Location</label>
+      <select class="s-select">
+        <option value="">All Locations</option>
+        <optgroup label="Playa del Carmen">
+          <option>Playacar Fase I</option><option>Playacar Fase II</option>
+          <option>Corasol</option><option>Centro / 5th Avenue</option>
+          <option>Zazil-Ha</option><option>Ejidal</option>
+          <option>Selvamar</option><option>El Cielo</option><option>Gonzalo Guerrero</option>
+        </optgroup>
+        <optgroup label="Riviera Maya">
+          <option>Tulum</option><option>Puerto Aventuras</option>
+          <option>Puerto Morelos</option><option>Akumal</option><option>Cancun</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Type</label>
+      <select class="s-select">
+        <option>All Types</option>
+        <option>Villa / House</option><option>Condo / Apartment</option>
+        <option>Penthouse</option><option>Land</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Price Range</label>
+      <select class="s-select">
+        <option>Any Price</option>
+        <option>Under $150K USD</option><option>$150K &ndash; $300K USD</option>
+        <option>$300K &ndash; $500K USD</option><option>$500K &ndash; $1M USD</option>
+        <option>Over $1M USD</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Min Beds</label>
+      <select class="s-select">
+        <option>Any</option><option>1+</option><option>2+</option>
+        <option>3+</option><option>4+</option><option>5+</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Furnished</label>
+      <select class="s-select">
+        <option>Any</option>
+        <option>Furnished</option><option>Unfurnished</option>
+        <option>Partially Furnished</option>
+      </select>
+    </div>
+    <div class="s-form-footer">
+      <button class="s-btn">Search Properties</button>
+      <button class="s-clear" onclick="clearForm('form-s')">Clear All</button>
+    </div>
+  </div>
+
+  <!-- RENT FORM -->
+  <div class="s-form" id="form-r" style="display:none">
+    <div class="s-field">
+      <label class="s-label">Location</label>
+      <select class="s-select">
+        <option value="">All Locations</option>
+        <optgroup label="Playa del Carmen">
+          <option>Playacar Fase I</option><option>Playacar Fase II</option>
+          <option>Corasol</option><option>Centro / 5th Avenue</option>
+          <option>Zazil-Ha</option><option>Ejidal</option><option>Selvamar</option><option>El Cielo</option>
+        </optgroup>
+        <optgroup label="Riviera Maya">
+          <option>Tulum</option><option>Puerto Aventuras</option>
+          <option>Puerto Morelos</option><option>Akumal</option><option>Cancun</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Type</label>
+      <select class="s-select">
+        <option>All Types</option>
+        <option>Vacation / Short-term</option><option>Long-term (monthly)</option><option>Annual lease</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Rental Duration</label>
+      <select class="s-select">
+        <option>Any Duration</option>
+        <option>Short Term (1&ndash;6 months)</option>
+        <option>Medium Term (6&ndash;12 months)</option>
+        <option>Long Term (1 year+)</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Price Range</label>
+      <select class="s-select">
+        <option>Any Budget</option>
+        <option>Under $1,500 / month</option>
+        <option>$1,500 &ndash; $3,000 / month</option>
+        <option>$3,000 &ndash; $5,000 / month</option>
+        <option>Over $5,000 / month</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Min Beds</label>
+      <select class="s-select">
+        <option>Any</option><option>1+</option><option>2+</option>
+        <option>3+</option><option>4+</option><option>5+</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Furnished</label>
+      <select class="s-select">
+        <option>Any</option>
+        <option>Furnished</option><option>Unfurnished</option>
+        <option>Partially Furnished</option>
+      </select>
+    </div>
+    <div class="s-form-footer">
+      <button class="s-btn">Search Rentals</button>
+      <button class="s-clear" onclick="clearForm('form-r')">Clear All</button>
+    </div>
+  </div>
+
+  <!-- INVEST FORM -->
+  <div class="s-form" id="form-i" style="display:none">
+    <div class="s-field">
+      <label class="s-label">Target Area</label>
+      <select class="s-select">
+        <option value="">All Areas</option>
+        <optgroup label="Playa del Carmen">
+          <option>Playacar Fase I</option><option>Playacar Fase II</option>
+          <option>Corasol</option><option>Centro / 5th Avenue</option>
+        </optgroup>
+        <optgroup label="Riviera Maya">
+          <option>Tulum</option><option>Puerto Aventuras</option>
+          <option>Puerto Morelos</option><option>Cancun</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Strategy</label>
+      <select class="s-select">
+        <option>Any Strategy</option>
+        <option>Vacation Rental ROI</option><option>Long-term Rental</option>
+        <option>Pre-construction</option><option>Flip / Renovation</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Budget (USD)</label>
+      <select class="s-select">
+        <option>Any Budget</option>
+        <option>$100K - $250K</option><option>$250K - $500K</option>
+        <option>$500K - $1M</option><option>$1M+</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Your Goal</label>
+      <select class="s-select">
+        <option>Any Goal</option>
+        <option>Rental income</option><option>Capital appreciation</option>
+        <option>Second home + rental</option><option>Retirement property</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label class="s-label">Expected Yield</label>
+      <select class="s-select">
+        <option>Any Yield</option>
+        <option>5 &ndash; 7%</option>
+        <option>7 &ndash; 10%</option>
+        <option>10%+</option>
+      </select>
+    </div>
+    <div class="s-form-footer">
+      <button class="s-btn">Get Consultation</button>
+      <button class="s-clear" onclick="clearForm('form-i')">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROPERTIES -->
+<section class="sec wht" id="properties">
+  <div class="sec-hdr">
+    <div><p class="sec-lbl">Sales &amp; Rentals</p><h2 class="sec-ttl">Luxury Properties<br><em>Riviera Maya</em></h2></div>
+    <a href="#" class="see-all">All Properties &rarr;</a>
+  </div>
+  <div class="p-grid">
+
+    <div class="p-card wide" onclick="openDet(0)">
+      <div class="p-img" style="height:300px">
+        <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&q=80" class="p-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <span class="lbl lbl-feat">&#11088; Featured Sale</span>
+      </div>
+      <div class="p-body">
+        <p class="p-loc">Playacar Fase II &middot; Playa del Carmen</p>
+        <h3 class="p-name">Casa &Aacute;rbol &mdash; Luxury Renovation Villa</h3>
+        <div class="p-pin" onclick="toggleMap(event,'mp0','Playacar+Fase+II+Playa+del+Carmen',15)">
+          <svg width="13" height="16" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#b8935a"/></svg>
+          Playacar Fase II, Playa del Carmen
+        </div>
+        <div class="map-drop" id="mp0"></div>
+        <div class="p-specs"><span class="p-spec">5 Beds</span><span class="p-spec">5 Baths</span><span class="p-spec">430 m&sup2;</span><span class="p-spec">Pool</span><span class="p-spec">Solar</span><span class="p-spec">Wine Cellar</span></div>
+        <div class="p-foot"><div class="p-price">$85,000,000<small>MXN</small></div><div class="p-arrow"><svg width="14" height="7" viewBox="0 0 14 7" fill="none"><path d="M0 3.5H12M9 1L13 3.5L9 6" stroke="#b8935a" stroke-width="1.5"/></svg></div></div>
+      </div>
+    </div>
+
+    <div class="p-card" onclick="openDet(1)">
+      <div class="p-img" style="height:200px">
+        <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=700&q=80" class="p-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <span class="lbl lbl-sale">For Sale</span>
+      </div>
+      <div class="p-body">
+        <p class="p-loc">Corasol &middot; Playa del Carmen</p>
+        <h3 class="p-name">Beachfront Penthouse 3BR</h3>
+        <div class="p-pin" onclick="toggleMap(event,'mp1','Corasol+Playa+del+Carmen',15)">
+          <svg width="13" height="16" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#b8935a"/></svg>
+          Corasol, North Playa del Carmen
+        </div>
+        <div class="map-drop" id="mp1"></div>
+        <div class="p-specs"><span class="p-spec">3 Beds</span><span class="p-spec">3 Baths</span><span class="p-spec">240 m&sup2;</span><span class="p-spec">Beachfront</span></div>
+        <div class="p-foot"><div class="p-price">$780,000<small>USD</small></div><div class="p-arrow"><svg width="14" height="7" viewBox="0 0 14 7" fill="none"><path d="M0 3.5H12M9 1L13 3.5L9 6" stroke="#b8935a" stroke-width="1.5"/></svg></div></div>
+      </div>
+    </div>
+
+    <div class="p-card" onclick="openDet(2)">
+      <div class="p-img" style="height:200px">
+        <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=700&q=80" class="p-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <span class="lbl lbl-invest">Investment</span>
+      </div>
+      <div class="p-body">
+        <p class="p-loc">Puerto Aventuras &middot; Q.Roo</p>
+        <h3 class="p-name">Marina Residence &mdash; ROI Ready</h3>
+        <div class="p-pin" onclick="toggleMap(event,'mp2','Puerto+Aventuras+Mexico',14)">
+          <svg width="13" height="16" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#b8935a"/></svg>
+          Puerto Aventuras, Quintana Roo
+        </div>
+        <div class="map-drop" id="mp2"></div>
+        <div class="p-specs"><span class="p-spec">2 Beds</span><span class="p-spec">2 Baths</span><span class="p-spec">140 m&sup2;</span><span class="p-spec">Marina</span></div>
+        <div class="p-foot"><div class="p-price">$185,000<small>USD</small></div><div class="p-arrow"><svg width="14" height="7" viewBox="0 0 14 7" fill="none"><path d="M0 3.5H12M9 1L13 3.5L9 6" stroke="#b8935a" stroke-width="1.5"/></svg></div></div>
+      </div>
+    </div>
+
+    <div class="p-card" onclick="openDet(3)">
+      <div class="p-img" style="height:200px">
+        <img src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=700&q=80" class="p-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <span class="lbl lbl-rent">Rental</span>
+      </div>
+      <div class="p-body">
+        <p class="p-loc">Playacar Fase I &middot; Playa del Carmen</p>
+        <h3 class="p-name">Villa del Golf &mdash; 3BR</h3>
+        <div class="p-pin" onclick="toggleMap(event,'mp3','Playacar+Fase+I+Playa+del+Carmen',15)">
+          <svg width="13" height="16" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#b8935a"/></svg>
+          Playacar Fase I, Playa del Carmen
+        </div>
+        <div class="map-drop" id="mp3"></div>
+        <div class="p-specs"><span class="p-spec">3 Beds</span><span class="p-spec">3 Baths</span><span class="p-spec">220 m&sup2;</span><span class="p-spec">Golf + Pool</span></div>
+        <div class="p-foot"><div class="p-price">$350<small>USD/night</small></div><div class="p-arrow"><svg width="14" height="7" viewBox="0 0 14 7" fill="none"><path d="M0 3.5H12M9 1L13 3.5L9 6" stroke="#b8935a" stroke-width="1.5"/></svg></div></div>
+      </div>
+    </div>
+
+    <div class="p-card" onclick="openDet(4)">
+      <div class="p-img" style="height:200px">
+        <img src="https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=700&q=80" class="p-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <span class="lbl lbl-rent">Rental</span>
+      </div>
+      <div class="p-body">
+        <p class="p-loc">Tulum &middot; Riviera Maya</p>
+        <h3 class="p-name">Jungle Villa &mdash; Cenote</h3>
+        <div class="p-pin" onclick="toggleMap(event,'mp4','Tulum+Mexico',14)">
+          <svg width="13" height="16" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#b8935a"/></svg>
+          Tulum, Quintana Roo
+        </div>
+        <div class="map-drop" id="mp4"></div>
+        <div class="p-specs"><span class="p-spec">4 Beds</span><span class="p-spec">5 Baths</span><span class="p-spec">380 m&sup2;</span><span class="p-spec">Cenote</span></div>
+        <div class="p-foot"><div class="p-price">$600<small>USD/night</small></div><div class="p-arrow"><svg width="14" height="7" viewBox="0 0 14 7" fill="none"><path d="M0 3.5H12M9 1L13 3.5L9 6" stroke="#b8935a" stroke-width="1.5"/></svg></div></div>
+      </div>
+    </div>
+
+    <!-- PLACEHOLDER CARD 1 -->
+    <div class="p-card" onclick="openDet(5)">
+      <div class="p-img" style="height:200px">
+        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80" class="p-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <span class="lbl lbl-sale">For Sale</span>
+      </div>
+      <div class="p-body">
+        <p class="p-loc">Gonzalo Guerrero &middot; Playa del Carmen</p>
+        <h3 class="p-name">Colonial Villa Gonzalo Guerrero</h3>
+        <div class="p-pin" onclick="toggleMap(event,'mp5','Gonzalo+Guerrero+Playa+del+Carmen',15)">
+          <svg width="13" height="16" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#b8935a"/></svg>
+          Gonzalo Guerrero, Playa del Carmen
+        </div>
+        <div class="map-drop" id="mp5"></div>
+        <div class="p-specs"><span class="p-spec">4 Beds</span><span class="p-spec">4 Baths</span><span class="p-spec">320 m&sup2;</span><span class="p-spec">Pool</span><span class="p-spec">Gated</span></div>
+        <div class="p-foot"><div class="p-price">$450,000<small>USD</small></div><div class="p-arrow"><svg width="14" height="7" viewBox="0 0 14 7" fill="none"><path d="M0 3.5H12M9 1L13 3.5L9 6" stroke="#b8935a" stroke-width="1.5"/></svg></div></div>
+      </div>
+    </div>
+
+    <!-- PLACEHOLDER CARD 2 -->
+    <div class="p-card" onclick="openDet(6)">
+      <div class="p-img" style="height:200px">
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80" class="p-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <span class="lbl lbl-sale">For Sale</span>
+      </div>
+      <div class="p-body">
+        <p class="p-loc">Centro &middot; Playa del Carmen</p>
+        <h3 class="p-name">Modern Penthouse Centro</h3>
+        <div class="p-pin" onclick="toggleMap(event,'mp6','Centro+Playa+del+Carmen',15)">
+          <svg width="13" height="16" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#b8935a"/></svg>
+          Centro, Playa del Carmen
+        </div>
+        <div class="map-drop" id="mp6"></div>
+        <div class="p-specs"><span class="p-spec">2 Beds</span><span class="p-spec">2 Baths</span><span class="p-spec">180 m&sup2;</span><span class="p-spec">Rooftop</span><span class="p-spec">Ocean View</span></div>
+        <div class="p-foot"><div class="p-price">$320,000<small>USD</small></div><div class="p-arrow"><svg width="14" height="7" viewBox="0 0 14 7" fill="none"><path d="M0 3.5H12M9 1L13 3.5L9 6" stroke="#b8935a" stroke-width="1.5"/></svg></div></div>
+      </div>
+    </div>
+
+    <!-- PLACEHOLDER CARD 3 -->
+    <div class="p-card" onclick="openDet(7)">
+      <div class="p-img" style="height:200px">
+        <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&q=80" class="p-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <span class="lbl lbl-rent">For Rent</span>
+      </div>
+      <div class="p-body">
+        <p class="p-loc">Zazil-Ha &middot; Playa del Carmen</p>
+        <h3 class="p-name">Luxury Apartment Zazil-Ha</h3>
+        <div class="p-pin" onclick="toggleMap(event,'mp7','Zazil-Ha+Playa+del+Carmen',15)">
+          <svg width="13" height="16" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#b8935a"/></svg>
+          Zazil-Ha, Playa del Carmen
+        </div>
+        <div class="map-drop" id="mp7"></div>
+        <div class="p-specs"><span class="p-spec">3 Beds</span><span class="p-spec">2 Baths</span><span class="p-spec">160 m&sup2;</span><span class="p-spec">Pool</span><span class="p-spec">Furnished</span></div>
+        <div class="p-foot"><div class="p-price">$2,800<small>USD/month</small></div><div class="p-arrow"><svg width="14" height="7" viewBox="0 0 14 7" fill="none"><path d="M0 3.5H12M9 1L13 3.5L9 6" stroke="#b8935a" stroke-width="1.5"/></svg></div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><p class="stat-n">11+</p><p class="stat-l">Years in Riviera Maya</p></div>
+  <div class="stat"><p class="stat-n">200+</p><p class="stat-l">Properties Transacted</p></div>
+  <div class="stat"><p class="stat-n">4</p><p class="stat-l">Languages Spoken</p></div>
+  <div class="stat"><p class="stat-n">100%</p><p class="stat-l">Licensed &amp; Certified</p></div>
+</div>
+
+<!-- NEIGHBORHOODS -->
+<section class="sec alt" id="neighborhoods">
+  <div class="sec-hdr">
+    <div><p class="sec-lbl">Where to Buy &amp; Invest</p><h2 class="sec-ttl">Playa del Carmen<br><em>Neighborhoods</em></h2></div>
+    <a href="#" class="see-all">Area Guide &rarr;</a>
+  </div>
+  <div class="n-grid">
+
+    <div class="n-card wide" onclick="openNdet(0)">
+      <div class="n-hero" style="height:240px">
+        <img src="https://images.unsplash.com/photo-1552074284-5e88ef1aef18?w=1200&q=80" class="n-hero-img" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <div class="n-overlay"></div>
+        <div class="n-hero-cnt">
+          <span class="n-badge">Most Prestigious</span>
+          <h3 class="n-name">Playacar</h3>
+          <p class="n-sub">Fase I &amp; II &middot; Gated Community</p>
+          <div class="n-pin" onclick="toggleMap(event,'mn0','Playacar+Playa+del+Carmen',15)">
+            <svg width="11" height="14" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#d4aa72"/></svg>
+            Playa del Carmen, Q.Roo &mdash; tap for map
+          </div>
+        </div>
+      </div>
+      <div class="n-map" id="mn0"></div>
+      <div class="n-body">
+        <p class="n-desc">The crown jewel of Playa del Carmen. Master-planned gated community with golf course, 18 beach access points, and the most resilient property values in Riviera Maya.</p>
+        <div class="n-stats-row"><div><span class="n-sn">$2,500+</span><span class="n-sl">USD/mo rental</span></div><div><span class="n-sn">$400K+</span><span class="n-sl">USD entry</span></div><div><span class="n-sn">4-6%</span><span class="n-sl">Net yield</span></div></div>
+        <div class="n-pills"><span class="n-pill">Golf Course</span><span class="n-pill">Beach Club</span><span class="n-pill">24h Security</span><span class="n-pill">Private Pools</span><span class="n-pill">Best ROI</span></div>
+      </div>
+    </div>
+
+    <div class="n-card" onclick="openNdet(1)">
+      <div class="n-hero" style="height:190px">
+        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=700&q=80" class="n-hero-img" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <div class="n-overlay"></div>
+        <div class="n-hero-cnt">
+          <span class="n-badge">Beachfront Luxury</span><h3 class="n-name">Corasol</h3><p class="n-sub">North Playa &middot; Beachfront</p>
+          <div class="n-pin" onclick="toggleMap(event,'mn1','Corasol+Playa+del+Carmen',15)"><svg width="11" height="14" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#d4aa72"/></svg>tap for map</div>
+        </div>
+      </div>
+      <div class="n-map" id="mn1"></div>
+      <div class="n-body">
+        <p class="n-desc">Premier beachfront development. International brands, resort amenities, direct Caribbean access. Strong seasonal vacation rental income.</p>
+        <div class="n-stats-row"><div><span class="n-sn">$1,800+</span><span class="n-sl">USD/mo rental</span></div><div><span class="n-sn">$180K+</span><span class="n-sl">USD entry</span></div></div>
+        <div class="n-pills"><span class="n-pill">Beach Access</span><span class="n-pill">Resort</span><span class="n-pill">Gated</span></div>
+      </div>
+    </div>
+
+    <div class="n-card" onclick="openNdet(2)">
+      <div class="n-hero" style="height:190px">
+        <img src="https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=700&q=80" class="n-hero-img" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <div class="n-overlay"></div>
+        <div class="n-hero-cnt">
+          <span class="n-badge">Highest Yields</span><h3 class="n-name">Centro / 5th Ave</h3><p class="n-sub">Downtown &middot; La Quinta</p>
+          <div class="n-pin" onclick="toggleMap(event,'mn2','5th+Avenue+Playa+del+Carmen',15)"><svg width="11" height="14" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#d4aa72"/></svg>tap for map</div>
+        </div>
+      </div>
+      <div class="n-map" id="mn2"></div>
+      <div class="n-body">
+        <p class="n-desc">Most walkable zone. Highest short-term rental yields in the city. Ideal for Airbnb investors with active management.</p>
+        <div class="n-stats-row"><div><span class="n-sn">$900+</span><span class="n-sl">USD/mo rental</span></div><div><span class="n-sn">$100K+</span><span class="n-sl">USD entry</span></div></div>
+        <div class="n-pills"><span class="n-pill">Walkable</span><span class="n-pill">High Yield</span><span class="n-pill">Lively</span></div>
+      </div>
+    </div>
+
+    <div class="n-card" onclick="openNdet(3)">
+      <div class="n-hero" style="height:190px">
+        <img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=700&q=80" class="n-hero-img" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <div class="n-overlay"></div>
+        <div class="n-hero-cnt">
+          <span class="n-badge">Quiet &amp; Residential</span><h3 class="n-name">Selvamar / El Cielo</h3><p class="n-sub">South Playa &middot; Residential</p>
+          <div class="n-pin" onclick="toggleMap(event,'mn3','Selvamar+Playa+del+Carmen',15)"><svg width="11" height="14" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#d4aa72"/></svg>tap for map</div>
+        </div>
+      </div>
+      <div class="n-map" id="mn3"></div>
+      <div class="n-body">
+        <p class="n-desc">Quiet, leafy neighborhoods south of Playacar. Popular with expat families seeking space and privacy at accessible price points.</p>
+        <div class="n-stats-row"><div><span class="n-sn">$1,200+</span><span class="n-sl">USD/mo rental</span></div><div><span class="n-sn">$150K+</span><span class="n-sl">USD entry</span></div></div>
+        <div class="n-pills"><span class="n-pill">Quiet</span><span class="n-pill">Family Friendly</span><span class="n-pill">Value</span></div>
+      </div>
+    </div>
+
+    <div class="n-card" onclick="openNdet(4)">
+      <div class="n-hero" style="height:190px">
+        <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=700&q=80" class="n-hero-img" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <div class="n-overlay"></div>
+        <div class="n-hero-cnt">
+          <span class="n-badge">Best Value Now</span><h3 class="n-name">Zazil-Ha / Ejidal</h3><p class="n-sub">North Playa &middot; Emerging</p>
+          <div class="n-pin" onclick="toggleMap(event,'mn4','Zazil-Ha+Playa+del+Carmen',15)"><svg width="11" height="14" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#d4aa72"/></svg>tap for map</div>
+        </div>
+      </div>
+      <div class="n-map" id="mn4"></div>
+      <div class="n-body">
+        <p class="n-desc">Where savvy investors are moving now. Close to 5th Avenue. Strong appreciation potential at the lowest entry prices in Playa.</p>
+        <div class="n-stats-row"><div><span class="n-sn">$800+</span><span class="n-sl">USD/mo rental</span></div><div><span class="n-sn">$80K+</span><span class="n-sl">USD entry</span></div></div>
+        <div class="n-pills"><span class="n-pill">Appreciation</span><span class="n-pill">Emerging</span><span class="n-pill">Low Entry</span></div>
+      </div>
+    </div>
+
+    <div class="n-card" onclick="openNdet(5)">
+      <div class="n-hero" style="height:190px">
+        <img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?w=700&q=80" class="n-hero-img" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        <div class="n-overlay"></div>
+        <div class="n-hero-cnt">
+          <span class="n-badge">30 Min North</span><h3 class="n-name">Puerto Morelos</h3><p class="n-sub">Riviera Maya &middot; Village Charm</p>
+          <div class="n-pin" onclick="toggleMap(event,'mn5','Puerto+Morelos+Mexico',14)"><svg width="11" height="14" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#d4aa72"/></svg>tap for map</div>
+        </div>
+      </div>
+      <div class="n-map" id="mn5"></div>
+      <div class="n-body">
+        <p class="n-desc">Charming village turned upscale expat haven. Reef snorkeling, prices below Playa del Carmen, 20 min from Cancun Airport.</p>
+        <div class="n-stats-row"><div><span class="n-sn">$1,000+</span><span class="n-sl">USD/mo rental</span></div><div><span class="n-sn">$120K+</span><span class="n-sl">USD entry</span></div></div>
+        <div class="n-pills"><span class="n-pill">Reef</span><span class="n-pill">Authentic</span><span class="n-pill">Near Airport</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<!-- ABOUT DARK -->
+<div class="about-wrap" id="about">
+  <div class="about-split">
+    <div class="about-l">
+      <p class="a-lbl">About Weber-Buric</p>
+      <h2 class="a-ttl">European precision.<br><em>Local expertise.</em></h2>
+      <p class="a-txt">We are Ivana and Yannick Weber-Buric &mdash; licensed and certified real estate brokers based in Playa del Carmen. Swiss by standard, Caribbean by choice. 11 years on the ground serving Mexican, Latin American, and international clients. Sales is our core business. Rentals are an added service.</p>
+      <div class="team-grid">
+        <div class="team-card" onclick="openTeamModal('ivana')"><div class="t-init">I</div><p class="t-name">Ivana Weber-Buric</p><p class="t-cred">MSc. Economics &middot; Broker</p><p class="t-bio">Contract negotiation, luxury sales and investment strategy. 4 languages.</p></div>
+        <div class="team-card" onclick="openTeamModal('yannick')"><div class="t-init">Y</div><p class="t-name">Yannick Weber</p><p class="t-cred">Swiss &middot; Licensed Broker</p><p class="t-bio">Investment analysis, legal and notarial, fiscal strategy for all buyers.</p></div>
+      </div>
+      <div class="mkt-pills"><span class="mkt-pill">Mexican Buyers</span><span class="mkt-pill">International</span><span class="mkt-pill">Latin America</span><span class="mkt-pill">European</span></div>
+      <div class="swiss-row"><div class="swiss-flag"></div><p><strong>Swiss Standards</strong> &mdash; Precision, integrity, accountability. Always.</p></div>
+      <a href="#" class="btn-gold">Full Team Profile</a>
+    </div>
+    <div class="about-r">
+      <p class="a-lbl">Why Choose Us</p>
+      <h2 class="a-ttl" style="margin-bottom:24px">The <em>right team</em><br>for Riviera Maya.</h2>
+      <div class="usp-list">
+        <div class="usp"><span class="usp-ico">&#127891;</span><div><strong>Academic and Professional Edge</strong><span>Ivana's MSc. in Economics drives data-grounded valuations and precision contract negotiation.</span></div></div>
+        <div class="usp"><span class="usp-ico">&#127968;</span><div><strong>Sales Is Our Core Business</strong><span>We specialise in luxury property sales and investment advisory. Rentals offered as an added service.</span></div></div>
+        <div class="usp"><span class="usp-ico">&#9878;</span><div><strong>Legal and Fiscal Fluency</strong><span>Fideicomiso, ISR, notarial processes &mdash; we guide every client with trusted legal partners.</span></div></div>
+        <div class="usp"><span class="usp-ico">&#127760;</span><div><strong>4 Languages, Zero Barriers</strong><span>Spanish, French, English, Serbian &mdash; we speak your language and understand your culture.</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BLOG -->
+<section class="sec wht" id="blog">
+  <div class="sec-hdr">
+    <div><p class="sec-lbl">Real Estate Insights</p><h2 class="sec-ttl">The Weber-Buric<br><em>Blog</em></h2></div>
+    <a href="#" class="see-all">All Articles &rarr;</a>
+  </div>
+  <div class="b-grid">
+    <div class="b-card wide" onclick="openArt(0)"><div class="b-img"><img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80" class="b-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div class="b-overlay"></div><span class="b-num">01</span><span class="b-cat">Buyer's Guide</span></div><div class="b-body"><p class="b-meta">March 2026 &middot; 8 min read</p><h3 class="b-title">How to Buy Property in Mexico as a Foreigner</h3><p class="b-excerpt">From fideicomiso trusts to notarial closing &mdash; everything an international buyer needs to know.</p><button class="b-read">Read Article &rarr;</button></div></div>
+    <div class="b-card" onclick="openArt(1)"><div class="b-img"><img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=600&q=80" class="b-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div class="b-overlay"></div><span class="b-num">02</span><span class="b-cat">Investment</span></div><div class="b-body"><p class="b-meta">February 2026 &middot; 6 min read</p><h3 class="b-title">Playacar vs. Tulum: Where to Invest in 2026?</h3><p class="b-excerpt">Two premium markets, two very different investor profiles. Our honest comparison.</p><button class="b-read">Read Article &rarr;</button></div></div>
+    <div class="b-card" onclick="openArt(2)"><div class="b-img"><img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80" class="b-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div class="b-overlay"></div><span class="b-num">03</span><span class="b-cat">Market Report</span></div><div class="b-body"><p class="b-meta">January 2026 &middot; 7 min read</p><h3 class="b-title">Riviera Maya Real Estate Market 2026</h3><p class="b-excerpt">The market has matured. Smart buyers are winning. Our honest annual overview.</p><button class="b-read">Read Article &rarr;</button></div></div>
+    <div class="b-card" onclick="openArt(3)"><div class="b-img"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80" class="b-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div class="b-overlay"></div><span class="b-num">04</span><span class="b-cat">Legal &amp; Tax</span></div><div class="b-body"><p class="b-meta">December 2025 &middot; 5 min read</p><h3 class="b-title">ISR Tax Exemption When Selling Property in Mexico</h3><p class="b-excerpt">Most sellers pay unnecessary tax. Here is how to avoid it with proper planning.</p><button class="b-read">Read Article &rarr;</button></div></div>
+    <div class="b-card" onclick="openArt(4)"><div class="b-img"><img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80" class="b-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div class="b-overlay"></div><span class="b-num">05</span><span class="b-cat">Neighborhoods</span></div><div class="b-body"><p class="b-meta">November 2025 &middot; 6 min read</p><h3 class="b-title">Best Neighborhoods in Playa del Carmen for Investment</h3><p class="b-excerpt">Honest yield expectations for Playacar, Centro, Corasol, and emerging zones.</p><button class="b-read">Read Article &rarr;</button></div></div>
+    <div class="b-card" onclick="openArt(5)"><div class="b-img"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=600&q=80" class="b-img-bg" loading="eager" decoding="async" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div class="b-overlay"></div><span class="b-num">06</span><span class="b-cat">Lifestyle</span></div><div class="b-body"><p class="b-meta">October 2025 &middot; 4 min read</p><h3 class="b-title">Why Swiss Standards Matter in Mexican Real Estate</h3><p class="b-excerpt">Working with a broker who applies European precision is not a luxury &mdash; it is a safeguard.</p><button class="b-read">Read Article &rarr;</button></div></div>
+  </div>
+</section>
+
+<!-- PROPERTY DETAIL MODAL -->
+<div class="det-modal" id="detModal">
+  <div class="det-box" id="detBox">
+    <button class="det-close" onclick="closeDet()">&#10005;</button>
+    <div class="det-gal">
+      <div class="det-gal-img" id="detImg" style="height:360px"></div>
+      <div class="det-gal-cnt" id="detCnt">1 / 3</div>
+      <div class="det-gal-nav"><button class="det-gal-btn" onclick="detPrev()">&#8249;</button><button class="det-gal-btn" onclick="detNext()">&#8250;</button></div>
+      <span class="det-lbl" id="detLbl"></span>
+    </div>
+    <div class="det-body">
+      <p class="det-loc" id="detLoc"></p>
+      <h2 class="det-title" id="detTitle"></h2>
+      <div class="det-map-row" id="detMapRow" onclick="toggleDetMap()">
+        <svg width="13" height="16" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#b8935a"/></svg>
+        <span id="detAddr"></span> &mdash; tap to show map
+      </div>
+      <div class="det-map-embed" id="detMapEmbed">
+        <iframe id="detMapIframe" loading="lazy" title="Location Map" style="width:100%;height:240px;border:none;display:block"></iframe>
+        <button class="det-map-close-btn" onclick="toggleDetMap()">&#10005; Close map</button>
+      </div>
+      <div class="det-price-row">
+        <div class="det-price" id="detPrice"></div>
+        <div class="det-ctas">
+          <a id="detWa" href="#" class="det-cta-main" target="_blank">WhatsApp Us</a>
+          <a id="detEmail" href="#" class="det-cta-sec">Send Email</a>
+        </div>
+      </div>
+      <div class="det-specs-grid" id="detSpecs"></div>
+      <p class="det-desc" id="detDesc"></p>
+      <div class="det-feats" id="detFeats"></div>
+    </div>
+  </div>
+</div>
+
+<!-- NEIGHBORHOOD DETAIL MODAL -->
+<div class="ndet-modal" id="ndetModal">
+  <div class="ndet-box" id="ndetBox">
+    <button class="ndet-close" onclick="closeNdet()">&#10005;</button>
+    <div class="ndet-hero">
+      <div class="ndet-hero-img" id="ndetImg" style="height:300px;background-size:cover;background-position:center"></div>
+      <div class="ndet-hero-ov"></div>
+      <div class="ndet-hero-cnt">
+        <span class="ndet-badge" id="ndetBadge"></span>
+        <h2 class="ndet-name" id="ndetName"></h2>
+        <p class="ndet-sub" id="ndetSub"></p>
+      </div>
+    </div>
+    <div class="ndet-body">
+      <div class="ndet-stats" id="ndetStats"></div>
+      <iframe class="ndet-map" id="ndetMap" loading="lazy" title="Neighborhood Map"></iframe>
+      <p class="ndet-desc" id="ndetDesc"></p>
+      <div class="ndet-pros" id="ndetPros"></div>
+      <div class="ndet-inv-box">
+        <p class="ndet-inv-title">Investment Snapshot</p>
+        <div class="ndet-inv-grid" id="ndetInv"></div>
+      </div>
+      <div class="ndet-ctas">
+        <a href="#contact" class="det-cta-main" onclick="closeNdet()">Talk to an Advisor</a>
+        <a href="https://wa.me/529841803527" class="det-cta-sec" target="_blank" rel="noopener noreferrer">WhatsApp Us</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEAM MODAL: IVANA -->
+<div class="team-modal" id="teamModalIvana">
+  <div class="tm-box">
+    <div class="tm-hdr">
+      <button class="tm-close" onclick="closeTeamModal('teamModalIvana')">&#10005;</button>
+      <div class="tm-init">I</div>
+      <h2 class="tm-name">Ivana Weber-Buric</h2>
+      <p class="tm-ttl">Licensed Real Estate Broker &amp; Co-Owner</p>
+    </div>
+    <div class="tm-body">
+      <div class="tm-creds">
+        <span class="tm-cred-pill">MSc. Economics</span>
+        <span class="tm-cred-pill">Licensed Broker Mexico</span>
+        <span class="tm-cred-pill">11 Years Riviera Maya</span>
+      </div>
+      <p class="tm-lang"><strong>Languages:</strong> Spanish &middot; French &middot; English &middot; Serbian</p>
+      <p class="tm-bio">Ivana Weber-Buric is a licensed real estate broker and co-owner of Weber-Buric Real Estate in Playa del Carmen. With a Master of Science in Economics and over 11 years of experience in the Riviera Maya market, Ivana specialises in luxury property sales, investment advisory, and complex contract negotiations. Her academic background drives a data-grounded approach to property valuation that consistently protects her clients&rsquo; interests. Born in Serbia with deep ties to Switzerland, Ivana brings a European standard of precision and accountability to every transaction. She serves Mexican, Latin American, and international clients across four languages and has built a reputation as one of the most trusted advisors in the Playacar and Riviera Maya luxury segment.</p>
+      <p class="tm-spec-lbl">Specialties</p>
+      <div class="tm-specs">
+        <span class="tm-spec-item">Luxury Sales</span>
+        <span class="tm-spec-item">Investment Strategy</span>
+        <span class="tm-spec-item">Contract Negotiation</span>
+        <span class="tm-spec-item">Fideicomiso</span>
+        <span class="tm-spec-item">ISR Tax Planning</span>
+        <span class="tm-spec-item">Multi-language Client Service</span>
+      </div>
+      <div class="tm-ctas">
+        <a href="https://wa.me/529841803527?text=Hi%20Ivana%2C%20I%20would%20like%20to%20inquire%20about%20a%20property" class="det-cta-main btn-wa" target="_blank" rel="noopener noreferrer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+        <a href="mailto:ivana@weber-buric.com" class="det-cta-sec">Email Ivana</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEAM MODAL: YANNICK -->
+<div class="team-modal" id="teamModalYannick">
+  <div class="tm-box">
+    <div class="tm-hdr">
+      <button class="tm-close" onclick="closeTeamModal('teamModalYannick')">&#10005;</button>
+      <div class="tm-init">Y</div>
+      <h2 class="tm-name">Yannick Weber</h2>
+      <p class="tm-ttl">Licensed Real Estate Broker &amp; Co-Owner</p>
+    </div>
+    <div class="tm-body">
+      <div class="tm-creds">
+        <span class="tm-cred-pill">Swiss National</span>
+        <span class="tm-cred-pill">Licensed Broker Mexico</span>
+        <span class="tm-cred-pill">Investment Specialist</span>
+      </div>
+      <p class="tm-lang"><strong>Languages:</strong> French &middot; Spanish &middot; English &middot; German</p>
+      <p class="tm-bio">Yannick Weber is a licensed real estate broker and co-owner of Weber-Buric Real Estate. Swiss by origin and Caribbean by choice, Yannick brings a meticulous European approach to every aspect of the business. He specialises in investment analysis, legal and notarial coordination, and fiscal strategy for foreign buyers navigating the Mexican property market. With a background in business ownership and dive instruction across the Riviera Maya, Yannick has an unparalleled understanding of the local market dynamics, community, and lifestyle that attracts international buyers to the region. He coordinates all aspects of the purchase process for non-Mexican buyers including fideicomiso setup, notary liaison, and post-purchase property management advisory.</p>
+      <p class="tm-spec-lbl">Specialties</p>
+      <div class="tm-specs">
+        <span class="tm-spec-item">Investment Analysis</span>
+        <span class="tm-spec-item">Legal &amp; Notarial</span>
+        <span class="tm-spec-item">Fiscal Strategy for Foreign Buyers</span>
+        <span class="tm-spec-item">Fideicomiso Coordination</span>
+        <span class="tm-spec-item">Property Management Advisory</span>
+        <span class="tm-spec-item">German &amp; French Speaking Clients</span>
+      </div>
+      <div class="tm-ctas">
+        <a href="https://wa.me/529841803527?text=Hi%20Yannick%2C%20I%20would%20like%20to%20inquire%20about%20a%20property" class="det-cta-main btn-wa" target="_blank" rel="noopener noreferrer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+        <a href="mailto:yannick@weber-buric.com" class="det-cta-sec">Email Yannick</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLE MODAL -->
+<div class="art-modal" id="artModal">
+  <button class="art-close" onclick="closeArt()">&#10005;</button>
+  <div class="art-inner" id="artContent"></div>
+</div>
+
+<!-- CTA / CONTACT -->
+<div class="cta-band" id="contact">
+  <div class="cta-left">
+    <p class="cta-txt">Ready to buy, sell,<br>or invest in <em>Riviera Maya?</em></p>
+    <p class="cta-addr">Playacar Phase II, Paseo Xaman Ha MZ21a LT3, Playa del Carmen, Quintana Roo, Mexico</p>
+    <div class="social-row">
+      <a href="https://instagram.com/weber_buric_realestate" class="soc-ico" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </a>
+      <a href="https://facebook.com/weberburicrealestate" class="soc-ico" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/><path d="M15 8h-1.5A1.5 1.5 0 0 0 12 9.5V11h3l-.5 3H12v7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="https://wa.me/529841803527" class="soc-ico" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+      <a href="https://tiktok.com/@weber_buric_realestate" class="soc-ico" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.24 8.24 0 0 0 4.83 1.56V6.8a4.85 4.85 0 0 1-1.06-.11z"/></svg>
+      </a>
+      <a href="https://linkedin.com/company/weber-buric-real-estate" class="soc-ico" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="btn-row">
+    <a href="https://wa.me/529841803527?text=Hi%20I%20am%20ready%20to%20invest%20in%20Riviera%20Maya" class="btn-g btn-wa" target="_blank" rel="noopener noreferrer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp Us
+    </a>
+    <a href="mailto:weber.buric@gmail.com" class="btn-o">Send Email</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-top">
+    <div>
+      <svg viewBox="0 0 220 140" fill="none" style="height:40px;width:auto">
+        <polyline points="10,20 32,100 54,48 76,100 98,20" stroke="#f5f0e8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <line x1="112" y1="20" x2="112" y2="118" stroke="#f5f0e8" stroke-width="5" stroke-linecap="round"/>
+        <path d="M112,20 Q158,20 158,52 Q158,68 140,72" stroke="#f5f0e8" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M112,72 Q168,72 168,95 Q168,118 112,118" stroke="#f5f0e8" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M152,44 C152,36 142,33 138,40 C134,33 124,36 124,44 C124,51 131,58 138,65 C145,58 152,51 152,44Z" fill="#C0614A"/>
+        <rect x="135" y="65" width="6" height="28" rx="3" fill="#C0614A"/>
+        <rect x="141" y="78" width="9" height="5" rx="2" fill="#C0614A"/>
+        <rect x="141" y="88" width="7" height="4" rx="2" fill="#C0614A"/>
+      </svg>
+      <p class="f-brand">Weber-Buric Real Estate</p>
+      <p class="f-tag">Playa del Carmen &middot; Riviera Maya</p>
+      <p class="f-desc">Licensed Swiss-European brokers. 11+ years on the ground. Serving Mexican, Latin American and international clients.</p>
+      <div class="social-row">
+        <a href="https://instagram.com/weber_buric_realestate" class="soc-ico" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="https://facebook.com/weberburicrealestate" class="soc-ico" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/><path d="M15 8h-1.5A1.5 1.5 0 0 0 12 9.5V11h3l-.5 3H12v7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="https://wa.me/529841803527" class="soc-ico" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        </a>
+        <a href="https://tiktok.com/@weber_buric_realestate" class="soc-ico" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.24 8.24 0 0 0 4.83 1.56V6.8a4.85 4.85 0 0 1-1.06-.11z"/></svg>
+        </a>
+        <a href="https://linkedin.com/company/weber-buric-real-estate" class="soc-ico" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div><p class="f-col-t">Buy &amp; Sell</p><ul class="f-links"><li><a href="#">Properties for Sale</a></li><li><a href="#">Investment Advisory</a></li><li><a href="#">Neighborhoods Guide</a></li><li><a href="#">Legal &amp; Notarial</a></li></ul></div>
+    <div><p class="f-col-t">Rental Service</p><ul class="f-links"><li><a href="#">Vacation Rentals</a></li><li><a href="#">Long-Term Rentals</a></li><li><a href="#">Property Management</a></li><li><a href="#">Blog &amp; Insights</a></li></ul></div>
+    <div><p class="f-col-t">Contact</p><ul class="f-links">
+      <li><a href="mailto:weber.buric@gmail.com">weber.buric@gmail.com</a></li>
+      <li><a href="https://wa.me/529841803527" target="_blank" rel="noopener noreferrer">WhatsApp +52 984 180 3527</a></li>
+      <li style="font-size:12px;font-weight:300;color:rgba(255,255,255,.42);line-height:1.9">Playacar Phase II, Paseo Xaman Ha<br>MZ21a LT3, Playa del Carmen<br>Quintana Roo, Mexico</li>
+    </ul>
+    <p class="f-col-t" style="margin-top:20px">Languages</p>
+    <p style="font-size:12px;font-weight:300;color:rgba(255,255,255,.42);line-height:2.2">Espa&ntilde;ol &middot; English<br>Fran&ccedil;ais &middot; Srpski</p></div>
+  </div>
+  <div class="footer-bot">
+    <p class="f-copy">&#169; 2026 Weber-Buric Real Estate Mexico. Licensed Brokers.</p>
+    <div class="f-langs"><button class="f-lang on">ES</button><button class="f-lang">EN</button><button class="f-lang">FR</button><button class="f-lang">SR</button></div>
+  </div>
+</footer>
+<script>
+var menuOpen = false, detOpen = false, artOpen = false;
+
+// BURGER
+var burgerBtn = document.getElementById('burgerBtn');
+var mobMenu = document.getElementById('mobMenu');
+function openMenu(){menuOpen=true;mobMenu.classList.add('open');burgerBtn.classList.add('open');document.body.style.overflow='hidden'}
+function closeMenu(){menuOpen=false;mobMenu.classList.remove('open');burgerBtn.classList.remove('open');if(!detOpen&&!artOpen)document.body.style.overflow=''}
+burgerBtn.addEventListener('click',function(){if(menuOpen)closeMenu();else openMenu()});
+
+// NAV SCROLL
+window.addEventListener('scroll',function(){document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>50)});
+
+// CAROUSEL
+var cur=0,autoT;
+var slides=document.querySelectorAll('.c-slide');
+var dots=document.querySelectorAll('.c-dot');
+var track=document.getElementById('cTrack');
+function goTo(n){slides[cur].classList.remove('active');dots[cur].classList.remove('active');cur=(n+slides.length)%slides.length;slides[cur].classList.add('active');dots[cur].classList.add('active');track.style.transform='translateX(-'+(cur*100)+'%)'}
+function cNext(){goTo(cur+1);resetAuto()}
+function cPrev(){goTo(cur-1);resetAuto()}
+function resetAuto(){clearInterval(autoT);autoT=setInterval(function(){goTo(cur+1)},6000)}
+resetAuto();
+track.addEventListener('touchstart',function(e){this._tx=e.touches[0].clientX},{passive:true});
+track.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-this._tx;if(Math.abs(dx)>44){if(dx<0)cNext();else cPrev()}});
+
+// SEARCH TABS
+function clearForm(formId){
+  var form = document.getElementById(formId);
+  if(!form) return;
+  form.querySelectorAll('select').forEach(function(s){ s.selectedIndex=0; });
+}
+function showForm(id){
+  document.querySelectorAll('.s-form').forEach(function(f){f.style.display='none'});
+  document.querySelectorAll('.s-tab').forEach(function(t){t.classList.remove('active')});
+  document.getElementById('form-'+id).style.display='grid';
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+// INLINE MAP TOGGLE (property cards + neighborhood cards)
+function toggleMap(e,id,q,z){
+  e.stopPropagation();
+  var el=document.getElementById(id);
+  if(!el) return;
+  if(el.innerHTML===''){
+    el.innerHTML='<iframe loading="lazy" src="https://maps.google.com/maps?q='+q+'&output=embed&z='+z+'" style="width:100%;height:240px;border:none;display:block" title="Map"></iframe><button onclick="toggleMap(event,\''+id+'\',\''+q+'\','+z+')" style="display:flex;align-items:center;padding:8px 12px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#5a6a7a;cursor:pointer;background:#ede7d8;border:none;font-family:Montserrat,sans-serif;width:100%">&#10005; Close map</button>';
+    el.classList.add('open');
+  } else {
+    var wasOpen=el.classList.contains('open');
+    document.querySelectorAll('.map-drop.open,.n-map.open').forEach(function(x){x.classList.remove('open')});
+    if(!wasOpen) el.classList.add('open');
+  }
+}
+
+// PROPERTY DATA
+var props = [
+  {mode:'feat',lbl:'Featured Sale',loc:'Playacar Fase II, Playa del Carmen',addr:'Playacar Fase II, Playa del Carmen, Q.Roo',mapQ:'Playacar+Fase+II+Playa+del+Carmen',mapZ:15,price:'$85,000,000',unit:'MXN',specs:[{n:'5',l:'Bedrooms'},{n:'5',l:'Bathrooms'},{n:'430',l:'m\u00B2'},{n:'1',l:'Pool+Solar'}],desc:'Stunning fully renovated villa in Playacar Fase II. Designer kitchen, rooftop terrace, private pool, 20kW solar system, wine cellar, and Corten steel facade. One-of-a-kind property in Playa del Carmen\'s most prestigious gated community.',feats:['Private pool with cascade','20+ kW hybrid solar','Wine cellar','Corten steel facade','Rooftop terrace','5 en-suite bedrooms','Designer kitchen TEKA/Supra','Golf course views','Playacar beach club access','Vault brick ceilings'],imgs:['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&q=80','https://images.unsplash.com/photo-1613977257363-707ba9348227?w=900&q=80','https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=900&q=80']},
+  {mode:'sale',lbl:'For Sale',loc:'Corasol, Playa del Carmen',addr:'Corasol, North Playa del Carmen, Q.Roo',mapQ:'Corasol+Playa+del+Carmen',mapZ:15,price:'$780,000',unit:'USD',specs:[{n:'3',l:'Bedrooms'},{n:'3',l:'Bathrooms'},{n:'240',l:'m\u00B2'},{n:'1',l:'Beachfront'}],desc:'Premium penthouse on the beachfront in Corasol. Panoramic Caribbean views, resort amenities, direct beach access. Ideal as a primary residence or high-income vacation rental investment.',feats:['Direct beach access','Panoramic ocean views','Resort pool and gym','24h concierge','3 parking spaces','Fully furnished option','Short-term rental approved','Top-floor penthouse'],imgs:['https://images.unsplash.com/photo-1613977257363-707ba9348227?w=900&q=80','https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=900&q=80','https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=900&q=80']},
+  {mode:'invest',lbl:'Investment',loc:'Puerto Aventuras, Quintana Roo',addr:'Puerto Aventuras, Q.Roo, Mexico',mapQ:'Puerto+Aventuras+Mexico',mapZ:14,price:'$185,000',unit:'USD',specs:[{n:'2',l:'Bedrooms'},{n:'2',l:'Bathrooms'},{n:'140',l:'m\u00B2'},{n:'1',l:'Marina'}],desc:'Proven investment property in the exclusive marina community of Puerto Aventuras. Fully managed with verified rental income. Boat slips, beach access, restaurants, and 24h security.',feats:['Marina view','Gated community','Verified rental income','Boat slip available','Beach club access','24h security','On-site restaurant','Expat tenant demand'],imgs:['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=900&q=80','https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=900&q=80','https://images.unsplash.com/photo-1613977257363-707ba9348227?w=900&q=80']},
+  {mode:'rent',lbl:'Rental',loc:'Playacar Fase I, Playa del Carmen',addr:'Playacar Fase I, Playa del Carmen, Q.Roo',mapQ:'Playacar+Fase+I+Playa+del+Carmen',mapZ:15,price:'$350',unit:'USD/night or $2,800/month',specs:[{n:'3',l:'Bedrooms'},{n:'3',l:'Bathrooms'},{n:'220',l:'m\u00B2'},{n:'1',l:'Pool+Golf'}],desc:'Elegant villa on the golf course in Playacar Fase I. Fully furnished with private pool, lush garden, and the tranquility of Playacar\'s gated environment.',feats:['Golf course views','Private pool','Fully furnished','Air conditioning','Beach club access','24h gate security','BBQ and outdoor dining','3 en-suite bedrooms'],imgs:['https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=900&q=80','https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&q=80','https://images.unsplash.com/photo-1613977257363-707ba9348227?w=900&q=80']},
+  {mode:'rent',lbl:'Rental',loc:'Tulum, Riviera Maya',addr:'Tulum, Quintana Roo, Mexico',mapQ:'Tulum+Mexico',mapZ:14,price:'$600',unit:'USD/night',specs:[{n:'4',l:'Bedrooms'},{n:'5',l:'Bathrooms'},{n:'380',l:'m\u00B2'},{n:'1',l:'Cenote'}],desc:'Eco-luxury villa in Tulum\'s jungle zone with private cenote access, rooftop terrace, and infinity pool. Sleeps 8 in complete privacy. Full concierge service available.',feats:['Private cenote access','Rooftop terrace','Infinity pool','Full concierge','Chef available','Open-air architecture','4 en-suite bedrooms','Sleeps up to 8'],imgs:['https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=900&q=80','https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&q=80','https://images.unsplash.com/photo-1552074284-5e88ef1aef18?w=900&q=80']},
+  {mode:'sale',lbl:'For Sale',loc:'Gonzalo Guerrero, Playa del Carmen',addr:'Gonzalo Guerrero, Playa del Carmen, Q.Roo',mapQ:'Gonzalo+Guerrero+Playa+del+Carmen',mapZ:15,price:'$450,000',unit:'USD',specs:[{n:'4',l:'Bedrooms'},{n:'4',l:'Bathrooms'},{n:'320',l:'m\u00B2'},{n:'1',l:'Pool'}],desc:'Elegant colonial villa in Gonzalo Guerrero, one of Playa del Carmen\'s most established residential neighborhoods. Features a private pool, mature garden, classic colonial architecture, and 24h gated security.',feats:['Private pool','Mature garden','Colonial architecture','24h gated community','4 en-suite bedrooms','Covered parking','Walking distance to 5th Ave','Quiet residential street'],imgs:['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=900&q=80','https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&q=80','https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=900&q=80']},
+  {mode:'sale',lbl:'For Sale',loc:'Centro, Playa del Carmen',addr:'Centro, Playa del Carmen, Q.Roo',mapQ:'Centro+Playa+del+Carmen',mapZ:15,price:'$320,000',unit:'USD',specs:[{n:'2',l:'Bedrooms'},{n:'2',l:'Bathrooms'},{n:'180',l:'m\u00B2'},{n:'1',l:'Penthouse'}],desc:'Modern penthouse in the heart of Playa del Carmen with rooftop terrace and ocean views. Walking distance to 5th Avenue. Contemporary design, natural materials, and strong vacation rental potential.',feats:['Rooftop terrace','Ocean view','Modern design','Walking distance 5th Ave','Air conditioning','Vacation rental approved','Concierge services','High-yield area'],imgs:['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=900&q=80','https://images.unsplash.com/photo-1613977257363-707ba9348227?w=900&q=80','https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=900&q=80']},
+  {mode:'rent',lbl:'For Rent',loc:'Zazil-Ha, Playa del Carmen',addr:'Zazil-Ha, Playa del Carmen, Q.Roo',mapQ:'Zazil-Ha+Playa+del+Carmen',mapZ:15,price:'$2,800',unit:'USD/month',specs:[{n:'3',l:'Bedrooms'},{n:'2',l:'Bathrooms'},{n:'160',l:'m\u00B2'},{n:'1',l:'Pool'}],desc:'Fully furnished luxury apartment in Zazil-Ha. Ideal for expats and long-term renters seeking comfort and value close to the beach. Community pool, secure parking, and expat-friendly management.',feats:['Fully furnished','Community pool','Secure parking','Expat friendly','Air conditioning','Near beach','Quiet location','3 bedrooms'],imgs:['https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=900&q=80','https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=900&q=80','https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=900&q=80']}
+];
+
+var lblColors={feat:'#b8935a',sale:'#1e2a35',invest:'#5a3e7a',rent:'#C0614A'};
+var detCur=0,detImgIdx=0,detMapOpen=false;
+
+function openDet(i){
+  var p=props[i];detCur=i;detImgIdx=0;detMapOpen=false;
+  document.getElementById('detLbl').textContent=p.lbl;
+  document.getElementById('detLbl').style.background=lblColors[p.mode]||'#1e2a35';
+  document.getElementById('detLoc').textContent=p.loc;
+  document.getElementById('detTitle').innerHTML=p.loc.split(',')[0];
+  document.getElementById('detAddr').textContent=p.addr;
+  document.getElementById('detPrice').innerHTML=p.price+'<small>'+p.unit+'</small>';
+  document.getElementById('detWa').href='https://wa.me/529841803527?text=Hi%2C%20I%20am%20interested%20in%20the%20property%20at%20'+encodeURIComponent(p.addr);
+  document.getElementById('detEmail').href='mailto:weber.buric@gmail.com?subject=Enquiry: '+p.loc;
+  document.getElementById('detTitle').innerHTML=p.loc;
+  document.getElementById('detMapEmbed').classList.remove('open');
+  renderDetImg();
+  var specsHtml='';
+  p.specs.forEach(function(s){specsHtml+='<div class="det-spec-item"><div class="det-spec-n">'+s.n+'</div><span class="det-spec-l">'+s.l+'</span></div>'});
+  document.getElementById('detSpecs').innerHTML=specsHtml;
+  document.getElementById('detDesc').textContent=p.desc;
+  var fHtml='';
+  p.feats.forEach(function(f){fHtml+='<div class="det-feat">'+f+'</div>'});
+  document.getElementById('detFeats').innerHTML=fHtml;
+  document.getElementById('detModal').classList.add('open');
+  document.getElementById('detBox').scrollTop=0;
+  detOpen=true;document.body.style.overflow='hidden';
+}
+function renderDetImg(){
+  var p=props[detCur];
+  document.getElementById('detImg').style.backgroundImage="url('"+p.imgs[detImgIdx]+"')";
+  document.getElementById('detCnt').textContent=(detImgIdx+1)+' / '+p.imgs.length;
+}
+function detNext(){var p=props[detCur];detImgIdx=(detImgIdx+1)%p.imgs.length;renderDetImg()}
+function detPrev(){var p=props[detCur];detImgIdx=(detImgIdx-1+p.imgs.length)%p.imgs.length;renderDetImg()}
+function toggleDetMap(){
+  var p=props[detCur];
+  var embed=document.getElementById('detMapEmbed');
+  if(!detMapOpen){
+    document.getElementById('detMapIframe').src='https://maps.google.com/maps?q='+p.mapQ+'&output=embed&z='+p.mapZ;
+    embed.classList.add('open');detMapOpen=true;
+  } else {
+    embed.classList.remove('open');detMapOpen=false;
+  }
+}
+function closeDet(){document.getElementById('detModal').classList.remove('open');detOpen=false;if(!menuOpen&&!artOpen)document.body.style.overflow=''}
+document.getElementById('detModal').addEventListener('click',function(e){if(e.target===this)closeDet()});
+
+// NEIGHBORHOOD DATA
+var nbhds = [
+  {badge:'Most Prestigious',name:'Playacar',sub:'Fase I & II - Gated Community',img:'https://images.unsplash.com/photo-1552074284-5e88ef1aef18?w=1200&q=80',mapQ:'Playacar+Playa+del+Carmen',mapZ:15,stats:[{n:'$2,500+',l:'USD/mo rental'},{n:'$400K+',l:'Entry price'},{n:'Low',l:'Vacancy rate'},{n:'4-6%',l:'Net yield'}],desc:'Playacar is the crown jewel of Playa del Carmen real estate. A master-planned, fully gated community with an 18-hole golf course, 18 private beach access points, and the most consistent property values in Riviera Maya. Both Fase I and Fase II offer compelling investment profiles. Long-term demand from expat families, high-income renters, and luxury vacation guests remains consistently strong regardless of broader market cycles.',pros:['18-hole golf course','18 beach access points','24h gated security','Jungle setting','Most resilient values','Strong long-term demand','Top expat destination','Ocean and golf views'],invest:[{n:'$2,500-$6,000',l:'Monthly rental'},{n:'$200-$600',l:'Per night'},{n:'4-6%',l:'Net annual yield'}]},
+  {badge:'Beachfront Luxury',name:'Corasol',sub:'North Playa - Beachfront',img:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80',mapQ:'Corasol+Playa+del+Carmen',mapZ:15,stats:[{n:'$1,800+',l:'USD/mo rental'},{n:'$180K+',l:'Entry price'},{n:'Seasonal',l:'Demand profile'},{n:'5-8%',l:'Gross yield'}],desc:'Playa del Carmen\'s premier beachfront development. Home to Mareazul, AVA Corasol, Costa Residences, and other landmark projects. Best for buyers who want a personal-use beachfront property that generates meaningful vacation rental income during high season (December through April). Popular among European and North American second-home buyers.',pros:['Direct Caribbean access','Resort-grade amenities','International brands','Dec-Apr rental demand','24h security','Walking to Playa centro','Panoramic ocean views','Hotel-quality facilities'],invest:[{n:'$1,500-$4,500',l:'Monthly rental'},{n:'$150-$400',l:'Per night'},{n:'5-8%',l:'Gross seasonal yield'}]},
+  {badge:'Highest Yields',name:'Centro / 5th Avenue',sub:'Downtown - La Quinta',img:'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1200&q=80',mapQ:'5th+Avenue+Playa+del+Carmen',mapZ:15,stats:[{n:'$900+',l:'USD/mo rental'},{n:'$100K+',l:'Entry price'},{n:'Year-round',l:'Demand profile'},{n:'7-10%',l:'Gross yield'}],desc:'The most walkable and commercially vibrant zone in Playa del Carmen. Properties here attract the highest volume of short-term rental guests and the strongest Airbnb yields in the city. This market rewards active operators with professional management in place. Not recommended for hands-off investors.',pros:['Walkable to beach','Highest rental volume','Best Airbnb yields','Year-round demand','Restaurants nearby','Lowest entry prices','Strong 1BR demand','Good transit links'],invest:[{n:'$900-$2,500',l:'Monthly rental'},{n:'$80-$250',l:'Per night'},{n:'7-10%',l:'Gross Airbnb yield'}]},
+  {badge:'Quiet & Residential',name:'Selvamar / El Cielo',sub:'South Playa - Residential',img:'https://images.unsplash.com/photo-1448630360428-65456885c650?w=1200&q=80',mapQ:'Selvamar+Playa+del+Carmen',mapZ:15,stats:[{n:'$1,200+',l:'USD/mo rental'},{n:'$150K+',l:'Entry price'},{n:'Stable',l:'Demand profile'},{n:'4-5%',l:'Net yield'}],desc:'Established residential neighborhoods south of Playacar. Leafy, quiet, and predominantly expat-occupied. These neighborhoods attract families and professionals who want more space and privacy at price points significantly below Playacar. The rental market is predominantly long-term - expat families and digital nomads on 6-12 month contracts.',pros:['Quiet environment','Large homes with gardens','Family-friendly','Strong expat demand','Access to Playacar amenities','Lower entry than Playacar','Minimal tourist traffic','Long-term tenant stability'],invest:[{n:'$1,200-$3,000',l:'Monthly rental'},{n:'N/A',l:'Vacation rental'},{n:'4-5%',l:'Net annual yield'}]},
+  {badge:'Best Value Now',name:'Zazil-Ha / Ejidal',sub:'North Playa - Emerging',img:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1200&q=80',mapQ:'Zazil-Ha+Playa+del+Carmen',mapZ:15,stats:[{n:'$800+',l:'USD/mo rental'},{n:'$80K+',l:'Entry price'},{n:'Growing',l:'Demand profile'},{n:'5-8%',l:'Appreciation'}],desc:'Where informed local investors are quietly buying now. Located just north of 5th Avenue and within easy walking distance to the beach. Entry prices remain well below established zones - the best value opportunity in Playa del Carmen today. Ideal for early investors comfortable with a 3-5 year appreciation play.',pros:['Lowest entry prices','Close to 5th Ave','Improving infrastructure','Strong appreciation','New cafes opening','Digital nomad interest','Good transit links','Early-mover advantage'],invest:[{n:'$800-$1,800',l:'Monthly rental'},{n:'$70-$180',l:'Per night'},{n:'5-8%',l:'Projected appreciation'}]},
+  {badge:'30 Min North',name:'Puerto Morelos',sub:'Riviera Maya - Village Charm',img:'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=1200&q=80',mapQ:'Puerto+Morelos+Mexico',mapZ:14,stats:[{n:'$1,000+',l:'USD/mo rental'},{n:'$120K+',l:'Entry price'},{n:'Steady',l:'Demand profile'},{n:'3-5%',l:'Net yield'}],desc:'A charming fishing village turned upscale expat haven. 30 minutes north of Playa del Carmen and 20 minutes from Cancun Airport. One of Mexico\'s finest reef snorkeling spots lies directly offshore. Prices remain meaningfully below Playa del Carmen with low rental competition - attractive for lifestyle buyers and patient investors.',pros:['Marine park reef offshore','Authentic village','Near Cancun Airport','Low rental competition','Below-market prices','Growing expat community','Boutique restaurants','Quiet beachfront life'],invest:[{n:'$1,000-$2,800',l:'Monthly rental'},{n:'$90-$250',l:'Per night'},{n:'3-5%',l:'Net annual yield'}]}
+];
+
+function openNdet(i){
+  var n=nbhds[i];
+  document.getElementById('ndetBadge').textContent=n.badge;
+  document.getElementById('ndetName').textContent=n.name;
+  document.getElementById('ndetSub').textContent=n.sub;
+  document.getElementById('ndetImg').style.backgroundImage="url('"+n.img+"')";
+  document.getElementById('ndetMap').src='https://maps.google.com/maps?q='+n.mapQ+'&output=embed&z='+n.mapZ;
+  var sHtml='';n.stats.forEach(function(s){sHtml+='<div class="ndet-stat"><div class="ndet-stat-n">'+s.n+'</div><span class="ndet-stat-l">'+s.l+'</span></div>'});
+  document.getElementById('ndetStats').innerHTML=sHtml;
+  document.getElementById('ndetDesc').textContent=n.desc;
+  var pHtml='';n.pros.forEach(function(p){pHtml+='<div class="ndet-pro">'+p+'</div>'});
+  document.getElementById('ndetPros').innerHTML=pHtml;
+  var iHtml='';n.invest.forEach(function(x){iHtml+='<div class="ndet-inv-item"><strong>'+x.n+'</strong><span>'+x.l+'</span></div>'});
+  document.getElementById('ndetInv').innerHTML=iHtml;
+  document.getElementById('ndetModal').classList.add('open');
+  document.getElementById('ndetBox').scrollTop=0;
+  document.body.style.overflow='hidden';
+}
+function closeNdet(){document.getElementById('ndetModal').classList.remove('open');if(!menuOpen&&!detOpen&&!artOpen)document.body.style.overflow=''}
+document.getElementById('ndetModal').addEventListener('click',function(e){if(e.target===this)closeNdet()});
+
+// ARTICLES
+var arts=[
+  {cat:"Buyer's Guide",title:"How to Buy Property in Mexico as a Foreigner",meta:"March 2026 - Weber-Buric Real Estate - 8 min read",body:"<p>Buying property in Mexico as a foreigner is entirely legal and, when done correctly, one of the most rewarding investments you can make.</p><h2>Step 1: The Fideicomiso</h2><p>Mexico's Constitution restricts direct foreign ownership within 50 km of the coastline. The solution is the <strong>fideicomiso</strong> - a bank trust holding the property on your behalf. You retain all rights to use, rent, sell, or pass it to heirs. Annual cost: approximately $600-$1,000 USD.</p><h2>Step 2: Licensed Broker and Lawyer</h2><p>Always retain an independent lawyer for due diligence. In Mexico anyone can call themselves an agent - insist on licensed, certified professionals.</p><h2>Step 3: Promesa de Compraventa</h2><p>A binding purchase agreement with 5-10% deposit. Never sign without legal review.</p><h2>Step 4: Due Diligence</h2><p>Title search, lien verification, permit confirmation, and tax status review by your lawyer.</p><h2>Step 5: Closing at the Notary</h2><p>All transactions must go through a <strong>Notario Publico</strong>. Closing costs: 5-8% of purchase price.</p><div class='art-hr'></div><p>With the right team the process is smooth. Contact us - we make it simple.</p>"},
+  {cat:"Investment",title:"Playacar vs. Tulum: Where to Invest in 2026?",meta:"February 2026 - Weber-Buric Real Estate - 6 min read",body:"<p>Two premium markets - two completely different propositions.</p><h2>Playacar: Stability and Proven Returns</h2><p>Consistent demand, price floor protection, managed environment. Long-term rentals: $2,500-$6,000/month. Short-term: $200-$600/night. <strong>Best for:</strong> Capital preservation and stable income.</p><h2>Tulum: Upside Potential, Higher Risk</h2><p>Airport and Maya Train keep the narrative strong, but supply has outpaced demand since 2023. Beachfront with strong management still performs well. <strong>Best for:</strong> 5+ year horizon, eco-luxury segment.</p><div class='art-hr'></div><p>We know both markets intimately. Let us advise you based on your specific goals.</p>"},
+  {cat:"Market Report",title:"Riviera Maya Real Estate Market 2026",meta:"January 2026 - Weber-Buric Real Estate - 7 min read",body:"<p>The market rewards the informed in 2026. Gone are the days of blanket appreciation.</p><h2>The Two-Speed Market</h2><p>Mature, well-located properties hold value. Speculative pre-construction faces pressure. <strong>Strong performers:</strong> Playacar, Corasol, Puerto Aventuras, Puerto Morelos.</p><h2>Price Trends</h2><p>Entry-level condos: $100K-$130K USD. Quality 2BR gated condos: $180K-$350K USD. Playacar villas: $400K-$1.5M+ USD. Annual appreciation in prime areas: 3-6% in USD.</p><div class='art-hr'></div><p>We publish regular market updates. Knowledge is the best pre-purchase investment.</p>"},
+  {cat:"Legal and Tax",title:"ISR Tax Exemption When Selling Property in Mexico",meta:"December 2025 - Weber-Buric Real Estate - 5 min read",body:"<p>Many sellers pay unnecessary ISR tax. Planning correctly makes all the difference.</p><h2>The Primary Residence Exemption</h2><p>Under Article 93 of the ISR Law, you may qualify for a full exemption on your primary residence if: it is your main home, you have not used this exemption in 3 years, the gain is under 700,000 UDIs, and you have an RFC with proof of residence.</p><h2>Permitted Deductions</h2><p>Original purchase price (inflation-adjusted), documented renovations with facturas, agent commissions, and notary fees all reduce your taxable gain.</p><div class='art-hr'></div><p>Informational only. Always consult a qualified Mexican tax attorney.</p>"},
+  {cat:"Neighborhoods",title:"Best Neighborhoods for Investment in Playa del Carmen",meta:"November 2025 - Weber-Buric Real Estate - 6 min read",body:"<p>11 years of transacting properties gives us real data, not projections.</p><h2>1. Playacar - Gold Standard</h2><p>Long-term: $2,500-$6,000/month. Short-term: $200-$600/night. Renovated properties earn 30-50% more than unrenovated.</p><h2>2. Corasol - Beachfront Premium</h2><p>$1,500-$4,500/month long-term. Strong Dec-Apr seasonal demand.</p><h2>3. Centro / 5th Ave - Highest Gross Yields</h2><p>Gross yields 7-10%, net 4-6% after costs. Active management required.</p><h2>4. Puerto Morelos - Emerging Value</h2><p>Lower entry, lower competition, steady demand. Patient investors.</p><div class='art-hr'></div><p>We have real yield data. Contact us for honest numbers, not projections.</p>"},
+  {cat:"Lifestyle",title:"Why Swiss Standards Matter in Mexican Real Estate",meta:"October 2025 - Weber-Buric Real Estate - 4 min read",body:"<p>After working with us, clients stop smiling at the Swiss angle and start referring their friends.</p><h2>Precision Over Salesmanship</h2><p>We will tell you when a property is overpriced. We will flag a title issue even when it complicates a deal we would benefit from. This is professional DNA, not a marketing line.</p><h2>Process Discipline</h2><p>Our checklist before any recommendation: title verification, lien check, HOA debt review, permit verification, tax assessment, structural condition. We never shortcut this.</p><h2>Long-Term Relationships</h2><p>Our goal is not to close one deal with you. It is to be your real estate advisor for life.</p><div class='art-hr'></div><p>Doing business with integrity is a competitive advantage.</p>"}
+];
+function openArt(i){
+  var a=arts[i];
+  document.getElementById('artContent').innerHTML='<p class="art-cat">'+a.cat+'</p><h1 class="art-h1">'+a.title+'</h1><p class="art-meta">'+a.meta+'</p><div class="art-body">'+a.body+'</div>';
+  document.getElementById('artModal').classList.add('open');
+  document.getElementById('artContent').scrollTop=0;
+  artOpen=true;document.body.style.overflow='hidden';
+}
+function closeArt(){document.getElementById('artModal').classList.remove('open');artOpen=false;if(!menuOpen&&!detOpen)document.body.style.overflow=''}
+
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeMenu();closeDet();closeNdet();closeArt();closeTeamModal('teamModalIvana');closeTeamModal('teamModalYannick')}});
+
+// TEAM MODALS
+function openTeamModal(who){
+  var id='teamModal'+who.charAt(0).toUpperCase()+who.slice(1);
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeTeamModal(id){
+  var el=document.getElementById(id);
+  if(el){el.classList.remove('open');}
+  if(!menuOpen&&!detOpen&&!artOpen){document.body.style.overflow='';}
+}
+document.getElementById('teamModalIvana').addEventListener('click',function(e){if(e.target===this)closeTeamModal('teamModalIvana')});
+document.getElementById('teamModalYannick').addEventListener('click',function(e){if(e.target===this)closeTeamModal('teamModalYannick')});
+</script>
+</body>
 </html>
