@@ -77,17 +77,18 @@ The app runs in one of two modes:
 ### Set up Supabase (one time)
 
 1. **Create the database.** In Vercel, open the project → **Storage** → **Supabase** → create one on the **Free** plan and connect it to this project. Vercel adds `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` automatically. If you set the keys by hand instead, use `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Never add the `service_role`/secret key; the build refuses to bundle it.
-2. **Create the tables.** Open the Supabase dashboard → **SQL Editor**. Paste all of [`supabase/schema.sql`](supabase/schema.sql). **Change the email on its last line** to the management email, then click **Run**.
+2. **Create the tables.** Open the Supabase dashboard → **SQL Editor**. Paste all of [`supabase/schema.sql`](supabase/schema.sql). **Change the email on its last line** to the management email, then click **Run**. Then run each file in [`supabase/migrations/`](supabase/migrations) in date order the same way (they're safe to run twice).
 3. **Allow the login links.** Go to Supabase → **Authentication → URL Configuration**. Set **Site URL** to `https://hipico-riviera-maya.vercel.app` and add `https://hipico-riviera-maya.vercel.app/app` under **Redirect URLs**.
 4. **Show the login code in the email.** Go to Supabase → **Authentication → Emails → Magic Link** and add a line such as `Tu código: {{ .Token }}`. On iPhone the installed app can't receive the link (it opens in Safari), so families type the code instead.
 5. **Redeploy** in Vercel (Deployments → ⋯ → Redeploy). `/app` now uses Supabase.
 
-Do step 2 before step 5. Otherwise `/app` switches to live mode before its tables exist and shows an error.
+Create the tables before redeploying. Otherwise `/app` switches to live mode before its tables exist and shows an error.
 
 **Email sending:** Supabase's built-in email is meant for testing and only sends a few emails per hour. Before inviting families, set up your own email sender (for example Resend or Brevo) under **Authentication → Emails → SMTP Settings**.
 
 ### Day to day
-- **Families and riders:** management adds them in the app, in the **Familias** tab. A family signs in with the email saved there.
+- **Families and riders:** management adds them in the **Familias** tab (one by one, or a CSV list with a preview), with each rider's plan and its start date. A preloaded family signs in with that email and finds its plan already active. A new email gets a short sign-up form instead, and an existing email is always linked, never duplicated. Families can be edited or deactivated; history is kept.
+- **Standing plans:** a rider's package renews automatically on the first booking of each month, as a payment pending at the club.
 - **More management accounts:** add a row to the `admins` table (Supabase → Table Editor). Emails must be lowercase.
 - **Prices:** edit the `prices` table. **Class schedule:** edit the `slots` table (`weekday` 1 = Monday … 6 = Saturday). **Boarded horses:** in the `horses` table, set `type = boarded` and `owner_family_id` to the family.
 - **Rules:** booking, cancelling, plans and payments are enforced by the database functions in `schema.sql`, so they hold whatever the browser sends. Each family can only read its own data (Row Level Security).

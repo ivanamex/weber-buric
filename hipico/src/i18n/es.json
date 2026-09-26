@@ -321,15 +321,15 @@
     },
     "families": {
       "title": "Familias",
-      "add": "Agregar",
+      "add": "Nueva familia",
       "intro": "Cada familia entra a la app con el correo que registres aquí.",
       "newTitle": "Nueva familia",
       "name": "Nombre de la familia",
       "namePh": "Familia Pérez",
       "contact": "Mamá, papá o tutor",
-      "email": "Correo para entrar a la app",
+      "email": "Correo (para entrar)",
       "phone": "Teléfono (WhatsApp)",
-      "emailHint": "La familia entra con este correo: recibe un enlace o código, sin contraseña.",
+      "emailHint": "La familia entra con este correo y ya encuentra su plan activo. Sin contraseña.",
       "save": "Guardar familia",
       "search": "Buscar familia o jinete",
       "emptyTitle": "Aún no hay familias",
@@ -341,7 +341,47 @@
       "age": "Edad",
       "level": "Nivel",
       "saveRider": "Guardar jinete",
-      "count": "{n} familias · {riders} jinetes"
+      "count": "{n} familias · {riders} jinetes",
+      "riders": "Jinetes",
+      "ridersAndPlans": "Jinetes y planes",
+      "currentPlan": "Plan actual",
+      "planStart": "Inicio del plan",
+      "nameOptional": "Nombre de la familia (opcional)",
+      "removeRider": "Quitar jinete",
+      "restoreRider": "Recuperar jinete",
+      "saveChanges": "Guardar cambios",
+      "deactivate": "Desactivar familia",
+      "deactivateSure": "¿Seguro? Toca otra vez",
+      "reactivate": "Reactivar familia",
+      "inactive": "Desactivada",
+      "selfSignup": "Se registró sola",
+      "standing": "plan {n} desde {date}",
+      "activeTab": "Activas ({n})",
+      "inactiveTab": "Desactivadas ({n})",
+      "planOption": "{n} clases"
+    },
+    "import": {
+      "button": "Importar",
+      "title": "Importar lista (CSV)",
+      "help": "Exporta tu lista desde Excel o Google Sheets como CSV con estas columnas. Jinetes: “Zara (intermedio); Mateo (principiante)”. Fecha: 2026-10-01 o 01/10/2026.",
+      "choose": "Elegir archivo CSV",
+      "template": "Descargar plantilla",
+      "colFamily": "Familia",
+      "colPlan": "Plan · inicio",
+      "colStatus": "Estado",
+      "new": "Nueva",
+      "exists": "Ya existe · se omite",
+      "save": "Importar {n} familias",
+      "empty": "El archivo está vacío.",
+      "columns": "Faltan las columnas “nombre” y “correo”.",
+      "err": {
+        "email": "Correo inválido",
+        "contact": "Falta el nombre",
+        "riders": "Faltan jinetes",
+        "level": "Nivel desconocido",
+        "plan": "Plan inválido",
+        "date": "Fecha inválida"
+      }
     }
   },
   "toasts": {
@@ -360,7 +400,11 @@
     "paid": "Pago de {amount} registrado ({method})",
     "familyAdded": "{name} agregada. Ya puede entrar con su correo.",
     "riderAdded": "{name} agregado(a)",
-    "askClub": "Pide a la dirección del club que agregue al jinete"
+    "askClub": "Pide a la dirección del club que agregue al jinete",
+    "familySaved": "Cambios guardados: {name}",
+    "familyDeactivated": "{name} desactivada. Su historial se conserva.",
+    "familyReactivated": "{name} reactivada",
+    "imported": "{n} familias importadas · {skipped} omitidas"
   },
   "errors": {
     "notFound": "No se encontró el registro.",
@@ -382,7 +426,9 @@
     "badEmail": "Escribe un correo válido.",
     "badCode": "El código no es válido o ya caducó. Pide uno nuevo.",
     "tooMany": "Demasiados intentos. Espera un minuto e inténtalo de nuevo.",
-    "emailExists": "Ya hay una familia con ese correo."
+    "emailExists": "Ya hay una familia con ese correo.",
+    "noRiders": "Agrega al menos un jinete.",
+    "badPlan": "Ese plan no existe."
   },
   "live": {
     "loading": "Cargando…",
@@ -400,6 +446,11 @@
     "errorTitle": "No pudimos cargar tus datos",
     "errorText": "Revisa tu conexión e inténtalo de nuevo.",
     "retry": "Reintentar",
-    "seeDemo": "Ver la demo con datos de ejemplo"
+    "seeDemo": "Ver la demo con datos de ejemplo",
+    "signupTitle": "Crea tu cuenta",
+    "signupText": "Es tu primera vez con {email}. Cuéntanos quién monta y listo.",
+    "signupSubmit": "Crear cuenta",
+    "inactiveTitle": "Cuenta desactivada",
+    "inactiveText": "Esta cuenta está desactivada. Escríbele al club para reactivarla."
   }
 }

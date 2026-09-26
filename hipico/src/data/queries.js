@@ -14,9 +14,11 @@ export function getPlan(s, riderId, month = currentMonthKey()) {
 export const planRemaining = (plan) => (plan ? Math.max(plan.total - plan.used, 0) : 0)
 export const planExpiry = (plan) => monthEnd(plan.month)
 
-export function familyRiders(s, familyId) {
-  return s.riders.filter((r) => r.familyId === familyId)
+/** Riders of a family. Removed (inactive) riders are hidden unless asked for (management history). */
+export function familyRiders(s, familyId, { includeInactive = false } = {}) {
+  return s.riders.filter((r) => r.familyId === familyId && (includeInactive || r.active !== false))
 }
+export const isActiveFamily = (f) => f.active !== false
 
 /** Slot occurrences for a given date, enriched with counts and state for a rider. */
 export function occurrencesFor(s, date, riderId = null) {

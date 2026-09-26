@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { logout, sendLink, useStore, verifyCode } from '../data/store.js'
+import { logout, selfSignup, sendLink, useStore, verifyCode, LEVELS } from '../data/store.js'
 import { refresh } from '../data/live.js'
 import { Mark } from '../components/Logo.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
@@ -44,7 +44,17 @@ export default function LiveLogin() {
   }
 
   let body
-  if (s.status === 'noAccess') {
+  if (s.status === 'signup') {
+    body = <SignupForm email={s.email} />
+  } else if (s.status === 'inactive') {
+    body = (
+      <div className="login__panel">
+        <p className="login__panelTitle">{t('live.inactiveTitle')}</p>
+        <p>{t('live.inactiveText')}</p>
+        <button type="button" className="btn btn--gold btn--block" onClick={() => logout()}>{t('live.otherEmail')}</button>
+      </div>
+    )
+  } else if (s.status === 'noAccess') {
     body = (
       <div className="login__panel">
         <p className="login__panelTitle">{t('live.noAccessTitle')}</p>
@@ -102,5 +112,50 @@ export default function LiveLogin() {
         <Link to="/demo" className="login__note"><Icon name="sparkle" size={16} /> {t('live.seeDemo')}</Link>
       </div>
     </div>
+  )
+}
+
+/** First sign-in with an email the club doesn't know yet: one short form, then straight into the app. */
+function SignupForm({ email }) {
+  const { t } = useI18n()
+  const toast = useToast()
+  const [contact, setContact] = useState('')
+  const [phone, setPhone] = useState('')
+  const [riders, setRiders] = useState([{ name: '', level: 'beginner' }])
+  const [busy, setBusy] = useState(false)
+  const update = (i, patch) => setRiders(riders.map((r, j) => (j === i ? { ...r, ...patch } : r)))
+
+  const onSubmit = async (e) => {
+    e.preventDefault()
+    setBusy(true)
+    const res = await selfSignup({ contact, phone, riders: riders.filter((r) => r.name.trim()) })
+    setBusy(false)
+    if (!res.ok) toast(t(`errors.${res.code}`), 'error')
+  }
+  return (
+    <form className="login__panel" onSubmit={onSubmit}>
+      <p className="login__panelTitle">{t('live.signupTitle')}</p>
+      <p>{t('live.signupText', { email })}</p>
+      <label className="field" htmlFor="su-contact"><span>{t('admin.families.contact')}</span>
+        <input id="su-contact" className="input" autoComplete="name" value={contact} onChange={(e) => setContact(e.target.value)} required />
+      </label>
+      <label className="field" htmlFor="su-phone"><span>{t('admin.families.phone')}</span>
+        <input id="su-phone" className="input" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+      </label>
+      <div className="field"><span>{t('admin.families.riders')}</span>
+        {riders.map((r, i) => (
+          <div key={i} className="rider-row rider-row--2">
+            <input id={`su-rider-${i}`} className="input" placeholder={t('admin.families.riderName')} aria-label={t('admin.families.riderName')}
+              value={r.name} onChange={(e) => update(i, { name: e.target.value })} required={i === 0} />
+            <select id={`su-level-${i}`} className="input" aria-label={t('admin.families.level')} value={r.level} onChange={(e) => update(i, { level: e.target.value })}>
+              {LEVELS.map((l) => <option key={l} value={l}>{t(`levels.${l}`)}</option>)}
+            </select>
+          </div>
+        ))}
+        <button type="button" className="link link--light" onClick={() => setRiders([...riders, { name: '', level: 'beginner' }])}>+ {t('more.profile.addRider')}</button>
+      </div>
+      <button type="submit" className="btn btn--gold btn--block" disabled={busy}>{busy ? '…' : t('live.signupSubmit')}</button>
+      <button type="button" className="link link--light" onClick={() => logout()}>{t('live.otherEmail')}</button>
+    </form>
   )
 }

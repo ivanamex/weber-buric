@@ -1,7 +1,7 @@
 // Demo mode: sample data kept in this browser (localStorage). Same rules as the live database.
 import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR } from './prices.js'
-import { weekdayOf, monthKeyOf, currentMonthKey, hoursUntil, toInstant } from '../lib/time.js'
+import { weekdayOf, monthKeyOf, currentMonthKey, hoursUntil, toInstant, todayKey } from '../lib/time.js'
 import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS } from './queries.js'
 
 const KEY = 'hipico.state.v1'
@@ -75,14 +75,23 @@ function bookClass({ riderId, slotId, date }) {
   return mutate((s) => {
     const rider = byId(s.riders, riderId)
     const slot = byId(s.slots, slotId)
-    if (!rider || !slot || slot.weekday !== weekdayOf(date)) return fail('notFound')
+    if (!rider || rider.active === false || !slot || slot.weekday !== weekdayOf(date)) return fail('notFound')
     if (hoursUntil(date, slot.time) <= 0) return fail('past')
     const active = s.bookings.filter((b) => b.slotId === slotId && b.date === date && isActiveBooking(b))
     if (active.some((b) => b.riderId === riderId)) return fail('already')
     if (active.length >= slot.capacity) return fail('full')
     if (rider.level !== slot.level) return fail('level')
     const month = monthKeyOf(date)
-    const plan = getPlan(s, riderId, month)
+    let plan = getPlan(s, riderId, month)
+    // Standing plans renew on the first booking of a month (payment pending at the club).
+    if (!plan && rider.planClasses && (!rider.planStart || monthKeyOf(rider.planStart) <= month) && planPrice(rider.planClasses)) {
+      plan = { id: nextId(s, 'pl'), riderId, month, total: rider.planClasses, used: 0, paid: false }
+      s.plans.push(plan)
+      s.payments.push({
+        id: nextId(s, 'pay'), familyId: rider.familyId, service: 'plan', amount: planPrice(rider.planClasses),
+        status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, month, classes: rider.planClasses },
+      })
+    }
     if (!plan) return fail('noPlan', { month })
     if (plan.used >= plan.total) return fail('planEmpty', { month })
 
@@ -236,27 +245,116 @@ function bookRental({ familyId, date, time, hours, horseId }) {
   })
 }
 
-function addFamily({ name, contact, email, phone }) {
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+const familyNameFor = (contact) => `Familia ${contact.trim().split(/\s+/).pop()}`
+
+/** Same rules as the database: unique email, at least one rider, valid levels and plans. */
+function createFamilyIn(s, p, preloaded = true) {
+  const email = (p.email || '').trim().toLowerCase()
+  const contact = (p.contact || '').trim()
+  if (!EMAIL_RE.test(email) || !contact) return fail('missing')
+  if (s.families.some((f) => f.email?.toLowerCase() === email)) return fail('emailExists')
+  const riders = (p.riders || []).filter((r) => r.name?.trim())
+  if (!riders.length) return fail('noRiders')
+  if (riders.some((r) => !LEVELS.includes(r.level))) return fail('missing')
+  const start = p.start || todayKey()
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(start)) return fail('missing')
+  const month = [monthKeyOf(start), currentMonthKey()].sort().pop()
+  const plans = riders.map((r) => (preloaded ? Number(r.plan || p.plan) || null : null))
+  if (plans.some((n) => n && !planPrice(n))) return fail('badPlan')
+  const family = {
+    id: nextId(s, 'f'), name: p.name?.trim() || familyNameFor(contact), contact, email,
+    phone: p.phone?.trim() || '', active: true, selfSignup: !preloaded,
+  }
+  s.families.push(family)
+  riders.forEach((r, i) => {
+    const rider = {
+      id: nextId(s, 'r'), familyId: family.id, name: r.name.trim(), age: Number(r.age) || null, level: r.level,
+      active: true, planClasses: plans[i], planStart: plans[i] ? start : null,
+    }
+    s.riders.push(rider)
+    if (plans[i]) s.plans.push({ id: nextId(s, 'pl'), riderId: rider.id, month, total: plans[i], used: 0, paid: true })
+  })
+  return { ok: true, family }
+}
+
+function createFamily(p) {
+  return mutate((s) => createFamilyIn(s, p))
+}
+
+function importFamilies(list) {
   return mutate((s) => {
-    const clean = (email || '').trim().toLowerCase()
-    if (!name?.trim() || !contact?.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(clean)) return fail('missing')
-    if (s.families.some((f) => f.email?.toLowerCase() === clean)) return fail('emailExists')
-    const family = { id: nextId(s, 'f'), name: name.trim(), contact: contact.trim(), email: clean, phone: phone?.trim() || '' }
-    s.families.push(family)
-    return { ok: true, family }
+    let created = 0; let skipped = 0; let failed = 0
+    for (const p of list) {
+      const res = createFamilyIn(s, p)
+      if (res.ok) created++
+      else if (res.code === 'emailExists') skipped++
+      else failed++
+    }
+    return { ok: true, created, skipped, failed }
   })
 }
 
-function addRider({ familyId, name, age, level }) {
+function setPlanIn(s, riderId, classes) {
+  const rider = byId(s.riders, riderId)
+  if (!rider) return fail('notFound')
+  if (classes && !planPrice(classes)) return fail('badPlan')
+  const plan = getPlan(s, riderId)
+  if (classes && plan && classes < plan.used) return fail('belowUsed')
+  rider.planClasses = classes || null
+  rider.planStart = classes ? rider.planStart || todayKey() : null
+  if (classes) {
+    if (plan) plan.total = classes
+    else s.plans.push({ id: nextId(s, 'pl'), riderId, month: currentMonthKey(), total: classes, used: 0, paid: true })
+  }
+  return { ok: true }
+}
+
+/** Save management edits: family fields, rider changes (new riders have no id) and plan changes. */
+function saveFamily({ familyId, fields, riders = [] }) {
   return mutate((s) => {
-    if (!byId(s.families, familyId) || !name?.trim() || !LEVELS.includes(level)) return fail('missing')
-    const rider = { id: nextId(s, 'r'), familyId, name: name.trim(), age: Number(age) || null, level }
-    s.riders.push(rider)
-    return { ok: true, rider }
+    const family = byId(s.families, familyId)
+    if (!family) return fail('notFound')
+    const email = (fields.email ?? family.email).trim().toLowerCase()
+    if (!EMAIL_RE.test(email) || !(fields.contact ?? family.contact).trim()) return fail('missing')
+    if (s.families.some((f) => f.id !== familyId && f.email?.toLowerCase() === email)) return fail('emailExists')
+    Object.assign(family, {
+      name: (fields.name ?? family.name).trim() || family.name,
+      contact: (fields.contact ?? family.contact).trim(),
+      email,
+      phone: (fields.phone ?? family.phone ?? '').trim(),
+    })
+    for (const r of riders) {
+      if (!r.name?.trim() || !LEVELS.includes(r.level)) return fail('missing')
+      let rider = r.id && byId(s.riders, r.id)
+      if (!rider) {
+        rider = { id: nextId(s, 'r'), familyId, name: r.name.trim(), age: Number(r.age) || null, level: r.level, active: true, planClasses: null, planStart: null }
+        s.riders.push(rider)
+      } else {
+        Object.assign(rider, { name: r.name.trim(), level: r.level, age: Number(r.age) || null, active: r.active !== false })
+      }
+      if ((Number(r.planClasses) || null) !== (rider.planClasses || null)) {
+        const res = setPlanIn(s, rider.id, Number(r.planClasses) || null)
+        if (!res.ok) return res
+      }
+    }
+    return { ok: true }
+  })
+}
+
+function setFamilyActive(familyId, active) {
+  return mutate((s) => {
+    const family = byId(s.families, familyId)
+    if (!family) return fail('notFound')
+    family.active = active
+    family.deactivatedAt = active ? null : now()
+    return { ok: true }
   })
 }
 
 export const actions = {
   login, logout, resetDemo, bookClass, cancelBooking, markAttendance, choosePlan,
-  requestBoardingPayment, markPaid, registerCamp, bookRental, addFamily, addRider,
+  requestBoardingPayment, markPaid, registerCamp, bookRental,
+  createFamily, importFamilies, saveFamily, setFamilyActive,
+  selfSignup: () => fail('notFound'),
 }

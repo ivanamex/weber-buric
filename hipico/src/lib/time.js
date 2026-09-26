@@ -10,7 +10,7 @@ export const todayKey = () => dateKeyOf(new Date())
 export const monthKeyOf = (key) => key.slice(0, 7)
 export const currentMonthKey = () => monthKeyOf(todayKey())
 
-const utcNoon = (key) => new Date(`${key}T12:00:00Z`)
+const utcNoon = (key) => new Date(`${String(key).slice(0, 10)}T12:00:00Z`)
 export const addDays = (key, n) => {
   const d = utcNoon(key)
   d.setUTCDate(d.getUTCDate() + n)

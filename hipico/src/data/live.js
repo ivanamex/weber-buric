@@ -11,6 +11,8 @@ let sb = null
 let publish = () => {}
 let loading = null
 let lastLoad = 0
+let lastRiders = []
+const getRiders = () => lastRiders
 
 const empty = {
   mode: 'live', session: null, instructors: [], horses: [], families: [], riders: [], slots: [], plans: [],
@@ -53,7 +55,10 @@ async function load() {
     const who = await sb.rpc('whoami')
     if (who.error) throw who.error
     const email = who.data.email
-    if (!who.data.is_admin && !who.data.family_id) return publish({ ...empty, status: 'noAccess', email })
+    if (!who.data.is_admin && !who.data.family_id) {
+      // Deactivated family → blocked. Unknown email → short sign-up form (never a duplicate).
+      return publish({ ...empty, status: who.data.family_inactive ? 'inactive' : 'signup', email })
+    }
 
     const today = todayKey()
     const from = addDays(today, -62)
@@ -76,6 +81,8 @@ async function load() {
         sb.rpc('camp_counts'),
       ])
     applyPrices(Object.fromEntries(rows(prices).map((p) => [p.key, p.amount])))
+    const riderRows = rows(riders)
+    lastRiders = riderRows
     lastLoad = Date.now()
     publish({
       ...empty,
@@ -85,7 +92,7 @@ async function load() {
       instructors: rows(instructors),
       horses: rows(horses),
       families: rows(families),
-      riders: rows(riders),
+      riders: riderRows,
       slots: rows(slots),
       plans: rows(plans),
       bookings: rows(bookings),
@@ -135,17 +142,63 @@ async function logout() {
   return { ok: true }
 }
 
-async function addFamily({ name, contact, email, phone }) {
-  const clean = (email || '').trim().toLowerCase()
-  if (!name?.trim() || !contact?.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(clean)) return { ok: false, code: 'missing' }
-  const { error } = await sb.from('families').insert({ name: name.trim(), contact: contact.trim(), email: clean, phone: phone?.trim() || null })
-  if (error) return { ok: false, code: error.code === '23505' ? 'emailExists' : 'network' }
-  await refresh()
-  return { ok: true }
+/** Call a function without reloading (used when several changes are saved together). */
+async function rpcOnly(fn, args) {
+  const { data, error } = await sb.rpc(fn, args)
+  if (error) { console.error(`[hipico] ${fn} failed`, error); return { ok: false, code: 'network' } }
+  return data?.ok ? { ...data, ok: true } : { ok: false, code: data?.code || 'network' }
 }
-async function addRider({ familyId, name, age, level }) {
-  if (!familyId || !name?.trim() || !level) return { ok: false, code: 'missing' }
-  const { error } = await sb.from('riders').insert({ family_id: familyId, name: name.trim(), age: Number(age) || null, level })
+
+const familyPayload = (p) => ({
+  name: p.name || '', contact: p.contact || '', email: p.email || '', phone: p.phone || '',
+  plan: p.plan ? Number(p.plan) : null, start: p.start || null,
+  riders: (p.riders || []).filter((r) => r.name?.trim()).map((r) => ({
+    name: r.name.trim(), level: r.level, age: r.age ? Number(r.age) : null, plan: r.plan ? Number(r.plan) : null,
+  })),
+})
+
+const createFamily = (p) => call('admin_create_family', { p: familyPayload(p) })
+const importFamilies = (list) => call('admin_import_families', { p: list.map(familyPayload) })
+const selfSignup = (p) => call('self_signup', { p: familyPayload(p) })
+
+async function saveFamily({ familyId, fields, riders = [] }) {
+  try {
+    const email = (fields.email || '').trim().toLowerCase()
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !fields.contact?.trim()) return { ok: false, code: 'missing' }
+    const { error } = await sb.from('families').update({
+      name: fields.name?.trim(), contact: fields.contact.trim(), email, phone: fields.phone?.trim() || null,
+    }).eq('id', familyId)
+    if (error) return { ok: false, code: error.code === '23505' ? 'emailExists' : 'network' }
+    const current = getRiders()
+    for (const r of riders) {
+      if (!r.name?.trim() || !r.level) return { ok: false, code: 'missing' }
+      let id = r.id
+      const row = { name: r.name.trim(), level: r.level, age: r.age ? Number(r.age) : null, active: r.active !== false }
+      if (id) {
+        const res = await sb.from('riders').update(row).eq('id', id)
+        if (res.error) return { ok: false, code: 'network' }
+      } else {
+        const res = await sb.from('riders').insert({ ...row, family_id: familyId }).select('id').single()
+        if (res.error) return { ok: false, code: 'network' }
+        id = res.data.id
+      }
+      const before = current.find((x) => x.id === id)?.planClasses || null
+      const after = Number(r.planClasses) || null
+      if (before !== after) {
+        const res = await rpcOnly('admin_set_plan', { p_rider: id, p_classes: after })
+        if (!res.ok) { await refresh(); return res }
+      }
+    }
+    await refresh()
+    return { ok: true }
+  } catch (err) {
+    console.error('[hipico] saveFamily failed', err)
+    return { ok: false, code: 'network' }
+  }
+}
+
+async function setFamilyActive(familyId, active) {
+  const { error } = await sb.from('families').update({ active, deactivated_at: active ? null : new Date().toISOString() }).eq('id', familyId)
   if (error) return { ok: false, code: 'network' }
   await refresh()
   return { ok: true }
@@ -165,6 +218,9 @@ export const actions = {
   markPaid: (id, method) => call('mark_paid', { p_payment: id, p_method: method }),
   registerCamp: ({ eventId, riderId }) => call('register_camp', { p_event: eventId, p_rider: riderId }),
   bookRental: ({ date, time, hours, horseId }) => call('book_rental', { p_date: date, p_time: time, p_hours: hours, p_horse: horseId }),
-  addFamily,
-  addRider,
+  createFamily,
+  importFamilies,
+  saveFamily,
+  setFamilyActive,
+  selfSignup,
 }

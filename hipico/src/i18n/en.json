@@ -321,15 +321,15 @@
     },
     "families": {
       "title": "Families",
-      "add": "Add",
+      "add": "New family",
       "intro": "Each family signs in to the app with the email you register here.",
       "newTitle": "New family",
       "name": "Family name",
       "namePh": "Pérez family",
       "contact": "Parent or guardian",
-      "email": "Email to sign in to the app",
+      "email": "Email (to sign in)",
       "phone": "Phone (WhatsApp)",
-      "emailHint": "The family signs in with this email: they get a link or code, no password.",
+      "emailHint": "The family signs in with this email and finds their plan already active. No password.",
       "save": "Save family",
       "search": "Search family or rider",
       "emptyTitle": "No families yet",
@@ -341,7 +341,47 @@
       "age": "Age",
       "level": "Level",
       "saveRider": "Save rider",
-      "count": "{n} families · {riders} riders"
+      "count": "{n} families · {riders} riders",
+      "riders": "Riders",
+      "ridersAndPlans": "Riders and plans",
+      "currentPlan": "Current plan",
+      "planStart": "Plan start",
+      "nameOptional": "Family name (optional)",
+      "removeRider": "Remove rider",
+      "restoreRider": "Restore rider",
+      "saveChanges": "Save changes",
+      "deactivate": "Deactivate family",
+      "deactivateSure": "Sure? Tap again",
+      "reactivate": "Reactivate family",
+      "inactive": "Deactivated",
+      "selfSignup": "Signed up themselves",
+      "standing": "{n}-class plan since {date}",
+      "activeTab": "Active ({n})",
+      "inactiveTab": "Deactivated ({n})",
+      "planOption": "{n} classes"
+    },
+    "import": {
+      "button": "Import",
+      "title": "Import list (CSV)",
+      "help": "Export your list from Excel or Google Sheets as CSV with these columns. Riders: “Zara (intermediate); Mateo (beginner)”. Date: 2026-10-01 or 01/10/2026.",
+      "choose": "Choose CSV file",
+      "template": "Download template",
+      "colFamily": "Family",
+      "colPlan": "Plan · start",
+      "colStatus": "Status",
+      "new": "New",
+      "exists": "Already exists · skipped",
+      "save": "Import {n} families",
+      "empty": "The file is empty.",
+      "columns": "The “name” and “email” columns are missing.",
+      "err": {
+        "email": "Invalid email",
+        "contact": "Missing name",
+        "riders": "Missing riders",
+        "level": "Unknown level",
+        "plan": "Invalid plan",
+        "date": "Invalid date"
+      }
     }
   },
   "toasts": {
@@ -360,7 +400,11 @@
     "paid": "{amount} payment recorded ({method})",
     "familyAdded": "{name} added. They can sign in with their email now.",
     "riderAdded": "{name} added",
-    "askClub": "Ask club management to add the rider"
+    "askClub": "Ask club management to add the rider",
+    "familySaved": "Changes saved: {name}",
+    "familyDeactivated": "{name} deactivated. Their history is kept.",
+    "familyReactivated": "{name} reactivated",
+    "imported": "{n} families imported · {skipped} skipped"
   },
   "errors": {
     "notFound": "Record not found.",
@@ -382,7 +426,9 @@
     "badEmail": "Enter a valid email.",
     "badCode": "That code is invalid or expired. Request a new one.",
     "tooMany": "Too many attempts. Wait a minute and try again.",
-    "emailExists": "A family with that email already exists."
+    "emailExists": "A family with that email already exists.",
+    "noRiders": "Add at least one rider.",
+    "badPlan": "That plan doesn't exist."
   },
   "live": {
     "loading": "Loading…",
@@ -400,6 +446,11 @@
     "errorTitle": "We couldn't load your data",
     "errorText": "Check your connection and try again.",
     "retry": "Try again",
-    "seeDemo": "See the demo with sample data"
+    "seeDemo": "See the demo with sample data",
+    "signupTitle": "Create your account",
+    "signupText": "It's your first time with {email}. Tell us who rides and you're in.",
+    "signupSubmit": "Create account",
+    "inactiveTitle": "Account deactivated",
+    "inactiveText": "This account is deactivated. Message the club to reactivate it."
   }
 }

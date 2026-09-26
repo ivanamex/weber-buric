@@ -418,3 +418,31 @@ p.center { display: block; }
 .inline-icon { display: inline; vertical-align: -2px; }
 .riderform { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
 .tabbar__item span { white-space: nowrap; }
+
+/* ───────── Family management ───────── */
+.end { justify-content: flex-end; }
+.wrap { flex-wrap: wrap; }
+.riders-editor { display: grid; gap: 8px; }
+.rider-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) 40px; gap: 6px; align-items: center; }
+.rider-row--2 { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+.riders-editor .rider-row:not(:has(select + select)) { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 40px; }
+.rider-row.is-removed .input { opacity: .45; text-decoration: line-through; }
+@media (max-width: 420px) {
+  .rider-row { grid-template-columns: 1fr 1fr 40px; }
+  .rider-row .input:first-child { grid-column: 1 / -1; }
+  .riders-editor .rider-row:not(:has(select + select)) { grid-template-columns: 1fr 40px; }
+}
+.riders-editor .link, .login__panel .field .link { justify-self: start; }
+.family-editor { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.card--inactive { opacity: .8; background: #FAF7F0; }
+.csv-cols { display: block; margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: var(--green-soft); color: var(--green-dark); font-size: .8rem; overflow-x: auto; white-space: nowrap; }
+.file-btn { position: relative; overflow: hidden; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.preview { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.preview th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 8px 10px; background: #FAF6EC; }
+.preview td { padding: 8px 10px; border-top: 1px solid #EEE7D8; vertical-align: top; }
+.preview tr.is-error td { background: #FBF1EC; }
+.preview tr.is-exists td { color: var(--muted); }
+.login__panel .rider-row { margin-bottom: 6px; }
+@media (max-width: 480px) { .grid2--stack { grid-template-columns: 1fr; } .grid2--stack .field { margin-top: 10px; } }
