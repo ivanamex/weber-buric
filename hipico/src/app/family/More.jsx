@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, familyRiders, getPlan, registerCamp, bookRental, campTaken,
+  useStore, byId, familyRiders, getPlan, registerCamp, bookRental, campTaken, setPassword,
 } from '../../data/store.js'
 import { FROM_PRICES, RENTAL_PER_HOUR, RENTAL_HOURS } from '../../data/prices.js'
 import { Icon } from '../../components/Icon.jsx'
@@ -195,9 +195,48 @@ export default function FamilyMore() {
           <span className="grow">{t('more.notifications')}</span>
           <button type="button" className="link" onClick={soon}>{t('common.soon')}</button>
         </div>
+        <PasswordRow has={s.hasPassword} email={family.email || s.session.email} />
         <ResetDemoRow />
       </div>
       <p className="sample-note">{t('common.samplePrices')}</p>
+    </div>
+  )
+}
+
+/** Optional password: sign in on any phone with email + password instead of waiting for the code. */
+function PasswordRow({ has, email }) {
+  const { t } = useI18n()
+  const toast = useToast()
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState('')
+  const [busy, setBusy] = useState(false)
+  const onSave = async (e) => {
+    e.preventDefault()
+    setBusy(true)
+    const res = await setPassword(value)
+    setBusy(false)
+    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    toast(t('more.password.saved'))
+    setValue('')
+    setOpen(false)
+  }
+  return (
+    <div className="list__row list__row--stack">
+      <div className="row gap">
+        <span className="grow">{t('more.password.title')}{has && <span className="small muted"> · {t('more.password.set')}</span>}</span>
+        <button type="button" className="link" onClick={() => setOpen(!open)}>{t(has ? 'more.password.change' : 'more.password.create')}</button>
+      </div>
+      {open && (
+        <form className="pwform" onSubmit={onSave}>
+          <p className="small muted">{t('more.password.hint')}</p>
+          <input type="email" autoComplete="username" value={email || ''} readOnly hidden />
+          <label className="field" htmlFor="new-password"><span>{t('more.password.new')}</span>
+            <input id="new-password" className="input" type="password" autoComplete="new-password" minLength={8}
+              value={value} onChange={(e) => setValue(e.target.value)} required />
+          </label>
+          <button type="submit" className="btn btn--primary btn--block" disabled={busy}>{busy ? '…' : t('more.password.save')}</button>
+        </form>
+      )}
     </div>
   )
 }

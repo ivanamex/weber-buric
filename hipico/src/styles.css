@@ -642,3 +642,6 @@ p.center { display: block; }
   100% { transform: translate(var(--dx), calc(var(--dy) + 40px)) rotate(var(--rot)) scale(1); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .celebrate { display: none; } }
+
+.pwform { display: grid; gap: 10px; margin-top: 10px; }
+.pwform .field { margin-top: 0; }

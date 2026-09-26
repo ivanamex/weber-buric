@@ -12,6 +12,11 @@ let publish = () => {}
 let loading = null
 let lastLoad = 0
 let lastRiders = []
+let lastRole = null
+// "Salir" on a family's phone keeps the account on this device, so coming back is one tap ("Continuar como…").
+const PAUSED_KEY = 'hipico.paused'
+const readPaused = () => { try { return localStorage.getItem(PAUSED_KEY) } catch { return null } }
+const setPaused = (email) => { try { if (email) localStorage.setItem(PAUSED_KEY, email); else localStorage.removeItem(PAUSED_KEY) } catch { /* ignore */ } }
 const getRiders = () => lastRiders
 
 const empty = {
@@ -58,6 +63,9 @@ async function load() {
   try {
     const { data: { session } } = await sb.auth.getSession()
     if (!session) return publish({ ...empty, status: 'signedOut' })
+    const paused = readPaused()
+    if (paused && paused === session.user?.email) return publish({ ...empty, status: 'paused', email: paused })
+    if (paused) setPaused(null)
     const who = await sb.rpc('whoami')
     if (who.error) throw who.error
     const email = who.data.email
@@ -93,10 +101,12 @@ async function load() {
     const riderRows = rows(riders)
     lastRiders = riderRows
     lastLoad = Date.now()
+    lastRole = who.data.is_admin ? 'admin' : 'family'
     publish({
       ...empty,
       status: 'ready',
       email,
+      hasPassword: Boolean(session.user?.user_metadata?.has_password),
       session: { role: who.data.is_admin ? 'admin' : 'family', familyId: who.data.family_id, email },
       instructors: rows(instructors),
       horses: rows(horses),
@@ -164,6 +174,7 @@ async function verifyCode(email, token) {
   try {
     const { error } = await sb.auth.verifyOtp({ email: email.trim().toLowerCase(), token: token.trim(), type: 'email' })
     if (error) { console.error(error); return { ok: false, code: authCode(error) === 'codeExpired' ? 'codeExpired' : authCode(error) === 'tooMany' ? 'tooMany' : 'badCode' } }
+    setPaused(null)
     await refresh()
     return { ok: true }
   } catch (err) {
@@ -171,10 +182,56 @@ async function verifyCode(email, token) {
     return { ok: false, code: 'network' }
   }
 }
-async function logout() {
+async function logout({ full = false } = {}) {
+  const { data: { session } } = await sb.auth.getSession()
+  if (!full && session && lastRole === 'family') {
+    setPaused(session.user.email)
+    publish({ ...empty, status: 'paused', email: session.user.email })
+    return { ok: true }
+  }
+  setPaused(null)
   await sb.auth.signOut({ scope: 'local' }) // this device only; other phones stay signed in
   publish({ ...empty, status: 'signedOut' })
   return { ok: true }
+}
+async function resume() {
+  setPaused(null)
+  await refresh()
+  return { ok: true }
+}
+async function signInPassword(email, password) {
+  try {
+    const { error } = await sb.auth.signInWithPassword({ email: email.trim().toLowerCase(), password })
+    if (error) {
+      console.error(error)
+      const code = authCode(error)
+      return { ok: false, code: code === 'tooMany' || code === 'network' ? code : 'badPassword' }
+    }
+    setPaused(null)
+    await refresh()
+    return { ok: true }
+  } catch (err) {
+    console.error(err)
+    return { ok: false, code: 'network' }
+  }
+}
+async function setPassword(password) {
+  if (!password || password.length < 8) return { ok: false, code: 'shortPassword' }
+  try {
+    const { error } = await sb.auth.updateUser({ password, data: { has_password: true } })
+    if (error) {
+      console.error(error)
+      if (error.code === 'same_password') return { ok: true }
+      if (error.code === 'weak_password') return { ok: false, code: 'weakPassword' }
+      if (error.code === 'reauthentication_needed') return { ok: false, code: 'reauthNeeded' }
+      return { ok: false, code: authCode(error) === 'network' ? 'network' : 'authFailed' }
+    }
+    await refresh()
+    return { ok: true }
+  } catch (err) {
+    console.error(err)
+    return { ok: false, code: 'network' }
+  }
 }
 
 /** Call a function without reloading (used when several changes are saved together). */
@@ -309,6 +366,9 @@ export const actions = {
   sendLink,
   verifyCode,
   logout,
+  resume,
+  signInPassword,
+  setPassword,
   login: async () => ({ ok: false, code: 'notFound' }),
   resetDemo: async () => ({ ok: false, code: 'notFound' }),
   bookClass: ({ riderId, slotId, date }) => call('book_class', { p_rider: riderId, p_slot: slotId, p_date: date }),

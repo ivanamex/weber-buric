@@ -270,7 +270,17 @@
     "resetHint": "Restores the sample data",
     "resetBtn": "Reset",
     "resetConfirm": "Your demo changes will be erased.",
-    "resetSure": "Sure? Tap again"
+    "resetSure": "Sure? Tap again",
+    "password": {
+      "title": "Password (optional)",
+      "set": "set",
+      "create": "Create",
+      "change": "Change",
+      "hint": "With your email and this password you can sign in on any phone, without waiting for the code.",
+      "new": "New password (8 characters or more)",
+      "save": "Save password",
+      "saved": "Password saved"
+    }
   },
   "admin": {
     "today": {
@@ -414,7 +424,11 @@
     "classCancelled": "This class was cancelled for that day.",
     "codeExpired": "That code is wrong or has expired. Check it or ask for a new one.",
     "signupClosed": "Email sign-in is turned off. Let the club know.",
-    "authFailed": "We couldn't send your access. Try again in a minute."
+    "authFailed": "We couldn't send your access. Try again in a minute.",
+    "badPassword": "Wrong email or password.",
+    "shortPassword": "Use at least 8 characters.",
+    "weakPassword": "That password is too easy. Try another one.",
+    "reauthNeeded": "For security, sign in again with a code and try once more."
   },
   "live": {
     "loading": "Loading…",
@@ -443,7 +457,13 @@
     "resend": "Resend code",
     "resendIn": "Resend code in {time}",
     "resent": "We sent you a new code.",
-    "linkFallback": "Nothing yet? Check spam. The email also has a link to sign in."
+    "linkFallback": "Nothing yet? Check spam. The email also has a link to sign in.",
+    "pausedTitle": "Welcome back",
+    "pausedText": "Your account is still saved on this phone.",
+    "continueAs": "Continue as {email}",
+    "havePassword": "I have a password",
+    "passwordLabel": "Password",
+    "forgot": "Forgot it? Sign in with a code"
   },
   "receipt": {
     "status": {

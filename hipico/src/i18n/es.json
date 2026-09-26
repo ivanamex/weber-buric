@@ -270,7 +270,17 @@
     "resetHint": "Restaura los datos de ejemplo",
     "resetBtn": "Reiniciar",
     "resetConfirm": "Se borrarán tus cambios de la demo.",
-    "resetSure": "¿Seguro? Toca otra vez"
+    "resetSure": "¿Seguro? Toca otra vez",
+    "password": {
+      "title": "Contraseña (opcional)",
+      "set": "creada",
+      "create": "Crear",
+      "change": "Cambiar",
+      "hint": "Con tu correo y esta contraseña entras en cualquier teléfono, sin esperar el código.",
+      "new": "Nueva contraseña (8 caracteres o más)",
+      "save": "Guardar contraseña",
+      "saved": "Contraseña guardada"
+    }
   },
   "admin": {
     "today": {
@@ -414,7 +424,11 @@
     "classCancelled": "Esta clase se canceló para ese día.",
     "codeExpired": "Ese código no es válido o ya venció. Revísalo o pide uno nuevo.",
     "signupClosed": "El acceso por correo está desactivado. Avisa al club.",
-    "authFailed": "No pudimos enviarte el acceso. Inténtalo en un minuto."
+    "authFailed": "No pudimos enviarte el acceso. Inténtalo en un minuto.",
+    "badPassword": "Correo o contraseña incorrectos.",
+    "shortPassword": "Usa al menos 8 caracteres.",
+    "weakPassword": "Esa contraseña es muy fácil. Prueba otra.",
+    "reauthNeeded": "Por seguridad, entra de nuevo con un código y vuelve a intentarlo."
   },
   "live": {
     "loading": "Cargando…",
@@ -443,7 +457,13 @@
     "resend": "Reenviar código",
     "resendIn": "Reenviar código en {time}",
     "resent": "Te enviamos un código nuevo.",
-    "linkFallback": "¿No llega? Revisa spam. El correo también trae un enlace para entrar."
+    "linkFallback": "¿No llega? Revisa spam. El correo también trae un enlace para entrar.",
+    "pausedTitle": "Hola de nuevo",
+    "pausedText": "Tu cuenta sigue guardada en este teléfono.",
+    "continueAs": "Continuar como {email}",
+    "havePassword": "Ya tengo contraseña",
+    "passwordLabel": "Contraseña",
+    "forgot": "¿La olvidaste? Entra con un código"
   },
   "receipt": {
     "status": {

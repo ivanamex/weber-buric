@@ -37,7 +37,10 @@ const act = (name) => async (...args) => backend()[name](...args)
 export const login = act('login') // demo only: pick a role
 export const sendLink = act('sendLink') // live only: email a login link + code
 export const verifyCode = act('verifyCode') // live only
-export const logout = act('logout')
+export const logout = act('logout') // live, family: keeps the account on this phone; { full: true } signs out
+export const resume = act('resume') // live: "Continuar como…" after Salir
+export const signInPassword = act('signInPassword') // live: email + optional password
+export const setPassword = act('setPassword') // family: create or change the optional password
 export const resetDemo = act('resetDemo')
 export const bookClass = act('bookClass')
 export const cancelBooking = act('cancelBooking')

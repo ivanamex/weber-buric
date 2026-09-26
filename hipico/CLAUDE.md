@@ -60,7 +60,7 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
 **Live** (all on `main`, deployed by Vercel, database updates applied automatically):
 - **Landing and app:** landing page, PWA, ES/EN, and the demo at `/demo`, which mirrors every feature.
 - **Live mode at `/app`:**
-  - sign-in with a 6-digit code (six boxes, paste and phone autofill, 60 s resend countdown), the email link as fallback; a device stays signed in (session kept and refreshed silently, "Salir" ends only that device), with open sign-up and instant access (a short form for unknown emails);
+  - sign-in with a 6-digit code (six boxes, paste and phone autofill, 60 s resend countdown), the email link as fallback; a device stays signed in (session kept and refreshed silently, "Salir" on a family phone keeps the account there with a one-tap "Continuar como…"; "Usar otro correo" or a management "Salir" signs out that device only); an optional password (created in Más) signs in on any phone, with open sign-up and instant access (a short form for unknown emails);
   - an existing email is always linked to its family, never duplicated.
 - **Familias (management):**
   - add a family with riders, plan and start date;

@@ -67,6 +67,12 @@ function login(role) {
 function logout() {
   return mutate((s) => { s.session = null })
 }
+function setPassword(password) {
+  if (!password || password.length < 8) return fail('shortPassword')
+  return mutate((s) => { s.hasPassword = true })
+}
+const liveOnly = () => ({ ok: true })
+
 function resetDemo() {
   receiptFiles.clear()
   try { localStorage.removeItem(FILES_KEY) } catch { /* ignore */ }
@@ -522,6 +528,7 @@ export const actions = {
   requestBoardingPayment, markPaid, registerCamp, bookRental,
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),
+  setPassword, resume: liveOnly, signInPassword: liveOnly,
   uploadReceipt, reviewReceipt, receiptUrl, saveSettings,
   saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,
 }

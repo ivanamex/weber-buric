@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { logout, selfSignup, sendLink, useStore, verifyCode, LEVELS } from '../data/store.js'
+import { logout, resume, selfSignup, sendLink, signInPassword, useStore, verifyCode, LEVELS } from '../data/store.js'
 import { refresh } from '../data/live.js'
 import { Mark } from '../components/Logo.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
@@ -23,6 +23,7 @@ export default function LiveLogin() {
   const [email, setEmail] = useState(readEmail)
   const [step, setStep] = useState('email')
   const [code, setCode] = useState('')
+  const [password, setPasswordValue] = useState('')
   const [busy, setBusy] = useState(false)
   const [sentAt, setSentAt] = useState(0)
   const [now, setNow] = useState(Date.now())
@@ -70,13 +71,38 @@ export default function LiveLogin() {
     setCode(digits)
     if (digits.length === CODE_LENGTH) submitCode(digits) // typed, pasted or filled in by the phone
   }
+  const onPassword = async (e) => {
+    e.preventDefault()
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) return toast(t('errors.badEmail'), 'error')
+    setBusy(true)
+    const res = await signInPassword(email, password)
+    setBusy(false)
+    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    try { localStorage.setItem(EMAIL_KEY, email.trim().toLowerCase()) } catch { /* ignore */ }
+  }
+  const onResume = async () => {
+    setBusy(true)
+    await resume()
+    setBusy(false)
+  }
   const onVerify = (e) => {
     e.preventDefault()
     submitCode(code)
   }
 
   let body
-  if (s.status === 'signup') {
+  if (s.status === 'paused') {
+    body = (
+      <div className="login__panel">
+        <p className="login__panelTitle">{t('live.pausedTitle')}</p>
+        <p>{t('live.pausedText')}</p>
+        <button type="button" className="btn btn--accent btn--block btn--lg" onClick={onResume} disabled={busy}>
+          <span className="break">{t('live.continueAs', { email: s.email })}</span>
+        </button>
+        <button type="button" className="link link--light" onClick={() => logout({ full: true })}>{t('live.otherEmail')}</button>
+      </div>
+    )
+  } else if (s.status === 'signup') {
     body = <SignupForm email={s.email} />
   } else if (s.status === 'deleted') {
     body = (
@@ -135,6 +161,23 @@ export default function LiveLogin() {
         <button type="button" className="link link--light" onClick={() => { setStep('email'); setCode('') }}>{t('live.otherEmail')}</button>
       </form>
     )
+  } else if (step === 'password') {
+    body = (
+      <form className="login__panel" onSubmit={onPassword}>
+        <label className="field" htmlFor="login-email">
+          <span>{t('live.emailLabel')}</span>
+          <input id="login-email" className="input" type="email" inputMode="email" autoComplete="username"
+            placeholder="nombre@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </label>
+        <label className="field" htmlFor="login-password">
+          <span>{t('live.passwordLabel')}</span>
+          <input id="login-password" className="input" type="password" autoComplete="current-password"
+            value={password} onChange={(e) => setPasswordValue(e.target.value)} required />
+        </label>
+        <button type="submit" className="btn btn--accent btn--block" disabled={busy}>{busy ? '…' : t('live.enter')}</button>
+        <button type="button" className="link link--light" onClick={() => setStep('email')}>{t('live.forgot')}</button>
+      </form>
+    )
   } else {
     body = (
       <form className="login__panel" onSubmit={onSend}>
@@ -145,6 +188,7 @@ export default function LiveLogin() {
         </label>
         <button type="submit" className="btn btn--accent btn--block" disabled={busy}>{busy ? '…' : t('live.sendLink')}</button>
         <p className="small">{t('live.emailHint')}</p>
+        <button type="button" className="link link--light" onClick={() => setStep('password')}>{t('live.havePassword')}</button>
       </form>
     )
   }
