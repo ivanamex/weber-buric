@@ -1,0 +1,39 @@
+# Hípico: run order (one at a time)
+
+Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type **"do STEP-XX"**.
+
+## Now
+
+1. **STEP-08B**: families sign up themselves, the club approves; remove the CSV import
+2. **STEP-10**: Horario (edit classes, cancel a date) + "Todos vinieron"
+3. **STEP-11**: logo, pictograms, horseshoe counter
+4. **STEP-12**: 6-digit code login + "Descargar para iPhone / Android"
+5. **STEP-13**: landing: subtle hovers, faded horse photos, running text-horse
+
+Check in the browser after each step, then "ok".
+
+## Next
+
+- **In the Supabase dashboard, not a build step:** Gmail as SMTP, raise the email limit (fixes "Demasiados intentos")
+- STEP-06: the club's real data (after the 27 Sep meeting)
+- STEP-04/05: Resend + the club's domain (waits for DNS access to hipicorivieramaya.com)
+- STEP-07: Mercado Pago
+
+## Meeting 27 Sep: ask the owner (Maria Wills)
+
+Prices · schedule · instructors · horses · plan rules · her email for management · bank details · who manages the domain (Wix / Martín Vilavedra) · the logo as an original file · barter terms in writing
+
+## Done
+
+Landing + app live · Supabase login + database rules · management panel (Hoy, Cobros, Familias, Reportes) · STEP-08 families added by management · STEP-09 transfer receipts · logos in `public/`
+
+## Rules
+
+- Everything on `main`, pushed after every step
+- Supabase: Hípico is in the **"ivanamex's projects"** organization (via Vercel), not "Weber Buric Realty"
+- No traces · sans-serif only · Spanish first
+- No App Store · families sign up themselves and the club approves (decided 26 Sep)
+
+## Later
+
+app.hipicorivieramaya.com · reminders · Mercado Pago subscriptions · a short video for the hero

@@ -87,3 +87,9 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
 
 - They're not a developer. Give short, numbered, click-by-click steps. They reply with screenshots.
 - Work on branch `claude/modest-turing-inrxo9`. When it's been merged, restart it from `main`. The user has approved opening and merging a PR for each finished change.
+
+## Run order and steps
+
+- `hipico/RUN-ORDER.md` is the source of truth for what comes next. Keep it short, and update it when a step is done.
+- Step specs are in `hipico/steps/STEP-XX.md`. When the user says "do STEP-XX", read that file plus `steps/README.md` (the rules for every step), build it, push it, and wait for "ok".
+- Supabase organizations: Hípico is in **"ivanamex's projects"** (created through Vercel; open it via Vercel → Integrations → Supabase → Open in Supabase). "Weber Buric Realty" is a different organization, so don't touch it.
