@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { useStore, byId, occurrencesFor, bookClass, getPlan, planRemaining, planExpiry } from '../../data/store.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
+import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
@@ -16,10 +17,12 @@ export default function FamilyBook() {
   const s = useStore()
   const toast = useToast()
   const { riderId } = useFamilyContext()
+  const base = useBase()
   const rider = byId(s.riders, riderId)
   const today = todayKey()
   const [week, setWeek] = useState(0)
   const [date, setDate] = useState(today)
+  const [busy, setBusy] = useState(null)
 
   const start = addDays(today, week * DAYS)
   const days = Array.from({ length: DAYS }, (_, i) => addDays(start, i))
@@ -30,8 +33,10 @@ export default function FamilyBook() {
 
   const changeWeek = (w) => { setWeek(w); setDate(w === 0 ? today : addDays(today, w * DAYS)) }
 
-  const onBook = (o) => {
-    const res = bookClass({ riderId, slotId: o.slot.id, date })
+  const onBook = async (o) => {
+    setBusy(o.slot.id)
+    const res = await bookClass({ riderId, slotId: o.slot.id, date })
+    setBusy(null)
     if (res.ok) {
       toast(t('toasts.booked', { name: rider.name, date: fmtDate(date, { weekday: 'short', day: 'numeric', month: 'short' }), time: fmtTime(o.slot.time), n: res.remaining }))
     } else {
@@ -55,7 +60,7 @@ export default function FamilyBook() {
           <>
             <Icon name="alert" size={18} />
             <span>{t('family.book.noPlanLine', { month: monthName })}</span>
-            <Link to="/app/familia/plan" className="link">{t('plan.choose')}</Link>
+            <Link to={`${base}/familia/plan`} className="link">{t('plan.choose')}</Link>
           </>
         )}
       </div>
@@ -108,7 +113,7 @@ export default function FamilyBook() {
                   </p>
                 </div>
                 <div className="slot__action">
-                  {state === 'open' && <button type="button" className="btn btn--primary btn--sm" onClick={() => onBook(o)}>{t('family.book.book')}</button>}
+                  {state === 'open' && <button type="button" className="btn btn--primary btn--sm" onClick={() => onBook(o)} disabled={busy !== null}>{busy === o.slot.id ? '…' : t('family.book.book')}</button>}
                   {state === 'mine' && <Badge tone="success"><Icon name="check" size={14} /> {t('family.book.booked')}</Badge>}
                   {state === 'past' && <button type="button" className="btn btn--sm" disabled>{t('family.book.past')}</button>}
                   {state === 'full' && <button type="button" className="btn btn--sm" disabled>{t('family.book.fullBtn')}</button>}

@@ -31,19 +31,46 @@
     "how": {
       "eyebrow": "Cómo funciona",
       "title": "Tres pasos, cero complicaciones",
-      "book": { "title": "Reserva tu clase", "text": "Elige día y horario según tu nivel. Ves los lugares disponibles en tiempo real." },
-      "plan": { "title": "Tu plan se descuenta solo", "text": "Cada clase reservada se descuenta de tu paquete mensual. Si cancelas a tiempo, regresa." },
-      "pay": { "title": "Paga desde el celular", "text": "Planes, pensión y eventos en un solo lugar. Tarjeta muy pronto; efectivo o transferencia en el club." }
+      "book": {
+        "title": "Reserva tu clase",
+        "text": "Elige día y horario según tu nivel. Ves los lugares disponibles en tiempo real."
+      },
+      "plan": {
+        "title": "Tu plan se descuenta solo",
+        "text": "Cada clase reservada se descuenta de tu paquete mensual. Si cancelas a tiempo, regresa."
+      },
+      "pay": {
+        "title": "Paga desde el celular",
+        "text": "Planes, pensión y eventos en un solo lugar. Tarjeta muy pronto; efectivo o transferencia en el club."
+      }
     },
     "features": {
       "eyebrow": "Todo el club",
       "title": "Hecho para familias, jinetes y dirección",
-      "bookings": { "title": "Reservas de clases", "text": "Horarios por nivel, instructor y pista. Sin grupos sobrecupados." },
-      "plans": { "title": "Planes mensuales", "text": "Paquetes de 4, 8 o 12 clases con avance y fecha de vencimiento a la vista." },
-      "boarding": { "title": "Pensión de caballos", "text": "Estado de la pensión de tu caballo y recordatorio de pago cada mes." },
-      "rental": { "title": "Renta de caballos", "text": "Reserva un caballo de la escuela para paseos y cabalgatas." },
-      "events": { "title": "Campamentos y fiestas", "text": "Campamento de verano, cumpleaños, coaching y estimulación temprana." },
-      "admin": { "title": "Panel de dirección", "text": "Asistencia del día, cobros pendientes y reportes de ingresos y ocupación." }
+      "bookings": {
+        "title": "Reservas de clases",
+        "text": "Horarios por nivel, instructor y pista. Sin grupos sobrecupados."
+      },
+      "plans": {
+        "title": "Planes mensuales",
+        "text": "Paquetes de 4, 8 o 12 clases con avance y fecha de vencimiento a la vista."
+      },
+      "boarding": {
+        "title": "Pensión de caballos",
+        "text": "Estado de la pensión de tu caballo y recordatorio de pago cada mes."
+      },
+      "rental": {
+        "title": "Renta de caballos",
+        "text": "Reserva un caballo de la escuela para paseos y cabalgatas."
+      },
+      "events": {
+        "title": "Campamentos y fiestas",
+        "text": "Campamento de verano, cumpleaños, coaching y estimulación temprana."
+      },
+      "admin": {
+        "title": "Panel de dirección",
+        "text": "Asistencia del día, cobros pendientes y reportes de ingresos y ocupación."
+      }
     },
     "install": {
       "eyebrow": "Instálala",
@@ -91,16 +118,43 @@
     "more": "Más",
     "today": "Hoy",
     "payments": "Cobros",
-    "reports": "Reportes"
+    "reports": "Reportes",
+    "families": "Familias"
   },
-  "levels": { "beginner": "Principiante", "intermediate": "Intermedio", "advanced": "Avanzado" },
-  "disciplines": { "basics": "Equitación básica", "dressage": "Doma clásica", "jumping": "Salto", "ponies": "Ponis" },
-  "arenas": { "main": "Pista principal", "covered": "Picadero techado", "jumping": "Pista de salto" },
-  "services": { "plan": "Plan mensual", "boarding": "Pensión", "camp": "Campamento", "rental": "Renta de caballo", "events": "Fiestas y eventos" },
-  "methods": { "cash": "Efectivo", "transfer": "Transferencia" },
+  "levels": {
+    "beginner": "Principiante",
+    "intermediate": "Intermedio",
+    "advanced": "Avanzado"
+  },
+  "disciplines": {
+    "basics": "Equitación básica",
+    "dressage": "Doma clásica",
+    "jumping": "Salto",
+    "ponies": "Ponis"
+  },
+  "arenas": {
+    "main": "Pista principal",
+    "covered": "Picadero techado",
+    "jumping": "Pista de salto"
+  },
+  "services": {
+    "plan": "Plan mensual",
+    "boarding": "Pensión",
+    "camp": "Campamento",
+    "rental": "Renta de caballo",
+    "events": "Fiestas y eventos"
+  },
+  "methods": {
+    "cash": "Efectivo",
+    "transfer": "Transferencia"
+  },
   "family": {
     "rider": "Jinete",
-    "greeting": { "morning": "Buenos días,", "afternoon": "Buenas tardes,", "evening": "Buenas noches," },
+    "greeting": {
+      "morning": "Buenos días,",
+      "afternoon": "Buenas tardes,",
+      "evening": "Buenas noches,"
+    },
     "home": {
       "nextClass": "Próxima clase",
       "noClassTitle": "{name} no tiene clases reservadas",
@@ -160,7 +214,11 @@
     "full": "Pensión completa",
     "includes": "Caballeriza, alimento, cama, limpieza diaria y cuidado veterinario básico.",
     "monthOf": "Pensión de {month}",
-    "status": { "paid": "Al corriente", "pending": "Pago pendiente", "due": "Por pagar" },
+    "status": {
+      "paid": "Al corriente",
+      "pending": "Pago pendiente",
+      "due": "Por pagar"
+    },
     "noneTitle": "Sin caballos en pensión",
     "noneText": "Si tienes caballo propio, pregúntanos por la pensión.",
     "goPay": "Pagar pensión",
@@ -184,9 +242,18 @@
     "quotes": {
       "quote": "Cotizar",
       "waText": "Hola, quiero cotizar: {service} ({family}).",
-      "birthday": { "title": "Fiestas de cumpleaños", "text": "Paseos en poni y convivencia" },
-      "coaching": { "title": "Coaching y competencia", "text": "Entrenamiento personalizado" },
-      "earlyStim": { "title": "Estimulación temprana", "text": "Equinoterapia lúdica para peques" }
+      "birthday": {
+        "title": "Fiestas de cumpleaños",
+        "text": "Paseos en poni y convivencia"
+      },
+      "coaching": {
+        "title": "Coaching y competencia",
+        "text": "Entrenamiento personalizado"
+      },
+      "earlyStim": {
+        "title": "Estimulación temprana",
+        "text": "Equinoterapia lúdica para peques"
+      }
     },
     "rental": {
       "title": "Renta de caballos",
@@ -211,7 +278,8 @@
     "reset": "Reiniciar demo",
     "resetHint": "Restaura los datos de ejemplo",
     "resetBtn": "Reiniciar",
-    "resetConfirm": "¿Reiniciar la demo? Se perderán los cambios y se restaurarán los datos de ejemplo."
+    "resetConfirm": "Se borrarán tus cambios de la demo.",
+    "resetSure": "¿Seguro? Toca otra vez"
   },
   "admin": {
     "today": {
@@ -250,6 +318,30 @@
       "week": "Semana {from} – {to}",
       "seats": "{taken} de {seats} lugares",
       "export": "Exportar a Excel"
+    },
+    "families": {
+      "title": "Familias",
+      "add": "Agregar",
+      "intro": "Cada familia entra a la app con el correo que registres aquí.",
+      "newTitle": "Nueva familia",
+      "name": "Nombre de la familia",
+      "namePh": "Familia Pérez",
+      "contact": "Mamá, papá o tutor",
+      "email": "Correo para entrar a la app",
+      "phone": "Teléfono (WhatsApp)",
+      "emailHint": "La familia entra con este correo: recibe un enlace o código, sin contraseña.",
+      "save": "Guardar familia",
+      "search": "Buscar familia o jinete",
+      "emptyTitle": "Aún no hay familias",
+      "emptyText": "Agrega la primera familia con el botón “Agregar”.",
+      "noMatch": "Sin resultados",
+      "boarded": "Caballo en pensión",
+      "noRiders": "Sin jinetes todavía",
+      "riderName": "Nombre del jinete",
+      "age": "Edad",
+      "level": "Nivel",
+      "saveRider": "Guardar jinete",
+      "count": "{n} familias · {riders} jinetes"
     }
   },
   "toasts": {
@@ -265,7 +357,10 @@
     "attended": "{name}: asistencia registrada",
     "noshow": "{name}: marcado como no vino (clase usada)",
     "attendanceCleared": "{name}: asistencia sin marcar",
-    "paid": "Pago de {amount} registrado ({method})"
+    "paid": "Pago de {amount} registrado ({method})",
+    "familyAdded": "{name} agregada. Ya puede entrar con su correo.",
+    "riderAdded": "{name} agregado(a)",
+    "askClub": "Pide a la dirección del club que agregue al jinete"
   },
   "errors": {
     "notFound": "No se encontró el registro.",
@@ -282,6 +377,29 @@
     "belowUsed": "Ya usaste más clases que las de ese paquete.",
     "alreadyPaid": "La pensión de este mes ya está pagada.",
     "missing": "Completa todos los campos.",
-    "horseBusy": "Ese caballo está ocupado en ese horario. Elige otro."
+    "horseBusy": "Ese caballo está ocupado en ese horario. Elige otro.",
+    "network": "No hay conexión con el servidor. Inténtalo de nuevo.",
+    "badEmail": "Escribe un correo válido.",
+    "badCode": "El código no es válido o ya caducó. Pide uno nuevo.",
+    "tooMany": "Demasiados intentos. Espera un minuto e inténtalo de nuevo.",
+    "emailExists": "Ya hay una familia con ese correo."
+  },
+  "live": {
+    "loading": "Cargando…",
+    "subtitle": "Entra con el correo que registraste en el club",
+    "emailLabel": "Tu correo",
+    "sendLink": "Enviarme acceso",
+    "emailHint": "Te enviamos un enlace y un código. Sin contraseñas.",
+    "checkEmail": "Revisa tu correo",
+    "sentTo": "Enviamos un enlace y un código a {email}. Toca el enlace, o escribe aquí el código.",
+    "codeLabel": "Código del correo",
+    "enter": "Entrar",
+    "otherEmail": "Usar otro correo",
+    "noAccessTitle": "Este correo no está registrado",
+    "noAccessText": "{email} no está en la lista del club. Pide a la dirección que te registre, o entra con el correo que diste al club.",
+    "errorTitle": "No pudimos cargar tus datos",
+    "errorText": "Revisa tu conexión e inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "seeDemo": "Ver la demo con datos de ejemplo"
   }
 }

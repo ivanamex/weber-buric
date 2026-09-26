@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, familyRiders, getPlan, registerCamp, bookRental, resetDemo,
+  useStore, byId, familyRiders, getPlan, registerCamp, bookRental, campTaken,
 } from '../../data/store.js'
 import { FROM_PRICES, RENTAL_PER_HOUR, RENTAL_HOURS } from '../../data/prices.js'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, SectionTitle, Segmented, waLink } from '../../components/ui.jsx'
 import { LangToggle } from '../../components/LangToggle.jsx'
 import { useToast } from '../../components/Toast.jsx'
+import { ResetDemoRow } from '../../components/ResetDemoRow.jsx'
 import { todayKey, addDays, hoursUntil } from '../../lib/time.js'
 
 const RENTAL_TIMES = ['07:00', '08:00', '09:00', '10:00', '11:00', '16:00', '17:00']
@@ -29,29 +30,23 @@ export default function FamilyMore() {
 
   const [campRider, setCampRider] = useState(riders[0]?.id)
   const firstRentalDate = addDays(todayKey(), 1)
-  const [rental, setRental] = useState({ date: firstRentalDate, time: '08:00', hours: 1, horseId: 'h1' })
+  const [rental, setRental] = useState({ date: firstRentalDate, time: '08:00', hours: 1, horseId: s.horses.find((h) => h.type === 'school')?.id })
   const schoolHorses = s.horses.filter((h) => h.type === 'school')
   const myRentals = s.rentals
     .filter((r) => r.familyId === familyId && hoursUntil(r.date, r.time) > 0)
     .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
 
-  const onCamp = () => {
-    const res = registerCamp({ eventId: camp.id, riderId: campRider })
+  const onCamp = async () => {
+    const res = await registerCamp({ eventId: camp.id, riderId: campRider })
     const name = byId(s.riders, campRider)?.name
     toast(res.ok ? t('toasts.campRegistered', { name, amount: fmtMoney(camp.deposit) }) : t(`errors.${res.code}`), res.ok ? 'success' : 'error')
   }
-  const onRental = (e) => {
+  const onRental = async (e) => {
     e.preventDefault()
-    const res = bookRental({ familyId, ...rental })
+    const res = await bookRental({ familyId, ...rental })
     toast(res.ok
       ? t('toasts.rentalBooked', { horse: byId(s.horses, rental.horseId).name, date: fmtDate(rental.date, { day: 'numeric', month: 'short' }), time: fmtTime(rental.time) })
       : t(`errors.${res.code}`), res.ok ? 'success' : 'error')
-  }
-  const onReset = () => {
-    if (window.confirm(t('more.resetConfirm'))) {
-      resetDemo()
-      toast(t('toasts.reset'), 'info')
-    }
   }
   const soon = () => toast(t('toasts.soon'), 'info')
 
@@ -76,7 +71,7 @@ export default function FamilyMore() {
             <span className="small">{t('more.camp.price')} <strong>{fmtMoney(camp.price)}</strong></span>
             <span className="small">{t('more.camp.deposit')} <strong>{fmtMoney(camp.deposit)}</strong></span>
           </div>
-          <p className="small muted mt8">{t('more.camp.spots', { n: camp.capacity - campRegs.length })}</p>
+          <p className="small muted mt8">{t('more.camp.spots', { n: Math.max(camp.capacity - campTaken(s, camp.id), 0) })}</p>
           <div className="camp__form">
             <select className="input" value={campRider} onChange={(e) => setCampRider(e.target.value)} aria-label={t('family.rider')}>
               {riders.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
@@ -187,7 +182,7 @@ export default function FamilyMore() {
             )
           })}
         </ul>
-        <button type="button" className="btn btn--outline btn--block mt12" onClick={soon}><Icon name="plus" size={18} /> {t('more.profile.addRider')}</button>
+        <button type="button" className="btn btn--outline btn--block mt12" onClick={() => toast(t('toasts.askClub'), 'info')}><Icon name="plus" size={18} /> {t('more.profile.addRider')}</button>
       </div>
 
       <SectionTitle>{t('more.settings')}</SectionTitle>
@@ -200,10 +195,7 @@ export default function FamilyMore() {
           <span className="grow">{t('more.notifications')}</span>
           <button type="button" className="link" onClick={soon}>{t('common.soon')}</button>
         </div>
-        <div className="list__row">
-          <span className="grow">{t('more.reset')}<br /><span className="small muted">{t('more.resetHint')}</span></span>
-          <button type="button" className="btn btn--sm btn--danger" onClick={onReset}><Icon name="refresh" size={16} /> {t('more.resetBtn')}</button>
-        </div>
+        <ResetDemoRow />
       </div>
       <p className="sample-note">{t('common.samplePrices')}</p>
     </div>

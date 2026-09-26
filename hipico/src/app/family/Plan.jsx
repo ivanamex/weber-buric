@@ -28,14 +28,17 @@ export default function FamilyPlan() {
   const pending = s.payments.filter((p) => p.familyId === familyId && p.status === 'pending')
 
   const payCard = () => toast(t('toasts.cardSoon'), 'info')
-  const payAtClub = () => {
-    const res = choosePlan({ riderId, classes: selected, month })
+  const [busy, setBusy] = useState(false)
+  const payAtClub = async () => {
+    setBusy(true)
+    const res = await choosePlan({ riderId, classes: selected, month })
     toast(res.ok
       ? t('toasts.planPending', { n: selected, name: rider.name, month: monthName(month) })
       : t(`errors.${res.code}`, { month: monthName(month) }), res.ok ? 'success' : 'error')
+    setBusy(false)
   }
-  const boardingAtClub = () => {
-    const res = requestBoardingPayment(familyId)
+  const boardingAtClub = async () => {
+    const res = await requestBoardingPayment(familyId)
     toast(res.ok ? t('toasts.boardingPending') : t(`errors.${res.code}`), res.ok ? 'success' : 'info')
   }
 
@@ -84,7 +87,7 @@ export default function FamilyPlan() {
       </div>
       <div className="stack">
         <button type="button" className="btn btn--primary btn--block" onClick={payCard}><Icon name="card" size={20} /> {t('plan.payCard')}</button>
-        <button type="button" className="btn btn--outline btn--block" onClick={payAtClub}><Icon name="cash" size={20} /> {t('plan.payClub')}</button>
+        <button type="button" className="btn btn--outline btn--block" onClick={payAtClub} disabled={busy}><Icon name="cash" size={20} /> {t('plan.payClub')}</button>
       </div>
 
       <SectionTitle>{t('boarding.title')}</SectionTitle>

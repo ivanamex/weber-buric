@@ -31,19 +31,46 @@
     "how": {
       "eyebrow": "How it works",
       "title": "Three steps, zero hassle",
-      "book": { "title": "Book your class", "text": "Pick a day and time for your level. See open spots in real time." },
-      "plan": { "title": "Your plan updates itself", "text": "Each booked class is deducted from your monthly package. Cancel in time and it comes back." },
-      "pay": { "title": "Pay from your phone", "text": "Plans, boarding and events in one place. Cards coming soon; cash or transfer at the club." }
+      "book": {
+        "title": "Book your class",
+        "text": "Pick a day and time for your level. See open spots in real time."
+      },
+      "plan": {
+        "title": "Your plan updates itself",
+        "text": "Each booked class is deducted from your monthly package. Cancel in time and it comes back."
+      },
+      "pay": {
+        "title": "Pay from your phone",
+        "text": "Plans, boarding and events in one place. Cards coming soon; cash or transfer at the club."
+      }
     },
     "features": {
       "eyebrow": "The whole club",
       "title": "Built for families, riders and management",
-      "bookings": { "title": "Class bookings", "text": "Schedules by level, instructor and arena. No overbooked groups." },
-      "plans": { "title": "Monthly plans", "text": "4, 8 or 12-class packages with progress and expiry date at a glance." },
-      "boarding": { "title": "Horse boarding", "text": "Your horse's boarding status and a monthly payment reminder." },
-      "rental": { "title": "Horse rental", "text": "Book a school horse for rides and trail outings." },
-      "events": { "title": "Camps & parties", "text": "Summer camp, birthday parties, coaching and early stimulation." },
-      "admin": { "title": "Management panel", "text": "Daily attendance, pending payments and income & occupancy reports." }
+      "bookings": {
+        "title": "Class bookings",
+        "text": "Schedules by level, instructor and arena. No overbooked groups."
+      },
+      "plans": {
+        "title": "Monthly plans",
+        "text": "4, 8 or 12-class packages with progress and expiry date at a glance."
+      },
+      "boarding": {
+        "title": "Horse boarding",
+        "text": "Your horse's boarding status and a monthly payment reminder."
+      },
+      "rental": {
+        "title": "Horse rental",
+        "text": "Book a school horse for rides and trail outings."
+      },
+      "events": {
+        "title": "Camps & parties",
+        "text": "Summer camp, birthday parties, coaching and early stimulation."
+      },
+      "admin": {
+        "title": "Management panel",
+        "text": "Daily attendance, pending payments and income & occupancy reports."
+      }
     },
     "install": {
       "eyebrow": "Install it",
@@ -91,16 +118,43 @@
     "more": "More",
     "today": "Today",
     "payments": "Payments",
-    "reports": "Reports"
+    "reports": "Reports",
+    "families": "Families"
   },
-  "levels": { "beginner": "Beginner", "intermediate": "Intermediate", "advanced": "Advanced" },
-  "disciplines": { "basics": "Riding basics", "dressage": "Dressage", "jumping": "Jumping", "ponies": "Ponies" },
-  "arenas": { "main": "Main arena", "covered": "Covered arena", "jumping": "Jumping arena" },
-  "services": { "plan": "Monthly plan", "boarding": "Boarding", "camp": "Camp", "rental": "Horse rental", "events": "Parties & events" },
-  "methods": { "cash": "Cash", "transfer": "Transfer" },
+  "levels": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  },
+  "disciplines": {
+    "basics": "Riding basics",
+    "dressage": "Dressage",
+    "jumping": "Jumping",
+    "ponies": "Ponies"
+  },
+  "arenas": {
+    "main": "Main arena",
+    "covered": "Covered arena",
+    "jumping": "Jumping arena"
+  },
+  "services": {
+    "plan": "Monthly plan",
+    "boarding": "Boarding",
+    "camp": "Camp",
+    "rental": "Horse rental",
+    "events": "Parties & events"
+  },
+  "methods": {
+    "cash": "Cash",
+    "transfer": "Transfer"
+  },
   "family": {
     "rider": "Rider",
-    "greeting": { "morning": "Good morning,", "afternoon": "Good afternoon,", "evening": "Good evening," },
+    "greeting": {
+      "morning": "Good morning,",
+      "afternoon": "Good afternoon,",
+      "evening": "Good evening,"
+    },
     "home": {
       "nextClass": "Next class",
       "noClassTitle": "{name} has no classes booked",
@@ -160,7 +214,11 @@
     "full": "Full boarding",
     "includes": "Stall, feed, bedding, daily cleaning and basic vet care.",
     "monthOf": "{month} boarding",
-    "status": { "paid": "Up to date", "pending": "Payment pending", "due": "Due" },
+    "status": {
+      "paid": "Up to date",
+      "pending": "Payment pending",
+      "due": "Due"
+    },
     "noneTitle": "No boarded horses",
     "noneText": "Have your own horse? Ask us about boarding.",
     "goPay": "Pay boarding",
@@ -184,9 +242,18 @@
     "quotes": {
       "quote": "Get quote",
       "waText": "Hi, I'd like a quote for: {service} ({family}).",
-      "birthday": { "title": "Birthday parties", "text": "Pony rides and party time" },
-      "coaching": { "title": "Coaching & competition", "text": "Personalized training" },
-      "earlyStim": { "title": "Early stimulation", "text": "Playful equine therapy for little ones" }
+      "birthday": {
+        "title": "Birthday parties",
+        "text": "Pony rides and party time"
+      },
+      "coaching": {
+        "title": "Coaching & competition",
+        "text": "Personalized training"
+      },
+      "earlyStim": {
+        "title": "Early stimulation",
+        "text": "Playful equine therapy for little ones"
+      }
     },
     "rental": {
       "title": "Horse rental",
@@ -211,7 +278,8 @@
     "reset": "Reset demo",
     "resetHint": "Restores the sample data",
     "resetBtn": "Reset",
-    "resetConfirm": "Reset the demo? Your changes will be lost and the sample data restored."
+    "resetConfirm": "Your demo changes will be erased.",
+    "resetSure": "Sure? Tap again"
   },
   "admin": {
     "today": {
@@ -250,6 +318,30 @@
       "week": "Week {from} – {to}",
       "seats": "{taken} of {seats} spots",
       "export": "Export to Excel"
+    },
+    "families": {
+      "title": "Families",
+      "add": "Add",
+      "intro": "Each family signs in to the app with the email you register here.",
+      "newTitle": "New family",
+      "name": "Family name",
+      "namePh": "Pérez family",
+      "contact": "Parent or guardian",
+      "email": "Email to sign in to the app",
+      "phone": "Phone (WhatsApp)",
+      "emailHint": "The family signs in with this email: they get a link or code, no password.",
+      "save": "Save family",
+      "search": "Search family or rider",
+      "emptyTitle": "No families yet",
+      "emptyText": "Add the first family with the “Add” button.",
+      "noMatch": "No results",
+      "boarded": "Boarded horse",
+      "noRiders": "No riders yet",
+      "riderName": "Rider's name",
+      "age": "Age",
+      "level": "Level",
+      "saveRider": "Save rider",
+      "count": "{n} families · {riders} riders"
     }
   },
   "toasts": {
@@ -265,7 +357,10 @@
     "attended": "{name}: attendance recorded",
     "noshow": "{name}: marked as no-show (class used)",
     "attendanceCleared": "{name}: attendance cleared",
-    "paid": "{amount} payment recorded ({method})"
+    "paid": "{amount} payment recorded ({method})",
+    "familyAdded": "{name} added. They can sign in with their email now.",
+    "riderAdded": "{name} added",
+    "askClub": "Ask club management to add the rider"
   },
   "errors": {
     "notFound": "Record not found.",
@@ -282,6 +377,29 @@
     "belowUsed": "You've already used more classes than that package includes.",
     "alreadyPaid": "This month's boarding is already paid.",
     "missing": "Please fill in all fields.",
-    "horseBusy": "That horse is busy at that time. Pick another."
+    "horseBusy": "That horse is busy at that time. Pick another.",
+    "network": "Can't reach the server. Please try again.",
+    "badEmail": "Enter a valid email.",
+    "badCode": "That code is invalid or expired. Request a new one.",
+    "tooMany": "Too many attempts. Wait a minute and try again.",
+    "emailExists": "A family with that email already exists."
+  },
+  "live": {
+    "loading": "Loading…",
+    "subtitle": "Sign in with the email you gave the club",
+    "emailLabel": "Your email",
+    "sendLink": "Send me access",
+    "emailHint": "We'll send you a link and a code. No passwords.",
+    "checkEmail": "Check your email",
+    "sentTo": "We sent a link and a code to {email}. Tap the link, or type the code here.",
+    "codeLabel": "Code from the email",
+    "enter": "Sign in",
+    "otherEmail": "Use another email",
+    "noAccessTitle": "This email isn't registered",
+    "noAccessText": "{email} isn't on the club's list. Ask management to add you, or sign in with the email you gave the club.",
+    "errorTitle": "We couldn't load your data",
+    "errorText": "Check your connection and try again.",
+    "retry": "Try again",
+    "seeDemo": "See the demo with sample data"
   }
 }

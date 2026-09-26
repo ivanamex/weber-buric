@@ -27,8 +27,11 @@ export default function AdminPayments() {
     return bits.filter(Boolean).join(' · ')
   }
 
-  const confirm = (p) => {
-    const res = markPaid(p.id, method)
+  const [busy, setBusy] = useState(false)
+  const confirm = async (p) => {
+    setBusy(true)
+    const res = await markPaid(p.id, method)
+    setBusy(false)
     setOpenId(null)
     toast(res.ok ? t('toasts.paid', { amount: fmtMoney(p.amount), method: t(`methods.${method}`) }) : t('errors.notFound'), res.ok ? 'success' : 'error')
   }
@@ -65,7 +68,7 @@ export default function AdminPayments() {
                     options={[{ value: 'cash', label: t('methods.cash') }, { value: 'transfer', label: t('methods.transfer') }]} />
                   <div className="row gap-sm">
                     <button type="button" className="btn btn--sm" onClick={() => setOpenId(null)}>{t('common.cancel')}</button>
-                    <button type="button" className="btn btn--sm btn--primary" onClick={() => confirm(p)}>{t('common.confirm')}</button>
+                    <button type="button" className="btn btn--sm btn--primary" onClick={() => confirm(p)} disabled={busy}>{t('common.confirm')}</button>
                   </div>
                 </div>
               ) : (

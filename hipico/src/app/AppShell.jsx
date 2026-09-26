@@ -6,18 +6,20 @@ import { Logo } from '../components/Logo.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
 import { Icon } from '../components/Icon.jsx'
 import { useToast } from '../components/Toast.jsx'
+import { useBase } from './Backend.jsx'
 
 const TABS = {
   family: [
-    { to: '/app/familia', icon: 'home', key: 'home', end: true },
-    { to: '/app/familia/reservar', icon: 'calendar', key: 'book' },
-    { to: '/app/familia/plan', icon: 'plan', key: 'plan' },
-    { to: '/app/familia/mas', icon: 'more', key: 'more' },
+    { to: 'familia', icon: 'home', key: 'home', end: true },
+    { to: 'familia/reservar', icon: 'calendar', key: 'book' },
+    { to: 'familia/plan', icon: 'plan', key: 'plan' },
+    { to: 'familia/mas', icon: 'more', key: 'more' },
   ],
   admin: [
-    { to: '/app/direccion', icon: 'clock', key: 'today', end: true },
-    { to: '/app/direccion/cobros', icon: 'cash', key: 'payments' },
-    { to: '/app/direccion/reportes', icon: 'chart', key: 'reports' },
+    { to: 'direccion', icon: 'clock', key: 'today', end: true },
+    { to: 'direccion/cobros', icon: 'cash', key: 'payments' },
+    { to: 'direccion/familias', icon: 'users', key: 'families' },
+    { to: 'direccion/reportes', icon: 'chart', key: 'reports' },
   ],
 }
 const RIDER_KEY = 'hipico.rider'
@@ -28,6 +30,7 @@ export default function AppShell({ role }) {
   const navigate = useNavigate()
   const toast = useToast()
   const { pathname } = useLocation()
+  const base = useBase()
 
   const riders = useMemo(() => (role === 'family' ? familyRiders(s, s.session.familyId) : []), [s, role])
   const [riderId, setRiderIdState] = useState(() => {
@@ -41,10 +44,10 @@ export default function AppShell({ role }) {
 
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
 
-  const onLogout = () => {
-    logout()
+  const onLogout = async () => {
+    await logout()
     toast(t('app.loggedOut'), 'info')
-    navigate('/app')
+    navigate(base)
   }
   const family = role === 'family' ? byId(s.families, s.session.familyId) : null
 
@@ -61,14 +64,14 @@ export default function AppShell({ role }) {
       </header>
       <div className="appbar__role">
         <span>{role === 'admin' ? t('app.roleAdmin') : family?.name}</span>
-        <span className="appbar__demo">{t('app.demo')}</span>
+        {s.mode === 'demo' ? <span className="appbar__demo">{t('app.demo')}</span> : <span className="appbar__email">{s.session.email}</span>}
       </div>
       <main className="app__main">
         <Outlet context={{ riders, riderId: activeRiderId, setRiderId }} />
       </main>
       <nav className="tabbar" aria-label={t('app.nav')}>
         {TABS[role].map((tab) => (
-          <NavLink key={tab.to} to={tab.to} end={tab.end} className={({ isActive }) => `tabbar__item ${isActive ? 'is-active' : ''}`}>
+          <NavLink key={tab.to} to={`${base}/${tab.to}`} end={tab.end} className={({ isActive }) => `tabbar__item ${isActive ? 'is-active' : ''}`}>
             <Icon name={tab.icon} size={22} />
             <span>{t(`tabs.${tab.key}`)}</span>
           </NavLink>

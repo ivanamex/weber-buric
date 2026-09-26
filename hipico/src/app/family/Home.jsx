@@ -5,6 +5,7 @@ import {
   boardingStatus, CANCEL_WINDOW_HOURS,
 } from '../../data/store.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
+import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty, Progress, SectionTitle } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
@@ -21,6 +22,7 @@ export default function FamilyHome() {
   const s = useStore()
   const toast = useToast()
   const { riderId } = useFamilyContext()
+  const base = useBase()
   const rider = byId(s.riders, riderId)
   const family = byId(s.families, s.session.familyId)
   const plan = getPlan(s, riderId)
@@ -28,8 +30,8 @@ export default function FamilyHome() {
   const next = upcoming[0]
   const boarding = boardingStatus(s, family.id)
 
-  const onCancel = (b) => {
-    const res = cancelBooking(b.id)
+  const onCancel = async (b) => {
+    const res = await cancelBooking(b.id)
     toast(res.ok ? t('toasts.cancelled') : t(`errors.${res.code}`, { hours: CANCEL_WINDOW_HOURS }), res.ok ? 'success' : 'error')
   }
 
@@ -46,14 +48,14 @@ export default function FamilyHome() {
         <NextClassCard booking={next} onCancel={onCancel} s={s} rider={rider} />
       ) : (
         <Empty icon="calendar" title={t('family.home.noClassTitle', { name: rider.name })} text={t('family.home.noClassText')}>
-          <Link to="/app/familia/reservar" className="btn btn--primary">{t('family.home.bookNow')}</Link>
+          <Link to={`${base}/familia/reservar`} className="btn btn--primary">{t('family.home.bookNow')}</Link>
         </Empty>
       )}
       {upcoming.length > 1 && (
         <p className="muted small">{t('family.home.moreBooked', { count: upcoming.length - 1 })}</p>
       )}
 
-      <SectionTitle action={<Link to="/app/familia/plan" className="link">{t('family.home.seePlan')}</Link>}>
+      <SectionTitle action={<Link to={`${base}/familia/plan`} className="link">{t('family.home.seePlan')}</Link>}>
         {t('family.home.monthlyPlan')}
       </SectionTitle>
       {plan ? (
@@ -73,7 +75,7 @@ export default function FamilyHome() {
         </div>
       ) : (
         <Empty icon="plan" title={t('plan.noPlanTitle')} text={t('plan.noPlanText')}>
-          <Link to="/app/familia/plan" className="btn btn--primary">{t('plan.choose')}</Link>
+          <Link to={`${base}/familia/plan`} className="btn btn--primary">{t('plan.choose')}</Link>
         </Empty>
       )}
 
@@ -91,7 +93,7 @@ export default function FamilyHome() {
         <Empty icon="barn" title={t('boarding.noneTitle')} text={t('boarding.noneText')} />
       )}
       {boarding.some((b) => b.status !== 'paid') && (
-        <Link to="/app/familia/plan" className="btn btn--outline btn--block">{t('boarding.goPay')}</Link>
+        <Link to={`${base}/familia/plan`} className="btn btn--outline btn--block">{t('boarding.goPay')}</Link>
       )}
     </div>
   )

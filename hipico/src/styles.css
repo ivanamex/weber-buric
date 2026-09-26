@@ -395,3 +395,25 @@ p.center { display: block; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* ───────── Live mode (Supabase) ───────── */
+.splash { min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: 16px; background: var(--cream); color: var(--muted); font-weight: 500; }
+.splash svg { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(.94); opacity: .8; } }
+.login__panel { display: grid; gap: 12px; width: 100%; margin-top: 30px; padding: 20px; border-radius: var(--radius); background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); text-align: left; }
+.login__panel p { color: rgba(255,255,255,.85); }
+.login__panel .field { margin-top: 0; }
+.login__panel .field > span { color: rgba(255,255,255,.75); }
+.login__panelTitle { display: flex; align-items: center; gap: 8px; font-family: var(--font-head); font-weight: 600; font-size: 1.1rem; color: #fff !important; }
+.input--code { font-family: var(--font-head); font-size: 1.5rem; letter-spacing: .3em; text-align: center; }
+.link--light { color: rgba(255,255,255,.8); justify-self: center; }
+.appbar__email { font-size: .75rem; color: var(--muted); max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.btn--dangerSolid { background: var(--terra); border-color: var(--terra); color: #fff; }
+.search { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); }
+.search input { flex: 1; min-width: 0; border: 0; background: transparent; font-size: 1rem; color: var(--ink); }
+.search input:focus { outline: none; }
+.search:focus-within { border-color: var(--green); }
+.break { overflow-wrap: anywhere; }
+.inline-icon { display: inline; vertical-align: -2px; }
+.riderform { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.tabbar__item span { white-space: nowrap; }

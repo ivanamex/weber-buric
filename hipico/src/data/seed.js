@@ -24,12 +24,12 @@ const horses = [
 ]
 
 const families = [
-  { id: 'f1', name: 'Familia Hernández', contact: 'Paola Hernández', phone: '+52 984 111 2233' },
-  { id: 'f2', name: 'Familia Martínez', contact: 'Jorge Martínez', phone: '+52 984 222 3344' },
-  { id: 'f3', name: 'Familia Ortega', contact: 'Andrea Ortega', phone: '+52 984 333 4455' },
-  { id: 'f4', name: 'Familia González', contact: 'Luis González', phone: '+52 984 444 5566' },
-  { id: 'f5', name: 'Familia Ruiz', contact: 'Carmen Ruiz', phone: '+52 984 555 6677' },
-  { id: 'f6', name: 'Familia Navarro', contact: 'Ricardo Navarro', phone: '+52 984 666 7788' },
+  { id: 'f1', email: 'paola.hernandez@ejemplo.com', name: 'Familia Hernández', contact: 'Paola Hernández', phone: '+52 984 111 2233' },
+  { id: 'f2', email: 'jorge.martinez@ejemplo.com', name: 'Familia Martínez', contact: 'Jorge Martínez', phone: '+52 984 222 3344' },
+  { id: 'f3', email: 'andrea.ortega@ejemplo.com', name: 'Familia Ortega', contact: 'Andrea Ortega', phone: '+52 984 333 4455' },
+  { id: 'f4', email: 'luis.gonzalez@ejemplo.com', name: 'Familia González', contact: 'Luis González', phone: '+52 984 444 5566' },
+  { id: 'f5', email: 'carmen.ruiz@ejemplo.com', name: 'Familia Ruiz', contact: 'Carmen Ruiz', phone: '+52 984 555 6677' },
+  { id: 'f6', email: 'ricardo.navarro@ejemplo.com', name: 'Familia Navarro', contact: 'Ricardo Navarro', phone: '+52 984 666 7788' },
 ]
 
 // level: beginner | intermediate | advanced. horseId = own boarded horse (optional)
