@@ -19,3 +19,10 @@ Landing page only; don't touch the app. Photos are in `public/img/`: `horse-beac
 - With reduced motion, show one still frame.
 
 Check it at 375 px and 1440 px wide.
+
+## Phone in the hero (built in code, no image file)
+- Draw a modern iPhone Pro Max frame in HTML/CSS: natural titanium edge, thin black bezel, Dynamic Island, rounded corners, a subtle side-button detail, a soft realistic shadow on the ground. Original drawing, no Apple logo.
+- Tilt it with CSS 3D: `perspective` + about `rotateY(-18deg) rotateX(4deg)`, so the whole screen faces the viewer and a thin sliver of the left edge shows. On hover (desktop) it eases toward about `-8deg`; on phones it stays still.
+- **Inside the screen, the real app** (the family home: plan with horseshoes, next class, coral button), rendered live from the demo components, not a screenshot. Every few seconds it scrolls slowly between Inicio → Reservar → Mi plan. Respect `prefers-reduced-motion`.
+- Place it on the right of the hero on desktop (text on the left), and below the headline on phones, at about 70% of the screen width.
+- Leave room around the phone for illustrations added later (a jump fence, horseshoes, balloons) as separate SVG layers.
