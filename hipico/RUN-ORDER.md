@@ -4,9 +4,9 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-14**: soft coral replaces gold everywhere; buttons coral with white text
-2. **STEP-12**: 6-digit code login + "Descargar para iPhone / Android"
-3. **STEP-13**: landing: subtle hovers, faded horse photos, running text-horse
+1. **STEP-12**: 6-digit code login + "Descargar para iPhone / Android"
+2. **STEP-13**: landing: subtle hovers, faded horse photos, running text-horse
+3. **STEP-14**: soft coral replaces gold everywhere; buttons coral with white text
 
 Check in the browser after each step, then "ok".
 
