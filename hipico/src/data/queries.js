@@ -18,7 +18,8 @@ export const planExpiry = (plan) => monthEnd(plan.month)
 export function familyRiders(s, familyId, { includeInactive = false } = {}) {
   return s.riders.filter((r) => r.familyId === familyId && (includeInactive || r.active !== false))
 }
-export const isActiveFamily = (f) => f.active !== false
+export const isActiveFamily = (f) => f.active !== false // false = blocked by the club
+export const isDeletedFamily = (f) => Boolean(f.deletedAt)
 
 /** Slot occurrences for a given date, enriched with counts and state for a rider. */
 export function occurrencesFor(s, date, riderId = null) {

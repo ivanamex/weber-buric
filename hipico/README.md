@@ -95,7 +95,7 @@ Every production deploy runs `scripts/migrate.mjs` before building. It connects 
 - **Running by hand:** `POSTGRES_URL_NON_POOLING=… npm run migrate`.
 
 ### Day to day
-- **Families and riders:** management adds them in the **Familias** tab (one by one, or a CSV list with a preview), with each rider's plan and its start date. A preloaded family signs in with that email and finds its plan already active. A new email gets a short sign-up form instead, and an existing email is always linked, never duplicated. Families can be edited or deactivated; history is kept.
+- **Families and riders:** anyone with the link signs up (email → code → riders) and can use the app right away. Management can also add a family in **Familias**, and assign a plan the club already collected, with its start date and no charge created. **Bloquear** pauses a family (no sign-in, no bookings, enforced by the database); **Desbloquear** reverses it. **Eliminar** removes access and hides the family, keeping its payment and attendance history. An existing email is always linked, never duplicated.
 - **Transfer receipts:** families choose **Transferencia**, see the club's bank details (edited by management in **Cobros → Datos para transferencia**), and upload a photo or PDF (up to 10 MB) to the private `receipts` bucket. Management reviews it in **Cobros** (a badge shows how many are waiting): **Aprobar** marks it paid by transfer and activates the plan; **Rechazar** needs a short note, which the family sees before uploading again.
 - **Standing plans:** a rider's package renews automatically on the first booking of each month, as a payment pending at the club.
 - **More management accounts:** add a row to the `admins` table (Supabase → Table Editor). Emails must be lowercase.

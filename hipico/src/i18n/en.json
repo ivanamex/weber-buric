@@ -353,38 +353,18 @@
       "removeRider": "Remove rider",
       "restoreRider": "Restore rider",
       "saveChanges": "Save changes",
-      "deactivate": "Deactivate family",
-      "deactivateSure": "Sure? Tap again",
-      "reactivate": "Reactivate family",
-      "inactive": "Deactivated",
       "selfSignup": "Signed up themselves",
       "standing": "{n}-class plan since {date}",
       "activeTab": "Active ({n})",
-      "inactiveTab": "Deactivated ({n})",
-      "planOption": "{n} classes"
-    },
-    "import": {
-      "button": "Import",
-      "title": "Import list (CSV)",
-      "help": "Export your list from Excel or Google Sheets as CSV with these columns. Riders: “Zara (intermediate); Mateo (beginner)”. Date: 2026-10-01 or 01/10/2026.",
-      "choose": "Choose CSV file",
-      "template": "Download template",
-      "colFamily": "Family",
-      "colPlan": "Plan · start",
-      "colStatus": "Status",
-      "new": "New",
-      "exists": "Already exists · skipped",
-      "save": "Import {n} families",
-      "empty": "The file is empty.",
-      "columns": "The “name” and “email” columns are missing.",
-      "err": {
-        "email": "Invalid email",
-        "contact": "Missing name",
-        "riders": "Missing riders",
-        "level": "Unknown level",
-        "plan": "Invalid plan",
-        "date": "Invalid date"
-      }
+      "planOption": "{n} classes",
+      "block": "Block",
+      "unblock": "Unblock family",
+      "blocked": "Blocked",
+      "blockedTab": "Blocked ({n})",
+      "delete": "Delete",
+      "deleteTitle": "Delete {name}?",
+      "deleteText": "They lose access and no longer appear in the lists. Their payment and attendance history is kept for Reports.",
+      "assignHint": "A plan assigned or changed here is active from that date, with no charge created (the club already collected it)."
     }
   },
   "toasts": {
@@ -405,13 +385,13 @@
     "riderAdded": "{name} added",
     "askClub": "Ask club management to add the rider",
     "familySaved": "Changes saved: {name}",
-    "familyDeactivated": "{name} deactivated. Their history is kept.",
-    "familyReactivated": "{name} reactivated",
-    "imported": "{n} families imported · {skipped} skipped",
     "receiptSent": "Receipt sent. It is now under review.",
     "receiptApproved": "{amount} payment approved",
     "receiptRejected": "Receipt rejected. The family will see your note.",
-    "bankSaved": "Bank details saved"
+    "bankSaved": "Bank details saved",
+    "familyBlocked": "{name} blocked. They can't sign in or book.",
+    "familyUnblocked": "{name} unblocked",
+    "familyDeleted": "{name} deleted. Their history is kept."
   },
   "errors": {
     "notFound": "Record not found.",
@@ -440,7 +420,9 @@
     "fileType": "Upload a photo (JPG, PNG, HEIC) or a PDF.",
     "uploadFailed": "The file couldn't be uploaded. Please try again.",
     "noteRequired": "Write the reason for rejecting.",
-    "badClabe": "The CLABE must have 18 digits."
+    "badClabe": "The CLABE must have 18 digits.",
+    "accountBlocked": "Your account is paused. Contact the club.",
+    "accountDeleted": "This account is no longer active. Contact the club."
   },
   "live": {
     "loading": "Loading…",
@@ -462,8 +444,10 @@
     "signupTitle": "Create your account",
     "signupText": "It's your first time with {email}. Tell us who rides and you're in.",
     "signupSubmit": "Create account",
-    "inactiveTitle": "Account deactivated",
-    "inactiveText": "This account is deactivated. Message the club to reactivate it."
+    "inactiveTitle": "Account paused",
+    "inactiveText": "Your account is paused. Contact the club.",
+    "deletedTitle": "Account unavailable",
+    "deletedText": "This account is no longer active. Contact the club."
   },
   "receipt": {
     "status": {

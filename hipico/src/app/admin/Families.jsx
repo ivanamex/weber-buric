@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, familyRiders, getPlan, createFamily, importFamilies, saveFamily, setFamilyActive, isActiveFamily, LEVELS,
+  useStore, familyRiders, getPlan, createFamily, saveFamily, setFamilyActive, deleteFamily, isActiveFamily, isDeletedFamily, LEVELS,
 } from '../../data/store.js'
 import { PLANS } from '../../data/prices.js'
-import { buildImport, CSV_TEMPLATE } from '../../lib/csv.js'
 import { todayKey } from '../../lib/time.js'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty, Segmented } from '../../components/ui.jsx'
@@ -115,81 +114,6 @@ function NewFamilyForm({ onDone }) {
   )
 }
 
-function ImportPanel({ onDone }) {
-  const { t, fmtDate } = useI18n()
-  const toast = useToast()
-  const s = useStore()
-  const [result, setResult] = useState(null)
-  const [busy, setBusy] = useState(false)
-  const existing = useMemo(() => new Set(s.families.map((f) => f.email?.toLowerCase())), [s.families])
-
-  const onFile = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const text = await file.text()
-    const res = buildImport(text, existing, PLANS.map((p) => p.classes))
-    if (res.error) { setResult(null); return toast(t(`admin.import.${res.error}`), 'error') }
-    setResult(res)
-  }
-  const ready = result?.items.filter((i) => i.status === 'new') || []
-  const onImport = async () => {
-    setBusy(true)
-    const res = await importFamilies(ready.map((i) => i.family))
-    setBusy(false)
-    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
-    toast(t('toasts.imported', { n: res.created, skipped: res.skipped + (result.items.length - ready.length) }))
-    onDone()
-  }
-  const templateHref = `data:text/csv;charset=utf-8,${encodeURIComponent(CSV_TEMPLATE)}`
-
-  return (
-    <div className="card">
-      <p className="card__title">{t('admin.import.title')}</p>
-      <p className="small muted">{t('admin.import.help')}</p>
-      <code className="csv-cols">nombre, correo, telefono, jinetes, plan, inicio</code>
-      <div className="row gap-sm mt12 wrap">
-        <label className="btn btn--sm btn--outline file-btn" htmlFor="csv-file">
-          <Icon name="plan" size={16} /> {t('admin.import.choose')}
-          <input id="csv-file" type="file" accept=".csv,text/csv" onChange={onFile} />
-        </label>
-        <a className="link" href={templateHref} download="familias-plantilla.csv">{t('admin.import.template')}</a>
-      </div>
-      {result && (
-        <>
-          <div className="table-wrap mt12">
-            <table className="preview">
-              <thead>
-                <tr><th>{t('admin.import.colFamily')}</th><th>{t('admin.families.riders')}</th><th>{t('admin.import.colPlan')}</th><th>{t('admin.import.colStatus')}</th></tr>
-              </thead>
-              <tbody>
-                {result.items.map((i) => (
-                  <tr key={i.line} className={`is-${i.status}`}>
-                    <td><strong>{i.family.contact || '—'}</strong><br /><span className="small muted">{i.family.email || '—'}</span></td>
-                    <td className="small">{i.family.riders.map((r) => `${r.name} · ${r.level ? t(`levels.${r.level}`) : '?'}`).join(', ')}</td>
-                    <td className="small">{i.family.plan ? t('plan.classesPlan', { n: i.family.plan }) : t('plan.none')}{i.family.start ? <><br />{fmtDate(i.family.start, { day: 'numeric', month: 'short' })}</> : null}</td>
-                    <td>
-                      {i.status === 'new' && <Badge tone="success">{t('admin.import.new')}</Badge>}
-                      {i.status === 'exists' && <Badge tone="neutral">{t('admin.import.exists')}</Badge>}
-                      {i.status === 'error' && <Badge tone="alert">{t(`admin.import.err.${i.error}`, { line: i.line })}</Badge>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="row gap-sm mt12 end">
-            <button type="button" className="btn btn--sm" onClick={onDone}>{t('common.cancel')}</button>
-            <button type="button" className="btn btn--sm btn--primary" disabled={busy || !ready.length} onClick={onImport}>
-              {t('admin.import.save', { n: ready.length })}
-            </button>
-          </div>
-        </>
-      )}
-      {!result && <div className="row mt12 end"><button type="button" className="btn btn--sm" onClick={onDone}>{t('common.cancel')}</button></div>}
-    </div>
-  )
-}
-
 function FamilyEditor({ family, onDone }) {
   const { t } = useI18n()
   const toast = useToast()
@@ -197,27 +121,27 @@ function FamilyEditor({ family, onDone }) {
   const [fields, setFields] = useState({ name: family.name, contact: family.contact, email: family.email, phone: family.phone || '' })
   const [riders, setRiders] = useState(() => familyRiders(s, family.id, { includeInactive: true })
     .map((r) => ({ id: r.id, name: r.name, level: r.level, age: r.age, active: r.active !== false, planClasses: r.planClasses || '' })))
+  const [planStart, setPlanStart] = useState(todayKey())
   const [busy, setBusy] = useState(false)
-  const [armed, setArmed] = useState(false)
-  useEffect(() => {
-    if (!armed) return undefined
-    const id = setTimeout(() => setArmed(false), 4000)
-    return () => clearTimeout(id)
-  }, [armed])
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const onSave = async (e) => {
     e.preventDefault()
     setBusy(true)
-    const res = await saveFamily({ familyId: family.id, fields, riders: riders.filter((r) => r.id || r.name.trim()) })
+    const res = await saveFamily({ familyId: family.id, fields, planStart, riders: riders.filter((r) => r.id || r.name.trim()) })
     setBusy(false)
     if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
     toast(t('toasts.familySaved', { name: fields.contact.trim() }))
     onDone()
   }
-  const onDeactivate = async () => {
-    if (!armed) return setArmed(true)
+  const onBlock = async () => {
     const res = await setFamilyActive(family.id, false)
-    toast(res.ok ? t('toasts.familyDeactivated', { name: family.name }) : t(`errors.${res.code}`), res.ok ? 'info' : 'error')
+    toast(res.ok ? t('toasts.familyBlocked', { name: family.name }) : t(`errors.${res.code}`), res.ok ? 'info' : 'error')
+    if (res.ok) onDone()
+  }
+  const onDelete = async () => {
+    const res = await deleteFamily(family.id)
+    toast(res.ok ? t('toasts.familyDeleted', { name: family.name }) : t(`errors.${res.code}`), res.ok ? 'info' : 'error')
     if (res.ok) onDone()
   }
   const id = family.id
@@ -240,15 +164,28 @@ function FamilyEditor({ family, onDone }) {
       <div className="field"><span>{t('admin.families.ridersAndPlans')}</span>
         <RidersEditor idPrefix={`ef-rider-${id}`} riders={riders} setRiders={setRiders} withPlan />
       </div>
-      <div className="row between mt12 wrap">
-        <button type="button" className={`btn btn--sm ${armed ? 'btn--dangerSolid' : 'btn--danger'}`} onClick={onDeactivate}>
-          {armed ? t('admin.families.deactivateSure') : t('admin.families.deactivate')}
-        </button>
-        <div className="row gap-sm">
-          <button type="button" className="btn btn--sm" onClick={onDone}>{t('common.cancel')}</button>
-          <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
-        </div>
+      <label className="field" htmlFor={`ef-start-${id}`}><span>{t('admin.families.planStart')}</span>
+        <input id={`ef-start-${id}`} className="input" type="date" value={planStart} onChange={(e) => setPlanStart(e.target.value)} required />
+      </label>
+      <p className="small muted mt8">{t('admin.families.assignHint')}</p>
+      <div className="row gap-sm mt12 end">
+        <button type="button" className="btn btn--sm" onClick={onDone}>{t('common.cancel')}</button>
+        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
       </div>
+      {confirmDelete ? (
+        <div className="danger-zone">
+          <p className="small"><strong>{t('admin.families.deleteTitle', { name: family.name })}</strong><br />{t('admin.families.deleteText')}</p>
+          <div className="row gap-sm end">
+            <button type="button" className="btn btn--sm" onClick={() => setConfirmDelete(false)}>{t('common.cancel')}</button>
+            <button type="button" className="btn btn--sm btn--dangerSolid" onClick={onDelete}>{t('admin.families.delete')}</button>
+          </div>
+        </div>
+      ) : (
+        <div className="row gap-sm mt16 wrap danger-actions">
+          <button type="button" className="btn btn--sm btn--danger" onClick={onBlock}><Icon name="clock" size={15} /> {t('admin.families.block')}</button>
+          <button type="button" className="btn btn--sm btn--danger" onClick={() => setConfirmDelete(true)}><Icon name="x" size={15} /> {t('admin.families.delete')}</button>
+        </div>
+      )}
     </form>
   )
 }
@@ -264,7 +201,7 @@ function FamilyCard({ family }) {
 
   const onReactivate = async () => {
     const res = await setFamilyActive(family.id, true)
-    toast(res.ok ? t('toasts.familyReactivated', { name: family.name }) : t(`errors.${res.code}`), res.ok ? 'success' : 'error')
+    toast(res.ok ? t('toasts.familyUnblocked', { name: family.name }) : t(`errors.${res.code}`), res.ok ? 'success' : 'error')
   }
 
   return (
@@ -281,7 +218,7 @@ function FamilyCard({ family }) {
         )}
       </div>
       <div className="row gap-sm wrap mt8">
-        {!active && <Badge tone="alert">{t('admin.families.inactive')}</Badge>}
+        {!active && <Badge tone="alert">{t('admin.families.blocked')}</Badge>}
         {family.selfSignup && <Badge tone="gold">{t('admin.families.selfSignup')}</Badge>}
         {horses.length > 0 && <Badge tone="neutral"><Icon name="barn" size={12} /> {horses.map((h) => h.name).join(', ')}</Badge>}
       </div>
@@ -312,7 +249,7 @@ function FamilyCard({ family }) {
           </ul>
           {!active && (
             <button type="button" className="btn btn--outline btn--sm btn--block mt8" onClick={onReactivate}>
-              <Icon name="refresh" size={16} /> {t('admin.families.reactivate')}
+              <Icon name="refresh" size={16} /> {t('admin.families.unblock')}
             </button>
           )}
         </>
@@ -325,14 +262,15 @@ export default function AdminFamilies() {
   const { t } = useI18n()
   const s = useStore()
   const [query, setQuery] = useState('')
-  const [panel, setPanel] = useState(null) // 'new' | 'import' | null
+  const [panel, setPanel] = useState(null) // 'new' | null
   const [view, setView] = useState('active')
 
-  const activeCount = s.families.filter(isActiveFamily).length
-  const inactiveCount = s.families.length - activeCount
+  const listed = s.families.filter((f) => !isDeletedFamily(f))
+  const activeCount = listed.filter(isActiveFamily).length
+  const inactiveCount = listed.length - activeCount
   const q = query.trim().toLowerCase()
   const shown = inactiveCount ? view : 'active'
-  const families = s.families
+  const families = listed
     .filter((f) => (shown === 'active' ? isActiveFamily(f) : !isActiveFamily(f)))
     .filter((f) => !q || [f.name, f.contact, f.email, ...familyRiders(s, f.id).map((r) => r.name)].some((v) => v?.toLowerCase().includes(q)))
 
@@ -342,7 +280,6 @@ export default function AdminFamilies() {
         <h1 className="page__title">{t('admin.families.title')}</h1>
         {!panel && (
           <div className="row gap-sm">
-            <button type="button" className="btn btn--sm btn--outline" onClick={() => setPanel('import')}>{t('admin.import.button')}</button>
             <button type="button" className="btn btn--primary btn--sm" onClick={() => setPanel('new')}>
               <Icon name="plus" size={16} /> {t('admin.families.add')}
             </button>
@@ -352,12 +289,11 @@ export default function AdminFamilies() {
       <p className="small muted">{t('admin.families.intro')}</p>
 
       {panel === 'new' && <NewFamilyForm onDone={() => setPanel(null)} />}
-      {panel === 'import' && <ImportPanel onDone={() => setPanel(null)} />}
 
       {inactiveCount > 0 && (
         <Segmented small value={shown} onChange={setView} options={[
           { value: 'active', label: t('admin.families.activeTab', { n: activeCount }) },
-          { value: 'inactive', label: t('admin.families.inactiveTab', { n: inactiveCount }) },
+          { value: 'inactive', label: t('admin.families.blockedTab', { n: inactiveCount }) },
         ]} />
       )}
 
@@ -370,7 +306,7 @@ export default function AdminFamilies() {
         <Empty icon="users" title={t(q ? 'admin.families.noMatch' : 'admin.families.emptyTitle')} text={q ? '' : t('admin.families.emptyText')} />
       ) : families.map((f) => <FamilyCard key={f.id} family={f} />)}
       {families.length > 0 && (
-        <p className="small muted center">{t('admin.families.count', { n: activeCount, riders: s.riders.filter((r) => r.active !== false).length })}</p>
+        <p className="small muted center">{t('admin.families.count', { n: activeCount, riders: s.riders.filter((r) => r.active !== false && listed.some((f) => f.id === r.familyId)).length })}</p>
       )}
     </div>
   )

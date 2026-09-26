@@ -46,6 +46,14 @@ export default function LiveLogin() {
   let body
   if (s.status === 'signup') {
     body = <SignupForm email={s.email} />
+  } else if (s.status === 'deleted') {
+    body = (
+      <div className="login__panel">
+        <p className="login__panelTitle">{t('live.deletedTitle')}</p>
+        <p>{t('live.deletedText')}</p>
+        <button type="button" className="btn btn--gold btn--block" onClick={() => logout()}>{t('live.otherEmail')}</button>
+      </div>
+    )
   } else if (s.status === 'inactive') {
     body = (
       <div className="login__panel">

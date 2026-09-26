@@ -353,38 +353,18 @@
       "removeRider": "Quitar jinete",
       "restoreRider": "Recuperar jinete",
       "saveChanges": "Guardar cambios",
-      "deactivate": "Desactivar familia",
-      "deactivateSure": "¿Seguro? Toca otra vez",
-      "reactivate": "Reactivar familia",
-      "inactive": "Desactivada",
       "selfSignup": "Se registró sola",
       "standing": "plan {n} desde {date}",
       "activeTab": "Activas ({n})",
-      "inactiveTab": "Desactivadas ({n})",
-      "planOption": "{n} clases"
-    },
-    "import": {
-      "button": "Importar",
-      "title": "Importar lista (CSV)",
-      "help": "Exporta tu lista desde Excel o Google Sheets como CSV con estas columnas. Jinetes: “Zara (intermedio); Mateo (principiante)”. Fecha: 2026-10-01 o 01/10/2026.",
-      "choose": "Elegir archivo CSV",
-      "template": "Descargar plantilla",
-      "colFamily": "Familia",
-      "colPlan": "Plan · inicio",
-      "colStatus": "Estado",
-      "new": "Nueva",
-      "exists": "Ya existe · se omite",
-      "save": "Importar {n} familias",
-      "empty": "El archivo está vacío.",
-      "columns": "Faltan las columnas “nombre” y “correo”.",
-      "err": {
-        "email": "Correo inválido",
-        "contact": "Falta el nombre",
-        "riders": "Faltan jinetes",
-        "level": "Nivel desconocido",
-        "plan": "Plan inválido",
-        "date": "Fecha inválida"
-      }
+      "planOption": "{n} clases",
+      "block": "Bloquear",
+      "unblock": "Desbloquear familia",
+      "blocked": "Bloqueada",
+      "blockedTab": "Bloqueadas ({n})",
+      "delete": "Eliminar",
+      "deleteTitle": "¿Eliminar a {name}?",
+      "deleteText": "Pierde el acceso y deja de aparecer en las listas. Su historial de pagos y asistencia se conserva para Reportes.",
+      "assignHint": "Al asignar o cambiar un plan aquí queda activo desde esa fecha, sin generar cobro (el club ya lo cobró)."
     }
   },
   "toasts": {
@@ -405,13 +385,13 @@
     "riderAdded": "{name} agregado(a)",
     "askClub": "Pide a la dirección del club que agregue al jinete",
     "familySaved": "Cambios guardados: {name}",
-    "familyDeactivated": "{name} desactivada. Su historial se conserva.",
-    "familyReactivated": "{name} reactivada",
-    "imported": "{n} familias importadas · {skipped} omitidas",
     "receiptSent": "Comprobante enviado. Quedó por revisar.",
     "receiptApproved": "Pago de {amount} aprobado",
     "receiptRejected": "Comprobante rechazado. La familia verá tu nota.",
-    "bankSaved": "Datos bancarios guardados"
+    "bankSaved": "Datos bancarios guardados",
+    "familyBlocked": "{name} bloqueada. No puede entrar ni reservar.",
+    "familyUnblocked": "{name} desbloqueada",
+    "familyDeleted": "{name} eliminada. Su historial se conserva."
   },
   "errors": {
     "notFound": "No se encontró el registro.",
@@ -440,7 +420,9 @@
     "fileType": "Sube una foto (JPG, PNG, HEIC) o un PDF.",
     "uploadFailed": "No se pudo subir el archivo. Inténtalo de nuevo.",
     "noteRequired": "Escribe el motivo del rechazo.",
-    "badClabe": "La CLABE debe tener 18 dígitos."
+    "badClabe": "La CLABE debe tener 18 dígitos.",
+    "accountBlocked": "Tu cuenta está pausada. Contacta al club.",
+    "accountDeleted": "Esta cuenta ya no está activa. Contacta al club."
   },
   "live": {
     "loading": "Cargando…",
@@ -462,8 +444,10 @@
     "signupTitle": "Crea tu cuenta",
     "signupText": "Es tu primera vez con {email}. Cuéntanos quién monta y listo.",
     "signupSubmit": "Crear cuenta",
-    "inactiveTitle": "Cuenta desactivada",
-    "inactiveText": "Esta cuenta está desactivada. Escríbele al club para reactivarla."
+    "inactiveTitle": "Cuenta pausada",
+    "inactiveText": "Tu cuenta está pausada. Contacta al club.",
+    "deletedTitle": "Cuenta no disponible",
+    "deletedText": "Esta cuenta ya no está activa. Contacta al club."
   },
   "receipt": {
     "status": {

@@ -57,7 +57,8 @@ async function load() {
     const email = who.data.email
     if (!who.data.is_admin && !who.data.family_id) {
       // Deactivated family → blocked. Unknown email → short sign-up form (never a duplicate).
-      return publish({ ...empty, status: who.data.family_inactive ? 'inactive' : 'signup', email })
+      const status = who.data.family_deleted ? 'deleted' : who.data.family_inactive ? 'inactive' : 'signup'
+      return publish({ ...empty, status, email })
     }
 
     const today = todayKey()
@@ -161,10 +162,9 @@ const familyPayload = (p) => ({
 })
 
 const createFamily = (p) => call('admin_create_family', { p: familyPayload(p) })
-const importFamilies = (list) => call('admin_import_families', { p: list.map(familyPayload) })
 const selfSignup = (p) => call('self_signup', { p: familyPayload(p) })
 
-async function saveFamily({ familyId, fields, riders = [] }) {
+async function saveFamily({ familyId, fields, riders = [], planStart }) {
   try {
     const email = (fields.email || '').trim().toLowerCase()
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !fields.contact?.trim()) return { ok: false, code: 'missing' }
@@ -173,6 +173,8 @@ async function saveFamily({ familyId, fields, riders = [] }) {
     }).eq('id', familyId)
     if (error) return { ok: false, code: error.code === '23505' ? 'emailExists' : 'network' }
     const current = getRiders()
+    // The start date goes with the plans being changed; if no plan changes, it moves every current plan.
+    const startOnly = !riders.some((r) => r.id && (Number(r.planClasses) || null) !== (current.find((x) => x.id === r.id)?.planClasses || null))
     for (const r of riders) {
       if (!r.name?.trim() || !r.level) return { ok: false, code: 'missing' }
       let id = r.id
@@ -185,10 +187,10 @@ async function saveFamily({ familyId, fields, riders = [] }) {
         if (res.error) return { ok: false, code: 'network' }
         id = res.data.id
       }
-      const before = current.find((x) => x.id === id)?.planClasses || null
+      const prev = current.find((x) => x.id === id)
       const after = Number(r.planClasses) || null
-      if (before !== after) {
-        const res = await rpcOnly('admin_set_plan', { p_rider: id, p_classes: after })
+      if ((prev?.planClasses || null) !== after || (startOnly && after && planStart && planStart !== prev?.planStart)) {
+        const res = await rpcOnly('admin_set_plan', { p_rider: id, p_classes: after, p_start: planStart || null })
         if (!res.ok) { await refresh(); return res }
       }
     }
@@ -198,6 +200,13 @@ async function saveFamily({ familyId, fields, riders = [] }) {
     console.error('[hipico] saveFamily failed', err)
     return { ok: false, code: 'network' }
   }
+}
+
+async function deleteFamily(familyId) {
+  const { error } = await sb.from('families').update({ deleted_at: new Date().toISOString() }).eq('id', familyId)
+  if (error) return { ok: false, code: 'network' }
+  await refresh()
+  return { ok: true }
 }
 
 async function setFamilyActive(familyId, active) {
@@ -262,9 +271,9 @@ export const actions = {
   registerCamp: ({ eventId, riderId }) => call('register_camp', { p_event: eventId, p_rider: riderId }),
   bookRental: ({ date, time, hours, horseId }) => call('book_rental', { p_date: date, p_time: time, p_hours: hours, p_horse: horseId }),
   createFamily,
-  importFamilies,
   saveFamily,
   setFamilyActive,
+  deleteFamily,
   selfSignup,
   uploadReceipt,
   reviewReceipt,

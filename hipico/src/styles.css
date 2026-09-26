@@ -435,15 +435,6 @@ p.center { display: block; }
 .riders-editor .link, .login__panel .field .link { justify-self: start; }
 .family-editor { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
 .card--inactive { opacity: .8; background: #FAF7F0; }
-.csv-cols { display: block; margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: var(--green-soft); color: var(--green-dark); font-size: .8rem; overflow-x: auto; white-space: nowrap; }
-.file-btn { position: relative; overflow: hidden; }
-.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
-.preview { width: 100%; border-collapse: collapse; font-size: .86rem; }
-.preview th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 8px 10px; background: #FAF6EC; }
-.preview td { padding: 8px 10px; border-top: 1px solid #EEE7D8; vertical-align: top; }
-.preview tr.is-error td { background: #FBF1EC; }
-.preview tr.is-exists td { color: var(--muted); }
 .login__panel .rider-row { margin-bottom: 6px; }
 @media (max-width: 480px) { .grid2--stack { grid-template-columns: 1fr; } .grid2--stack .field { margin-top: 10px; } }
 
@@ -470,3 +461,5 @@ p.center { display: block; }
 .viewer__actions { display: grid; gap: 10px; padding: 14px 16px 18px; background: var(--card); color: var(--ink); border-radius: 18px 18px 0 0; }
 .iconbtn--light { color: #fff; }
 .iconbtn--light:hover:not(:disabled) { background: rgba(255,255,255,.12); }
+.danger-actions { padding-top: 12px; border-top: 1px dashed var(--border); }
+.danger-zone { display: grid; gap: 10px; margin-top: 16px; padding: 12px; border-radius: var(--radius-sm); background: var(--terra-soft); color: #6E2B14; }

@@ -55,7 +55,11 @@ export function activate(setState) {
 }
 
 function login(role) {
-  return mutate((s) => { s.session = { role, familyId: role === 'family' ? DEMO_FAMILY_ID : null } })
+  return mutate((s) => {
+    const family = byId(s.families, DEMO_FAMILY_ID)
+    if (role === 'family' && (family?.active === false || family?.deletedAt)) return fail(family.deletedAt ? 'accountDeleted' : 'accountBlocked')
+    s.session = { role, familyId: role === 'family' ? DEMO_FAMILY_ID : null }
+  })
 }
 function logout() {
   return mutate((s) => { s.session = null })
@@ -285,37 +289,28 @@ function createFamily(p) {
   return mutate((s) => createFamilyIn(s, p))
 }
 
-function importFamilies(list) {
-  return mutate((s) => {
-    let created = 0; let skipped = 0; let failed = 0
-    for (const p of list) {
-      const res = createFamilyIn(s, p)
-      if (res.ok) created++
-      else if (res.code === 'emailExists') skipped++
-      else failed++
-    }
-    return { ok: true, created, skipped, failed }
-  })
-}
-
-function setPlanIn(s, riderId, classes) {
+/** Assign a plan the club already collected (no payment): active from the start date's month. */
+function setPlanIn(s, riderId, classes, start) {
   const rider = byId(s.riders, riderId)
   if (!rider) return fail('notFound')
   if (classes && !planPrice(classes)) return fail('badPlan')
-  const plan = getPlan(s, riderId)
+  const month = [monthKeyOf(start || todayKey()), currentMonthKey()].sort().pop()
+  const plan = getPlan(s, riderId, month)
   if (classes && plan && classes < plan.used) return fail('belowUsed')
   rider.planClasses = classes || null
-  rider.planStart = classes ? rider.planStart || todayKey() : null
+  rider.planStart = classes ? start || rider.planStart || todayKey() : null
   if (classes) {
-    if (plan) plan.total = classes
-    else s.plans.push({ id: nextId(s, 'pl'), riderId, month: currentMonthKey(), total: classes, used: 0, paid: true })
+    if (plan) Object.assign(plan, { total: classes, paid: true })
+    else s.plans.push({ id: nextId(s, 'pl'), riderId, month, total: classes, used: 0, paid: true })
   }
   return { ok: true }
 }
 
 /** Save management edits: family fields, rider changes (new riders have no id) and plan changes. */
-function saveFamily({ familyId, fields, riders = [] }) {
+function saveFamily({ familyId, fields, riders = [], planStart }) {
   return mutate((s) => {
+    // The start date goes with the plans being changed; if no plan changes, it moves every current plan.
+    const startOnly = !riders.some((r) => r.id && (Number(r.planClasses) || null) !== (byId(s.riders, r.id)?.planClasses || null))
     const family = byId(s.families, familyId)
     if (!family) return fail('notFound')
     const email = (fields.email ?? family.email).trim().toLowerCase()
@@ -336,8 +331,9 @@ function saveFamily({ familyId, fields, riders = [] }) {
       } else {
         Object.assign(rider, { name: r.name.trim(), level: r.level, age: Number(r.age) || null, active: r.active !== false })
       }
-      if ((Number(r.planClasses) || null) !== (rider.planClasses || null)) {
-        const res = setPlanIn(s, rider.id, Number(r.planClasses) || null)
+      const planChanged = (Number(r.planClasses) || null) !== (rider.planClasses || null)
+      if (planChanged || (startOnly && r.planClasses && planStart !== rider.planStart)) {
+        const res = setPlanIn(s, rider.id, Number(r.planClasses) || null, planStart)
         if (!res.ok) return res
       }
     }
@@ -345,6 +341,16 @@ function saveFamily({ familyId, fields, riders = [] }) {
   })
 }
 
+function deleteFamily(familyId) {
+  return mutate((s) => {
+    const family = byId(s.families, familyId)
+    if (!family) return fail('notFound')
+    family.deletedAt = now()
+    return { ok: true }
+  })
+}
+
+/** Block (paused: no sign-in, no bookings) or unblock. */
 function setFamilyActive(familyId, active) {
   return mutate((s) => {
     const family = byId(s.families, familyId)
@@ -430,7 +436,7 @@ function saveSettings(fields) {
 export const actions = {
   login, logout, resetDemo, bookClass, cancelBooking, markAttendance, choosePlan,
   requestBoardingPayment, markPaid, registerCamp, bookRental,
-  createFamily, importFamilies, saveFamily, setFamilyActive,
+  createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),
   uploadReceipt, reviewReceipt, receiptUrl, saveSettings,
 }

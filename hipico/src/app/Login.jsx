@@ -16,7 +16,8 @@ export default function Login() {
   if (session) return <Navigate to={`${base}/${session.role === 'admin' ? 'direccion' : 'familia'}`} replace />
 
   const enter = async (role) => {
-    await login(role)
+    const res = await login(role)
+    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
     toast(t(role === 'admin' ? 'login.welcomeAdmin' : 'login.welcomeFamily'))
     navigate(`${base}/${role === 'admin' ? 'direccion' : 'familia'}`)
   }
