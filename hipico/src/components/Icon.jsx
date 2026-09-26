@@ -32,6 +32,14 @@ const P = {
   route: <><circle cx="6" cy="18" r="2.2" /><circle cx="18" cy="6" r="2.2" /><path d="M8.2 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8" /></>,
   phone: <><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" /><path d="M11 18.5h2" /></>,
   sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" /></>,
+  // Club pictograms (original drawings)
+  horseHead: <><path d="M6 21c0-6 1-11 4-15l.5-3 2 2.5c2.5 1.5 5.5 4.5 7 8 .7 1.6-.5 3.1-2 2.5-1.4-.6-2.8-.9-4-.4-1 .9-1.2 3.4-.5 5.4" /><path d="M9 8.5c-1.2 1-1.6 2.3-1.6 3.6M8.2 12.6c-.9 1-1.1 2.3-1 3.6" /><circle cx="14" cy="9.4" r=".7" fill="currentColor" stroke="none" /><circle cx="18.3" cy="13.9" r=".5" fill="currentColor" stroke="none" /></>,
+  horseshoe: <><path d="M7.4 4.2a7.6 7.6 0 1 0 9.2 0" /><path d="M9.6 6.6a4.7 4.7 0 1 0 4.8 0" /><path d="M7.4 4.2 9.6 6.6M16.6 4.2l-2.2 2.4" /><g fill="currentColor" stroke="none"><circle cx="6.3" cy="10" r=".6" /><circle cx="7.2" cy="14.8" r=".6" /><circle cx="17.7" cy="10" r=".6" /><circle cx="16.8" cy="14.8" r=".6" /></g></>,
+  helmet: <><path d="M4 16c0-5.6 3.6-9.6 8.3-9.6 4.4 0 7.6 3.4 7.7 7.6l2.2 1.6c.3.3.1.6-.3.6H4z" /><path d="M5 12.6h14.4" /><path d="M6.5 16.4c0 2.4 1.7 4.1 4.1 4.1" /><circle cx="12.3" cy="6.4" r=".75" fill="currentColor" stroke="none" /></>,
+  saddle: <><path d="M3 5.5c.9 3.4 3.6 5 7.8 4.8 3.3-.2 5.4-1.4 6.9-3.5.6-.9 1.7-1.2 2.6-.7" /><path d="M8.3 10.2 7.6 16c-.1 1.1.7 2 1.8 2h3.3c1 0 1.8-.8 1.9-1.8l.4-6.6" /><path d="M11.2 18v1.3M9.4 21.2h3.6M9.8 21.2l1.4-1.9 1.4 1.9" /></>,
+  receipt: <><path d="M6 3h12v18l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3z" /><path d="M9 8h6M9 11.5h6M9 15h3.5" /></>,
+  family: <><circle cx="7.5" cy="6.5" r="2.4" /><circle cx="16.5" cy="6.5" r="2.4" /><circle cx="12" cy="13" r="1.8" /><path d="M3 19c.6-3.6 2.3-5.6 4.5-5.6 1 0 1.9.4 2.6 1.1M21 19c-.6-3.6-2.3-5.6-4.5-5.6-1 0-1.9.4-2.6 1.1M9.4 21c.4-2 1.3-3.2 2.6-3.2s2.2 1.2 2.6 3.2" /></>,
+  balloons: <><path d="M9 3.6c2 0 3.5 1.9 3.5 4.4S11 12.4 9 12.4 5.5 10.5 5.5 8 7 3.6 9 3.6z" /><path d="M15.6 7.2c1.6 0 2.9 1.6 2.9 3.6s-1.3 3.6-2.9 3.6-2.9-1.6-2.9-3.6 1.3-3.6 2.9-3.6z" /><path d="M8.5 12.4l.5.9.5-.9M9 13.3c-.8 2 .6 3.9-.4 7.7M15.6 14.4c.5 2.2-1.2 3.8-2.8 6.6" /><path d="M19.6 1.6v1.3M21.9 3.9h-1.3M18 2.3l.8.8M21.2 5.6l-.8-.6" /></>,
   sparkle: <path d="M12 3.5 13.8 10l6.7 2-6.7 2L12 20.5 10.2 14l-6.7-2 6.7-2z" />,
   shield: <><path d="M12 3 4.5 6v5.5c0 4.6 3.1 8 7.5 9.5 4.4-1.5 7.5-4.9 7.5-9.5V6z" /><path d="m9 12 2.2 2.2L15.5 10" /></>,
   whatsapp: <><path d="M4 20.5 5.3 16.6A8.5 8.5 0 1 1 8.2 19.4z" /><path d="M9.2 8.6c.2-.5.6-.6 1-.6.2 0 .5.4.8 1.2.2.5-.4 1-.5 1.2.4 1.2 1.6 2.4 2.9 2.9.3-.2.7-.8 1.2-.6.8.3 1.2.6 1.2.8 0 .5-.2 1-.7 1.2-1.7.8-6.6-2.6-5.9-6.1z" fill="currentColor" stroke="none" /></>,
@@ -41,7 +49,7 @@ export function Icon({ name, size = 22, className = '', ...rest }) {
   return (
     <svg
       width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+      strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
       className={`icon ${className}`} {...rest}
     >
       {P[name] || P.info}

@@ -1,21 +1,21 @@
 import { Link } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { Logo, Mark } from '../components/Logo.jsx'
+import { BrandLogo, Logo, Mark } from '../components/Logo.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
 import { Icon } from '../components/Icon.jsx'
-import { waLink } from '../components/ui.jsx'
+import { Horseshoes, waLink } from '../components/ui.jsx'
 
 const STEPS = [
   { key: 'book', icon: 'calendar' },
-  { key: 'plan', icon: 'plan' },
+  { key: 'plan', icon: 'horseshoe' },
   { key: 'pay', icon: 'phone' },
 ]
 const FEATURES = [
   { key: 'bookings', icon: 'calendar' },
-  { key: 'plans', icon: 'plan' },
+  { key: 'plans', icon: 'horseshoe' },
   { key: 'boarding', icon: 'barn' },
-  { key: 'rental', icon: 'route' },
-  { key: 'events', icon: 'tent' },
+  { key: 'rental', icon: 'horseHead' },
+  { key: 'events', icon: 'balloons' },
   { key: 'admin', icon: 'chart' },
 ]
 
@@ -26,7 +26,7 @@ function PhonePreview() {
       <div className="phone__notch" />
       <div className="phone__screen">
         <div className="phone__top">
-          <Mark size={26} />
+          <Mark size={30} />
           <span>{t('landing.preview.hello')}</span>
         </div>
         <div className="phone__card phone__card--green">
@@ -37,15 +37,15 @@ function PhonePreview() {
         <div className="phone__card">
           <small>{t('landing.preview.plan')}</small>
           <strong>{t('landing.preview.progress')}</strong>
-          <div className="progress progress--gold"><span style={{ width: '62%' }} /></div>
+          <Horseshoes used={5} total={8} label={t('landing.preview.progress')} />
         </div>
         <div className="phone__card phone__card--row">
-          <Icon name="barn" size={18} />
+          <Icon name="saddle" size={18} />
           <span>{t('landing.preview.boarding')}</span>
           <em>✓</em>
         </div>
         <div className="phone__tabs">
-          <Icon name="home" size={16} /><Icon name="calendar" size={16} /><Icon name="plan" size={16} /><Icon name="more" size={16} />
+          <Icon name="horseHead" size={16} /><Icon name="calendar" size={16} /><Icon name="horseshoe" size={16} /><Icon name="more" size={16} />
         </div>
       </div>
     </div>
@@ -74,6 +74,7 @@ export default function Landing() {
         </div>
         <div className="container hero__inner">
           <div className="hero__copy">
+            <BrandLogo variant="white" height={64} className="hero__logo" />
             <p className="eyebrow eyebrow--gold">{t('landing.eyebrow')}</p>
             <h1>{t('landing.headline')}</h1>
             <p className="hero__sub">{t('landing.subline')}</p>
@@ -99,7 +100,7 @@ export default function Landing() {
             {STEPS.map((s, i) => (
               <li key={s.key} className="step">
                 <span className="step__num">{i + 1}</span>
-                <span className="step__icon"><Icon name={s.icon} size={26} /></span>
+                <span className="step__icon"><Icon name={s.icon} size={28} /></span>
                 <h3>{t(`landing.how.${s.key}.title`)}</h3>
                 <p>{t(`landing.how.${s.key}.text`)}</p>
               </li>
@@ -115,7 +116,7 @@ export default function Landing() {
           <div className="features">
             {FEATURES.map((f) => (
               <article key={f.key} className="feature">
-                <span className="feature__icon"><Icon name={f.icon} size={24} /></span>
+                <span className="feature__icon"><Icon name={f.icon} size={28} /></span>
                 <h3>{t(`landing.features.${f.key}.title`)}</h3>
                 <p>{t(`landing.features.${f.key}.text`)}</p>
               </article>

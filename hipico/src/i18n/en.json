@@ -159,8 +159,7 @@
     },
     "home": {
       "nextClass": "Next class",
-      "noClassTitle": "{name} has no classes booked",
-      "noClassText": "Book your next class in seconds.",
+      "noClassTitle": "{name} doesn't have any classes booked yet",
       "bookNow": "Book a class",
       "moreBooked": "+{count} more class(es) booked",
       "cancel": "Cancel class",
@@ -173,8 +172,7 @@
       "title": "Book a class",
       "planLine": "{name}: {n} classes available in {month}",
       "noPlanLine": "No plan for {month}.",
-      "noSlotsTitle": "No classes this day",
-      "noSlotsText": "The club rests on Sundays. Pick another day.",
+      "noSlotsTitle": "The club rests on this day",
       "spotsLeft": "{n} of {cap} spots open",
       "full": "Class full",
       "book": "Book",
@@ -182,7 +180,8 @@
       "past": "Past",
       "fullBtn": "Full",
       "otherLevel": "Other level",
-      "cancelRule": "Cancel up to 12 h before and the class returns to your plan"
+      "cancelRule": "Cancel up to 12 h before and the class returns to your plan",
+      "nextDay": "See the next day"
     }
   },
   "plan": {
@@ -195,8 +194,7 @@
     "paid": "Paid",
     "pendingPay": "Payment pending",
     "none": "No plan",
-    "noPlanTitle": "No plan this month",
-    "noPlanText": "Choose a package to start booking.",
+    "noPlanTitle": "You don't have a plan this month yet",
     "noPlanFor": "{name} has no plan for {month}.",
     "choose": "Choose plan",
     "current": "{month} plan",
@@ -223,10 +221,10 @@
       "pending": "Payment pending",
       "due": "Due"
     },
-    "noneTitle": "No boarded horses",
-    "noneText": "Have your own horse? Ask us about boarding.",
+    "noneTitle": "Have your own horse? Ask us about boarding",
     "goPay": "Pay boarding",
-    "ask": "Request information"
+    "ask": "Request information",
+    "waText": "Hi, I'd like information about horse boarding."
   },
   "more": {
     "title": "More",
@@ -294,10 +292,10 @@
       "noshow": "No-show",
       "own": "own",
       "planOk": "Plan up to date · {n} left",
-      "emptyTitle": "No classes booked",
-      "emptyText": "There are no bookings for this day.",
+      "emptyTitle": "No classes booked this day",
       "rule": "Both “Came” and “No-show” count the class as used.",
-      "allCame": "All came"
+      "allCame": "All came",
+      "seeSchedule": "See schedule"
     },
     "payments": {
       "title": "Payments",
@@ -306,8 +304,7 @@
       "pending": "Pending payments",
       "since": "Registered {date}",
       "markPaid": "Mark as paid",
-      "emptyTitle": "All collected",
-      "emptyText": "There are no pending payments.",
+      "emptyTitle": "All collected: no pending payments",
       "recent": "Recent payments",
       "noneRecent": "No payments collected this month yet."
     },
@@ -338,7 +335,6 @@
       "save": "Save family",
       "search": "Search family or rider",
       "emptyTitle": "No families yet",
-      "emptyText": "Add the first family with the “Add” button.",
       "noMatch": "No results",
       "boarded": "Boarded horse",
       "noRiders": "No riders yet",
@@ -516,8 +512,7 @@
     "backToPlan": "The class went back to your plan.",
     "saved": "Changes saved",
     "created": "Class created",
-    "emptyTitle": "No classes",
-    "emptyText": "Create the first class of the week.",
+    "emptyTitle": "No classes this week yet",
     "name": "Name",
     "classesCount": "{n} classes",
     "addInstructor": "Add instructor",

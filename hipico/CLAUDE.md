@@ -55,20 +55,36 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
 - The cloud container can't reach `*.vercel.app` or the user's Supabase, so the user checks the live site.
 - Shell gotcha: `pkill -f <pattern>` inside a longer command can kill the shell itself (exit 144). Run it on its own.
 
-## Status (end of first session)
+## Status
 
-**Done and live**
-- Landing page, PWA icons/manifest, ES/EN.
-- Demo with seeded data at `/demo`.
-- Supabase live mode at `/app`: email sign-in, Row Level Security, all booking/plan/payment rules in SQL.
-- Management tabs: Hoy (attendance), Cobros (mark paid), **Familias** (add families and riders), Reportes.
-- `schema.sql` has been run in supabase-cerise-harbor. Management email = the developer's Gmail.
-- Supabase Auth URL Configuration set: Site URL is the live domain, Redirect URL includes `/app`.
-- Merged PRs: ivanamex/weber-buric#1 (app), #2 (Supabase live mode), #3 (input text color fix).
+**Live** (all on `main`, deployed by Vercel, database updates applied automatically):
+- **Landing and app:** landing page, PWA, ES/EN, and the demo at `/demo`, which mirrors every feature.
+- **Live mode at `/app`:**
+  - sign-in by email link or code, with open sign-up and instant access (a short form for unknown emails);
+  - an existing email is always linked to its family, never duplicated.
+- **Familias (management):**
+  - add a family with riders, plan and start date;
+  - edit a family, its riders and plans; assigning a plan the club already collected creates no charge;
+  - Bloquear / Desbloquear, and Eliminar (soft delete, history kept).
+- **Cobros:**
+  - transfer receipts go to a private `receipts` bucket, with a review step (approve or reject with a note) and a count badge;
+  - bank details are edited in *Datos para transferencia*.
+- **Horario:**
+  - weekly classes: create, edit, on/off;
+  - cancel a single date (bookings return to the plan) or reopen it;
+  - instructors and horses, with on/off.
+- **Hoy:** Vino / No vino, plus "Todos vinieron".
+- **Visual:**
+  - club logo: white on green (header, hero), green on cream (login, splash);
+  - PWA icons and favicon made from the logo;
+  - original pictograms (`Icon.jsx`: horseHead, horseshoe, helmet, saddle, receipt, family, balloons…);
+  - plan progress as horseshoes (`Horseshoes` in `ui.jsx`);
+  - booking celebration (`celebrate.js`, skipped with reduced motion);
+  - empty states: a pictogram, one line and one action.
 
-**In progress**
-- End-to-end test with a real test family: family "Weber", contact Ivana, rider Zara (8, intermediate), created in Familias.
-- Still to confirm: that family signs in → chooses a plan ("Pagaré en el club") → books → management sees it in Hoy/Cobros and marks it paid.
+**Database updates so far:** `20260927_family_accounts`, `20260928_transfer_receipts`, `20260929_family_block_delete`, `20260930_schedule`.
+
+**Waiting on the club:** bank details (bank, holder, 18-digit CLABE), real prices, schedule, instructors and horses, the owner's email for management, and the logo as a vector file (the PNG is 171×226, so keep it at 64 px tall or less).
 
 ## Next steps
 

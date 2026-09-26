@@ -6,7 +6,7 @@ import {
 import { PLANS, BOARDING_MONTHLY } from '../../data/prices.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
 import { Icon } from '../../components/Icon.jsx'
-import { Badge, Progress, SectionTitle, Segmented } from '../../components/ui.jsx'
+import { Badge, Horseshoes, SectionTitle, Segmented } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { ReceiptBadge, TransferPanel } from '../../components/Transfer.jsx'
 import { currentMonthKey, nextMonthKey } from '../../lib/time.js'
@@ -73,7 +73,7 @@ export default function FamilyPlan() {
             </div>
             {current.paid ? <Badge tone="success">{t('plan.paid')}</Badge> : <Badge tone="alert">{t('plan.pendingPay')}</Badge>}
           </div>
-          <Progress value={current.used} max={current.total} tone="gold" />
+          <Horseshoes used={current.used} total={current.total} label={t('plan.usedOf', { used: current.used, total: current.total })} />
           <div className="row between small muted mt8">
             <span>{t('plan.remaining', { n: planRemaining(current) })}</span>
             <span>{t('plan.expires', { date: fmtDate(planExpiry(current), { day: 'numeric', month: 'short' }) })}</span>
@@ -83,7 +83,7 @@ export default function FamilyPlan() {
         <div className="notice"><Icon name="info" size={18} /> {t('plan.noPlanFor', { name: rider.name, month: monthName(thisMonth) })}</div>
       )}
 
-      <SectionTitle>{t('plan.packages')}</SectionTitle>
+      <SectionTitle icon="horseshoe">{t('plan.packages')}</SectionTitle>
       <Segmented
         options={[thisMonth, nextMonthKey(thisMonth)].map((m) => ({ value: m, label: monthName(m) }))}
         value={month}
@@ -110,10 +110,10 @@ export default function FamilyPlan() {
         </div>
       </div>
 
-      <SectionTitle>{t('boarding.title')}</SectionTitle>
+      <SectionTitle icon="saddle">{t('boarding.title')}</SectionTitle>
       <div className="card pricecard">
         <div className="row gap">
-          <span className="tile-icon tile-icon--gold"><Icon name="barn" /></span>
+          <span className="tile-icon tile-icon--gold"><Icon name="saddle" /></span>
           <div className="grow">
             <p className="card__title">{t('boarding.full')}</p>
             <p className="small muted">{t('boarding.includes')}</p>
@@ -140,7 +140,7 @@ export default function FamilyPlan() {
         )}
       </div>
 
-      <SectionTitle>{t('plan.pendingTitle')}</SectionTitle>
+      <SectionTitle icon="receipt">{t('plan.pendingTitle')}</SectionTitle>
       {pending.length ? (
         <ul className="list card">
           {pending.map((p) => (

@@ -32,7 +32,7 @@ export default function AdminReports() {
         <div className="stat"><strong>{boarded}</strong><span>{t('admin.reports.boarded')}</span></div>
       </div>
 
-      <SectionTitle>{t('admin.reports.income')}</SectionTitle>
+      <SectionTitle icon="trophy">{t('admin.reports.income')}</SectionTitle>
       <div className="card">
         <p className="card__label">{t('admin.reports.totalMonth')}</p>
         <p className="bignum">{fmtMoney(total)}</p>

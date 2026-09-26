@@ -110,10 +110,10 @@ export default function LiveLogin() {
     <div className="login">
       <div className="login__top">
         <Link to="/" className="login__back"><Icon name="chevronLeft" size={18} /> {t('login.back')}</Link>
-        <LangToggle light />
+        <LangToggle />
       </div>
       <div className="login__body">
-        <Mark size={76} />
+        <Mark size={64} />
         <h1>Hípico Riviera Maya</h1>
         <p>{t('live.subtitle')}</p>
         {body}

@@ -303,7 +303,9 @@ export default function AdminFamilies() {
       </label>
 
       {families.length === 0 ? (
-        <Empty icon="users" title={t(q ? 'admin.families.noMatch' : 'admin.families.emptyTitle')} text={q ? '' : t('admin.families.emptyText')} />
+        <Empty icon="family" title={t(q ? 'admin.families.noMatch' : 'admin.families.emptyTitle')}>
+          {!q && !panel && <button type="button" className="btn btn--primary" onClick={() => setPanel('new')}><Icon name="plus" size={16} /> {t('admin.families.add')}</button>}
+        </Empty>
       ) : families.map((f) => <FamilyCard key={f.id} family={f} />)}
       {families.length > 0 && (
         <p className="small muted center">{t('admin.families.count', { n: activeCount, riders: s.riders.filter((r) => r.active !== false && listed.some((f) => f.id === r.familyId)).length })}</p>

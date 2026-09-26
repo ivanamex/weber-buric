@@ -8,7 +8,7 @@ import { currentMonthKey } from '../../lib/time.js'
 import { ReceiptBadge, BankDetails } from '../../components/Transfer.jsx'
 import ReceiptViewer from './ReceiptViewer.jsx'
 
-const SERVICE_ICON = { plan: 'plan', boarding: 'barn', camp: 'tent', rental: 'route', events: 'cake' }
+const SERVICE_ICON = { plan: 'horseshoe', boarding: 'saddle', camp: 'balloons', rental: 'horseHead', events: 'cake' }
 
 export default function AdminPayments() {
   const { t, fmtMoney, fmtInstant, fmtDate } = useI18n()
@@ -50,9 +50,9 @@ export default function AdminPayments() {
         <p className="small">{t('admin.payments.pendingSum', { n: pending.length, amount: fmtMoney(pendingTotal) })}</p>
       </div>
 
-      <SectionTitle>{t('admin.payments.pending')}</SectionTitle>
+      <SectionTitle icon="receipt">{t('admin.payments.pending')}</SectionTitle>
       {pending.length === 0 ? (
-        <Empty icon="check" title={t('admin.payments.emptyTitle')} text={t('admin.payments.emptyText')} />
+        <Empty icon="receipt" title={t('admin.payments.emptyTitle')} />
       ) : (
         <ul className="paylist">
           {pending.map((p) => (

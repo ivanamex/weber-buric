@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icons/apple-touch-icon.png'],
+      includeAssets: ['favicon-32.png', 'favicon-64.png', 'icons/apple-touch-icon.png', 'logo-white.png', 'logo-green.png'],
       manifest: {
         name: 'Hípico Riviera Maya',
         short_name: 'Hípico',

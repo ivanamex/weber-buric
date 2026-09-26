@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useBase } from '../Backend.jsx'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { useStore, byId, occurrencesFor, getPlan, planRemaining, markAttendance, markClassAttended } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
@@ -12,6 +14,7 @@ export default function AdminToday() {
   const toast = useToast()
   const today = todayKey()
   const [date, setDate] = useState(today)
+  const base = useBase()
 
   const occ = occurrencesFor(s, date).filter((o) => o.bookings.length > 0)
   const hours = [...new Set(occ.map((o) => o.slot.time))]
@@ -50,7 +53,9 @@ export default function AdminToday() {
       </div>
 
       {hours.length === 0 ? (
-        <Empty icon="calendar" title={t('admin.today.emptyTitle')} text={t('admin.today.emptyText')} />
+        <Empty icon="helmet" title={t('admin.today.emptyTitle')}>
+          <Link to={`${base}/direccion/horario`} className="btn btn--outline"><Icon name="calendar" size={18} /> {t('admin.today.seeSchedule')}</Link>
+        </Empty>
       ) : hours.map((h) => (
         <section key={h} className="hourgroup">
           <h2 className="hourgroup__time">{fmtTime(h)}</h2>

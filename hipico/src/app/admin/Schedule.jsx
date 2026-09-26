@@ -163,7 +163,7 @@ function ClassesView() {
       {adding ? <SlotForm onDone={() => setAdding(false)} /> : (
         <button type="button" className="btn btn--primary btn--sm btn--block" onClick={() => setAdding(true)}><Icon name="plus" size={16} /> {t('schedule.newClass')}</button>
       )}
-      {days.length === 0 && <Empty icon="calendar" title={t('schedule.emptyTitle')} text={t('schedule.emptyText')} />}
+      {days.length === 0 && !adding && <Empty icon="calendar" title={t('schedule.emptyTitle')} />}
       {days.map(({ wd, date }) => (
         <section key={wd} className="card sched-day">
           <p className="sched-day__title">{fmtDate(date, { weekday: 'long', day: 'numeric', month: 'short' })}{date === todayKey() ? ` · ${t('common.today')}` : ''}</p>

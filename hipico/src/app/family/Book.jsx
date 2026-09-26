@@ -7,6 +7,7 @@ import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
+import { celebrate } from '../../components/celebrate.js'
 import { todayKey, addDays, monthKeyOf, weekdayOf } from '../../lib/time.js'
 
 const DAYS = 7
@@ -33,11 +34,13 @@ export default function FamilyBook() {
 
   const changeWeek = (w) => { setWeek(w); setDate(w === 0 ? today : addDays(today, w * DAYS)) }
 
-  const onBook = async (o) => {
+  const onBook = async (o, e) => {
+    const r = e?.currentTarget?.getBoundingClientRect()
     setBusy(o.slot.id)
     const res = await bookClass({ riderId, slotId: o.slot.id, date })
     setBusy(null)
     if (res.ok) {
+      if (r) celebrate(r.left + r.width / 2, r.top + r.height / 2)
       toast(t('toasts.booked', { name: rider.name, date: fmtDate(date, { weekday: 'short', day: 'numeric', month: 'short' }), time: fmtTime(o.slot.time), n: res.remaining }))
     } else {
       toast(t(`errors.${res.code}`, { month: monthName }), 'error')
@@ -89,7 +92,9 @@ export default function FamilyBook() {
       <p className="daylabel">{fmtDate(date)}{date === today ? ` · ${t('common.today')}` : ''}</p>
 
       {occ.length === 0 ? (
-        <Empty icon="sun" title={t('family.book.noSlotsTitle')} text={t('family.book.noSlotsText')} />
+        <Empty icon="sun" title={t('family.book.noSlotsTitle')}>
+          <button type="button" className="btn btn--outline" onClick={() => setDate(addDays(date, 1))}>{t('family.book.nextDay')} <Icon name="chevronRight" size={18} /></button>
+        </Empty>
       ) : (
         <ul className="slots">
           {occ.map((o) => {
@@ -118,7 +123,7 @@ export default function FamilyBook() {
                   )}
                 </div>
                 <div className="slot__action">
-                  {state === 'open' && <button type="button" className="btn btn--primary btn--sm" onClick={() => onBook(o)} disabled={busy !== null}>{busy === o.slot.id ? '…' : t('family.book.book')}</button>}
+                  {state === 'open' && <button type="button" className="btn btn--primary btn--sm" onClick={(e) => onBook(o, e)} disabled={busy !== null}>{busy === o.slot.id ? '…' : t('family.book.book')}</button>}
                   {state === 'mine' && <Badge tone="success"><Icon name="check" size={14} /> {t('family.book.booked')}</Badge>}
                   {state === 'past' && <button type="button" className="btn btn--sm" disabled>{t('family.book.past')}</button>}
                   {state === 'cancelled' && <Badge tone="alert">{t('schedule.cancelledBadge')}</Badge>}

@@ -10,16 +10,16 @@ import { useBase } from './Backend.jsx'
 
 const TABS = {
   family: [
-    { to: 'familia', icon: 'home', key: 'home', end: true },
+    { to: 'familia', icon: 'horseHead', key: 'home', end: true },
     { to: 'familia/reservar', icon: 'calendar', key: 'book' },
-    { to: 'familia/plan', icon: 'plan', key: 'plan' },
+    { to: 'familia/plan', icon: 'horseshoe', key: 'plan' },
     { to: 'familia/mas', icon: 'more', key: 'more' },
   ],
   admin: [
-    { to: 'direccion', icon: 'clock', key: 'today', end: true },
+    { to: 'direccion', icon: 'helmet', key: 'today', end: true },
     { to: 'direccion/horario', icon: 'calendar', key: 'schedule' },
-    { to: 'direccion/cobros', icon: 'cash', key: 'payments' },
-    { to: 'direccion/familias', icon: 'users', key: 'families' },
+    { to: 'direccion/cobros', icon: 'receipt', key: 'payments' },
+    { to: 'direccion/familias', icon: 'family', key: 'families' },
     { to: 'direccion/reportes', icon: 'chart', key: 'reports' },
   ],
 }
@@ -56,9 +56,9 @@ export default function AppShell({ role }) {
   return (
     <div className="app">
       <header className="appbar">
-        <Logo compact />
+        <Logo light compact />
         <div className="appbar__right">
-          <LangToggle />
+          <LangToggle light />
           <button type="button" className="iconbtn" onClick={onLogout} aria-label={t('app.logout')} title={t('app.logout')}>
             <Icon name="logout" size={20} />
           </button>

@@ -9,13 +9,26 @@ export function Progress({ value, max, tone = 'green' }) {
   )
 }
 
-export function Empty({ icon = 'info', title, text, children }) {
+/** Empty state: a pictogram, one line and (optionally) one action. */
+export function Empty({ icon = 'info', title, children }) {
   return (
     <div className="empty">
-      <span className="empty__icon"><Icon name={icon} size={26} /></span>
+      <span className="empty__icon"><Icon name={icon} size={30} /></span>
       <p className="empty__title">{title}</p>
-      {text && <p className="empty__text">{text}</p>}
       {children}
+    </div>
+  )
+}
+
+/** Plan progress as horseshoes: `used` filled in gold out of `total`. */
+export function Horseshoes({ used, total, label }) {
+  return (
+    <div className="shoes" role="img" aria-label={label}>
+      {Array.from({ length: total }, (_, i) => (
+        <svg key={i} className={`shoe ${i < used ? 'is-used' : ''}`} viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7.6 5.2A7.4 7.4 0 1 0 16.4 5.2" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" />
+        </svg>
+      ))}
     </div>
   )
 }
@@ -24,10 +37,10 @@ export function Badge({ tone = 'neutral', children }) {
   return <span className={`badge badge--${tone}`}>{children}</span>
 }
 
-export function SectionTitle({ children, action }) {
+export function SectionTitle({ children, action, icon }) {
   return (
     <div className="section-title">
-      <h2>{children}</h2>
+      <h2>{icon && <Icon name={icon} size={20} className="section-title__icon" />}{children}</h2>
       {action}
     </div>
   )

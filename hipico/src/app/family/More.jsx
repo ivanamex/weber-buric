@@ -54,11 +54,11 @@ export default function FamilyMore() {
     <div className="page">
       <h1 className="page__title">{t('more.title')}</h1>
 
-      <SectionTitle>{t('more.events')}</SectionTitle>
+      <SectionTitle icon="balloons">{t('more.events')}</SectionTitle>
       {camp && (
         <div className="card card--camp">
           <div className="row gap">
-            <span className="tile-icon tile-icon--gold"><Icon name="tent" /></span>
+            <span className="tile-icon tile-icon--gold"><Icon name="balloons" /></span>
             <div className="grow">
               <p className="card__title">{t('more.camp.title')}</p>
               <p className="small muted">
@@ -107,7 +107,7 @@ export default function FamilyMore() {
         ))}
       </div>
 
-      <SectionTitle>{t('more.rental.title')}</SectionTitle>
+      <SectionTitle icon="horseHead">{t('more.rental.title')}</SectionTitle>
       <form className="card rental" onSubmit={onRental}>
         <p className="small muted">{t('more.rental.text', { price: fmtMoney(RENTAL_PER_HOUR) })}</p>
         <div className="grid2">
@@ -145,7 +145,7 @@ export default function FamilyMore() {
           <ul className="list mt12">
             {myRentals.map((r) => (
               <li key={r.id} className="list__row small">
-                <Icon name="route" size={16} />
+                <Icon name="horseHead" size={16} />
                 <span className="grow">{fmtDate(r.date, { weekday: 'short', day: 'numeric', month: 'short' })} · {fmtTime(r.time)} · {byId(s.horses, r.horseId)?.name}</span>
                 <span>{t('more.rental.hours', { n: r.hours })}</span>
               </li>
@@ -154,7 +154,7 @@ export default function FamilyMore() {
         )}
       </form>
 
-      <SectionTitle action={<button type="button" className="link" onClick={soon}>{t('more.profile.edit')}</button>}>{t('more.profile.title')}</SectionTitle>
+      <SectionTitle action={<button type="button" className="link" onClick={soon} >{t('more.profile.edit')}</button>} icon="family">{t('more.profile.title')}</SectionTitle>
       <div className="card">
         <div className="row gap">
           <span className="avatar">{family.contact[0]}</span>

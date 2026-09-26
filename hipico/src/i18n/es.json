@@ -159,8 +159,7 @@
     },
     "home": {
       "nextClass": "Próxima clase",
-      "noClassTitle": "{name} no tiene clases reservadas",
-      "noClassText": "Reserva tu próxima clase en segundos.",
+      "noClassTitle": "{name} aún no tiene clases reservadas",
       "bookNow": "Reservar clase",
       "moreBooked": "+{count} clase(s) más reservada(s)",
       "cancel": "Cancelar clase",
@@ -173,8 +172,7 @@
       "title": "Reservar clase",
       "planLine": "{name}: {n} clases disponibles en {month}",
       "noPlanLine": "Sin plan para {month}.",
-      "noSlotsTitle": "Sin clases este día",
-      "noSlotsText": "Los domingos el club descansa. Elige otro día.",
+      "noSlotsTitle": "El club descansa este día",
       "spotsLeft": "{n} de {cap} lugares libres",
       "full": "Clase llena",
       "book": "Reservar",
@@ -182,7 +180,8 @@
       "past": "Pasada",
       "fullBtn": "Llena",
       "otherLevel": "Otro nivel",
-      "cancelRule": "Cancela hasta 12 h antes y la clase regresa a tu plan"
+      "cancelRule": "Cancela hasta 12 h antes y la clase regresa a tu plan",
+      "nextDay": "Ver el día siguiente"
     }
   },
   "plan": {
@@ -195,8 +194,7 @@
     "paid": "Pagado",
     "pendingPay": "Pago pendiente",
     "none": "Sin plan",
-    "noPlanTitle": "Sin plan este mes",
-    "noPlanText": "Elige un paquete para empezar a reservar.",
+    "noPlanTitle": "Aún no tienes plan este mes",
     "noPlanFor": "{name} no tiene plan para {month}.",
     "choose": "Elegir plan",
     "current": "Plan de {month}",
@@ -223,10 +221,10 @@
       "pending": "Pago pendiente",
       "due": "Por pagar"
     },
-    "noneTitle": "Sin caballos en pensión",
-    "noneText": "Si tienes caballo propio, pregúntanos por la pensión.",
+    "noneTitle": "¿Tienes caballo propio? Pregúntanos por la pensión",
     "goPay": "Pagar pensión",
-    "ask": "Solicitar información"
+    "ask": "Solicitar información",
+    "waText": "Hola, quiero información sobre la pensión de caballos."
   },
   "more": {
     "title": "Más",
@@ -294,10 +292,10 @@
       "noshow": "No vino",
       "own": "propio",
       "planOk": "Plan al corriente · quedan {n}",
-      "emptyTitle": "Sin clases reservadas",
-      "emptyText": "No hay reservas para este día.",
+      "emptyTitle": "Sin clases reservadas este día",
       "rule": "“Vino” y “No vino” cuentan la clase como usada.",
-      "allCame": "Todos vinieron"
+      "allCame": "Todos vinieron",
+      "seeSchedule": "Ver horario"
     },
     "payments": {
       "title": "Cobros",
@@ -306,8 +304,7 @@
       "pending": "Pagos pendientes",
       "since": "Registrado el {date}",
       "markPaid": "Marcar pagado",
-      "emptyTitle": "Todo cobrado",
-      "emptyText": "No hay pagos pendientes.",
+      "emptyTitle": "Todo cobrado: no hay pagos pendientes",
       "recent": "Cobros recientes",
       "noneRecent": "Aún no hay cobros este mes."
     },
@@ -338,7 +335,6 @@
       "save": "Guardar familia",
       "search": "Buscar familia o jinete",
       "emptyTitle": "Aún no hay familias",
-      "emptyText": "Agrega la primera familia con el botón “Agregar”.",
       "noMatch": "Sin resultados",
       "boarded": "Caballo en pensión",
       "noRiders": "Sin jinetes todavía",
@@ -516,8 +512,7 @@
     "backToPlan": "La clase regresó a tu plan.",
     "saved": "Cambios guardados",
     "created": "Clase creada",
-    "emptyTitle": "Sin clases",
-    "emptyText": "Crea la primera clase de la semana.",
+    "emptyTitle": "Aún no hay clases esta semana",
     "name": "Nombre",
     "classesCount": "{n} clases",
     "addInstructor": "Agregar instructor",

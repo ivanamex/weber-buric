@@ -7,7 +7,7 @@ import {
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
 import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
-import { Badge, Empty, Progress, SectionTitle } from '../../components/ui.jsx'
+import { Badge, Empty, Horseshoes, SectionTitle, waLink } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { TZ } from '../../lib/time.js'
 import { BOARDING_MONTHLY } from '../../data/prices.js'
@@ -61,19 +61,19 @@ export default function FamilyHome() {
         )
       })}
 
-      <SectionTitle>{t('family.home.nextClass')}</SectionTitle>
+      <SectionTitle icon="calendar">{t('family.home.nextClass')}</SectionTitle>
       {next ? (
         <NextClassCard booking={next} onCancel={onCancel} s={s} rider={rider} />
       ) : (
-        <Empty icon="calendar" title={t('family.home.noClassTitle', { name: rider.name })} text={t('family.home.noClassText')}>
-          <Link to={`${base}/familia/reservar`} className="btn btn--primary">{t('family.home.bookNow')}</Link>
+        <Empty icon="horseHead" title={t('family.home.noClassTitle', { name: rider.name })}>
+          <Link to={`${base}/familia/reservar`} className="btn btn--primary"><Icon name="calendar" size={18} /> {t('family.home.bookNow')}</Link>
         </Empty>
       )}
       {upcoming.length > 1 && (
         <p className="muted small">{t('family.home.moreBooked', { count: upcoming.length - 1 })}</p>
       )}
 
-      <SectionTitle action={<Link to={`${base}/familia/plan`} className="link">{t('family.home.seePlan')}</Link>}>
+      <SectionTitle icon="horseshoe" action={<Link to={`${base}/familia/plan`} className="link">{t('family.home.seePlan')}</Link>}>
         {t('family.home.monthlyPlan')}
       </SectionTitle>
       {plan ? (
@@ -85,21 +85,21 @@ export default function FamilyHome() {
             </div>
             {plan.paid ? <Badge tone="success">{t('plan.paid')}</Badge> : <Badge tone="alert">{t('plan.pendingPay')}</Badge>}
           </div>
-          <Progress value={plan.used} max={plan.total} tone="gold" />
+          <Horseshoes used={plan.used} total={plan.total} label={t('plan.usedOf', { used: plan.used, total: plan.total })} />
           <div className="row between small muted mt8">
             <span>{t('plan.remaining', { n: planRemaining(plan) })}</span>
             <span>{t('plan.expires', { date: fmtDate(planExpiry(plan), { day: 'numeric', month: 'short' }) })}</span>
           </div>
         </div>
       ) : (
-        <Empty icon="plan" title={t('plan.noPlanTitle')} text={t('plan.noPlanText')}>
+        <Empty icon="horseshoe" title={t('plan.noPlanTitle')}>
           <Link to={`${base}/familia/plan`} className="btn btn--primary">{t('plan.choose')}</Link>
         </Empty>
       )}
 
       {receipts.length > 0 && (
         <>
-          <SectionTitle>{t('receipt.homeTitle')}</SectionTitle>
+          <SectionTitle icon="receipt">{t('receipt.homeTitle')}</SectionTitle>
           <ul className="list card">
             {receipts.map((p) => (
               <li key={p.id} className="list__row list__row--stack">
@@ -119,7 +119,7 @@ export default function FamilyHome() {
         </>
       )}
 
-      <SectionTitle>{t('family.home.boarding')}</SectionTitle>
+      <SectionTitle icon="saddle">{t('family.home.boarding')}</SectionTitle>
       {boarding.length ? boarding.map((b) => (
         <div className="card row gap" key={b.horse.id}>
           <span className="tile-icon"><Icon name="barn" /></span>
@@ -130,7 +130,9 @@ export default function FamilyHome() {
           <Badge tone={b.status === 'paid' ? 'success' : 'alert'}>{t(`boarding.status.${b.status}`)}</Badge>
         </div>
       )) : (
-        <Empty icon="barn" title={t('boarding.noneTitle')} text={t('boarding.noneText')} />
+        <Empty icon="saddle" title={t('boarding.noneTitle')}>
+          <a className="btn btn--outline" href={waLink(t('boarding.waText'))} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" size={18} /> {t('boarding.ask')}</a>
+        </Empty>
       )}
       {boarding.some((b) => b.status !== 'paid') && (
         <Link to={`${base}/familia/plan`} className="btn btn--outline btn--block">{t('boarding.goPay')}</Link>
@@ -148,6 +150,7 @@ function NextClassCard({ booking, onCancel, s, rider }) {
   const cancellable = canCancel(booking, slot)
   return (
     <div className="card card--green nextclass">
+      <Icon name="horseHead" size={84} className="nextclass__art" />
       <div className="row between">
         <Badge tone="gold">{t(`levels.${slot.level}`)}</Badge>
         <span className="small">{rider.name}</span>
