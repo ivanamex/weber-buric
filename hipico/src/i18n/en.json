@@ -76,17 +76,7 @@
     "install": {
       "eyebrow": "Install it",
       "title": "Installs like an app, from your browser",
-      "text": "No App Store or Play Store needed. Open the app once and add it to your home screen: it gets its own icon and runs full screen.",
-      "ios1": "Open the app in Safari.",
-      "ios2": "Tap",
-      "iosShare": "Share",
-      "ios3": "Choose",
-      "iosAdd": "Add to Home Screen",
-      "and1": "Open the app in Chrome.",
-      "and2": "Tap the",
-      "andMenu": "Menu",
-      "and3": "Choose",
-      "andInstall": "Install app"
+      "text": "No App Store or Play Store. Tap the button for your phone and follow the steps: the app lands on your home screen, with its own icon and full screen."
     },
     "footer": {
       "place": "Paamul, Quintana Roo, Mexico",
@@ -422,7 +412,10 @@
     "badClabe": "The CLABE must have 18 digits.",
     "accountBlocked": "Your account is paused. Contact the club.",
     "accountDeleted": "This account is no longer active. Contact the club.",
-    "classCancelled": "This class was cancelled for that day."
+    "classCancelled": "This class was cancelled for that day.",
+    "codeExpired": "That code is wrong or has expired. Check it or ask for a new one.",
+    "signupClosed": "Email sign-in is turned off. Let the club know.",
+    "authFailed": "We couldn't send your access. Try again in a minute."
   },
   "live": {
     "loading": "Loading…",
@@ -431,7 +424,6 @@
     "sendLink": "Send me access",
     "emailHint": "We'll send you a link and a code. No passwords.",
     "checkEmail": "Check your email",
-    "sentTo": "We sent a link and a code to {email}. Tap the link, or type the code here.",
     "codeLabel": "Code from the email",
     "enter": "Sign in",
     "otherEmail": "Use another email",
@@ -447,7 +439,12 @@
     "inactiveTitle": "Account paused",
     "inactiveText": "Your account is paused. Contact the club.",
     "deletedTitle": "Account unavailable",
-    "deletedText": "This account is no longer active. Contact the club."
+    "deletedText": "This account is no longer active. Contact the club.",
+    "sentCode": "We sent a 6-digit code to {email}. Type it here.",
+    "resend": "Resend code",
+    "resendIn": "Resend code in {time}",
+    "resent": "We sent you a new code.",
+    "linkFallback": "Nothing yet? Check spam. The email also has a link to sign in."
   },
   "receipt": {
     "status": {
@@ -534,5 +531,34 @@
       "6": "Saturday"
     },
     "cancelShort": "Cancel date"
+  },
+  "install": {
+    "iphone": "Download for iPhone",
+    "android": "Download for Android",
+    "yours": "Your phone",
+    "promptTitle": "Keep the app on your home screen",
+    "promptText": "One tap to open it, like any app. No stores.",
+    "later": "Not now",
+    "close": "Close",
+    "iosTitle": "Install on iPhone",
+    "iosStep1": "Tap Share",
+    "iosStep1Hint": "The square with the arrow, at the bottom of Safari. If you see ⋯, tap it first.",
+    "iosStep2": "Choose “Add to Home Screen”",
+    "iosStep2Hint": "Scroll down the list if you don't see it, then tap Add.",
+    "andTitle": "Install on Android",
+    "andStep": "Open the ⋮ menu and tap “Install app”",
+    "andHint": "Top right in Chrome. “Add to Home screen” works too.",
+    "otherPhone": "Open this page on your phone and follow these steps.",
+    "inAppTitle": "Open this link in {browser}",
+    "inAppText": "You're inside {app}, which can't install apps. Copy the link and paste it in {browser}.",
+    "otherApp": "another app",
+    "copy": "Copy link",
+    "copied": "Link copied. Paste it in {browser}.",
+    "installed": "Done! Look for the icon on your home screen.",
+    "illShare": "Share",
+    "illAdd": "Add to Home Screen",
+    "illInstall": "Install app",
+    "illNewTab": "New tab",
+    "illHistory": "History"
   }
 }

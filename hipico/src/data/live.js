@@ -128,19 +128,42 @@ async function call(fn, args) {
   }
 }
 
+/** Supabase auth errors → the app's message codes (errors.* in the dictionaries). */
+function authCode(error) {
+  const code = error?.code || ''
+  const msg = (error?.message || '').toLowerCase()
+  if (error?.status === 429 || code.includes('rate_limit') || msg.includes('rate limit') || msg.includes('seconds')) return 'tooMany'
+  if (code === 'otp_expired' || msg.includes('expired')) return 'codeExpired'
+  if (code === 'email_address_invalid' || code === 'validation_failed' || msg.includes('invalid email')) return 'badEmail'
+  if (code === 'otp_disabled' || code === 'signup_disabled') return 'signupClosed'
+  if (msg.includes('token') || msg.includes('otp') || code.includes('invalid')) return 'badCode'
+  if (msg.includes('fetch') || msg.includes('network')) return 'network'
+  return 'authFailed'
+}
+
 async function sendLink(email) {
-  const { error } = await sb.auth.signInWithOtp({
-    email: email.trim().toLowerCase(),
-    options: { emailRedirectTo: `${window.location.origin}/app`, shouldCreateUser: true },
-  })
-  if (error) { console.error(error); return { ok: false, code: error.status === 429 ? 'tooMany' : 'network' } }
-  return { ok: true }
+  try {
+    const { error } = await sb.auth.signInWithOtp({
+      email: email.trim().toLowerCase(),
+      options: { emailRedirectTo: `${window.location.origin}/app`, shouldCreateUser: true },
+    })
+    if (error) { console.error(error); return { ok: false, code: authCode(error) } }
+    return { ok: true }
+  } catch (err) {
+    console.error(err)
+    return { ok: false, code: 'network' }
+  }
 }
 async function verifyCode(email, token) {
-  const { error } = await sb.auth.verifyOtp({ email: email.trim().toLowerCase(), token: token.trim(), type: 'email' })
-  if (error) { console.error(error); return { ok: false, code: 'badCode' } }
-  await refresh()
-  return { ok: true }
+  try {
+    const { error } = await sb.auth.verifyOtp({ email: email.trim().toLowerCase(), token: token.trim(), type: 'email' })
+    if (error) { console.error(error); return { ok: false, code: authCode(error) === 'codeExpired' ? 'codeExpired' : authCode(error) === 'tooMany' ? 'tooMany' : 'badCode' } }
+    await refresh()
+    return { ok: true }
+  } catch (err) {
+    console.error(err)
+    return { ok: false, code: 'network' }
+  }
 }
 async function logout() {
   await sb.auth.signOut()

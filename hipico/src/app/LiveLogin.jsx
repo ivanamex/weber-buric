@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { logout, selfSignup, sendLink, useStore, verifyCode, LEVELS } from '../data/store.js'
@@ -10,6 +10,8 @@ import { useToast } from '../components/Toast.jsx'
 import { useBase } from './Backend.jsx'
 
 const EMAIL_KEY = 'hipico.loginEmail'
+const CODE_LENGTH = 6
+const RESEND_SECONDS = 60
 const readEmail = () => { try { return localStorage.getItem(EMAIL_KEY) || '' } catch { return '' } }
 
 /** Real sign-in: email → login link (or the code in the same email, for the installed app on iPhone). */
@@ -22,6 +24,15 @@ export default function LiveLogin() {
   const [step, setStep] = useState('email')
   const [code, setCode] = useState('')
   const [busy, setBusy] = useState(false)
+  const [sentAt, setSentAt] = useState(0)
+  const [now, setNow] = useState(Date.now())
+  const codeInput = useRef(null)
+  const wait = Math.max(0, RESEND_SECONDS - Math.floor((now - sentAt) / 1000))
+  useEffect(() => {
+    if (step !== 'code' || wait === 0) return undefined
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [step, wait])
 
   if (s.session) return <Navigate to={`${base}/${s.session.role === 'admin' ? 'direccion' : 'familia'}`} replace />
 
@@ -33,14 +44,35 @@ export default function LiveLogin() {
     setBusy(false)
     if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
     try { localStorage.setItem(EMAIL_KEY, email.trim().toLowerCase()) } catch { /* ignore */ }
+    setSentAt(Date.now()); setNow(Date.now())
+    setCode('')
     setStep('code')
+    setTimeout(() => codeInput.current?.focus(), 50)
   }
-  const onVerify = async (e) => {
-    e.preventDefault()
+  const onResend = async () => {
+    if (wait > 0 || busy) return
     setBusy(true)
-    const res = await verifyCode(email, code)
+    const res = await sendLink(email)
     setBusy(false)
-    if (!res.ok) toast(t(`errors.${res.code}`), 'error')
+    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    setSentAt(Date.now()); setNow(Date.now())
+    toast(t('live.resent'))
+  }
+  const submitCode = async (value) => {
+    if (busy || value.length !== CODE_LENGTH) return
+    setBusy(true)
+    const res = await verifyCode(email, value)
+    setBusy(false)
+    if (!res.ok) { toast(t(`errors.${res.code}`), 'error'); setCode(''); codeInput.current?.focus() }
+  }
+  const onCodeChange = (value) => {
+    const digits = value.replace(/\D/g, '').slice(0, CODE_LENGTH)
+    setCode(digits)
+    if (digits.length === CODE_LENGTH) submitCode(digits) // typed, pasted or filled in by the phone
+  }
+  const onVerify = (e) => {
+    e.preventDefault()
+    submitCode(code)
   }
 
   let body
@@ -79,16 +111,27 @@ export default function LiveLogin() {
       </div>
     )
   } else if (step === 'code') {
+    const mm = Math.floor(wait / 60)
+    const ss = String(wait % 60).padStart(2, '0')
     body = (
       <form className="login__panel" onSubmit={onVerify}>
         <p className="login__panelTitle"><Icon name="info" size={18} /> {t('live.checkEmail')}</p>
-        <p>{t('live.sentTo', { email: email.trim().toLowerCase() })}</p>
-        <label className="field" htmlFor="login-code">
-          <span>{t('live.codeLabel')}</span>
-          <input id="login-code" className="input input--code" inputMode="numeric" autoComplete="one-time-code"
-            pattern="[0-9]{6,8}" maxLength={8} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} required />
+        <p>{t('live.sentCode', { email: email.trim().toLowerCase() })}</p>
+        <label className="otp" htmlFor="login-code">
+          <span className="visually-hidden">{t('live.codeLabel')}</span>
+          <input ref={codeInput} id="login-code" className="otp__input" inputMode="numeric" autoComplete="one-time-code"
+            pattern="[0-9]*" maxLength={CODE_LENGTH} value={code} autoFocus disabled={busy}
+            onChange={(e) => onCodeChange(e.target.value)}
+            onPaste={(e) => { e.preventDefault(); onCodeChange(e.clipboardData.getData('text')) }} />
+          {Array.from({ length: CODE_LENGTH }, (_, i) => (
+            <span key={i} className={`otp__cell ${i === code.length ? 'is-current' : ''} ${code[i] ? 'is-filled' : ''}`} aria-hidden="true">{code[i] || ''}</span>
+          ))}
         </label>
-        <button type="submit" className="btn btn--accent btn--block" disabled={busy || code.length < 6}>{t('live.enter')}</button>
+        <button type="submit" className="btn btn--accent btn--block" disabled={busy || code.length !== CODE_LENGTH}>{busy ? '…' : t('live.enter')}</button>
+        <button type="button" className="btn btn--outline btn--block" onClick={onResend} disabled={wait > 0 || busy}>
+          {wait > 0 ? t('live.resendIn', { time: `${mm}:${ss}` }) : t('live.resend')}
+        </button>
+        <p className="small muted center">{t('live.linkFallback')}</p>
         <button type="button" className="link link--light" onClick={() => { setStep('email'); setCode('') }}>{t('live.otherEmail')}</button>
       </form>
     )

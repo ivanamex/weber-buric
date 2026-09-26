@@ -60,7 +60,7 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
 **Live** (all on `main`, deployed by Vercel, database updates applied automatically):
 - **Landing and app:** landing page, PWA, ES/EN, and the demo at `/demo`, which mirrors every feature.
 - **Live mode at `/app`:**
-  - sign-in by email link or code, with open sign-up and instant access (a short form for unknown emails);
+  - sign-in with a 6-digit code (six boxes, paste and phone autofill, 60 s resend countdown), the email link as fallback, with open sign-up and instant access (a short form for unknown emails);
   - an existing email is always linked to its family, never duplicated.
 - **Familias (management):**
   - add a family with riders, plan and start date;
@@ -81,6 +81,7 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
   - plan progress as horseshoes (`Horseshoes` in `ui.jsx`);
   - booking celebration (`celebrate.js`, skipped with reduced motion);
   - empty states: a pictogram, one line and one action.
+- **Install** (`components/Install.jsx`, `lib/install.js`): "Descargar para iPhone / Android" on the landing and once after the first sign-in; the visitor's phone is highlighted. Android opens the native dialog (`beforeinstallprompt`, captured in `main.jsx`) or shows the ⋮ menu guide; iPhone shows a two-step sheet with an arrow to Safari's Share; in-app browsers (WhatsApp, Instagram…) get "Copiar enlace". Hidden when running installed.
 
 **Database updates so far:** `20260927_family_accounts`, `20260928_transfer_receipts`, `20260929_family_block_delete`, `20260930_schedule`.
 
@@ -94,7 +95,7 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
 
    Until a domain is verified, Resend only delivers to the account owner's address. The built-in Supabase email only sends a few per hour.
 2. **Verify a domain in Resend** (the club doesn't have one yet; decide whether to buy one). Then set the sender to e.g. `acceso@<domain>`.
-3. **Edit the "Magic link or OTP" email template** (possible only after custom SMTP): Spanish text with `{{ .ConfirmationURL }}` and `{{ .Token }}`. The login screen already offers a code box; iPhone installed-app users need the code.
+3. **Edit the "Magic link or OTP" email template** (possible only after custom SMTP): Spanish text with `{{ .ConfirmationURL }}` and `{{ .Token }}`. The login screen is code-first (6 digits), so the template must show `{{ .Token }}` prominently.
 4. **Replace example data with real club data:** prices (`prices` table), weekly schedule (`slots`), instructors, horses. Add boarded horses (`horses.type='boarded'`, `owner_family_id`). Add the owner's email to `admins` when ready.
 5. **Mercado Pago card payments:** "Pagar con tarjeta" still shows "Próximamente". Needs a Supabase Edge Function for the Checkout Pro preference and a webhook that marks the payment paid.
 6. **Nice to have:** edit/remove families and riders in the app (today only via Supabase Table Editor); a custom domain for the app; push/WhatsApp reminders.

@@ -76,17 +76,7 @@
     "install": {
       "eyebrow": "Instálala",
       "title": "Se instala como una app, desde el navegador",
-      "text": "No necesitas App Store ni Play Store. Abre la app una vez y agrégala a tu pantalla de inicio: tendrá su propio ícono y funciona en pantalla completa.",
-      "ios1": "Abre la app en Safari.",
-      "ios2": "Toca",
-      "iosShare": "Compartir",
-      "ios3": "Elige",
-      "iosAdd": "Añadir a pantalla de inicio",
-      "and1": "Abre la app en Chrome.",
-      "and2": "Toca el",
-      "andMenu": "Menú",
-      "and3": "Elige",
-      "andInstall": "Instalar app"
+      "text": "Sin App Store ni Play Store. Toca el botón de tu teléfono y sigue los pasos: la app queda en tu pantalla de inicio, con su propio ícono y en pantalla completa."
     },
     "footer": {
       "place": "Paamul, Quintana Roo, México",
@@ -422,7 +412,10 @@
     "badClabe": "La CLABE debe tener 18 dígitos.",
     "accountBlocked": "Tu cuenta está pausada. Contacta al club.",
     "accountDeleted": "Esta cuenta ya no está activa. Contacta al club.",
-    "classCancelled": "Esta clase se canceló para ese día."
+    "classCancelled": "Esta clase se canceló para ese día.",
+    "codeExpired": "Ese código no es válido o ya venció. Revísalo o pide uno nuevo.",
+    "signupClosed": "El acceso por correo está desactivado. Avisa al club.",
+    "authFailed": "No pudimos enviarte el acceso. Inténtalo en un minuto."
   },
   "live": {
     "loading": "Cargando…",
@@ -431,7 +424,6 @@
     "sendLink": "Enviarme acceso",
     "emailHint": "Te enviamos un enlace y un código. Sin contraseñas.",
     "checkEmail": "Revisa tu correo",
-    "sentTo": "Enviamos un enlace y un código a {email}. Toca el enlace, o escribe aquí el código.",
     "codeLabel": "Código del correo",
     "enter": "Entrar",
     "otherEmail": "Usar otro correo",
@@ -447,7 +439,12 @@
     "inactiveTitle": "Cuenta pausada",
     "inactiveText": "Tu cuenta está pausada. Contacta al club.",
     "deletedTitle": "Cuenta no disponible",
-    "deletedText": "Esta cuenta ya no está activa. Contacta al club."
+    "deletedText": "Esta cuenta ya no está activa. Contacta al club.",
+    "sentCode": "Enviamos un código de 6 dígitos a {email}. Escríbelo aquí.",
+    "resend": "Reenviar código",
+    "resendIn": "Reenviar código en {time}",
+    "resent": "Te enviamos un código nuevo.",
+    "linkFallback": "¿No llega? Revisa spam. El correo también trae un enlace para entrar."
   },
   "receipt": {
     "status": {
@@ -534,5 +531,34 @@
       "6": "Sábado"
     },
     "cancelShort": "Cancelar fecha"
+  },
+  "install": {
+    "iphone": "Descargar para iPhone",
+    "android": "Descargar para Android",
+    "yours": "Tu teléfono",
+    "promptTitle": "Ten la app en tu pantalla de inicio",
+    "promptText": "Un toque para abrirla, como cualquier app. Sin tiendas.",
+    "later": "Ahora no",
+    "close": "Cerrar",
+    "iosTitle": "Instalar en iPhone",
+    "iosStep1": "Toca Compartir",
+    "iosStep1Hint": "El cuadro con la flecha, abajo en Safari. Si ves ⋯, tócalo primero.",
+    "iosStep2": "Elige «Añadir a pantalla de inicio»",
+    "iosStep2Hint": "Baja un poco en la lista si no lo ves y toca Añadir.",
+    "andTitle": "Instalar en Android",
+    "andStep": "Abre el menú ⋮ y toca «Instalar app»",
+    "andHint": "Arriba a la derecha en Chrome. «Añadir a pantalla de inicio» también sirve.",
+    "otherPhone": "Abre esta página en tu teléfono y sigue estos pasos.",
+    "inAppTitle": "Abre este enlace en {browser}",
+    "inAppText": "Estás dentro de {app}, y desde ahí no se puede instalar. Copia el enlace y pégalo en {browser}.",
+    "otherApp": "otra app",
+    "copy": "Copiar enlace",
+    "copied": "Enlace copiado. Pégalo en {browser}.",
+    "installed": "¡Listo! Busca el ícono en tu pantalla de inicio.",
+    "illShare": "Compartir",
+    "illAdd": "Añadir a pantalla de inicio",
+    "illInstall": "Instalar app",
+    "illNewTab": "Nueva pestaña",
+    "illHistory": "Historial"
   }
 }

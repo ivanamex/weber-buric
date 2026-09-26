@@ -4,8 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-12**: 6-digit code login + "Descargar para iPhone / Android"
-2. **STEP-13**: landing: subtle hovers, faded horse photos, running text-horse
+1. **STEP-13**: landing: subtle hovers, faded horse photos, running text-horse
 
 Check in the browser after each step, then "ok".
 
@@ -22,7 +21,7 @@ Prices · schedule · instructors · horses · plan rules · her email for manag
 
 ## Done
 
-Landing + app live · Supabase login + database rules · management panel (Hoy, Cobros, Familias, Reportes) · STEP-08 families added by management · STEP-09 transfer receipts (bank details still "Por definir") · logos in `public/` · STEP-08B open sign-up, assign existing plans, block / delete (CSV import removed) · STEP-10 Horario: edit classes, cancel a date, instructors and horses, "Todos vinieron" · STEP-11 logo, pictograms, horseshoe counter, booking celebration, empty states · STEP-14 soft coral accent (gold removed)
+Landing + app live · Supabase login + database rules · management panel (Hoy, Cobros, Familias, Reportes) · STEP-08 families added by management · STEP-09 transfer receipts (bank details still "Por definir") · logos in `public/` · STEP-08B open sign-up, assign existing plans, block / delete (CSV import removed) · STEP-10 Horario: edit classes, cancel a date, instructors and horses, "Todos vinieron" · STEP-11 logo, pictograms, horseshoe counter, booking celebration, empty states · STEP-14 soft coral accent (gold removed) · STEP-12 6-digit code login with resend countdown, "Descargar para iPhone / Android" with install guides
 
 ## Rules
 

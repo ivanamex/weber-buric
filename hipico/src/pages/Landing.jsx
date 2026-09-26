@@ -4,6 +4,7 @@ import { BrandLogo, Logo, Mark } from '../components/Logo.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
 import { Icon } from '../components/Icon.jsx'
 import { Horseshoes, waLink } from '../components/ui.jsx'
+import { InstallButtons } from '../components/Install.jsx'
 
 const STEPS = [
   { key: 'book', icon: 'calendar' },
@@ -135,24 +136,7 @@ export default function Landing() {
             <h2 className="lsection__title">{t('landing.install.title')}</h2>
             <p className="lsection__lead">{t('landing.install.text')}</p>
           </div>
-          <div className="install__cards">
-            <div className="install__card">
-              <h3>iPhone · Safari</h3>
-              <ol>
-                <li>{t('landing.install.ios1')}</li>
-                <li>{t('landing.install.ios2')} <strong><Icon name="share" size={16} /> {t('landing.install.iosShare')}</strong></li>
-                <li>{t('landing.install.ios3')} <strong>{t('landing.install.iosAdd')}</strong></li>
-              </ol>
-            </div>
-            <div className="install__card">
-              <h3>Android · Chrome</h3>
-              <ol>
-                <li>{t('landing.install.and1')}</li>
-                <li>{t('landing.install.and2')} <strong><Icon name="more" size={16} /> {t('landing.install.andMenu')}</strong></li>
-                <li>{t('landing.install.and3')} <strong>{t('landing.install.andInstall')}</strong></li>
-              </ol>
-            </div>
-          </div>
+          <InstallButtons />
         </div>
       </section>
 
