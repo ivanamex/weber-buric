@@ -72,10 +72,23 @@ p.center { display: block; }
 .btn--sm { min-height: 38px; padding: 0 14px; font-size: 0.88rem; }
 .btn--lg { min-height: 54px; padding: 0 26px; font-size: 1.02rem; }
 .btn--block { width: 100%; white-space: normal; text-align: center; }
-.btn--primary { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; font-weight: 700; }
-.btn--primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-.btn--accent { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; font-weight: 700; }
-.btn--accent:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+/* Primary buttons: coral liquid glass. Light tint with green text on cream; brighter with white text on green. */
+.btn--primary, .btn--accent, .dlbtn.is-yours {
+  --glass: .16;
+  background: rgba(244, 135, 106, var(--glass)); border: 1px solid rgba(230, 115, 90, .55); color: var(--green); font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
+  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .12s ease;
+}
+.btn--primary:hover, .btn--accent:hover, .dlbtn.is-yours:hover,
+.btn--primary:active, .btn--accent:active, .dlbtn.is-yours:active { --glass: .28; border-color: rgba(230, 115, 90, .8); }
+:is(.hero, .lheader, .closing, .pband, .lfooter, .card--green, .appbar) :is(.btn--primary, .btn--accent, .dlbtn.is-yours) {
+  --glass: .30; border-color: rgba(255, 190, 170, .6); color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 8px 24px rgba(244, 135, 106, .25);
+}
+:is(.hero, .lheader, .closing, .pband, .lfooter, .card--green, .appbar) :is(.btn--primary, .btn--accent, .dlbtn.is-yours):is(:hover, :active) {
+  --glass: .42; border-color: rgba(255, 210, 195, .8);
+}
 .btn--outline { background: transparent; border-color: var(--accent-strong); color: var(--green-dark); }
 .btn--outline:hover { background: var(--accent-soft); }
 .btn--ghost-light { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.35); color: #fff; }
@@ -109,7 +122,8 @@ p.center { display: block; }
 .lang--light button.is-active { background: #fff; color: var(--green); }
 
 /* ───────── Landing ───────── */
-.landing { background: var(--cream); }
+.landing { background: var(--cream); overflow-x: clip; }
+.app, .login { overflow-x: clip; }
 .lheader { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--green-dark) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .lheader__inner { display: flex; align-items: center; justify-content: space-between; height: 66px; gap: 12px; }
 .lheader__actions { display: flex; align-items: center; gap: 10px; }
@@ -126,7 +140,7 @@ p.center { display: block; }
 .hero__note { display: flex; align-items: center; gap: 8px; margin-top: 22px; font-size: .88rem; color: rgba(255,255,255,.7); }
 
 /* Hero layout: headline, then the phone (on phones), then the rest */
-.hero__inner { grid-template-areas: "head" "phone" "body"; gap: 36px; }
+.hero__inner { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "phone" "body"; gap: 36px; }
 .hero__head { grid-area: head; }
 .hero__phone { grid-area: phone; }
 .hero__body { grid-area: body; }
@@ -227,9 +241,7 @@ p.center { display: block; }
 .dlbtn__text { display: grid; gap: 2px; }
 .dlbtn__text strong { font-family: var(--font-head); font-size: 1.15rem; font-weight: 600; line-height: 1.2; }
 .dlbtn__text small { font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-ink); }
-.dlbtn.is-yours { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
-.dlbtn.is-yours:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-.dlbtn.is-yours .dlbtn__text small { color: rgba(255,255,255,.9); }
+:is(.hero, .closing) .dlbtn.is-yours .dlbtn__text small { color: rgba(255,255,255,.9); }
 .dlbtn.is-yours .dlbtn__text strong { font-weight: 700; }
 .phoneglyph { width: 30px; height: 45px; flex: none; }
 .phoneglyph__body { fill: none; stroke: currentColor; stroke-width: 2; }
@@ -337,7 +349,7 @@ p.center { display: block; }
 .tabbar__item.is-active .icon { background: var(--green-soft); border-radius: 999px; padding: 2px; width: 44px; height: 26px; }
 .tabbar__item .icon { width: 44px; height: 26px; padding: 2px; }
 
-.page { display: grid; gap: 12px; animation: fade .25s ease; }
+.page { grid-template-columns: minmax(0, 1fr); display: grid; gap: 12px; animation: fade .25s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .page__title { font-size: 1.7rem; font-weight: 700; color: var(--green-dark); margin-top: 8px; }
 .hello { margin-top: 8px; }
@@ -645,3 +657,8 @@ p.center { display: block; }
 
 .pwform { display: grid; gap: 10px; margin-top: 10px; }
 .pwform .field { margin-top: 0; }
+
+/* Never wider than the screen: grid columns can shrink, side-by-side buttons wrap */
+.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid2 > .btn { white-space: normal; text-align: center; line-height: 1.2; padding: 8px 12px; }
+.card, .stack { min-width: 0; }

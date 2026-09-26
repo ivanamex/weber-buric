@@ -19,7 +19,7 @@ This folder is one project inside the `ivanamex/weber-buric` repo. The repo root
 
 - React + Vite, plain JavaScript, react-router-dom, vite-plugin-pwa. No UI or i18n libraries.
 - **Sans-serif only:** Outfit (headings) + Inter (body), self-hosted via @fontsource. No serif anywhere.
-- Colors (CSS variables in `styles.css`): green `#2E5339`, dark green `#22402B`, cream `#F6F2E9`, ink `#24211C`, borders `#E4DCCB`, sage `#7C9070` (success). The accent is **soft coral**: `--accent` `#F4876A`, `--accent-strong` `#E6735A` (buttons, bold white text), `--accent-hover` `#D9664E`, `--accent-soft` `#FBE3DA`, `--accent-ink` `#C2553D`. Errors use `--danger` `#C0392B`. **No gold.**
+- Colors (CSS variables in `styles.css`): green `#2E5339`, dark green `#22402B`, cream `#F6F2E9`, ink `#24211C`, borders `#E4DCCB`, sage `#7C9070` (success). Primary buttons (`.btn--primary`, `.btn--accent`) are **coral liquid glass**: a light coral tint with green text on cream, brighter with white text on green (`.hero`, `.lheader`, `.closing`, `.card--green`, `.appbar`…). The accent is **soft coral**: `--accent` `#F4876A`, `--accent-strong` `#E6735A` (buttons, bold white text), `--accent-hover` `#D9664E`, `--accent-soft` `#FBE3DA`, `--accent-ink` `#C2553D`. Errors use `--danger` `#C0392B`. **No gold.**
 - Every string goes through `src/i18n/es.json` + `en.json`, which must keep the same keys.
 - Timezone America/Cancun (UTC-5, no DST), currency MXN.
 - No dead buttons: anything not built yet shows a "Próximamente" toast.
