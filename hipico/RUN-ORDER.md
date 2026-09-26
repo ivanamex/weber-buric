@@ -5,6 +5,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 ## Now
 
 1. **STEP-13**: landing: subtle hovers, faded horse photos, running text-horse
+2. **STEP-15**: softer coral "liquid glass" buttons + fix text running off the right edge on phones
 
 Check in the browser after each step, then "ok".
 
