@@ -33,6 +33,7 @@ export async function activate(setState) {
     const { createClient } = await import('@supabase/supabase-js')
     sb = createClient(URL, KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' } })
     sb.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') keepStorage()
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') setTimeout(() => refresh(), 0)
     })
     // Pick up changes made on other devices when the app comes back to the foreground.
@@ -41,6 +42,11 @@ export async function activate(setState) {
     window.addEventListener('focus', onFocus)
   }
   await refresh()
+}
+
+// Ask the browser not to clear saved data, so the sign-in lasts on this device.
+function keepStorage() {
+  try { navigator.storage?.persist?.().catch(() => {}) } catch { /* ignore */ }
 }
 
 export function refresh() {
@@ -166,7 +172,7 @@ async function verifyCode(email, token) {
   }
 }
 async function logout() {
-  await sb.auth.signOut()
+  await sb.auth.signOut({ scope: 'local' }) // this device only; other phones stay signed in
   publish({ ...empty, status: 'signedOut' })
   return { ok: true }
 }
