@@ -20,15 +20,6 @@
     "ctaOpen": "Abrir la app",
     "ctaHow": "Ver cómo funciona",
     "heroNote": "Sin descargas: se instala desde el navegador",
-    "preview": {
-      "hello": "Hola, Paola",
-      "next": "Próxima clase",
-      "class": "Doma · Intermedio",
-      "when": "Martes 17:00 · con Mariana",
-      "plan": "Plan mensual",
-      "progress": "5 de 8 clases",
-      "boarding": "Pensión de Relámpago al corriente"
-    },
     "how": {
       "eyebrow": "Cómo funciona",
       "title": "Tres pasos, cero complicaciones",
@@ -81,7 +72,15 @@
     "footer": {
       "place": "Paamul, Quintana Roo, México",
       "waText": "Hola, me interesa información sobre Hípico Riviera Maya.",
-      "demo": "Versión demo · datos de ejemplo"
+      "demo": "Versión demo · datos de ejemplo",
+      "seeDemo": "Ver la demo"
+    },
+    "phoneTitle": "Vista previa de la app",
+    "band": "Montar es libertad",
+    "closing": {
+      "title": "Tu próxima clase, a un toque",
+      "text": "Descárgala gratis en tu teléfono. Sin tiendas, sin contraseñas.",
+      "open": "O ábrela en el navegador"
     }
   },
   "login": {

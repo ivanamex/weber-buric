@@ -23,12 +23,12 @@ export const subscribe = (l) => { listeners.add(l); return () => listeners.delet
 export const useStore = () => useSyncExternalStore(subscribe, getState)
 
 let active = null
-/** Switch the data source. Called by the route layout for /app and /demo. */
+/** Switch the data source. Called by the route layout for /app, /demo and the landing's phone preview. */
 export function activate(mode) {
   if (active === mode) return
   active = mode
   if (mode === 'live') live.activate(setState)
-  else { resetPrices(); demo.activate(setState) }
+  else { resetPrices(); demo.activate(setState, mode === 'preview') }
 }
 
 const backend = () => (active === 'live' ? live.actions : demo.actions)

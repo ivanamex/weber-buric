@@ -17,13 +17,15 @@ function load() {
   return null
 }
 function persist(s) {
+  if (memoryOnly) return s
   try { localStorage.setItem(KEY, JSON.stringify(s)) } catch { /* private mode: keep in memory */ }
   return s
 }
 
 let state = null
+let memoryOnly = false // the landing's phone preview: fresh sample data, nothing saved in the browser
 let publish = () => {}
-const view = () => ({ ...state, mode: 'demo', status: 'ready' })
+const view = () => ({ ...state, mode: memoryOnly ? 'preview' : 'demo', status: 'ready' })
 
 function commit(next) {
   state = persist(next)
@@ -41,14 +43,15 @@ const nextId = (s, prefix) => `${prefix}${s.nextId++}`
 const now = () => new Date().toISOString()
 
 let storageListener = false
-export function activate(setState) {
+export function activate(setState, inMemory = false) {
   publish = setState
-  state ||= load() || persist(createSeed())
-  if (!storageListener && typeof window !== 'undefined') {
+  if (inMemory !== memoryOnly) { state = null; memoryOnly = inMemory }
+  state ||= memoryOnly ? { ...createSeed(), session: { role: 'family', familyId: DEMO_FAMILY_ID } } : load() || persist(createSeed())
+  if (!memoryOnly && !storageListener && typeof window !== 'undefined') {
     storageListener = true
     // Keep tabs in sync when the demo is open twice.
     window.addEventListener('storage', (e) => {
-      if (e.key === KEY) { const s = load(); if (s) { state = s; publish(view()) } }
+      if (e.key === KEY && !memoryOnly) { const s = load(); if (s) { state = s; publish(view()) } }
     })
   }
   publish(view())

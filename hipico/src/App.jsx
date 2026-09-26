@@ -9,6 +9,7 @@ export default function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/app/*" element={<Backend mode={LIVE_CONFIGURED ? 'live' : 'demo'} base="/app" />} />
       <Route path="/demo/*" element={<Backend mode="demo" base="/demo" />} />
+      <Route path="/vista/*" element={<Backend mode="preview" base="/vista" />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

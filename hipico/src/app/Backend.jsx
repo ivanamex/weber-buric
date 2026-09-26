@@ -1,5 +1,5 @@
-import { createContext, useContext, useLayoutEffect } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { createContext, useContext, useEffect, useLayoutEffect } from 'react'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { activate, useStore } from '../data/store.js'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { Mark } from '../components/Logo.jsx'
@@ -37,7 +37,24 @@ function RequireRole({ role, children }) {
   return children
 }
 
-/** Mounts the app for one data source (demo or live) under a base path. */
+const TOUR = ['familia', 'familia/reservar', 'familia/plan']
+const TOUR_MS = 4200
+
+/** The landing's phone preview: moves Inicio → Reservar → Mi plan on its own, scrolling each screen a little. */
+function PreviewTour({ base }) {
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined
+    const i = TOUR.findIndex((p) => pathname === `${base}/${p}`)
+    const scroll = setTimeout(() => window.scrollTo({ top: 240, behavior: 'smooth' }), 1400)
+    const next = setTimeout(() => navigate(`${base}/${TOUR[(i + 1) % TOUR.length]}`, { replace: true }), TOUR_MS)
+    return () => { clearTimeout(scroll); clearTimeout(next) }
+  }, [pathname, base, navigate])
+  return null
+}
+
+/** Mounts the app for one data source (demo, live or the landing preview) under a base path. */
 export default function Backend({ mode, base }) {
   const s = useStore()
   const { t } = useI18n()
@@ -48,7 +65,7 @@ export default function Backend({ mode, base }) {
   return (
     <BaseContext.Provider value={base}>
       <Routes>
-        <Route index element={mode === 'live' ? <LiveLogin /> : <Login />} />
+        <Route index element={mode === 'live' ? <LiveLogin /> : mode === 'preview' ? <Navigate to="familia" replace /> : <Login />} />
         <Route path="familia" element={<RequireRole role="family"><AppShell role="family" /></RequireRole>}>
           <Route index element={<FamilyHome />} />
           <Route path="reservar" element={<FamilyBook />} />
@@ -64,6 +81,7 @@ export default function Backend({ mode, base }) {
         </Route>
         <Route path="*" element={<Navigate to={base} replace />} />
       </Routes>
+      {mode === 'preview' && <PreviewTour base={base} />}
     </BaseContext.Provider>
   )
 }

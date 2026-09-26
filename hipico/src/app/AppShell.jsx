@@ -70,7 +70,7 @@ export default function AppShell({ role }) {
         {s.mode === 'demo' ? <span className="appbar__demo">{t('app.demo')}</span> : <span className="appbar__email">{s.session.email}</span>}
       </div>
       <main className="app__main">
-        <InstallPrompt />
+        {s.mode !== 'preview' && <InstallPrompt />}
         <Outlet context={{ riders, riderId: activeRiderId, setRiderId }} />
       </main>
       <nav className="tabbar" aria-label={t('app.nav')}>

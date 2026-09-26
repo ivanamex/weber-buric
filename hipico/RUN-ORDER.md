@@ -4,8 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-13**: landing: subtle hovers, faded horse photos, running text-horse
-2. **STEP-15**: softer coral "liquid glass" buttons + fix text running off the right edge on phones
+1. **STEP-15**: softer coral "liquid glass" buttons + fix text running off the right edge on phones
 
 Check in the browser after each step, then "ok".
 
@@ -22,7 +21,7 @@ Prices · schedule · instructors · horses · plan rules · her email for manag
 
 ## Done
 
-Landing + app live · Supabase login + database rules · management panel (Hoy, Cobros, Familias, Reportes) · STEP-08 families added by management · STEP-09 transfer receipts (bank details still "Por definir") · logos in `public/` · STEP-08B open sign-up, assign existing plans, block / delete (CSV import removed) · STEP-10 Horario: edit classes, cancel a date, instructors and horses, "Todos vinieron" · STEP-11 logo, pictograms, horseshoe counter, booking celebration, empty states · STEP-14 soft coral accent (gold removed) · STEP-12 6-digit code login with resend countdown, "Descargar para iPhone / Android" with install guides
+Landing + app live · Supabase login + database rules · management panel (Hoy, Cobros, Familias, Reportes) · STEP-08 families added by management · STEP-09 transfer receipts (bank details still "Por definir") · logos in `public/` · STEP-08B open sign-up, assign existing plans, block / delete (CSV import removed) · STEP-10 Horario: edit classes, cancel a date, instructors and horses, "Todos vinieron" · STEP-11 logo, pictograms, horseshoe counter, booking celebration, empty states · STEP-14 soft coral accent (gold removed) · STEP-12 6-digit code login with resend countdown, "Descargar para iPhone / Android" with install guides, stay signed in per device · STEP-13 landing: phone with the live app, letter-horse (hero glow, galloping band), faded photos, subtle hovers
 
 ## Rules
 

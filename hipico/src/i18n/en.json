@@ -20,15 +20,6 @@
     "ctaOpen": "Open the app",
     "ctaHow": "See how it works",
     "heroNote": "No downloads: installs from your browser",
-    "preview": {
-      "hello": "Hi, Paola",
-      "next": "Next class",
-      "class": "Dressage · Intermediate",
-      "when": "Tuesday 5:00 PM · with Mariana",
-      "plan": "Monthly plan",
-      "progress": "5 of 8 classes",
-      "boarding": "Relámpago's boarding is up to date"
-    },
     "how": {
       "eyebrow": "How it works",
       "title": "Three steps, zero hassle",
@@ -81,7 +72,15 @@
     "footer": {
       "place": "Paamul, Quintana Roo, Mexico",
       "waText": "Hi, I'd like information about Hípico Riviera Maya.",
-      "demo": "Demo version · sample data"
+      "demo": "Demo version · sample data",
+      "seeDemo": "See the demo"
+    },
+    "phoneTitle": "App preview",
+    "band": "Riding is freedom",
+    "closing": {
+      "title": "Your next ride, one tap away",
+      "text": "Get it free on your phone. No stores, no passwords.",
+      "open": "Or open it in your browser"
     }
   },
   "login": {

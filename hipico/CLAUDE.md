@@ -81,6 +81,7 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
   - plan progress as horseshoes (`Horseshoes` in `ui.jsx`);
   - booking celebration (`celebrate.js`, skipped with reduced motion);
   - empty states: a pictogram, one line and one action.
+- **Landing:** a phone drawn in CSS shows the real app (`/vista`: the demo in memory, nothing saved, touring Inicio → Reservar → Mi plan); a horse drawn with letters (`components/TextHorse.jsx`) glows sage→coral near the pointer in the hero and gallops across the closing band; WebP photo bands fade in on scroll; hovers are desktop-only and respect reduced motion.
 - **Install** (`components/Install.jsx`, `lib/install.js`): "Descargar para iPhone / Android" on the landing and once after the first sign-in; the visitor's phone is highlighted. Android opens the native dialog (`beforeinstallprompt`, captured in `main.jsx`) or shows the ⋮ menu guide; iPhone shows a two-step sheet with an arrow to Safari's Share; in-app browsers (WhatsApp, Instagram…) get "Copiar enlace". Hidden when running installed.
 
 **Database updates so far:** `20260927_family_accounts`, `20260928_transfer_receipts`, `20260929_family_block_delete`, `20260930_schedule`.
