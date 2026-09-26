@@ -1,13 +1,10 @@
-# STEP-08B: families sign up themselves, the club approves
+# STEP-08B: open sign-up, and the club can block or delete
 
-Change to STEP-08, decided 26 Sep.
+Decided 26 Sep. There's no approval step: families only get the link from the club, so an approval would just leave them waiting.
 
-- **Main path:** families sign up themselves (email → code → add their riders).
-- New accounts start as **"Pendiente de aprobación"**. The family can look around but not book or pay. Their home screen says: "Tu cuenta está en revisión. El club te confirmará pronto."
-- **Familias** (management): pending accounts come first, with a count badge on the tab. **Aprobar** asks "¿Ya tiene paquete activo?"
-  - **Sí:** management picks the plan and start date. It's active immediately, and no payment is created.
-  - **No:** the account is approved with no plan. The family chooses and pays, and the approved transfer receipt (STEP-09) activates the plan.
-- **Rechazar** with a short note, which the family sees.
-- Management adding a family by email stays, as the exception. Those families are approved automatically.
+- **Instant access:** anyone with the link signs up (email → code → add their riders) and can use the app right away, including choosing a plan, booking and paying.
+- **Existing families with a package already paid:** in Familias, management opens the family and assigns their current plan and start date, with **no payment created**. The family sees it active immediately.
+- **Block:** in Familias, management can **Bloquear** a family. The family can't sign in or book; their existing bookings stay visible to management, and the family sees "Tu cuenta está pausada. Contacta al club." It takes effect immediately and is enforced by the database rules, not just the UI. **Desbloquear** reverses it.
+- **Delete:** **Eliminar** removes the family's access and hides it from the lists. Payment and attendance history is kept for Reportes (soft delete). Ask for confirmation before deleting.
+- Management adding a family by email stays, as the exception.
 - **Remove the CSV import** (UI, `lib/csv.js`, styles, i18n keys).
-- Accounts that already exist are marked approved.

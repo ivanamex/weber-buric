@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-08B**: families sign up themselves, the club approves; remove the CSV import
+1. **STEP-08B**: open sign-up with instant access; the club assigns existing plans and can block or delete; remove the CSV import
 2. **STEP-10**: Horario (edit classes, cancel a date) + "Todos vinieron"
 3. **STEP-11**: logo, pictograms, horseshoe counter
 4. **STEP-12**: 6-digit code login + "Descargar para iPhone / Android"
@@ -32,7 +32,7 @@ Landing + app live · Supabase login + database rules · management panel (Hoy, 
 - Everything on `main`, pushed after every step
 - Supabase: Hípico is in the **"ivanamex's projects"** organization (via Vercel), not "Weber Buric Realty"
 - No traces · sans-serif only · Spanish first
-- No App Store · families sign up themselves and the club approves (decided 26 Sep)
+- No App Store · families sign up themselves with no approval; the club can block or delete (decided 26 Sep)
 
 ## Later
 
