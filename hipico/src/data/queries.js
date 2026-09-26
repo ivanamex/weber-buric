@@ -1,0 +1,102 @@
+// Pure read-only calculations over the app state. Both the demo and the live (Supabase) data
+// produce the same state shape, so every screen works unchanged in either mode.
+import { todayKey, addDays, weekdayOf, weekStart, monthKeyOf, currentMonthKey, monthEnd, hoursUntil, toInstant } from '../lib/time.js'
+
+export const CANCEL_WINDOW_HOURS = 12
+export const LEVELS = ['beginner', 'intermediate', 'advanced']
+
+export const byId = (list, id) => list.find((x) => x.id === id)
+export const isActiveBooking = (b) => b.status !== 'cancelled'
+
+export function getPlan(s, riderId, month = currentMonthKey()) {
+  return s.plans.find((p) => p.riderId === riderId && p.month === month) || null
+}
+export const planRemaining = (plan) => (plan ? Math.max(plan.total - plan.used, 0) : 0)
+export const planExpiry = (plan) => monthEnd(plan.month)
+
+export function familyRiders(s, familyId) {
+  return s.riders.filter((r) => r.familyId === familyId)
+}
+
+/** Slot occurrences for a given date, enriched with counts and state for a rider. */
+export function occurrencesFor(s, date, riderId = null) {
+  const rider = riderId ? byId(s.riders, riderId) : null
+  return s.slots
+    .filter((sl) => sl.weekday === weekdayOf(date))
+    .sort((a, b) => a.time.localeCompare(b.time))
+    .map((slot) => {
+      const bookings = s.bookings.filter((b) => b.slotId === slot.id && b.date === date && isActiveBooking(b))
+      // Live mode: families only see their own bookings, so seat counts come from the server.
+      const taken = Math.max(bookings.length, s.slotCounts?.[`${slot.id}|${date}`] ?? 0)
+      const spotsLeft = Math.max(slot.capacity - taken, 0)
+      const past = hoursUntil(date, slot.time) <= 0
+      const mine = rider ? bookings.find((b) => b.riderId === rider.id) : null
+      const levelOk = rider ? rider.level === slot.level : true
+      return { slot, date, bookings, taken, spotsLeft, past, mine, levelOk, instructor: byId(s.instructors, slot.instructorId) }
+    })
+}
+
+export function upcomingBookings(s, riderIds) {
+  return s.bookings
+    .filter((b) => riderIds.includes(b.riderId) && b.status === 'booked')
+    .map((b) => ({ ...b, slot: byId(s.slots, b.slotId) }))
+    .filter((b) => hoursUntil(b.date, b.slot.time) > 0)
+    .sort((a, b) => toInstant(a.date, a.slot.time) - toInstant(b.date, b.slot.time))
+}
+
+export const canCancel = (booking, slot) =>
+  booking.status === 'booked' && hoursUntil(booking.date, slot.time) >= CANCEL_WINDOW_HOURS
+
+export function boardingStatus(s, familyId, month = currentMonthKey()) {
+  const horses = s.horses.filter((h) => h.type === 'boarded' && h.ownerFamilyId === familyId)
+  return horses.map((horse) => {
+    const pay = s.payments.find((p) => p.service === 'boarding' && p.meta?.horseId === horse.id && p.meta?.month === month)
+    return { horse, month, payment: pay || null, status: pay ? pay.status : 'due' }
+  })
+}
+
+export function pendingPayments(s) {
+  return s.payments.filter((p) => p.status === 'pending').sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+}
+const paidThisMonth = (s) => {
+  const m = currentMonthKey()
+  return s.payments.filter((p) => p.status === 'paid' && p.paidAt && monthKeyOf(dateKeyFromIso(p.paidAt)) === m)
+}
+const dateKeyFromIso = (iso) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Cancun' }).format(new Date(iso))
+
+export const SERVICES = ['plan', 'boarding', 'camp', 'rental', 'events']
+export function incomeByService(s) {
+  const totals = Object.fromEntries(SERVICES.map((k) => [k, 0]))
+  for (const p of paidThisMonth(s)) totals[p.service] = (totals[p.service] || 0) + p.amount
+  return totals
+}
+export const monthCollected = (s) => paidThisMonth(s).reduce((sum, p) => sum + p.amount, 0)
+export const recentPaid = (s, limit = 5) =>
+  paidThisMonth(s).sort((a, b) => b.paidAt.localeCompare(a.paidAt)).slice(0, limit)
+
+/** Occupancy for the current Mon–Sat week. */
+export function weekOccupancy(s, anchor = todayKey()) {
+  const start = weekStart(anchor)
+  let seats = 0, taken = 0
+  const byLevel = Object.fromEntries(LEVELS.map((l) => [l, { seats: 0, taken: 0 }]))
+  for (let i = 0; i < 6; i++) {
+    for (const o of occurrencesFor(s, addDays(start, i))) {
+      seats += o.slot.capacity
+      taken += o.taken
+      byLevel[o.slot.level].seats += o.slot.capacity
+      byLevel[o.slot.level].taken += o.taken
+    }
+  }
+  const pct = (t, c) => (c ? Math.round((t / c) * 100) : 0)
+  return {
+    start, seats, taken, pct: pct(taken, seats),
+    byLevel: Object.fromEntries(LEVELS.map((l) => [l, pct(byLevel[l].taken, byLevel[l].seats)])),
+  }
+}
+export const activePlansCount = (s) =>
+  s.plans.filter((p) => p.month === currentMonthKey()).length
+
+
+/** Registrations for an event (live families only see their own rows, so use the server count). */
+export const campTaken = (s, eventId) =>
+  Math.max(s.campRegistrations.filter((r) => r.eventId === eventId).length, s.campCounts?.[eventId] ?? 0)

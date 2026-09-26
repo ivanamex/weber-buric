@@ -18,8 +18,8 @@ export default function AdminToday() {
   const all = occ.flatMap((o) => o.bookings)
   const count = (st) => all.filter((b) => b.status === st).length
 
-  const onMark = (b, status) => {
-    const res = markAttendance(b.id, status)
+  const onMark = async (b, status) => {
+    const res = await markAttendance(b.id, status)
     const name = byId(s.riders, b.riderId).name
     if (!res.ok) return toast(t('errors.notFound'), 'error')
     toast(res.status === 'booked' ? t('toasts.attendanceCleared', { name }) : t(`toasts.${res.status}`, { name }), res.status === 'noshow' ? 'info' : 'success')

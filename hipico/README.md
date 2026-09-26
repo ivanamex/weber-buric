@@ -2,7 +2,7 @@
 
 A web app (PWA) for **Hípico Riviera Maya** (Paamul, Quintana Roo). It covers class bookings, monthly plans, horse boarding (pensión), rentals, events, and a management panel. The UI is bilingual (ES by default, EN available).
 
-Phase 1 runs entirely in the browser. Demo data is saved in `localStorage`, there is no backend, and it needs **zero environment variables**.
+Without any settings it runs as a demo: sample data is kept in the browser and it needs **zero environment variables**. With Supabase connected, `/app` becomes the real app (see **Live mode** below).
 
 ## Run it
 
@@ -31,9 +31,10 @@ To deploy from the CLI instead: `cd hipico && npx vercel --prod`.
 | Route | What it is |
 |---|---|
 | `/` | Public landing page. Send this link to the owner and families. |
-| `/app` | Demo login ("Entrar como familia" / "Entrar como dirección"). This is also the PWA start URL. |
+| `/app` | Sign-in. Demo buttons until Supabase is set up, then email sign-in. This is also the PWA start URL. |
+| `/demo` | Always the demo with sample data |
 | `/app/familia` (`/reservar`, `/plan`, `/mas`) | Family app: Inicio, Reservar, Mi plan, Más |
-| `/app/direccion` (`/cobros`, `/reportes`) | Admin app: Hoy, Cobros, Reportes |
+| `/app/direccion` (`/cobros`, `/familias`, `/reportes`) | Admin app: Hoy, Cobros, Familias, Reportes |
 
 ## Where things live
 
@@ -41,14 +42,18 @@ To deploy from the CLI instead: `cd hipico && npx vercel --prod`.
 src/
   data/prices.js     ← ALL prices (placeholders, "*precios de ejemplo"). Edit here.
   data/seed.js       ← demo data (instructors, horses, slots, families, riders…)
-  data/store.js      ← the ONLY data-access module: queries + actions + business rules
+  data/store.js      ← the ONLY module screens import: picks demo or live, exposes queries + actions
+  data/queries.js    ← read-only calculations (spots left, plan progress, reports…)
+  data/demo.js       ← demo mode: sample data in localStorage, same rules as the database
+  data/live.js       ← live mode: Supabase client, sign-in, calls the database functions
+supabase/schema.sql  ← tables, security rules and booking/payment functions (run once in Supabase)
   i18n/es.json, en.json, I18nProvider.jsx   ← dictionaries + tiny t() hook
   lib/time.js        ← America/Cancun date helpers
   pages/Landing.jsx  ← public homepage
   app/…              ← login, shell, family & admin screens
 ```
 
-### Business rules (enforced in `store.js`)
+### Business rules (enforced in `demo.js` and in the database functions)
 - A booking needs an open spot, the rider's level must match the class level, and the rider needs a plan for that class's month with classes left. Each booking takes one class off the plan.
 - If a family cancels **12 h or more** before the class, the class goes back to their plan. Closer than 12 h, they can't cancel.
 - The admin marks each booking "Vino" or "No vino". Both count the class as used.
@@ -59,6 +64,33 @@ src/
 ### Reset
 Use **Más → Reiniciar demo** (family side) or **Reportes → Reiniciar demo** (admin side) to restore the seed data.
 
-## Phase 2 notes
-- **Supabase:** replace the internals of `src/data/store.js` (`load`/`commit` and each action) with Supabase queries. Keep the exported function names so the screens don't change. The actions already return `{ ok, code }`, which maps cleanly onto async results.
-- **Mercado Pago:** hook it into the `payCard` handlers in `app/family/Plan.jsx` (Checkout Pro preference → redirect). Then mark payments paid from a webhook.
+## Live mode (Supabase)
+
+The app runs in one of two modes:
+
+| Route | Supabase keys set? | What it shows |
+|---|---|---|
+| `/app` | no | the demo (sample data in the browser) |
+| `/app` | yes | the real app: email sign-in and shared data |
+| `/demo` | either | always the demo, so the club can keep showing it |
+
+### Set up Supabase (one time)
+
+1. **Create the database.** In Vercel, open the project → **Storage** → **Supabase** → create one on the **Free** plan and connect it to this project. Vercel adds `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` automatically. If you set the keys by hand instead, use `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Never add the `service_role`/secret key; the build refuses to bundle it.
+2. **Create the tables.** Open the Supabase dashboard → **SQL Editor**. Paste all of [`supabase/schema.sql`](supabase/schema.sql). **Change the email on its last line** to the management email, then click **Run**.
+3. **Allow the login links.** Go to Supabase → **Authentication → URL Configuration**. Set **Site URL** to `https://hipico-riviera-maya.vercel.app` and add `https://hipico-riviera-maya.vercel.app/app` under **Redirect URLs**.
+4. **Show the login code in the email.** Go to Supabase → **Authentication → Emails → Magic Link** and add a line such as `Tu código: {{ .Token }}`. On iPhone the installed app can't receive the link (it opens in Safari), so families type the code instead.
+5. **Redeploy** in Vercel (Deployments → ⋯ → Redeploy). `/app` now uses Supabase.
+
+Do step 2 before step 5. Otherwise `/app` switches to live mode before its tables exist and shows an error.
+
+**Email sending:** Supabase's built-in email is meant for testing and only sends a few emails per hour. Before inviting families, set up your own email sender (for example Resend or Brevo) under **Authentication → Emails → SMTP Settings**.
+
+### Day to day
+- **Families and riders:** management adds them in the app, in the **Familias** tab. A family signs in with the email saved there.
+- **More management accounts:** add a row to the `admins` table (Supabase → Table Editor). Emails must be lowercase.
+- **Prices:** edit the `prices` table. **Class schedule:** edit the `slots` table (`weekday` 1 = Monday … 6 = Saturday). **Boarded horses:** in the `horses` table, set `type = boarded` and `owner_family_id` to the family.
+- **Rules:** booking, cancelling, plans and payments are enforced by the database functions in `schema.sql`, so they hold whatever the browser sends. Each family can only read its own data (Row Level Security).
+
+## Still to come
+- **Mercado Pago:** "Pagar con tarjeta" still shows "Disponible próximamente". Card payments need a small server function (Supabase Edge Function) that creates the checkout and marks the payment paid from Mercado Pago's webhook.

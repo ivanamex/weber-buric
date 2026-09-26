@@ -1,10 +1,11 @@
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, incomeByService, monthCollected, weekOccupancy, activePlansCount, pendingPayments, LEVELS, SERVICES, resetDemo,
+  useStore, incomeByService, monthCollected, weekOccupancy, activePlansCount, pendingPayments, LEVELS, SERVICES,
 } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { SectionTitle } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
+import { ResetDemoRow } from '../../components/ResetDemoRow.jsx'
 import { currentMonthKey, addDays } from '../../lib/time.js'
 
 export default function AdminReports() {
@@ -19,9 +20,6 @@ export default function AdminReports() {
   const boarded = s.horses.filter((h) => h.type === 'boarded').length
   const monthName = fmtDate(`${currentMonthKey()}-01`, { month: 'long', year: 'numeric' })
 
-  const onReset = () => {
-    if (window.confirm(t('more.resetConfirm'))) { resetDemo(); toast(t('toasts.reset'), 'info') }
-  }
 
   return (
     <div className="page">
@@ -74,10 +72,7 @@ export default function AdminReports() {
           <span className="grow">{t('admin.reports.export')}</span>
           <button type="button" className="link" onClick={() => toast(t('toasts.soon'), 'info')}>{t('common.soon')}</button>
         </div>
-        <div className="list__row">
-          <span className="grow">{t('more.reset')}<br /><span className="small muted">{t('more.resetHint')}</span></span>
-          <button type="button" className="btn btn--sm btn--danger" onClick={onReset}><Icon name="refresh" size={16} /> {t('more.resetBtn')}</button>
-        </div>
+        <ResetDemoRow />
       </div>
       <p className="sample-note">{t('common.samplePrices')}</p>
     </div>

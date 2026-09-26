@@ -2,6 +2,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { login, useStore } from '../data/store.js'
 import { Mark } from '../components/Logo.jsx'
+import { useBase } from './Backend.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
 import { Icon } from '../components/Icon.jsx'
 import { useToast } from '../components/Toast.jsx'
@@ -11,12 +12,13 @@ export default function Login() {
   const { session } = useStore()
   const navigate = useNavigate()
   const toast = useToast()
-  if (session) return <Navigate to={session.role === 'admin' ? '/app/direccion' : '/app/familia'} replace />
+  const base = useBase()
+  if (session) return <Navigate to={`${base}/${session.role === 'admin' ? 'direccion' : 'familia'}`} replace />
 
-  const enter = (role) => {
-    login(role)
+  const enter = async (role) => {
+    await login(role)
     toast(t(role === 'admin' ? 'login.welcomeAdmin' : 'login.welcomeFamily'))
-    navigate(role === 'admin' ? '/app/direccion' : '/app/familia')
+    navigate(`${base}/${role === 'admin' ? 'direccion' : 'familia'}`)
   }
 
   return (
