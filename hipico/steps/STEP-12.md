@@ -12,3 +12,8 @@ Priority: login is blocking testing.
 - **iPhone:** the button opens a bottom sheet with 2 illustrated steps (the Share icon, then "Añadir a pantalla de inicio"), and an animated arrow pointing at where Safari's Share button is.
 - **In-app browsers** (WhatsApp, Gmail, Instagram, Facebook): first show "Abre este enlace en Safari / Chrome" with a "Copiar enlace" button.
 - Hide the buttons when the app is already installed (`display-mode: standalone`).
+
+## Stay signed in
+- Families sign in **once per device** and stay signed in: the session persists in the browser and the installed app, and refreshes silently. No emailed code or link on every visit.
+- A code is asked for only on a new device, after "Cerrar sesión", or if management blocks the account.
+- Check it: sign in, close the app, reopen it the next day, and you should still be signed in (both in Safari and the installed app on iPhone).
