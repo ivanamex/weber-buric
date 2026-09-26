@@ -71,7 +71,7 @@ export default function FamilyBook() {
         </button>
         <div className="daystrip__days">
           {days.map((d) => {
-            const count = s.slots.filter((sl) => sl.weekday === weekdayOf(d)).length
+            const count = s.slots.filter((sl) => sl.weekday === weekdayOf(d) && sl.active !== false).length
             return (
               <button key={d} type="button" className={`day ${d === date ? 'is-active' : ''} ${count ? '' : 'day--off'}`} onClick={() => setDate(d)}>
                 <span className="day__wd">{fmtDate(d, { weekday: 'short' }).replace('.', '')}</span>
@@ -95,7 +95,8 @@ export default function FamilyBook() {
           {occ.map((o) => {
             const full = o.spotsLeft === 0
             let state = 'open'
-            if (o.mine) state = 'mine'
+            if (o.cancellation) state = 'cancelled'
+            else if (o.mine) state = 'mine'
             else if (o.past) state = 'past'
             else if (full) state = 'full'
             else if (!o.levelOk) state = 'level'
@@ -108,14 +109,19 @@ export default function FamilyBook() {
                 <div className="slot__body">
                   <p className="slot__title">{t(`disciplines.${o.slot.discipline}`)} <Badge tone="neutral">{t(`levels.${o.slot.level}`)}</Badge></p>
                   <p className="slot__meta">{o.instructor.name} · {t(`arenas.${o.slot.arena}`)}</p>
-                  <p className={`slot__spots ${full ? 'is-full' : o.spotsLeft === 1 ? 'is-low' : ''}`}>
-                    {full ? t('family.book.full') : t('family.book.spotsLeft', { n: o.spotsLeft, cap: o.slot.capacity })}
-                  </p>
+                  {o.cancellation ? (
+                    <p className="slot__spots is-full">{o.cancellation.reason || t('schedule.cancelledShort')}</p>
+                  ) : (
+                    <p className={`slot__spots ${full ? 'is-full' : o.spotsLeft === 1 ? 'is-low' : ''}`}>
+                      {full ? t('family.book.full') : t('family.book.spotsLeft', { n: o.spotsLeft, cap: o.slot.capacity })}
+                    </p>
+                  )}
                 </div>
                 <div className="slot__action">
                   {state === 'open' && <button type="button" className="btn btn--primary btn--sm" onClick={() => onBook(o)} disabled={busy !== null}>{busy === o.slot.id ? '…' : t('family.book.book')}</button>}
                   {state === 'mine' && <Badge tone="success"><Icon name="check" size={14} /> {t('family.book.booked')}</Badge>}
                   {state === 'past' && <button type="button" className="btn btn--sm" disabled>{t('family.book.past')}</button>}
+                  {state === 'cancelled' && <Badge tone="alert">{t('schedule.cancelledBadge')}</Badge>}
                   {state === 'full' && <button type="button" className="btn btn--sm" disabled>{t('family.book.fullBtn')}</button>}
                   {state === 'level' && <button type="button" className="btn btn--sm" disabled title={t('errors.level')}>{t('family.book.otherLevel')}</button>}
                 </div>

@@ -25,7 +25,7 @@ export const isDeletedFamily = (f) => Boolean(f.deletedAt)
 export function occurrencesFor(s, date, riderId = null) {
   const rider = riderId ? byId(s.riders, riderId) : null
   return s.slots
-    .filter((sl) => sl.weekday === weekdayOf(date))
+    .filter((sl) => sl.weekday === weekdayOf(date) && sl.active !== false)
     .sort((a, b) => a.time.localeCompare(b.time))
     .map((slot) => {
       const bookings = s.bookings.filter((b) => b.slotId === slot.id && b.date === date && isActiveBooking(b))
@@ -35,7 +35,8 @@ export function occurrencesFor(s, date, riderId = null) {
       const past = hoursUntil(date, slot.time) <= 0
       const mine = rider ? bookings.find((b) => b.riderId === rider.id) : null
       const levelOk = rider ? rider.level === slot.level : true
-      return { slot, date, bookings, taken, spotsLeft, past, mine, levelOk, instructor: byId(s.instructors, slot.instructorId) }
+      const cancellation = (s.cancellations || []).find((c) => c.slotId === slot.id && c.date === date) || null
+      return { slot, date, bookings, taken, spotsLeft, past, cancellation, mine, levelOk, instructor: byId(s.instructors, slot.instructorId) }
     })
 }
 
@@ -103,3 +104,13 @@ export const activePlansCount = (s) =>
 /** Registrations for an event (live families only see their own rows, so use the server count). */
 export const campTaken = (s, eventId) =>
   Math.max(s.campRegistrations.filter((r) => r.eventId === eventId).length, s.campCounts?.[eventId] ?? 0)
+
+/** Club-cancelled bookings from today on (the family sees "Clase cancelada"). */
+export function clubCancelledBookings(s, riderIds) {
+  const today = todayKey()
+  return s.bookings
+    .filter((b) => riderIds.includes(b.riderId) && b.cancelledByClub && b.date >= today)
+    .map((b) => ({ ...b, slot: byId(s.slots, b.slotId) }))
+    .filter((b) => b.slot)
+    .sort((a, b) => (a.date + a.slot.time).localeCompare(b.date + b.slot.time))
+}

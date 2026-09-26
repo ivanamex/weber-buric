@@ -120,7 +120,8 @@
     "today": "Today",
     "payments": "Payments",
     "reports": "Reports",
-    "families": "Families"
+    "families": "Families",
+    "schedule": "Schedule"
   },
   "levels": {
     "beginner": "Beginner",
@@ -295,7 +296,8 @@
       "planOk": "Plan up to date · {n} left",
       "emptyTitle": "No classes booked",
       "emptyText": "There are no bookings for this day.",
-      "rule": "Both “Came” and “No-show” count the class as used."
+      "rule": "Both “Came” and “No-show” count the class as used.",
+      "allCame": "All came"
     },
     "payments": {
       "title": "Payments",
@@ -391,7 +393,8 @@
     "bankSaved": "Bank details saved",
     "familyBlocked": "{name} blocked. They can't sign in or book.",
     "familyUnblocked": "{name} unblocked",
-    "familyDeleted": "{name} deleted. Their history is kept."
+    "familyDeleted": "{name} deleted. Their history is kept.",
+    "allCame": "Attendance recorded for {n} riders"
   },
   "errors": {
     "notFound": "Record not found.",
@@ -422,7 +425,8 @@
     "noteRequired": "Write the reason for rejecting.",
     "badClabe": "The CLABE must have 18 digits.",
     "accountBlocked": "Your account is paused. Contact the club.",
-    "accountDeleted": "This account is no longer active. Contact the club."
+    "accountDeleted": "This account is no longer active. Contact the club.",
+    "classCancelled": "This class was cancelled for that day."
   },
   "live": {
     "loading": "Loading…",
@@ -480,5 +484,60 @@
     "rejectPh": "E.g. the amount doesn't match",
     "bankTitle": "Bank details for transfers",
     "toReview": "{n} to review"
+  },
+  "schedule": {
+    "title": "Schedule",
+    "classes": "Classes",
+    "instructors": "Instructors",
+    "horses": "Horses",
+    "weekOf": "Week {from} – {to}",
+    "newClass": "New class",
+    "day": "Day",
+    "time": "Time",
+    "duration": "Minutes",
+    "discipline": "Discipline",
+    "instructor": "Instructor",
+    "arena": "Arena",
+    "capacity": "Spots",
+    "activeClass": "Class active",
+    "activeLabel": "Active",
+    "off": "Off",
+    "booked": "{n} of {cap} booked",
+    "cancelDate": "Cancel this date",
+    "cancelReason": "Reason (families will see it)",
+    "cancelPh": "E.g. rain",
+    "cancelHint": "{n} bookings will be cancelled and the class returns to their plan.",
+    "cancelDone": "Date cancelled. Families can see it now.",
+    "reopen": "Reopen date",
+    "reopened": "Date reopened",
+    "cancelledBadge": "Class cancelled",
+    "cancelledShort": "Cancelled",
+    "cancelledTitle": "Class cancelled",
+    "backToPlan": "The class went back to your plan.",
+    "saved": "Changes saved",
+    "created": "Class created",
+    "emptyTitle": "No classes",
+    "emptyText": "Create the first class of the week.",
+    "name": "Name",
+    "classesCount": "{n} classes",
+    "addInstructor": "Add instructor",
+    "addHorse": "Add horse",
+    "school": "School",
+    "boarded": "Boarded",
+    "owner": "Owner family",
+    "noOwner": "No owner assigned",
+    "schoolHorses": "School horses",
+    "boardedHorses": "Boarded horses",
+    "noHorses": "None yet",
+    "weekdays": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "cancelShort": "Cancel date"
   }
 }

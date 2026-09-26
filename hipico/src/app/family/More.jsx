@@ -31,7 +31,7 @@ export default function FamilyMore() {
   const [campRider, setCampRider] = useState(riders[0]?.id)
   const firstRentalDate = addDays(todayKey(), 1)
   const [rental, setRental] = useState({ date: firstRentalDate, time: '08:00', hours: 1, horseId: s.horses.find((h) => h.type === 'school')?.id })
-  const schoolHorses = s.horses.filter((h) => h.type === 'school')
+  const schoolHorses = s.horses.filter((h) => h.type === 'school' && h.active !== false)
   const myRentals = s.rentals
     .filter((r) => r.familyId === familyId && hoursUntil(r.date, r.time) > 0)
     .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))

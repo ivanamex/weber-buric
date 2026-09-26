@@ -463,3 +463,27 @@ p.center { display: block; }
 .iconbtn--light:hover:not(:disabled) { background: rgba(255,255,255,.12); }
 .danger-actions { padding-top: 12px; border-top: 1px dashed var(--border); }
 .danger-zone { display: grid; gap: 10px; margin-top: 16px; padding: 12px; border-radius: var(--radius-sm); background: var(--terra-soft); color: #6E2B14; }
+
+/* ───────── Schedule ───────── */
+.grid3 { display: grid; grid-template-columns: 1.2fr 1fr .8fr; gap: 8px; }
+.check { display: flex; align-items: center; gap: 8px; font-size: .9rem; font-weight: 500; }
+.field.check { margin-top: 30px; }
+.check input { width: 18px; height: 18px; accent-color: var(--green); }
+.link--danger { color: var(--terra); }
+.notice--alert { background: var(--terra-soft); color: #6E2B14; align-items: flex-start; }
+.sched-day { padding: 12px 16px; }
+.sched-day__title { font-family: var(--font-head); font-weight: 600; color: var(--green-dark); }
+.sched-day__title::first-letter { text-transform: uppercase; }
+.sched-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #EEE7D8; }
+.sched-row:last-child { border-bottom: 0; }
+.sched-row__time { display: grid; min-width: 52px; text-align: center; }
+.sched-row__time strong { font-family: var(--font-head); font-size: 1.05rem; }
+.sched-row__time span { font-size: .7rem; color: var(--muted); }
+.sched-row__actions { display: grid; gap: 6px; justify-items: end; text-align: right; }
+.sched-row.is-off { opacity: .55; }
+.sched-row.is-cancelled .list__title { text-decoration: line-through; text-decoration-color: var(--terra); }
+.inline-form { display: grid; gap: 8px; }
+.classcard__side { display: grid; gap: 6px; justify-items: end; }
+@media (max-width: 420px) { .grid3 { grid-template-columns: 1fr 1fr; } .grid3 .field:first-child { grid-column: 1 / -1; } .field.check { margin-top: 10px; } }
+.sched-row__actions { font-size: .86rem; max-width: 92px; }
+.sched-row__actions .link { font-size: .84rem; }

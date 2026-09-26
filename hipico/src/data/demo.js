@@ -83,6 +83,7 @@ function bookClass({ riderId, slotId, date }) {
     const slot = byId(s.slots, slotId)
     if (!rider || rider.active === false || !slot || slot.weekday !== weekdayOf(date)) return fail('notFound')
     if (hoursUntil(date, slot.time) <= 0) return fail('past')
+    if ((s.cancellations || []).some((c) => c.slotId === slotId && c.date === date)) return fail('classCancelled')
     const active = s.bookings.filter((b) => b.slotId === slotId && b.date === date && isActiveBooking(b))
     if (active.some((b) => b.riderId === riderId)) return fail('already')
     if (active.length >= slot.capacity) return fail('full')
@@ -107,8 +108,9 @@ function bookClass({ riderId, slotId, date }) {
         .filter((b) => b.date === date && isActiveBooking(b) && byId(s.slots, b.slotId)?.time === slot.time)
         .map((b) => b.horseId),
     )
-    let horseId = rider.horseId && !busy.has(rider.horseId) ? rider.horseId : null
-    horseId ||= s.horses.find((h) => h.type === 'school' && !busy.has(h.id))?.id
+    const own = rider.horseId && byId(s.horses, rider.horseId)
+    let horseId = own && own.active !== false && !busy.has(own.id) ? own.id : null
+    horseId ||= s.horses.find((h) => h.type === 'school' && h.active !== false && !busy.has(h.id))?.id
     if (!horseId) return fail('noHorse')
 
     plan.used += 1
@@ -433,10 +435,90 @@ function saveSettings(fields) {
   })
 }
 
+/* ───────── Schedule (management) ───────── */
+const DISCIPLINES = ['basics', 'dressage', 'jumping', 'ponies']
+const ARENAS = ['main', 'covered', 'jumping']
+
+function saveSlot(slot) {
+  return mutate((s) => {
+    const row = {
+      weekday: Number(slot.weekday), time: slot.time, duration: Number(slot.duration) || 60, discipline: slot.discipline,
+      level: slot.level, instructorId: slot.instructorId, arena: slot.arena, capacity: Number(slot.capacity), active: slot.active !== false,
+    }
+    if (!(row.weekday >= 0 && row.weekday <= 6) || !/^[0-2]\d:[0-5]\d$/.test(row.time || '') || !DISCIPLINES.includes(row.discipline) ||
+      !LEVELS.includes(row.level) || !byId(s.instructors, row.instructorId) || !ARENAS.includes(row.arena) || !(row.capacity > 0)) return fail('missing')
+    const existing = slot.id && byId(s.slots, slot.id)
+    if (existing) Object.assign(existing, row)
+    else s.slots.push({ id: nextId(s, 's'), ...row })
+    return { ok: true }
+  })
+}
+
+function saveInstructor(i) {
+  return mutate((s) => {
+    if (!i.name?.trim()) return fail('missing')
+    const existing = i.id && byId(s.instructors, i.id)
+    const row = { name: i.name.trim(), specialty: i.specialty || null, active: i.active !== false }
+    if (existing) Object.assign(existing, row)
+    else s.instructors.push({ id: nextId(s, 'i'), ...row })
+    return { ok: true }
+  })
+}
+
+function saveHorse(h) {
+  return mutate((s) => {
+    if (!h.name?.trim() || !['school', 'boarded'].includes(h.type)) return fail('missing')
+    const existing = h.id && byId(s.horses, h.id)
+    const row = { name: h.name.trim(), type: h.type, active: h.active !== false, ownerFamilyId: h.type === 'boarded' ? h.ownerFamilyId || null : null }
+    if (existing) Object.assign(existing, row)
+    else s.horses.push({ id: nextId(s, 'h'), ...row })
+    return { ok: true }
+  })
+}
+
+function cancelClassDate(slotId, date, reason) {
+  return mutate((s) => {
+    const slot = byId(s.slots, slotId)
+    if (!slot || slot.weekday !== weekdayOf(date)) return fail('notFound')
+    if (date < todayKey()) return fail('past')
+    s.cancellations ||= []
+    const existing = s.cancellations.find((c) => c.slotId === slotId && c.date === date)
+    if (existing) existing.reason = reason || null
+    else s.cancellations.push({ id: nextId(s, 'sc'), slotId, date, reason: reason || null, createdAt: now() })
+    let cancelled = 0
+    for (const b of s.bookings.filter((x) => x.slotId === slotId && x.date === date && x.status === 'booked')) {
+      Object.assign(b, { status: 'cancelled', cancelledByClub: true, cancelledAt: now() })
+      const plan = getPlan(s, b.riderId, monthKeyOf(date))
+      if (plan) plan.used = Math.max(plan.used - 1, 0)
+      cancelled++
+    }
+    return { ok: true, cancelled }
+  })
+}
+
+function reopenClassDate(slotId, date) {
+  return mutate((s) => {
+    s.cancellations = (s.cancellations || []).filter((c) => !(c.slotId === slotId && c.date === date))
+    return { ok: true }
+  })
+}
+
+function markClassAttended(slotId, date) {
+  return mutate((s) => {
+    let marked = 0
+    for (const b of s.bookings.filter((x) => x.slotId === slotId && x.date === date && ['booked', 'noshow'].includes(x.status))) {
+      b.status = 'attended'
+      marked++
+    }
+    return { ok: true, marked }
+  })
+}
+
 export const actions = {
   login, logout, resetDemo, bookClass, cancelBooking, markAttendance, choosePlan,
   requestBoardingPayment, markPaid, registerCamp, bookRental,
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),
   uploadReceipt, reviewReceipt, receiptUrl, saveSettings,
+  saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,
 }

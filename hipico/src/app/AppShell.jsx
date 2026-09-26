@@ -17,6 +17,7 @@ const TABS = {
   ],
   admin: [
     { to: 'direccion', icon: 'clock', key: 'today', end: true },
+    { to: 'direccion/horario', icon: 'calendar', key: 'schedule' },
     { to: 'direccion/cobros', icon: 'cash', key: 'payments' },
     { to: 'direccion/familias', icon: 'users', key: 'families' },
     { to: 'direccion/reportes', icon: 'chart', key: 'reports' },

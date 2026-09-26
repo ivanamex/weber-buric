@@ -64,14 +64,14 @@ async function load() {
     const today = todayKey()
     const from = addDays(today, -62)
     const to = addDays(today, 62)
-    const [prices, instructors, horses, families, riders, slots, plans, bookings, payments, events, campRegistrations, rentals, counts, camp, settings] =
+    const [prices, instructors, horses, families, riders, slots, plans, bookings, payments, events, campRegistrations, rentals, counts, camp, settings, cancellations] =
       await Promise.all([
         sb.from('prices').select('key, amount'),
         sb.from('instructors').select('*'),
         sb.from('horses').select('*').order('name'),
         sb.from('families').select('*').order('name'),
         sb.from('riders').select('*').order('name'),
-        sb.from('slots').select('*').eq('active', true),
+        sb.from('slots').select('*').order('time'),
         sb.from('plans').select('*'),
         sb.from('bookings').select('*').gte('date', from).lte('date', to),
         sb.from('payments').select('*').order('created_at'),
@@ -81,6 +81,7 @@ async function load() {
         sb.rpc('slot_counts', { p_from: from, p_to: to }),
         sb.rpc('camp_counts'),
         sb.from('club_settings').select('*').maybeSingle(),
+        sb.from('slot_cancellations').select('*').gte('date', from),
       ])
     applyPrices(Object.fromEntries(rows(prices).map((p) => [p.key, p.amount])))
     const riderRows = rows(riders)
@@ -106,6 +107,7 @@ async function load() {
       campCounts: Object.fromEntries(rows(camp).map((c) => [c.eventId, c.taken])),
       // Bank details for transfers (missing before the database update → placeholders).
       settings: settings.data ? camel(settings.data) : {},
+      cancellations: cancellations.error ? [] : rows(cancellations),
     })
   } catch (err) {
     console.error('[hipico] load failed', err)
@@ -216,6 +218,24 @@ async function setFamilyActive(familyId, active) {
   return { ok: true }
 }
 
+/* ───────── Schedule (management) ───────── */
+const SLOT_COLS = { weekday: 'weekday', time: 'time', duration: 'duration', discipline: 'discipline', level: 'level', instructorId: 'instructor_id', arena: 'arena', capacity: 'capacity', active: 'active' }
+async function upsertRow(table, id, row) {
+  const res = id ? await sb.from(table).update(row).eq('id', id) : await sb.from(table).insert(row)
+  if (res.error) { console.error(`[hipico] ${table} save failed`, res.error); return { ok: false, code: 'missing' } }
+  await refresh()
+  return { ok: true }
+}
+const saveSlot = (slot) => upsertRow('slots', slot.id,
+  Object.fromEntries(Object.entries(SLOT_COLS).filter(([k]) => slot[k] !== undefined).map(([k, col]) => [col, ['weekday', 'duration', 'capacity'].includes(k) ? Number(slot[k]) : slot[k]])))
+const saveInstructor = (i) => upsertRow('instructors', i.id, { name: i.name?.trim(), specialty: i.specialty || null, active: i.active !== false })
+const saveHorse = (h) => upsertRow('horses', h.id, {
+  name: h.name?.trim(), type: h.type, active: h.active !== false, owner_family_id: h.type === 'boarded' ? h.ownerFamilyId || null : null,
+})
+const cancelClassDate = (slotId, date, reason) => call('cancel_class_date', { p_slot: slotId, p_date: date, p_reason: reason || null })
+const reopenClassDate = (slotId, date) => call('reopen_class_date', { p_slot: slotId, p_date: date })
+const markClassAttended = (slotId, date) => call('mark_class_attended', { p_slot: slotId, p_date: date })
+
 /* ───────── Transfer receipts (private bucket: <family>/<payment>/<file>) ───────── */
 const EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/heic': 'heic', 'image/heif': 'heif', 'application/pdf': 'pdf' }
 const typeOf = (file) => file.type || ({ heic: 'image/heic', heif: 'image/heif', pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg' })[file.name.split('.').pop().toLowerCase()] || ''
@@ -276,6 +296,12 @@ export const actions = {
   deleteFamily,
   selfSignup,
   uploadReceipt,
+  saveSlot,
+  saveInstructor,
+  saveHorse,
+  cancelClassDate,
+  reopenClassDate,
+  markClassAttended,
   reviewReceipt,
   receiptUrl,
   saveSettings,

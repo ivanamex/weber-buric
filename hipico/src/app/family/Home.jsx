@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
   useStore, byId, getPlan, planRemaining, planExpiry, upcomingBookings, canCancel, cancelBooking,
-  boardingStatus, CANCEL_WINDOW_HOURS,
+  boardingStatus, CANCEL_WINDOW_HOURS, clubCancelledBookings,
 } from '../../data/store.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
 import { useBase } from '../Backend.jsx'
@@ -22,12 +22,13 @@ export default function FamilyHome() {
   const { t, fmtDate, fmtTime, fmtMoney } = useI18n()
   const s = useStore()
   const toast = useToast()
-  const { riderId } = useFamilyContext()
+  const { riderId, riders } = useFamilyContext()
   const base = useBase()
   const rider = byId(s.riders, riderId)
   const family = byId(s.families, s.session.familyId)
   const plan = getPlan(s, riderId)
   const upcoming = upcomingBookings(s, [riderId])
+  const cancelled = clubCancelledBookings(s, riders.map((r) => r.id))
   const next = upcoming[0]
   const boarding = boardingStatus(s, family.id)
   // Transfer receipts: waiting, rejected, or approved in the last two weeks.
@@ -46,6 +47,19 @@ export default function FamilyHome() {
         <h1>{family.contact.split(' ')[0]} <span aria-hidden="true">👋</span></h1>
       </div>
       <RiderPicker />
+
+      {cancelled.map((b) => {
+        const reason = (s.cancellations || []).find((c) => c.slotId === b.slotId && c.date === b.date)?.reason
+        return (
+          <div key={b.id} className="notice notice--alert" role="status">
+            <Icon name="alert" size={18} />
+            <span>
+              <strong>{t('schedule.cancelledTitle')}</strong> · {byId(s.riders, b.riderId)?.name} · {fmtDate(b.date, { weekday: 'short', day: 'numeric', month: 'short' })} {fmtTime(b.slot.time)}
+              <br /><span className="small">{reason ? `${reason} · ` : ''}{t('schedule.backToPlan')}</span>
+            </span>
+          </div>
+        )
+      })}
 
       <SectionTitle>{t('family.home.nextClass')}</SectionTitle>
       {next ? (

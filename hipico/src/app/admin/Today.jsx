@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { useStore, byId, occurrencesFor, getPlan, planRemaining, markAttendance } from '../../data/store.js'
+import { useStore, byId, occurrencesFor, getPlan, planRemaining, markAttendance, markClassAttended } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
@@ -23,6 +23,11 @@ export default function AdminToday() {
     const name = byId(s.riders, b.riderId).name
     if (!res.ok) return toast(t('errors.notFound'), 'error')
     toast(res.status === 'booked' ? t('toasts.attendanceCleared', { name }) : t(`toasts.${res.status}`, { name }), res.status === 'noshow' ? 'info' : 'success')
+  }
+
+  const onAll = async (o) => {
+    const res = await markClassAttended(o.slot.id, date)
+    toast(res.ok ? t('toasts.allCame', { n: o.bookings.length }) : t(`errors.${res.code}`), res.ok ? 'success' : 'error')
   }
 
   return (
@@ -56,7 +61,12 @@ export default function AdminToday() {
                   <p className="card__title">{t(`disciplines.${o.slot.discipline}`)} · {t(`levels.${o.slot.level}`)}</p>
                   <p className="small muted">{o.instructor.name} · {t(`arenas.${o.slot.arena}`)}</p>
                 </div>
-                <Badge tone={o.spotsLeft === 0 ? 'gold' : 'neutral'}>{o.bookings.length}/{o.slot.capacity}</Badge>
+                <div className="classcard__side">
+                  <Badge tone={o.spotsLeft === 0 ? 'gold' : 'neutral'}>{o.bookings.length}/{o.slot.capacity}</Badge>
+                  {o.bookings.some((b) => b.status !== 'attended') && (
+                    <button type="button" className="pill pill--sage" onClick={() => onAll(o)}><Icon name="check" size={15} /> {t('admin.today.allCame')}</button>
+                  )}
+                </div>
               </div>
               <ul className="attendees">
                 {o.bookings.map((b) => {

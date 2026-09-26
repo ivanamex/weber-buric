@@ -99,7 +99,8 @@ Every production deploy runs `scripts/migrate.mjs` before building. It connects 
 - **Transfer receipts:** families choose **Transferencia**, see the club's bank details (edited by management in **Cobros → Datos para transferencia**), and upload a photo or PDF (up to 10 MB) to the private `receipts` bucket. Management reviews it in **Cobros** (a badge shows how many are waiting): **Aprobar** marks it paid by transfer and activates the plan; **Rechazar** needs a short note, which the family sees before uploading again.
 - **Standing plans:** a rider's package renews automatically on the first booking of each month, as a payment pending at the club.
 - **More management accounts:** add a row to the `admins` table (Supabase → Table Editor). Emails must be lowercase.
-- **Prices:** edit the `prices` table. **Class schedule:** edit the `slots` table (`weekday` 1 = Monday … 6 = Saturday). **Boarded horses:** in the `horses` table, set `type = boarded` and `owner_family_id` to the family.
+- **Schedule (Horario tab):** management creates and edits weekly classes (day, time, duration, level, instructor, arena, spots), turns them on or off, and cancels a single date. Booked families see "Clase cancelada" and the class returns to their plan. Instructors and horses (school, or boarded with their owner family) are managed there too. In **Hoy**, **Todos vinieron** marks a whole class present in one tap.
+- **Prices:** edit the `prices` table in Supabase.
 - **Rules:** booking, cancelling, plans and payments are enforced by the database functions in `schema.sql`, so they hold whatever the browser sends. Each family can only read its own data (Row Level Security).
 
 ## Still to come

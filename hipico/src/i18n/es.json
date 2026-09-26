@@ -120,7 +120,8 @@
     "today": "Hoy",
     "payments": "Cobros",
     "reports": "Reportes",
-    "families": "Familias"
+    "families": "Familias",
+    "schedule": "Horario"
   },
   "levels": {
     "beginner": "Principiante",
@@ -295,7 +296,8 @@
       "planOk": "Plan al corriente · quedan {n}",
       "emptyTitle": "Sin clases reservadas",
       "emptyText": "No hay reservas para este día.",
-      "rule": "“Vino” y “No vino” cuentan la clase como usada."
+      "rule": "“Vino” y “No vino” cuentan la clase como usada.",
+      "allCame": "Todos vinieron"
     },
     "payments": {
       "title": "Cobros",
@@ -391,7 +393,8 @@
     "bankSaved": "Datos bancarios guardados",
     "familyBlocked": "{name} bloqueada. No puede entrar ni reservar.",
     "familyUnblocked": "{name} desbloqueada",
-    "familyDeleted": "{name} eliminada. Su historial se conserva."
+    "familyDeleted": "{name} eliminada. Su historial se conserva.",
+    "allCame": "Asistencia registrada para {n} jinetes"
   },
   "errors": {
     "notFound": "No se encontró el registro.",
@@ -422,7 +425,8 @@
     "noteRequired": "Escribe el motivo del rechazo.",
     "badClabe": "La CLABE debe tener 18 dígitos.",
     "accountBlocked": "Tu cuenta está pausada. Contacta al club.",
-    "accountDeleted": "Esta cuenta ya no está activa. Contacta al club."
+    "accountDeleted": "Esta cuenta ya no está activa. Contacta al club.",
+    "classCancelled": "Esta clase se canceló para ese día."
   },
   "live": {
     "loading": "Cargando…",
@@ -480,5 +484,60 @@
     "rejectPh": "Ej.: el monto no coincide",
     "bankTitle": "Datos para transferencia",
     "toReview": "{n} por revisar"
+  },
+  "schedule": {
+    "title": "Horario",
+    "classes": "Clases",
+    "instructors": "Instructores",
+    "horses": "Caballos",
+    "weekOf": "Semana {from} – {to}",
+    "newClass": "Nueva clase",
+    "day": "Día",
+    "time": "Hora",
+    "duration": "Minutos",
+    "discipline": "Disciplina",
+    "instructor": "Instructor",
+    "arena": "Pista",
+    "capacity": "Lugares",
+    "activeClass": "Clase activa",
+    "activeLabel": "Activo",
+    "off": "Apagada",
+    "booked": "{n} de {cap} reservados",
+    "cancelDate": "Cancelar esta fecha",
+    "cancelReason": "Motivo (lo verán las familias)",
+    "cancelPh": "Ej.: lluvia",
+    "cancelHint": "{n} reservas se cancelarán y la clase regresará a su plan.",
+    "cancelDone": "Fecha cancelada. Las familias ya lo ven.",
+    "reopen": "Reabrir fecha",
+    "reopened": "Fecha reabierta",
+    "cancelledBadge": "Clase cancelada",
+    "cancelledShort": "Cancelada",
+    "cancelledTitle": "Clase cancelada",
+    "backToPlan": "La clase regresó a tu plan.",
+    "saved": "Cambios guardados",
+    "created": "Clase creada",
+    "emptyTitle": "Sin clases",
+    "emptyText": "Crea la primera clase de la semana.",
+    "name": "Nombre",
+    "classesCount": "{n} clases",
+    "addInstructor": "Agregar instructor",
+    "addHorse": "Agregar caballo",
+    "school": "Escuela",
+    "boarded": "Pensión",
+    "owner": "Familia dueña",
+    "noOwner": "Sin dueño asignado",
+    "schoolHorses": "Caballos de escuela",
+    "boardedHorses": "Caballos en pensión",
+    "noHorses": "Ninguno todavía",
+    "weekdays": {
+      "0": "Domingo",
+      "1": "Lunes",
+      "2": "Martes",
+      "3": "Miércoles",
+      "4": "Jueves",
+      "5": "Viernes",
+      "6": "Sábado"
+    },
+    "cancelShort": "Cancelar fecha"
   }
 }
