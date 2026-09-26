@@ -19,13 +19,13 @@ Check in the browser after each step, then "ok".
 - STEP-04/05: Resend + the club's domain (waits for DNS access to hipicorivieramaya.com)
 - STEP-07: Mercado Pago
 
-## Meeting 27 Sep: ask the owner (Maria Wills)
+## Meeting 27 Sep: ask the owner (Mara Wills)
 
-Prices · schedule · instructors · horses · plan rules · her email for management · bank details · who manages the domain (Wix / Martín Vilavedra) · the logo as an original file · barter terms in writing
+Prices · schedule · instructors · horses · plan rules · her email for management · bank details (bank, holder, 18-digit CLABE → Cobros → Datos para transferencia) · Mercado Pago account (verified, club or owner) + access for credentials, and what is charged by card · who manages the domain (Wix / Martín Vilavedra) · the logo as an original file · barter terms in writing
 
 ## Done
 
-Landing + app live · Supabase login + database rules · management panel (Hoy, Cobros, Familias, Reportes) · STEP-08 families added by management · STEP-09 transfer receipts · logos in `public/`
+Landing + app live · Supabase login + database rules · management panel (Hoy, Cobros, Familias, Reportes) · STEP-08 families added by management · STEP-09 transfer receipts (bank details still "Por definir") · logos in `public/`
 
 ## Rules
 
