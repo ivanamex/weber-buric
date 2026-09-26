@@ -96,6 +96,7 @@ Every production deploy runs `scripts/migrate.mjs` before building. It connects 
 
 ### Day to day
 - **Families and riders:** management adds them in the **Familias** tab (one by one, or a CSV list with a preview), with each rider's plan and its start date. A preloaded family signs in with that email and finds its plan already active. A new email gets a short sign-up form instead, and an existing email is always linked, never duplicated. Families can be edited or deactivated; history is kept.
+- **Transfer receipts:** families choose **Transferencia**, see the club's bank details (edited by management in **Cobros → Datos para transferencia**), and upload a photo or PDF (up to 10 MB) to the private `receipts` bucket. Management reviews it in **Cobros** (a badge shows how many are waiting): **Aprobar** marks it paid by transfer and activates the plan; **Rechazar** needs a short note, which the family sees before uploading again.
 - **Standing plans:** a rider's package renews automatically on the first booking of each month, as a payment pending at the club.
 - **More management accounts:** add a row to the `admins` table (Supabase → Table Editor). Emails must be lowercase.
 - **Prices:** edit the `prices` table. **Class schedule:** edit the `slots` table (`weekday` 1 = Monday … 6 = Saturday). **Boarded horses:** in the `horses` table, set `type = boarded` and `owner_family_id` to the family.

@@ -52,3 +52,7 @@ export const importFamilies = act('importFamilies') // management: list from a C
 export const saveFamily = act('saveFamily') // management: edit family, riders and plans
 export const setFamilyActive = act('setFamilyActive') // management: deactivate / reactivate
 export const selfSignup = act('selfSignup') // live only: a new family creates its own account
+export const uploadReceipt = act('uploadReceipt') // family: transfer receipt (photo or PDF) → "Por revisar"
+export const reviewReceipt = act('reviewReceipt') // management: approve or reject with a note
+export const receiptUrl = act('receiptUrl') // short-lived link to view a receipt
+export const saveSettings = act('saveSettings') // management: bank details for transfers

@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { useStore, byId, pendingPayments, markPaid, monthCollected, recentPaid } from '../../data/store.js'
+import { useStore, byId, pendingPayments, markPaid, monthCollected, recentPaid, saveSettings } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty, SectionTitle, Segmented } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { currentMonthKey } from '../../lib/time.js'
+import { ReceiptBadge, BankDetails } from '../../components/Transfer.jsx'
+import ReceiptViewer from './ReceiptViewer.jsx'
 
 const SERVICE_ICON = { plan: 'plan', boarding: 'barn', camp: 'tent', rental: 'route', events: 'cake' }
 
@@ -12,7 +14,9 @@ export default function AdminPayments() {
   const { t, fmtMoney, fmtInstant, fmtDate } = useI18n()
   const s = useStore()
   const toast = useToast()
-  const pending = pendingPayments(s)
+  // Receipts waiting for review first.
+  const pending = pendingPayments(s).sort((a, b) => (b.receiptStatus === 'review') - (a.receiptStatus === 'review'))
+  const [viewing, setViewing] = useState(null)
   const [openId, setOpenId] = useState(null)
   const [method, setMethod] = useState('cash')
   const pendingTotal = pending.reduce((sum, p) => sum + p.amount, 0)
@@ -60,8 +64,17 @@ export default function AdminPayments() {
                   <p className="small muted">{describe(p)}</p>
                   <p className="small muted">{t('admin.payments.since', { date: fmtInstant(p.createdAt) })}</p>
                 </div>
-                <strong className="pay__amount">{fmtMoney(p.amount)}</strong>
+                <div className="right">
+                  <strong className="pay__amount">{fmtMoney(p.amount)}</strong>
+                  <div><ReceiptBadge status={p.receiptStatus} /></div>
+                </div>
               </div>
+              {p.receiptStatus === 'rejected' && p.receiptNote && <p className="small muted mt8">“{p.receiptNote}”</p>}
+              {p.receiptStatus === 'review' && openId !== p.id && (
+                <button type="button" className="btn btn--gold btn--sm btn--block mt12" onClick={() => setViewing(p)}>
+                  <Icon name="info" size={16} /> {t('receipt.view')}
+                </button>
+              )}
               {openId === p.id ? (
                 <div className="pay__confirm">
                   <Segmented small value={method} onChange={setMethod}
@@ -80,6 +93,9 @@ export default function AdminPayments() {
           ))}
         </ul>
       )}
+
+      <SectionTitle>{t('receipt.bankTitle')}</SectionTitle>
+      <BankSettings />
 
       <SectionTitle>{t('admin.payments.recent')}</SectionTitle>
       {recentPaid(s, 6).length ? (
@@ -100,6 +116,54 @@ export default function AdminPayments() {
         </ul>
       ) : <p className="muted small">{t('admin.payments.noneRecent')}</p>}
       <p className="sample-note">{t('common.samplePrices')}</p>
+      {viewing && (
+        <ReceiptViewer payment={viewing} title={`${byId(s.families, viewing.familyId)?.name} · ${describe(viewing)}`} onClose={() => setViewing(null)} />
+      )}
     </div>
+  )
+}
+
+/** Bank details shown to families when they pay by transfer. */
+function BankSettings() {
+  const { t } = useI18n()
+  const toast = useToast()
+  const { settings = {} } = useStore()
+  const [editing, setEditing] = useState(false)
+  const [f, setF] = useState({})
+  const [busy, setBusy] = useState(false)
+  const start = () => { setF({ bankName: settings?.bankName || '', accountHolder: settings?.accountHolder || '', clabe: settings?.clabe || '' }); setEditing(true) }
+  const onSave = async (e) => {
+    e.preventDefault()
+    setBusy(true)
+    const res = await saveSettings(f)
+    setBusy(false)
+    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    toast(t('toasts.bankSaved'))
+    setEditing(false)
+  }
+  if (!editing) {
+    return (
+      <div className="card">
+        <BankDetails />
+        <button type="button" className="btn btn--outline btn--sm btn--block mt12" onClick={start}>{t('more.profile.edit')}</button>
+      </div>
+    )
+  }
+  return (
+    <form className="card" onSubmit={onSave}>
+      <label className="field" htmlFor="bank-name"><span>{t('receipt.bank')}</span>
+        <input id="bank-name" className="input" value={f.bankName} onChange={(e) => setF({ ...f, bankName: e.target.value })} />
+      </label>
+      <label className="field" htmlFor="bank-holder"><span>{t('receipt.holder')}</span>
+        <input id="bank-holder" className="input" value={f.accountHolder} onChange={(e) => setF({ ...f, accountHolder: e.target.value })} />
+      </label>
+      <label className="field" htmlFor="bank-clabe"><span>CLABE (18)</span>
+        <input id="bank-clabe" className="input" inputMode="numeric" maxLength={22} value={f.clabe} onChange={(e) => setF({ ...f, clabe: e.target.value })} />
+      </label>
+      <div className="row gap-sm mt12 end">
+        <button type="button" className="btn btn--sm" onClick={() => setEditing(false)}>{t('common.cancel')}</button>
+        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
+      </div>
+    </form>
   )
 }

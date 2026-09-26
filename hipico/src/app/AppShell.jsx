@@ -50,6 +50,7 @@ export default function AppShell({ role }) {
     navigate(base)
   }
   const family = role === 'family' ? byId(s.families, s.session.familyId) : null
+  const toReview = role === 'admin' ? s.payments.filter((p) => p.status === 'pending' && p.receiptStatus === 'review').length : 0
 
   return (
     <div className="app">
@@ -72,7 +73,10 @@ export default function AppShell({ role }) {
       <nav className="tabbar" aria-label={t('app.nav')}>
         {TABS[role].map((tab) => (
           <NavLink key={tab.to} to={`${base}/${tab.to}`} end={tab.end} className={({ isActive }) => `tabbar__item ${isActive ? 'is-active' : ''}`}>
-            <Icon name={tab.icon} size={22} />
+            <span className="tabbar__icon">
+              <Icon name={tab.icon} size={22} />
+              {tab.key === 'payments' && toReview > 0 && <span className="tabbar__badge" aria-label={t('receipt.toReview', { n: toReview })}>{toReview}</span>}
+            </span>
             <span>{t(`tabs.${tab.key}`)}</span>
           </NavLink>
         ))}

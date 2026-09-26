@@ -9,7 +9,8 @@
     "month": "mes",
     "from": "desde",
     "soon": "Próximamente",
-    "samplePrices": "*Precios de ejemplo"
+    "samplePrices": "*Precios de ejemplo",
+    "close": "Cerrar"
   },
   "landing": {
     "openShort": "Abrir la app",
@@ -207,7 +208,9 @@
     "payClub": "Pagaré en el club (efectivo/transferencia)",
     "payAtClubShort": "Pago en el club",
     "pendingTitle": "Tus pagos pendientes",
-    "noPending": "No tienes pagos pendientes. ¡Todo al corriente!"
+    "noPending": "No tienes pagos pendientes. ¡Todo al corriente!",
+    "payTransfer": "Transferencia",
+    "payCash": "Efectivo en el club"
   },
   "boarding": {
     "title": "Pensión de caballos",
@@ -404,7 +407,11 @@
     "familySaved": "Cambios guardados: {name}",
     "familyDeactivated": "{name} desactivada. Su historial se conserva.",
     "familyReactivated": "{name} reactivada",
-    "imported": "{n} familias importadas · {skipped} omitidas"
+    "imported": "{n} familias importadas · {skipped} omitidas",
+    "receiptSent": "Comprobante enviado. Quedó por revisar.",
+    "receiptApproved": "Pago de {amount} aprobado",
+    "receiptRejected": "Comprobante rechazado. La familia verá tu nota.",
+    "bankSaved": "Datos bancarios guardados"
   },
   "errors": {
     "notFound": "No se encontró el registro.",
@@ -428,7 +435,12 @@
     "tooMany": "Demasiados intentos. Espera un minuto e inténtalo de nuevo.",
     "emailExists": "Ya hay una familia con ese correo.",
     "noRiders": "Agrega al menos un jinete.",
-    "badPlan": "Ese plan no existe."
+    "badPlan": "Ese plan no existe.",
+    "fileTooBig": "El archivo pesa más de 10 MB.",
+    "fileType": "Sube una foto (JPG, PNG, HEIC) o un PDF.",
+    "uploadFailed": "No se pudo subir el archivo. Inténtalo de nuevo.",
+    "noteRequired": "Escribe el motivo del rechazo.",
+    "badClabe": "La CLABE debe tener 18 dígitos."
   },
   "live": {
     "loading": "Cargando…",
@@ -452,5 +464,37 @@
     "signupSubmit": "Crear cuenta",
     "inactiveTitle": "Cuenta desactivada",
     "inactiveText": "Esta cuenta está desactivada. Escríbele al club para reactivarla."
+  },
+  "receipt": {
+    "status": {
+      "review": "Por revisar",
+      "approved": "Aprobado",
+      "rejected": "Rechazado"
+    },
+    "bank": "Banco",
+    "holder": "Titular",
+    "pending": "Por definir",
+    "copy": "Copiar",
+    "copied": "CLABE copiada",
+    "instructions": "Transfiere {amount} a esta cuenta y sube tu comprobante.",
+    "reference": "En el concepto escribe: {ref}",
+    "upload": "Subir comprobante",
+    "uploadAgain": "Subir de nuevo",
+    "uploading": "Subiendo…",
+    "formats": "Foto o PDF · hasta 10 MB",
+    "waiting": "Recibimos tu comprobante. El club lo revisará pronto.",
+    "byTransfer": "Transferencia",
+    "payByTransfer": "Pagar por transferencia",
+    "homeTitle": "Tus pagos",
+    "view": "Ver comprobante",
+    "viewerTitle": "Comprobante de pago",
+    "openNew": "Abrir en otra pestaña",
+    "heic": "Este navegador no muestra fotos HEIC. Ábrela en otra pestaña.",
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "rejectNote": "Motivo (la familia lo verá)",
+    "rejectPh": "Ej.: el monto no coincide",
+    "bankTitle": "Datos para transferencia",
+    "toReview": "{n} por revisar"
   }
 }

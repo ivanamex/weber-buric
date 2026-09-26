@@ -9,7 +9,8 @@
     "month": "month",
     "from": "from",
     "soon": "Coming soon",
-    "samplePrices": "*Sample prices"
+    "samplePrices": "*Sample prices",
+    "close": "Close"
   },
   "landing": {
     "openShort": "Open the app",
@@ -207,7 +208,9 @@
     "payClub": "I'll pay at the club (cash/transfer)",
     "payAtClubShort": "Pay at the club",
     "pendingTitle": "Your pending payments",
-    "noPending": "No pending payments. You're all set!"
+    "noPending": "No pending payments. You're all set!",
+    "payTransfer": "Bank transfer",
+    "payCash": "Cash at the club"
   },
   "boarding": {
     "title": "Horse boarding",
@@ -404,7 +407,11 @@
     "familySaved": "Changes saved: {name}",
     "familyDeactivated": "{name} deactivated. Their history is kept.",
     "familyReactivated": "{name} reactivated",
-    "imported": "{n} families imported · {skipped} skipped"
+    "imported": "{n} families imported · {skipped} skipped",
+    "receiptSent": "Receipt sent. It is now under review.",
+    "receiptApproved": "{amount} payment approved",
+    "receiptRejected": "Receipt rejected. The family will see your note.",
+    "bankSaved": "Bank details saved"
   },
   "errors": {
     "notFound": "Record not found.",
@@ -428,7 +435,12 @@
     "tooMany": "Too many attempts. Wait a minute and try again.",
     "emailExists": "A family with that email already exists.",
     "noRiders": "Add at least one rider.",
-    "badPlan": "That plan doesn't exist."
+    "badPlan": "That plan doesn't exist.",
+    "fileTooBig": "The file is larger than 10 MB.",
+    "fileType": "Upload a photo (JPG, PNG, HEIC) or a PDF.",
+    "uploadFailed": "The file couldn't be uploaded. Please try again.",
+    "noteRequired": "Write the reason for rejecting.",
+    "badClabe": "The CLABE must have 18 digits."
   },
   "live": {
     "loading": "Loading…",
@@ -452,5 +464,37 @@
     "signupSubmit": "Create account",
     "inactiveTitle": "Account deactivated",
     "inactiveText": "This account is deactivated. Message the club to reactivate it."
+  },
+  "receipt": {
+    "status": {
+      "review": "Under review",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "bank": "Bank",
+    "holder": "Account holder",
+    "pending": "To be set",
+    "copy": "Copy",
+    "copied": "CLABE copied",
+    "instructions": "Transfer {amount} to this account and upload your receipt.",
+    "reference": "In the reference field write: {ref}",
+    "upload": "Upload receipt",
+    "uploadAgain": "Upload again",
+    "uploading": "Uploading…",
+    "formats": "Photo or PDF · up to 10 MB",
+    "waiting": "We got your receipt. The club will review it soon.",
+    "byTransfer": "Bank transfer",
+    "payByTransfer": "Pay by bank transfer",
+    "homeTitle": "Your payments",
+    "view": "View receipt",
+    "viewerTitle": "Payment receipt",
+    "openNew": "Open in a new tab",
+    "heic": "This browser can't show HEIC photos. Open it in a new tab.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectNote": "Reason (the family will see it)",
+    "rejectPh": "E.g. the amount doesn't match",
+    "bankTitle": "Bank details for transfers",
+    "toReview": "{n} to review"
   }
 }

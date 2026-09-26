@@ -204,6 +204,8 @@ export function createSeed() {
       method: status === 'paid' ? 'cash' : null, createdAt: stamp(addDays(today, -5)),
       paidAt: status === 'paid' ? stamp(addDays(today, -4)) : null, meta: { riderId, eventId: 'e1' },
     }
+    // Ximena's family already sent a transfer receipt, waiting for review in Cobros.
+    if (status === 'pending') Object.assign(pay, { receiptPath: 'sample', receiptStatus: 'review', receiptUploadedAt: stamp(addDays(today, -1)) })
     payments.push(pay)
     campRegistrations.push({ id: id('cr'), eventId: 'e1', riderId, paymentId: pay.id, createdAt: pay.createdAt })
   }
@@ -234,6 +236,8 @@ export function createSeed() {
     events,
     campRegistrations,
     rentals,
+    // Bank details for transfers: empty until management fills them in (the app shows placeholders).
+    settings: { bankName: null, accountHolder: null, clabe: null },
     nextId: n + 1,
   }
 }

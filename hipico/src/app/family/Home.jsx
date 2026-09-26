@@ -11,6 +11,7 @@ import { Badge, Empty, Progress, SectionTitle } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { TZ } from '../../lib/time.js'
 import { BOARDING_MONTHLY } from '../../data/prices.js'
+import { ReceiptBadge } from '../../components/Transfer.jsx'
 
 function greetingKey() {
   const h = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: TZ }).format(new Date()))
@@ -29,6 +30,9 @@ export default function FamilyHome() {
   const upcoming = upcomingBookings(s, [riderId])
   const next = upcoming[0]
   const boarding = boardingStatus(s, family.id)
+  // Transfer receipts: waiting, rejected, or approved in the last two weeks.
+  const receipts = s.payments.filter((p) => p.familyId === family.id && p.receiptStatus &&
+    (p.status === 'pending' || (p.reviewedAt && Date.now() - new Date(p.reviewedAt).getTime() < 14 * 864e5)))
 
   const onCancel = async (b) => {
     const res = await cancelBooking(b.id)
@@ -77,6 +81,28 @@ export default function FamilyHome() {
         <Empty icon="plan" title={t('plan.noPlanTitle')} text={t('plan.noPlanText')}>
           <Link to={`${base}/familia/plan`} className="btn btn--primary">{t('plan.choose')}</Link>
         </Empty>
+      )}
+
+      {receipts.length > 0 && (
+        <>
+          <SectionTitle>{t('receipt.homeTitle')}</SectionTitle>
+          <ul className="list card">
+            {receipts.map((p) => (
+              <li key={p.id} className="list__row list__row--stack">
+                <div className="row gap">
+                  <span className="grow">
+                    <span className="list__title">{t(`services.${p.service}`)}{p.meta?.riderId ? ` · ${byId(s.riders, p.meta.riderId)?.name}` : ''}</span>
+                    <span className="small muted"> · {fmtMoney(p.amount)}</span>
+                  </span>
+                  <ReceiptBadge status={p.receiptStatus} />
+                </div>
+                {p.receiptStatus === 'rejected' && (
+                  <p className="small transfer__note"><Icon name="alert" size={14} /> {p.receiptNote} · <Link to={`${base}/familia/plan`} className="link">{t('receipt.uploadAgain')}</Link></p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       <SectionTitle>{t('family.home.boarding')}</SectionTitle>

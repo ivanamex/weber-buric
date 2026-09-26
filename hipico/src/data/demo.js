@@ -61,6 +61,8 @@ function logout() {
   return mutate((s) => { s.session = null })
 }
 function resetDemo() {
+  receiptFiles.clear()
+  try { localStorage.removeItem(FILES_KEY) } catch { /* ignore */ }
   const session = state.session
   commit({ ...createSeed(), session })
   return { ok: true }
@@ -193,6 +195,7 @@ function markPaid(paymentId, method) {
     p.status = 'paid'
     p.method = method
     p.paidAt = now()
+    if (p.receiptStatus) { p.receiptStatus = 'approved'; p.reviewedAt = now() }
     if (p.service === 'plan') {
       const plan = getPlan(s, p.meta.riderId, p.meta.month)
       if (plan) plan.paid = true
@@ -352,9 +355,82 @@ function setFamilyActive(familyId, active) {
   })
 }
 
+/* ───────── Transfer receipts ───────── */
+// The demo has no file storage: small receipts are kept in this browser, larger ones only for this visit.
+const FILES_KEY = 'hipico.demoReceipts'
+const receiptFiles = new Map(Object.entries((() => { try { return JSON.parse(localStorage.getItem(FILES_KEY)) || {} } catch { return {} } })()))
+const keepFile = (id, file) => {
+  receiptFiles.set(id, { url: URL.createObjectURL(file), type: file.type })
+  if (file.size > 1.5 * 1024 * 1024) return
+  const reader = new FileReader()
+  reader.onload = () => {
+    receiptFiles.set(id, { url: reader.result, type: file.type })
+    try { localStorage.setItem(FILES_KEY, JSON.stringify(Object.fromEntries([...receiptFiles].filter(([, f]) => f.url.startsWith('data:'))))) } catch { /* full: keep for this visit */ }
+  }
+  reader.readAsDataURL(file)
+}
+const SAMPLE_RECEIPT = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="360" height="520" viewBox="0 0 360 520">
+<rect width="360" height="520" rx="18" fill="#fff"/><rect width="360" height="84" rx="18" fill="#2E5339"/><rect y="60" width="360" height="24" fill="#2E5339"/>
+<text x="24" y="50" font-family="Inter, sans-serif" font-size="20" font-weight="600" fill="#fff">Transferencia SPEI</text>
+<g font-family="Inter, sans-serif" fill="#24211C"><text x="24" y="130" font-size="13" fill="#6E675C">Importe</text><text x="24" y="160" font-size="28" font-weight="700">$3,000.00 MXN</text>
+<text x="24" y="210" font-size="13" fill="#6E675C">Concepto</text><text x="24" y="232" font-size="16">Anticipo campamento · Ximena</text>
+<text x="24" y="280" font-size="13" fill="#6E675C">Beneficiario</text><text x="24" y="302" font-size="16">Hípico Riviera Maya</text>
+<text x="24" y="350" font-size="13" fill="#6E675C">Estado</text><text x="24" y="372" font-size="16" fill="#7C9070" font-weight="600">Liquidada</text></g>
+<text x="180" y="480" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#B08648">Comprobante de ejemplo · demo</text></svg>`)}`
+
+export const RECEIPT_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'application/pdf']
+export const RECEIPT_MAX_BYTES = 10 * 1024 * 1024
+
+function uploadReceipt(paymentId, file) {
+  if (!file || file.size > RECEIPT_MAX_BYTES) return fail('fileTooBig')
+  return mutate((s) => {
+    const p = byId(s.payments, paymentId)
+    if (!p || p.status !== 'pending' || p.familyId !== s.session?.familyId) return fail('notFound')
+    keepFile(paymentId, file)
+    Object.assign(p, { receiptPath: `demo/${paymentId}/${file.name}`, receiptStatus: 'review', receiptNote: null, receiptUploadedAt: now(), reviewedAt: null })
+    return { ok: true }
+  })
+}
+
+function reviewReceipt(paymentId, approve, note) {
+  return mutate((s) => {
+    const p = byId(s.payments, paymentId)
+    if (!p || p.status !== 'pending' || p.receiptStatus !== 'review') return fail('notFound')
+    if (approve) {
+      Object.assign(p, { status: 'paid', method: 'transfer', paidAt: now(), receiptStatus: 'approved', receiptNote: null, reviewedAt: now() })
+      if (p.service === 'plan') {
+        const plan = getPlan(s, p.meta.riderId, p.meta.month)
+        if (plan) plan.paid = true
+      }
+    } else {
+      if (!note?.trim()) return fail('noteRequired')
+      Object.assign(p, { receiptStatus: 'rejected', receiptNote: note.trim().slice(0, 280), reviewedAt: now() })
+    }
+    return { ok: true }
+  })
+}
+
+const NO_PREVIEW = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="360" height="240" viewBox="0 0 360 240"><rect width="360" height="240" rx="18" fill="#F6F2E9"/><text x="180" y="112" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" fill="#2E5339">Comprobante recibido</text><text x="180" y="138" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" fill="#6E675C">Vista previa no disponible en la demo</text></svg>')}`
+
+function receiptUrl(payment) {
+  if (payment.receiptPath === 'sample') return { ok: true, url: SAMPLE_RECEIPT, type: 'image/svg+xml' }
+  const f = receiptFiles.get(payment.id)
+  return { ok: true, url: f?.url || NO_PREVIEW, type: f?.type || 'image/svg+xml' }
+}
+
+function saveSettings(fields) {
+  return mutate((s) => {
+    const clabe = (fields.clabe || '').replace(/\s/g, '')
+    if (clabe && !/^\d{18}$/.test(clabe)) return fail('badClabe')
+    s.settings = { bankName: fields.bankName?.trim() || null, accountHolder: fields.accountHolder?.trim() || null, clabe: clabe || null }
+    return { ok: true }
+  })
+}
+
 export const actions = {
   login, logout, resetDemo, bookClass, cancelBooking, markAttendance, choosePlan,
   requestBoardingPayment, markPaid, registerCamp, bookRental,
   createFamily, importFamilies, saveFamily, setFamilyActive,
   selfSignup: () => fail('notFound'),
+  uploadReceipt, reviewReceipt, receiptUrl, saveSettings,
 }

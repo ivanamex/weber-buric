@@ -63,7 +63,7 @@ async function load() {
     const today = todayKey()
     const from = addDays(today, -62)
     const to = addDays(today, 62)
-    const [prices, instructors, horses, families, riders, slots, plans, bookings, payments, events, campRegistrations, rentals, counts, camp] =
+    const [prices, instructors, horses, families, riders, slots, plans, bookings, payments, events, campRegistrations, rentals, counts, camp, settings] =
       await Promise.all([
         sb.from('prices').select('key, amount'),
         sb.from('instructors').select('*'),
@@ -79,6 +79,7 @@ async function load() {
         sb.from('rentals').select('*').gte('date', from),
         sb.rpc('slot_counts', { p_from: from, p_to: to }),
         sb.rpc('camp_counts'),
+        sb.from('club_settings').select('*').maybeSingle(),
       ])
     applyPrices(Object.fromEntries(rows(prices).map((p) => [p.key, p.amount])))
     const riderRows = rows(riders)
@@ -102,6 +103,8 @@ async function load() {
       rentals: rows(rentals),
       slotCounts: Object.fromEntries(rows(counts).map((c) => [`${c.slotId}|${c.date}`, c.taken])),
       campCounts: Object.fromEntries(rows(camp).map((c) => [c.eventId, c.taken])),
+      // Bank details for transfers (missing before the database update → placeholders).
+      settings: settings.data ? camel(settings.data) : {},
     })
   } catch (err) {
     console.error('[hipico] load failed', err)
@@ -204,6 +207,46 @@ async function setFamilyActive(familyId, active) {
   return { ok: true }
 }
 
+/* ───────── Transfer receipts (private bucket: <family>/<payment>/<file>) ───────── */
+const EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/heic': 'heic', 'image/heif': 'heif', 'application/pdf': 'pdf' }
+const typeOf = (file) => file.type || ({ heic: 'image/heic', heif: 'image/heif', pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg' })[file.name.split('.').pop().toLowerCase()] || ''
+
+async function uploadReceipt(paymentId, file) {
+  const type = typeOf(file)
+  if (!file || !EXT[type]) return { ok: false, code: 'fileType' }
+  if (file.size > 10 * 1024 * 1024) return { ok: false, code: 'fileTooBig' }
+  const payment = (await sb.from('payments').select('id, family_id').eq('id', paymentId).maybeSingle()).data
+  if (!payment) return { ok: false, code: 'notFound' }
+  const path = `${payment.family_id}/${payment.id}/${Date.now()}.${EXT[type]}`
+  const up = await sb.storage.from('receipts').upload(path, file, { contentType: type, upsert: false })
+  if (up.error) { console.error('[hipico] upload failed', up.error); return { ok: false, code: 'uploadFailed' } }
+  return call('submit_receipt', { p_payment: paymentId, p_path: path })
+}
+
+const reviewReceipt = (paymentId, approve, note) =>
+  call('review_receipt', { p_payment: paymentId, p_approve: approve, p_note: note || null })
+
+async function receiptUrl(payment) {
+  if (!payment.receiptPath) return { ok: false, code: 'notFound' }
+  const { data, error } = await sb.storage.from('receipts').createSignedUrl(payment.receiptPath, 600)
+  if (error) return { ok: false, code: 'network' }
+  const ext = payment.receiptPath.split('.').pop().toLowerCase()
+  const type = Object.keys(EXT).find((k) => EXT[k] === ext) || ''
+  return { ok: true, url: data.signedUrl, type }
+}
+
+async function saveSettings(fields) {
+  const clabe = (fields.clabe || '').replace(/\s/g, '')
+  if (clabe && !/^\d{18}$/.test(clabe)) return { ok: false, code: 'badClabe' }
+  const { error } = await sb.from('club_settings').update({
+    bank_name: fields.bankName?.trim() || null, account_holder: fields.accountHolder?.trim() || null,
+    clabe: clabe || null, updated_at: new Date().toISOString(),
+  }).eq('id', 1)
+  if (error) return { ok: false, code: 'network' }
+  await refresh()
+  return { ok: true }
+}
+
 export const actions = {
   sendLink,
   verifyCode,
@@ -223,4 +266,8 @@ export const actions = {
   saveFamily,
   setFamilyActive,
   selfSignup,
+  uploadReceipt,
+  reviewReceipt,
+  receiptUrl,
+  saveSettings,
 }
