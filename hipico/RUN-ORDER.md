@@ -4,8 +4,9 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-12**: 6-digit code login + "Descargar para iPhone / Android"
-2. **STEP-13**: landing: subtle hovers, faded horse photos, running text-horse
+1. **STEP-14**: soft coral replaces gold everywhere; buttons coral with white text
+2. **STEP-12**: 6-digit code login + "Descargar para iPhone / Android"
+3. **STEP-13**: landing: subtle hovers, faded horse photos, running text-horse
 
 Check in the browser after each step, then "ok".
 
@@ -28,7 +29,7 @@ Landing + app live · Supabase login + database rules · management panel (Hoy, 
 
 - Everything on `main`, pushed after every step
 - Supabase: Hípico is in the **"ivanamex's projects"** organization (via Vercel), not "Weber Buric Realty"
-- No traces · sans-serif only · Spanish first
+- No traces · sans-serif only · Spanish first · no gold, the accent is soft coral (decided 26 Sep)
 - No App Store · families sign up themselves with no approval; the club can block or delete (decided 26 Sep)
 
 ## Later

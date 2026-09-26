@@ -4,9 +4,9 @@ Landing page only; don't touch the app. Photos are in `public/img/`: `horse-beac
 
 ## Hovers: subtle
 - Feature cards lift 3 px with a soft shadow, and the pictogram tilts once.
-- Buttons get a light gold glow, and the arrow nudges 2 px.
+- Buttons get a slightly deeper coral, and the arrow nudges 2 px.
 - Links get an underline that slides in.
-- Hero text horse: characters near the pointer brighten from sage to gold, then fade back. On phones, play one slow automatic sweep on load.
+- Hero text horse: characters near the pointer brighten from sage to coral, then fade back. On phones, play one slow automatic sweep on load.
 - Hovers are desktop only (`@media (hover: hover)`), every animation stays under 300 ms, and all of it respects `prefers-reduced-motion`.
 
 ## Faded photo bands
