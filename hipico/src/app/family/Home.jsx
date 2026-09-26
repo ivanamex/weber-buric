@@ -152,7 +152,7 @@ function NextClassCard({ booking, onCancel, s, rider }) {
     <div className="card card--green nextclass">
       <Icon name="horseHead" size={84} className="nextclass__art" />
       <div className="row between">
-        <Badge tone="gold">{t(`levels.${slot.level}`)}</Badge>
+        <Badge tone="accent">{t(`levels.${slot.level}`)}</Badge>
         <span className="small">{rider.name}</span>
       </div>
       <p className="nextclass__date">{fmtDate(booking.date)}</p>

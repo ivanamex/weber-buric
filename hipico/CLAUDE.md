@@ -19,7 +19,7 @@ This folder is one project inside the `ivanamex/weber-buric` repo. The repo root
 
 - React + Vite, plain JavaScript, react-router-dom, vite-plugin-pwa. No UI or i18n libraries.
 - **Sans-serif only:** Outfit (headings) + Inter (body), self-hosted via @fontsource. No serif anywhere.
-- Colors: green `#2E5339`, dark green `#22402B`, gold `#B08648`, cream `#F6F2E9`, ink `#24211C`, sage `#7C9070`, terracotta `#B5502E`, borders `#E4DCCB`. Cards have a 16px radius. Mobile-first.
+- Colors (CSS variables in `styles.css`): green `#2E5339`, dark green `#22402B`, cream `#F6F2E9`, ink `#24211C`, borders `#E4DCCB`, sage `#7C9070` (success). The accent is **soft coral**: `--accent` `#F4876A`, `--accent-strong` `#E6735A` (buttons, bold white text), `--accent-hover` `#D9664E`, `--accent-soft` `#FBE3DA`, `--accent-ink` `#C2553D`. Errors use `--danger` `#C0392B`. **No gold.**
 - Every string goes through `src/i18n/es.json` + `en.json`, which must keep the same keys.
 - Timezone America/Cancun (UTC-5, no DST), currency MXN.
 - No dead buttons: anything not built yet shows a "Próximamente" toast.
@@ -75,7 +75,7 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
   - instructors and horses, with on/off.
 - **Hoy:** Vino / No vino, plus "Todos vinieron".
 - **Visual:**
-  - club logo: white on green (header, hero), green on cream (login, splash);
+  - club logo: white on green (header, hero), green on cream (login, splash); coral accent (no gold);
   - PWA icons and favicon made from the logo;
   - original pictograms (`Icon.jsx`: horseHead, horseshoe, helmet, saddle, receipt, family, balloons…);
   - plan progress as horseshoes (`Horseshoes` in `ui.jsx`);

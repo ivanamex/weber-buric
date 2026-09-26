@@ -38,7 +38,7 @@ export default function Login() {
             <span><strong>{t('login.family')}</strong><small>{t('login.familyHint')}</small></span>
             <Icon name="chevronRight" size={20} />
           </button>
-          <button type="button" className="login__btn login__btn--gold" onClick={() => enter('admin')}>
+          <button type="button" className="login__btn login__btn--accent" onClick={() => enter('admin')}>
             <span className="login__btnIcon"><Icon name="helmet" size={26} /></span>
             <span><strong>{t('login.admin')}</strong><small>{t('login.adminHint')}</small></span>
             <Icon name="chevronRight" size={20} />

@@ -48,7 +48,7 @@ export default function ReceiptViewer({ payment, title, onClose }) {
         {file?.error && <p className="viewer__msg">{t('errors.network')}</p>}
         {file?.url && isPdf && <iframe className="viewer__pdf" src={file.url} title={t('receipt.viewerTitle')} />}
         {file?.url && isHeic && (
-          <p className="viewer__msg">{t('receipt.heic')}<br /><a className="btn btn--gold mt12" href={file.url} target="_blank" rel="noopener noreferrer">{t('receipt.openNew')}</a></p>
+          <p className="viewer__msg">{t('receipt.heic')}<br /><a className="btn btn--accent mt12" href={file.url} target="_blank" rel="noopener noreferrer">{t('receipt.openNew')}</a></p>
         )}
         {file?.url && !isPdf && !isHeic && <img className="viewer__img" src={file.url} alt={t('receipt.viewerTitle')} />}
       </div>

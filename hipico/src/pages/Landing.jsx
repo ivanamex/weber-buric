@@ -63,7 +63,7 @@ export default function Landing() {
           <Link to="/" aria-label="Hípico Riviera Maya"><Logo light compact /></Link>
           <div className="lheader__actions">
             <LangToggle light />
-            <Link to="/app" className="btn btn--gold btn--sm lheader__cta">{t('landing.openShort')}</Link>
+            <Link to="/app" className="btn btn--accent btn--sm lheader__cta">{t('landing.openShort')}</Link>
           </div>
         </div>
       </header>
@@ -75,11 +75,11 @@ export default function Landing() {
         <div className="container hero__inner">
           <div className="hero__copy">
             <BrandLogo variant="white" height={64} className="hero__logo" />
-            <p className="eyebrow eyebrow--gold">{t('landing.eyebrow')}</p>
+            <p className="eyebrow eyebrow--accent">{t('landing.eyebrow')}</p>
             <h1>{t('landing.headline')}</h1>
             <p className="hero__sub">{t('landing.subline')}</p>
             <div className="hero__ctas">
-              <Link to="/app" className="btn btn--gold btn--lg">
+              <Link to="/app" className="btn btn--accent btn--lg">
                 {t('landing.ctaOpen')} <Icon name="arrowRight" size={20} />
               </Link>
               <button type="button" className="btn btn--ghost-light btn--lg" onClick={() => scrollTo('features')}>

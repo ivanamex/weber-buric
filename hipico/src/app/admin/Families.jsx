@@ -219,7 +219,7 @@ function FamilyCard({ family }) {
       </div>
       <div className="row gap-sm wrap mt8">
         {!active && <Badge tone="alert">{t('admin.families.blocked')}</Badge>}
-        {family.selfSignup && <Badge tone="gold">{t('admin.families.selfSignup')}</Badge>}
+        {family.selfSignup && <Badge tone="accent">{t('admin.families.selfSignup')}</Badge>}
         {horses.length > 0 && <Badge tone="neutral"><Icon name="barn" size={12} /> {horses.map((h) => h.name).join(', ')}</Badge>}
       </div>
       {editing ? (

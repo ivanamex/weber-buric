@@ -12,7 +12,7 @@ const MAX_BYTES = 10 * 1024 * 1024
 export function ReceiptBadge({ status }) {
   const { t } = useI18n()
   if (!status) return null
-  const tone = { review: 'gold', approved: 'success', rejected: 'alert' }[status]
+  const tone = { review: 'accent', approved: 'success', rejected: 'alert' }[status]
   return <Badge tone={tone}>{t(`receipt.status.${status}`)}</Badge>
 }
 

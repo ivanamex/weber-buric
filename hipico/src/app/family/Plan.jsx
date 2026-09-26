@@ -113,7 +113,7 @@ export default function FamilyPlan() {
       <SectionTitle icon="saddle">{t('boarding.title')}</SectionTitle>
       <div className="card pricecard">
         <div className="row gap">
-          <span className="tile-icon tile-icon--gold"><Icon name="saddle" /></span>
+          <span className="tile-icon tile-icon--accent"><Icon name="saddle" /></span>
           <div className="grow">
             <p className="card__title">{t('boarding.full')}</p>
             <p className="small muted">{t('boarding.includes')}</p>

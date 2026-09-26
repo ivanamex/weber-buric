@@ -58,7 +58,7 @@ export default function FamilyMore() {
       {camp && (
         <div className="card card--camp">
           <div className="row gap">
-            <span className="tile-icon tile-icon--gold"><Icon name="balloons" /></span>
+            <span className="tile-icon tile-icon--accent"><Icon name="balloons" /></span>
             <div className="grow">
               <p className="card__title">{t('more.camp.title')}</p>
               <p className="small muted">

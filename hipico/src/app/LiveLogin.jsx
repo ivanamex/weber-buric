@@ -51,7 +51,7 @@ export default function LiveLogin() {
       <div className="login__panel">
         <p className="login__panelTitle">{t('live.deletedTitle')}</p>
         <p>{t('live.deletedText')}</p>
-        <button type="button" className="btn btn--gold btn--block" onClick={() => logout()}>{t('live.otherEmail')}</button>
+        <button type="button" className="btn btn--accent btn--block" onClick={() => logout()}>{t('live.otherEmail')}</button>
       </div>
     )
   } else if (s.status === 'inactive') {
@@ -59,7 +59,7 @@ export default function LiveLogin() {
       <div className="login__panel">
         <p className="login__panelTitle">{t('live.inactiveTitle')}</p>
         <p>{t('live.inactiveText')}</p>
-        <button type="button" className="btn btn--gold btn--block" onClick={() => logout()}>{t('live.otherEmail')}</button>
+        <button type="button" className="btn btn--accent btn--block" onClick={() => logout()}>{t('live.otherEmail')}</button>
       </div>
     )
   } else if (s.status === 'noAccess') {
@@ -67,7 +67,7 @@ export default function LiveLogin() {
       <div className="login__panel">
         <p className="login__panelTitle">{t('live.noAccessTitle')}</p>
         <p>{t('live.noAccessText', { email: s.email })}</p>
-        <button type="button" className="btn btn--gold btn--block" onClick={() => logout()}>{t('live.otherEmail')}</button>
+        <button type="button" className="btn btn--accent btn--block" onClick={() => logout()}>{t('live.otherEmail')}</button>
       </div>
     )
   } else if (s.status === 'error') {
@@ -75,7 +75,7 @@ export default function LiveLogin() {
       <div className="login__panel">
         <p className="login__panelTitle">{t('live.errorTitle')}</p>
         <p>{t('live.errorText')}</p>
-        <button type="button" className="btn btn--gold btn--block" onClick={() => refresh()}>{t('live.retry')}</button>
+        <button type="button" className="btn btn--accent btn--block" onClick={() => refresh()}>{t('live.retry')}</button>
       </div>
     )
   } else if (step === 'code') {
@@ -88,7 +88,7 @@ export default function LiveLogin() {
           <input id="login-code" className="input input--code" inputMode="numeric" autoComplete="one-time-code"
             pattern="[0-9]{6,8}" maxLength={8} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} required />
         </label>
-        <button type="submit" className="btn btn--gold btn--block" disabled={busy || code.length < 6}>{t('live.enter')}</button>
+        <button type="submit" className="btn btn--accent btn--block" disabled={busy || code.length < 6}>{t('live.enter')}</button>
         <button type="button" className="link link--light" onClick={() => { setStep('email'); setCode('') }}>{t('live.otherEmail')}</button>
       </form>
     )
@@ -100,7 +100,7 @@ export default function LiveLogin() {
           <input id="login-email" className="input" type="email" inputMode="email" autoComplete="email"
             placeholder="nombre@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </label>
-        <button type="submit" className="btn btn--gold btn--block" disabled={busy}>{busy ? '…' : t('live.sendLink')}</button>
+        <button type="submit" className="btn btn--accent btn--block" disabled={busy}>{busy ? '…' : t('live.sendLink')}</button>
         <p className="small">{t('live.emailHint')}</p>
       </form>
     )
@@ -162,7 +162,7 @@ function SignupForm({ email }) {
         ))}
         <button type="button" className="link link--light" onClick={() => setRiders([...riders, { name: '', level: 'beginner' }])}>+ {t('more.profile.addRider')}</button>
       </div>
-      <button type="submit" className="btn btn--gold btn--block" disabled={busy}>{busy ? '…' : t('live.signupSubmit')}</button>
+      <button type="submit" className="btn btn--accent btn--block" disabled={busy}>{busy ? '…' : t('live.signupSubmit')}</button>
       <button type="button" className="link link--light" onClick={() => logout()}>{t('live.otherEmail')}</button>
     </form>
   )

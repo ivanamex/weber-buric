@@ -71,7 +71,7 @@ export default function AdminPayments() {
               </div>
               {p.receiptStatus === 'rejected' && p.receiptNote && <p className="small muted mt8">“{p.receiptNote}”</p>}
               {p.receiptStatus === 'review' && openId !== p.id && (
-                <button type="button" className="btn btn--gold btn--sm btn--block mt12" onClick={() => setViewing(p)}>
+                <button type="button" className="btn btn--accent btn--sm btn--block mt12" onClick={() => setViewing(p)}>
                   <Icon name="info" size={16} /> {t('receipt.view')}
                 </button>
               )}

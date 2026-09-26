@@ -1,14 +1,5 @@
 import { Icon } from './Icon.jsx'
 
-export function Progress({ value, max, tone = 'green' }) {
-  const pct = max ? Math.min(100, Math.round((value / max) * 100)) : 0
-  return (
-    <div className={`progress progress--${tone}`} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max}>
-      <span style={{ width: `${pct}%` }} />
-    </div>
-  )
-}
-
 /** Empty state: a pictogram, one line and (optionally) one action. */
 export function Empty({ icon = 'info', title, children }) {
   return (
@@ -20,7 +11,7 @@ export function Empty({ icon = 'info', title, children }) {
   )
 }
 
-/** Plan progress as horseshoes: `used` filled in gold out of `total`. */
+/** Plan progress as horseshoes: `used` filled in the accent color out of `total`. */
 export function Horseshoes({ used, total, label }) {
   return (
     <div className="shoes" role="img" aria-label={label}>

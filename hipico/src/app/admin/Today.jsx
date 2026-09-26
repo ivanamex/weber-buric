@@ -49,7 +49,7 @@ export default function AdminToday() {
         <div className="stat"><strong>{occ.length}</strong><span>{t('admin.today.classes')}</span></div>
         <div className="stat"><strong>{all.length}</strong><span>{t('admin.today.riders')}</span></div>
         <div className="stat stat--sage"><strong>{count('attended')}</strong><span>{t('admin.today.came')}</span></div>
-        <div className="stat stat--terra"><strong>{count('noshow')}</strong><span>{t('admin.today.noshow')}</span></div>
+        <div className="stat stat--danger"><strong>{count('noshow')}</strong><span>{t('admin.today.noshow')}</span></div>
       </div>
 
       {hours.length === 0 ? (
@@ -67,7 +67,7 @@ export default function AdminToday() {
                   <p className="small muted">{o.instructor.name} · {t(`arenas.${o.slot.arena}`)}</p>
                 </div>
                 <div className="classcard__side">
-                  <Badge tone={o.spotsLeft === 0 ? 'gold' : 'neutral'}>{o.bookings.length}/{o.slot.capacity}</Badge>
+                  <Badge tone={o.spotsLeft === 0 ? 'accent' : 'neutral'}>{o.bookings.length}/{o.slot.capacity}</Badge>
                   {o.bookings.some((b) => b.status !== 'attended') && (
                     <button type="button" className="pill pill--sage" onClick={() => onAll(o)}><Icon name="check" size={15} /> {t('admin.today.allCame')}</button>
                   )}
@@ -94,7 +94,7 @@ export default function AdminToday() {
                         <button type="button" className={`pill pill--sage ${b.status === 'attended' ? 'is-on' : ''}`} onClick={() => onMark(b, 'attended')} aria-pressed={b.status === 'attended'}>
                           <Icon name="check" size={15} /> {t('admin.today.came')}
                         </button>
-                        <button type="button" className={`pill pill--terra ${b.status === 'noshow' ? 'is-on' : ''}`} onClick={() => onMark(b, 'noshow')} aria-pressed={b.status === 'noshow'}>
+                        <button type="button" className={`pill pill--danger ${b.status === 'noshow' ? 'is-on' : ''}`} onClick={() => onMark(b, 'noshow')} aria-pressed={b.status === 'noshow'}>
                           <Icon name="x" size={15} /> {t('admin.today.noshow')}
                         </button>
                       </div>

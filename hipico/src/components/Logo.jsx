@@ -1,4 +1,4 @@
-// Club logo (PNG, 171×226). White on green backgrounds, green on cream, gold for accents.
+// Club logo (PNG, 171×226). White on green backgrounds, green on cream.
 // Kept at 64 px tall or less until the vector file arrives.
 const RATIO = 171 / 226
 
