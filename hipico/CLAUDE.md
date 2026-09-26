@@ -41,6 +41,12 @@ supabase/schema.sql  tables + Row Level Security + SECURITY DEFINER functions (t
 - **Rules** are enforced in the SQL functions: level match, open spot, a plan for that month with classes left, cancel ≥12 h returns the class, no-show counts as used, a horse can't be double-booked. `demo.js` mirrors them.
 - **Error codes** returned by actions map to `errors.*` in the i18n files.
 
+## Database updates
+
+Database changes ship as files in `supabase/migrations/` (`YYYYMMDD_name.sql`, safe to run twice, no `begin`/`commit`). The production build runs `scripts/migrate.mjs` first, which applies new files automatically via `POSTGRES_URL_NON_POOLING`, with TLS verified against `scripts/supabase-ca.crt`. Don't ask the user to paste SQL.
+
+To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commits/<sha>/status` shows Vercel's state, and a failed migration makes it `failure`.
+
 ## How to verify changes
 
 - `npm run build` must pass.

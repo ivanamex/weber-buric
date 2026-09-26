@@ -77,7 +77,7 @@ The app runs in one of two modes:
 ### Set up Supabase (one time)
 
 1. **Create the database.** In Vercel, open the project → **Storage** → **Supabase** → create one on the **Free** plan and connect it to this project. Vercel adds `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` automatically. If you set the keys by hand instead, use `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Never add the `service_role`/secret key; the build refuses to bundle it.
-2. **Create the tables.** Open the Supabase dashboard → **SQL Editor**. Paste all of [`supabase/schema.sql`](supabase/schema.sql). **Change the email on its last line** to the management email, then click **Run**. Then run each file in [`supabase/migrations/`](supabase/migrations) in date order the same way (they're safe to run twice).
+2. **Create the tables.** Open the Supabase dashboard → **SQL Editor**. Paste all of [`supabase/schema.sql`](supabase/schema.sql). **Change the email on its last line** to the management email, then click **Run**. Later database updates are applied automatically: see **Database updates** below.
 3. **Allow the login links.** Go to Supabase → **Authentication → URL Configuration**. Set **Site URL** to `https://hipico-riviera-maya.vercel.app` and add `https://hipico-riviera-maya.vercel.app/app` under **Redirect URLs**.
 4. **Show the login code in the email.** Go to Supabase → **Authentication → Emails → Magic Link** and add a line such as `Tu código: {{ .Token }}`. On iPhone the installed app can't receive the link (it opens in Safari), so families type the code instead.
 5. **Redeploy** in Vercel (Deployments → ⋯ → Redeploy). `/app` now uses Supabase.
@@ -85,6 +85,14 @@ The app runs in one of two modes:
 Create the tables before redeploying. Otherwise `/app` switches to live mode before its tables exist and shows an error.
 
 **Email sending:** Supabase's built-in email is meant for testing and only sends a few emails per hour. Before inviting families, set up your own email sender (for example Resend or Brevo) under **Authentication → Emails → SMTP Settings**.
+
+### Database updates (automatic)
+Every production deploy runs `scripts/migrate.mjs` before building. It connects with the `POSTGRES_URL_NON_POOLING` address that the Vercel ↔ Supabase connection provides, verifying TLS against Supabase's root certificate (`scripts/supabase-ca.crt`). It then applies each new file in [`supabase/migrations/`](supabase/migrations) once, in name order, each in its own transaction, and records it in the `app_migrations` table.
+
+- **Failures:** if an update fails, the deploy fails and the site keeps the previous version.
+- **Previews:** preview deploys never touch the database.
+- **Writing a new update:** add a file named `YYYYMMDD_description.sql`, safe to run twice (`if not exists`, `create or replace`), without its own `begin`/`commit`.
+- **Running by hand:** `POSTGRES_URL_NON_POOLING=… npm run migrate`.
 
 ### Day to day
 - **Families and riders:** management adds them in the **Familias** tab (one by one, or a CSV list with a preview), with each rider's plan and its start date. A preloaded family signs in with that email and finds its plan already active. A new email gets a short sign-up form instead, and an existing email is always linked, never duplicated. Families can be edited or deactivated; history is kept.
