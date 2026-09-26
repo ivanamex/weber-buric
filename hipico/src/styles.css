@@ -328,7 +328,8 @@ p.center { display: block; }
 .camp__form .input { flex: 1; }
 .quotes { display: grid; gap: 10px; }
 .quote { display: flex; align-items: center; gap: 12px; padding: 14px; }
-.input { width: 100%; min-height: 46px; padding: 0 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: #fff; font-size: 1rem; }
+.input { width: 100%; min-height: 46px; padding: 0 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: #fff; color: var(--ink); font-size: 1rem; }
+.input::placeholder { color: #9A9285; opacity: 1; }
 .input:focus { outline: none; border-color: var(--green); }
 .field { display: grid; gap: 6px; margin-top: 12px; }
 .field > span { font-size: .8rem; font-weight: 600; color: var(--muted); }
