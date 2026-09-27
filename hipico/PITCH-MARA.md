@@ -19,6 +19,8 @@
 - Una web nueva, con el mismo diseño que la app, en hipicorivieramaya.com.
 - Bien posicionada en Google: "clases de equitación Playa del Carmen", "pensión de caballos Riviera Maya", "campamento de verano".
 - Meta: que cualquiera que busque clases, pensión o campamento en la zona encuentre primero a Hípico Riviera Maya.
+- Reemplaza la página de Wix: una sola marca (web + app + reservas + pagos), bilingüe.
+- Preparada para crecer: venta de caballos para compradores de todo México, y subastas en línea más adelante.
 
 ## 5. El trato
 - A cambio: un año de clases para Zara y para mí, 3 veces por semana.
