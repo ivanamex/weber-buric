@@ -294,9 +294,6 @@ export default function AdminFamilies() {
         <h1 className="page__title">{t('admin.families.title')}</h1>
         {!panel && (
           <div className="row gap-sm">
-            <button type="button" className="btn btn--sm" onClick={() => setPanel('share')}>
-              <Icon name="qr" size={16} /> {t('share.short')}
-            </button>
             <button type="button" className="btn btn--primary btn--sm" onClick={() => setPanel('new')}>
               <Icon name="plus" size={16} /> {t('admin.families.add')}
             </button>
@@ -304,6 +301,11 @@ export default function AdminFamilies() {
         )}
       </div>
       <p className="small muted">{t('admin.families.intro')}</p>
+      {!panel && (
+        <button type="button" className="btn btn--sm btn--block" onClick={() => setPanel('share')}>
+          <Icon name="qr" size={16} /> {t('share.short')}
+        </button>
+      )}
 
       {panel === 'new' && <NewFamilyForm onDone={() => setPanel(null)} />}
       {panel === 'share' && <ShareApp onClose={() => setPanel(null)} />}
