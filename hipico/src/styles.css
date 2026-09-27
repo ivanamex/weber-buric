@@ -799,3 +799,55 @@ p.center { display: block; }
   .activeplan .grid2 { grid-template-columns: 1fr; gap: 4px; }
   .activeplan__change { min-height: 0; padding: 6px; border: 0; background: none; box-shadow: none; color: var(--green); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 }
+
+/* Edit ⇄ save: one obvious Guardar */
+.btn--save { background: rgba(230, 115, 90, .94); border: 1px solid rgba(214, 98, 74, .9); color: #fff; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 6px 18px rgba(230, 115, 90, .28); }
+.btn--save:hover, .btn--save:active { background: var(--accent-hover); border-color: var(--accent-hover); }
+.btn--save:disabled { opacity: .6; }
+.savebar { display: flex; align-items: center; gap: 16px; margin-top: 4px; }
+.savebar .btn--save { min-width: 160px; }
+.savebar__cancel { color: var(--muted); }
+@media (max-width: 600px) { .savebar { flex-direction: column; align-items: stretch; gap: 8px; } .savebar .btn--save { width: 100%; } .savebar__cancel { align-self: center; padding: 6px; } }
+.form-error { margin: 0; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--danger-soft); color: var(--danger-ink); font-size: .88rem; font-weight: 600; }
+.confirm { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: 16px; }
+.confirm__scrim { position: absolute; inset: 0; border: 0; padding: 0; background: rgba(20, 30, 23, .5); }
+.confirm__panel { position: relative; width: 100%; max-width: 360px; display: grid; gap: 10px; padding: 20px; border-radius: 20px; background: var(--card); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+.confirm__title { font-family: var(--font-head); font-size: 1.15rem; font-weight: 600; color: var(--green-dark); }
+.confirm__actions { display: grid; gap: 8px; margin-top: 6px; }
+
+/* Horse profile: finished view, one section editing at a time */
+.horsehero { display: flex; align-items: flex-start; gap: 16px; margin: 8px 0 4px; }
+.horsehero .horse__photo { border-radius: 18px; flex: none; }
+.horsehero .page__title { margin: 0 0 2px; }
+@media (max-width: 480px) {
+  .horsehero { flex-direction: column; gap: 12px; }
+  .horsehero > .horse__photo { width: 100% !important; height: auto !important; aspect-ratio: 4 / 3; object-fit: cover; }
+  .horsehero > .horse__photo--empty { height: 140px !important; aspect-ratio: auto; }
+}
+.card.is-editing { border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent); }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
+.facts dt { font-size: .75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.facts dd { margin: 2px 0 0; font-weight: 600; color: var(--green-dark); overflow-wrap: anywhere; }
+.photos__uploading { display: grid; place-items: center; align-content: center; gap: 6px; padding: 6px; text-align: center; font-size: .75rem; font-weight: 600; color: var(--accent-ink); background: var(--accent-soft); }
+.photos__spinner { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid color-mix(in srgb, var(--accent) 30%, transparent); border-top-color: var(--accent-strong); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.nextdates--tap li { padding: 0; }
+.nextdates__tap { display: grid; gap: 2px; width: 100%; padding: 10px 12px; border: 0; background: none; text-align: left; font: inherit; color: inherit; border-radius: inherit; cursor: pointer; }
+.nextdates__tap:active { transform: scale(.98); }
+.nextdates__hint { font-size: .75rem; color: var(--accent-ink); }
+.nextdates li.is-late { border-color: var(--accent-strong); background: var(--accent-soft); }
+.nextdates li.is-late .nextdates__when { color: var(--accent-ink); }
+.healthrow { padding: 0; gap: 8px; color: var(--muted); }
+.healthrow__tap { flex: 1; min-width: 0; display: grid; gap: 2px; padding: 12px 0; border: 0; background: none; text-align: left; font: inherit; color: var(--ink); cursor: pointer; }
+.healthrow__tap:disabled { cursor: default; }
+@media (prefers-reduced-motion: reduce) { .photos__spinner { animation-duration: 2.4s; } }
+
+/* Greeting pictogram: coral line, about 60% of the name's height, one gentle motion on load */
+.hello h1 { display: flex; align-items: center; gap: .3em; }
+.greetmark { flex: none; height: .6em; width: .8em; overflow: visible; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.greetmark--morning .greetmark__body { animation: greet-rise .4s ease-out both; }
+.greetmark--afternoon .greetmark__body { animation: greet-set .4s ease-out both; }
+.greetmark--evening { animation: fade-in .4s ease-out both; }
+@keyframes greet-rise { from { transform: translateY(4px); } to { transform: none; } }
+@keyframes greet-set { from { transform: translateY(-3px); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .greetmark, .greetmark__body { animation: none !important; } }

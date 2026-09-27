@@ -882,7 +882,13 @@
     "deleteHealth": "Borrar registro",
     "nextOn": "Próxima: {date}",
     "overdue": "Vencida: {date}",
-    "lastOn": "Última: {date}"
+    "lastOn": "Última: {date}",
+    "noPhotos": "Sin fotos todavía.",
+    "tapToLog": "Toca para registrar",
+    "ownerView": "Ver como lo ve el dueño",
+    "ownerViewTitle": "Así lo ve {name}",
+    "yes": "Sí",
+    "no": "No"
   },
   "demoBar": {
     "label": "Barra de la demo",
@@ -890,5 +896,20 @@
     "family": "Familia",
     "admin": "Dirección",
     "exit": "Salir de la demo"
+  },
+  "edit": {
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "discardTitle": "¿Descartar cambios?",
+    "discardText": "Lo que cambiaste no se ha guardado.",
+    "discard": "Descartar",
+    "keepEditing": "Seguir editando",
+    "saved": "Guardado",
+    "horseSaved": "Caballo guardado",
+    "saveHorse": "Guardar caballo",
+    "registered": "Registrado",
+    "photoSaved": "Foto guardada",
+    "uploading": "Subiendo foto…",
+    "done": "Listo"
   }
 }

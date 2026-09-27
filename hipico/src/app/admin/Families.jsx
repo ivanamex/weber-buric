@@ -9,6 +9,7 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty, Segmented } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { PaymentHistory, PlanHistory } from '../../components/PaymentHistory.jsx'
+import { SaveBar, useFormState } from '../../components/EditKit.jsx'
 import ShareApp from './ShareApp.jsx'
 
 const NEW_RIDER = { name: '', level: 'beginner' }
@@ -68,14 +69,16 @@ function RidersEditor({ idPrefix, riders, setRiders, withPlan }) {
 function NewFamilyForm({ onDone }) {
   const { t } = useI18n()
   const toast = useToast()
-  const [f, setF] = useState(newFamily)
+  const [f, setF, dirty] = useFormState(newFamily)
   const [busy, setBusy] = useState(false)
+  const [error, setError] = useState(null)
   const onSubmit = async (e) => {
     e.preventDefault()
     setBusy(true)
+    setError(null)
     const res = await createFamily({ ...f, riders: f.riders.filter((r) => r.name.trim()) })
     setBusy(false)
-    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    if (!res.ok) return setError(t(`errors.${res.code}`))
     toast(t('toasts.familyAdded', { name: f.contact.trim() }))
     onDone()
   }
@@ -108,10 +111,7 @@ function NewFamilyForm({ onDone }) {
         <input id="nf-name" className="input" placeholder={t('admin.families.namePh')} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
       </label>
       <p className="small muted mt8">{t('admin.families.emailHint')}</p>
-      <div className="row gap-sm mt12 end">
-        <button type="button" className="btn btn--sm" onClick={onDone}>{t('common.cancel')}</button>
-        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.save')}</button>
-      </div>
+      <SaveBar busy={busy} dirty={dirty} error={error} onCancel={onDone} label={t('admin.families.save')} />
     </form>
   )
 }
@@ -120,19 +120,21 @@ function FamilyEditor({ family, onDone }) {
   const { t } = useI18n()
   const toast = useToast()
   const s = useStore()
-  const [fields, setFields] = useState({ name: family.name, contact: family.contact, email: family.email, phone: family.phone || '' })
-  const [riders, setRiders] = useState(() => familyRiders(s, family.id, { includeInactive: true })
+  const [fields, setFields, fieldsDirty] = useFormState({ name: family.name, contact: family.contact, email: family.email, phone: family.phone || '' })
+  const [riders, setRiders, ridersDirty] = useFormState(() => familyRiders(s, family.id, { includeInactive: true })
     .map((r) => ({ id: r.id, name: r.name, level: r.level, age: r.age, active: r.active !== false, planClasses: r.planClasses || '' })))
   const [planStart, setPlanStart] = useState(todayKey())
   const [busy, setBusy] = useState(false)
+  const [error, setError] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   const onSave = async (e) => {
     e.preventDefault()
     setBusy(true)
+    setError(null)
     const res = await saveFamily({ familyId: family.id, fields, planStart, riders: riders.filter((r) => r.id || r.name.trim()) })
     setBusy(false)
-    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    if (!res.ok) return setError(t(`errors.${res.code}`))
     toast(t('toasts.familySaved', { name: fields.contact.trim() }))
     onDone()
   }
@@ -170,10 +172,7 @@ function FamilyEditor({ family, onDone }) {
         <input id={`ef-start-${id}`} className="input" type="date" value={planStart} onChange={(e) => setPlanStart(e.target.value)} required />
       </label>
       <p className="small muted mt8">{t('admin.families.assignHint')}</p>
-      <div className="row gap-sm mt12 end">
-        <button type="button" className="btn btn--sm" onClick={onDone}>{t('common.cancel')}</button>
-        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
-      </div>
+      <SaveBar busy={busy} dirty={fieldsDirty || ridersDirty} error={error} onCancel={onDone} />
       {confirmDelete ? (
         <div className="danger-zone">
           <p className="small"><strong>{t('admin.families.deleteTitle', { name: family.name })}</strong><br />{t('admin.families.deleteText')}</p>

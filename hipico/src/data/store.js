@@ -48,6 +48,7 @@ export const saveClassPrices = act('saveClassPrices') // management: Clase muest
 // Owner's panel (management only)
 export const saveHorseCare = act('saveHorseCare') // daily ration
 export const addHealth = act('addHealth') // vet, vaccine, deworming, farrier
+export const updateHealth = act('updateHealth')
 export const deleteHealth = act('deleteHealth')
 export const sellHorse = act('sellHorse')
 export const uploadHorsePhoto = act('uploadHorsePhoto')

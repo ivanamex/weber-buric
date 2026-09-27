@@ -9,6 +9,7 @@ import { Icon } from '../../components/Icon.jsx'
 import { SectionTitle } from '../../components/ui.jsx'
 import { todayKey, currentMonthKey, monthEnd, addDays, monthKeyOf } from '../../lib/time.js'
 import { useSave } from './useSave.js'
+import { SaveBar, useFormState } from '../../components/EditKit.jsx'
 
 const lastMonths = (n) => {
   const out = [currentMonthKey()]
@@ -18,11 +19,11 @@ const lastMonths = (n) => {
 
 function ExpenseForm({ categories, month, onDone }) {
   const { t } = useI18n()
-  const [run, busy] = useSave()
+  const [run, busy, error] = useSave()
   const today = todayKey()
-  const [f, setF] = useState({ spentOn: monthKeyOf(today) === month ? today : monthEnd(month), categoryId: categories[0]?.id || '', amount: '', note: '' })
+  const [f, setF, dirty] = useFormState({ spentOn: monthKeyOf(today) === month ? today : monthEnd(month), categoryId: categories[0]?.id || '', amount: '', note: '' })
   return (
-    <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => saveExpense(f), t('profit.expenseSaved'), onDone) }}>
+    <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => saveExpense(f), t('profit.expenseSaved'), onDone, { inline: true }) }}>
       <div className="grid2">
         <label className="field"><span>{t('payroll.date')}</span>
           <input className="input" type="date" required value={f.spentOn} onChange={(e) => setF({ ...f, spentOn: e.target.value })} />
@@ -37,10 +38,7 @@ function ExpenseForm({ categories, month, onDone }) {
         </select>
       </label>
       <input className="input" aria-label={t('profit.note')} placeholder={t('profit.note')} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
-      <div className="row gap-sm end">
-        <button type="button" className="btn btn--sm" onClick={onDone}>{t('common.cancel')}</button>
-        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
-      </div>
+      <SaveBar busy={busy} dirty={dirty} error={error} onCancel={onDone} />
     </form>
   )
 }
@@ -48,7 +46,7 @@ function ExpenseForm({ categories, month, onDone }) {
 function Categories() {
   const { t } = useI18n()
   const s = useStore()
-  const [run, busy] = useSave()
+  const [run, busy, error] = useSave()
   const [name, setName] = useState('')
   const [editing, setEditing] = useState(null)
   const [draft, setDraft] = useState('')
@@ -59,9 +57,10 @@ function Categories() {
         {cats.map((c) => (
           <li key={c.id} className="list__row">
             {editing === c.id ? (
-              <form className="row gap-sm grow" onSubmit={(e) => { e.preventDefault(); run(() => saveCategory({ ...c, name: draft }), t('schedule.saved'), () => setEditing(null)) }}>
+              <form className="row gap-sm grow" onSubmit={(e) => { e.preventDefault(); run(() => saveCategory({ ...c, name: draft }), t('edit.saved'), () => setEditing(null), { inline: true }) }}>
                 <input className="input grow" aria-label={t('profit.category')} value={draft} onChange={(e) => setDraft(e.target.value)} required autoFocus />
-                <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
+                <button type="submit" className="btn btn--sm btn--save" disabled={busy}>{t('edit.save')}</button>
+                <button type="button" className="link" onClick={() => setEditing(null)}>{t('common.cancel')}</button>
               </form>
             ) : (
               <>
@@ -73,10 +72,11 @@ function Categories() {
           </li>
         ))}
       </ul>
-      <form className="row gap-sm mt8" onSubmit={(e) => { e.preventDefault(); run(() => saveCategory({ name }), t('schedule.saved'), () => setName('')) }}>
+      <form className="row gap-sm mt8" onSubmit={(e) => { e.preventDefault(); run(() => saveCategory({ name }), t('edit.saved'), () => setName(''), { inline: true }) }}>
         <input className="input grow" aria-label={t('profit.newCategory')} placeholder={t('profit.newCategory')} value={name} onChange={(e) => setName(e.target.value)} required />
-        <button type="submit" className="btn btn--sm" disabled={busy}><Icon name="plus" size={16} /></button>
+        <button type="submit" className="btn btn--sm" disabled={busy} aria-label={t('profit.newCategory')}><Icon name="plus" size={16} /></button>
       </form>
+      {error && <p className="form-error mt8" role="alert">{error}</p>}
     </div>
   )
 }

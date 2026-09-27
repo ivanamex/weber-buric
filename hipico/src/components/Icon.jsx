@@ -31,6 +31,7 @@ const P = {
   sprout: <><path d="M12 21v-9" /><path d="M12 12c0-4-2.5-6.5-7-6.5 0 4.2 2.8 6.5 7 6.5zM12 14c0-3.5 2.2-6 6.5-6 0 3.8-2.4 6-6.5 6z" /></>,
   route: <><circle cx="6" cy="18" r="2.2" /><circle cx="18" cy="6" r="2.2" /><path d="M8.2 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8" /></>,
   phone: <><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" /><path d="M11 18.5h2" /></>,
+  camera: <><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.5-2.2h5.6L16.3 7h2.2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" /><circle cx="12" cy="12.8" r="3.4" /></>,
   sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" /></>,
   // Club pictograms (original drawings)
   horseHead: <><path d="M6 21c0-6 1-11 4-15l.5-3 2 2.5c2.5 1.5 5.5 4.5 7 8 .7 1.6-.5 3.1-2 2.5-1.4-.6-2.8-.9-4-.4-1 .9-1.2 3.4-.5 5.4" /><path d="M9 8.5c-1.2 1-1.6 2.3-1.6 3.6M8.2 12.6c-.9 1-1.1 2.3-1 3.6" /><circle cx="14" cy="9.4" r=".7" fill="currentColor" stroke="none" /><circle cx="18.3" cy="13.9" r=".5" fill="currentColor" stroke="none" /></>,

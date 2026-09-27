@@ -882,7 +882,13 @@
     "deleteHealth": "Delete record",
     "nextOn": "Next: {date}",
     "overdue": "Overdue: {date}",
-    "lastOn": "Last: {date}"
+    "lastOn": "Last: {date}",
+    "noPhotos": "No photos yet.",
+    "tapToLog": "Tap to log",
+    "ownerView": "See it as the owner does",
+    "ownerViewTitle": "What {name} sees",
+    "yes": "Yes",
+    "no": "No"
   },
   "demoBar": {
     "label": "Demo bar",
@@ -890,5 +896,20 @@
     "family": "Family",
     "admin": "Management",
     "exit": "Leave the demo"
+  },
+  "edit": {
+    "save": "Save",
+    "saving": "Saving…",
+    "discardTitle": "Discard changes?",
+    "discardText": "What you changed hasn't been saved.",
+    "discard": "Discard",
+    "keepEditing": "Keep editing",
+    "saved": "Saved",
+    "horseSaved": "Horse saved",
+    "saveHorse": "Save horse",
+    "registered": "Recorded",
+    "photoSaved": "Photo saved",
+    "uploading": "Uploading photo…",
+    "done": "Done"
   }
 }

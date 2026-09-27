@@ -360,6 +360,8 @@ async function saveHorseCare({ horseId, feed = [], rationsPerDay, supplements, n
 }
 const addHealth = ({ horseId, kind, doneOn, nextDue, note }) =>
   upsertRow('horse_health', null, { horse_id: horseId, kind, done_on: doneOn, next_due: nextDue || null, note: note?.trim() || null })
+const updateHealth = ({ id, doneOn, nextDue, note }) =>
+  upsertRow('horse_health', id, { done_on: doneOn, next_due: nextDue || null, note: note?.trim() || null })
 async function deleteHealth(id) {
   const res = await sb.from('horse_health').delete().eq('id', id)
   if (res.error) return { ok: false, code: 'network' }
@@ -507,6 +509,7 @@ export const actions = {
   saveClassPrices,
   saveHorseCare,
   addHealth,
+  updateHealth,
   deleteHealth,
   sellHorse,
   uploadHorsePhoto,

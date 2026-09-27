@@ -7,15 +7,16 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, SectionTitle, Segmented } from '../../components/ui.jsx'
 import { todayKey } from '../../lib/time.js'
 import { useSave } from './useSave.js'
+import { SaveBar, useFormState } from '../../components/EditKit.jsx'
 
 function EmployeeForm({ employee, onDone }) {
   const { t } = useI18n()
-  const [run, busy] = useSave()
-  const [f, setF] = useState(employee
+  const [run, busy, error] = useSave()
+  const [f, setF, dirty] = useFormState(employee
     ? { ...employee }
     : { name: '', role: 'instructor', salary: '', frequency: 'quincenal', nextPayDate: todayKey(), workingDays: '', active: true })
   return (
-    <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => saveEmployee(f), t('schedule.saved'), onDone) }}>
+    <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => saveEmployee(f), t('edit.saved'), onDone, { inline: true }) }}>
       <input className="input" aria-label={t('payroll.name')} placeholder={t('payroll.name')} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required />
       <div className="grid2">
         <label className="field"><span>{t('payroll.role')}</span>
@@ -40,20 +41,17 @@ function EmployeeForm({ employee, onDone }) {
         </label>
       </div>
       <label className="check"><input type="checkbox" checked={f.active !== false} onChange={(e) => setF({ ...f, active: e.target.checked })} /> <span>{t('payroll.active')}</span></label>
-      <div className="row gap-sm end">
-        <button type="button" className="btn btn--sm" onClick={onDone}>{t('common.cancel')}</button>
-        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
-      </div>
+      <SaveBar busy={busy} dirty={dirty} error={error} onCancel={onDone} />
     </form>
   )
 }
 
 function PayForm({ employee, onDone }) {
   const { t, fmtMoney } = useI18n()
-  const [run, busy] = useSave()
-  const [f, setF] = useState({ amount: employee.salary, method: 'transfer', date: todayKey() })
+  const [run, busy, error] = useSave()
+  const [f, setF, dirty] = useFormState({ amount: employee.salary, method: 'transfer', date: todayKey() })
   return (
-    <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => paySalary({ employeeId: employee.id, ...f }), t('payroll.paidToast', { name: employee.name, amount: fmtMoney(Number(f.amount)) }), onDone) }}>
+    <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => paySalary({ employeeId: employee.id, ...f }), t('payroll.paidToast', { name: employee.name, amount: fmtMoney(Number(f.amount)) }), onDone, { inline: true }) }}>
       <div className="grid2">
         <label className="field"><span>{t('payroll.amount')}</span>
           <input className="input" type="number" inputMode="numeric" min={0} required value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} />
@@ -64,10 +62,7 @@ function PayForm({ employee, onDone }) {
       </div>
       <Segmented small value={f.method} onChange={(method) => setF({ ...f, method })}
         options={['transfer', 'cash'].map((m) => ({ value: m, label: t(`methods.${m}`) }))} />
-      <div className="row gap-sm end">
-        <button type="button" className="btn btn--sm" onClick={onDone}>{t('common.cancel')}</button>
-        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('payroll.confirmPay')}</button>
-      </div>
+      <SaveBar busy={busy} dirty={dirty} error={error} onCancel={onDone} label={t('payroll.confirmPay')} />
     </form>
   )
 }

@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, isActiveBooking, isDeletedFamily, LEVELS, saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate,
+  useStore, byId, isActiveBooking, isDeletedFamily, LEVELS, saveSlot, saveInstructor, cancelClassDate, reopenClassDate,
 } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty, Segmented } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { todayKey, addDays, weekStart } from '../../lib/time.js'
 import { useSave } from './useSave.js'
+import { SaveBar, useFormState } from '../../components/EditKit.jsx'
 import HorsesView from './Horses.jsx'
 
 const DISCIPLINES = ['basics', 'dressage', 'jumping', 'ponies']
@@ -19,9 +20,9 @@ const WEEK = [1, 2, 3, 4, 5, 6, 0] // Monday … Sunday
 function SlotForm({ slot, onDone }) {
   const { t } = useI18n()
   const s = useStore()
-  const [run, busy] = useSave()
+  const [run, busy, error] = useSave()
   const instructors = s.instructors.filter((i) => i.active !== false || i.id === slot?.instructorId)
-  const [f, setF] = useState(() => slot ? { ...slot } : {
+  const [f, setF, dirty] = useFormState(() => slot ? { ...slot } : {
     weekday: 1, time: '16:00', duration: 60, discipline: 'basics', level: 'beginner',
     instructorId: instructors[0]?.id, arena: 'main', capacity: 4, active: true,
   })
@@ -29,7 +30,7 @@ function SlotForm({ slot, onDone }) {
   const set = (patch) => setF({ ...f, ...patch })
   const onSubmit = (e) => {
     e.preventDefault()
-    run(() => saveSlot(f), t(slot ? 'schedule.saved' : 'schedule.created'), onDone)
+    run(() => saveSlot(f), t(slot ? 'schedule.saved' : 'schedule.created'), onDone, { inline: true })
   }
   return (
     <form className="card slot-form" onSubmit={onSubmit}>
@@ -76,10 +77,7 @@ function SlotForm({ slot, onDone }) {
           <span>{t('schedule.activeClass')}</span>
         </label>
       </div>
-      <div className="row gap-sm mt12 end">
-        <button type="button" className="btn btn--sm" onClick={onDone}>{t('common.cancel')}</button>
-        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
-      </div>
+      <SaveBar busy={busy} dirty={dirty} error={error} onCancel={onDone} />
     </form>
   )
 }
@@ -166,26 +164,28 @@ function ClassesView() {
   )
 }
 
-function InstructorsView() {
+function InstructorForm({ instructor, onDone }) {
   const { t } = useI18n()
-  const s = useStore()
-  const [run, busy] = useSave()
-  const [editing, setEditing] = useState(null) // id | 'new'
-  const [f, setF] = useState({})
-  const open = (i) => { setEditing(i?.id || 'new'); setF(i ? { ...i } : { name: '', specialty: 'basics', active: true }) }
-  const form = (
-    <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => saveInstructor(f), t('schedule.saved'), () => setEditing(null)) }}>
+  const [run, busy, error] = useSave()
+  const [f, setF, dirty] = useFormState(instructor ? { ...instructor } : { name: '', specialty: 'basics', active: true })
+  return (
+    <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => saveInstructor(f), t('schedule.saved'), onDone, { inline: true }) }}>
       <input className="input" aria-label={t('schedule.name')} placeholder={t('schedule.name')} value={f.name || ''} onChange={(e) => setF({ ...f, name: e.target.value })} required />
       <select className="input" aria-label={t('schedule.discipline')} value={f.specialty || 'basics'} onChange={(e) => setF({ ...f, specialty: e.target.value })}>
         {DISCIPLINES.map((d) => <option key={d} value={d}>{t(`disciplines.${d}`)}</option>)}
       </select>
       <label className="check"><input type="checkbox" checked={f.active !== false} onChange={(e) => setF({ ...f, active: e.target.checked })} /> <span>{t('schedule.activeLabel')}</span></label>
-      <div className="row gap-sm end">
-        <button type="button" className="btn btn--sm" onClick={() => setEditing(null)}>{t('common.cancel')}</button>
-        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
-      </div>
+      <SaveBar busy={busy} dirty={dirty} error={error} onCancel={onDone} />
     </form>
   )
+}
+
+function InstructorsView() {
+  const { t } = useI18n()
+  const s = useStore()
+  const [editing, setEditing] = useState(null) // id | 'new'
+  const open = (i) => setEditing(i?.id || 'new')
+  const form = <InstructorForm key={editing} instructor={byId(s.instructors, editing)} onDone={() => setEditing(null)} />
   return (
     <div className="card">
       <ul className="list">

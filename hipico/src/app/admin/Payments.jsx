@@ -8,6 +8,7 @@ import { useToast } from '../../components/Toast.jsx'
 import { currentMonthKey } from '../../lib/time.js'
 import { ReceiptBadge, BankDetails } from '../../components/Transfer.jsx'
 import ReceiptViewer from './ReceiptViewer.jsx'
+import { SaveBar } from '../../components/EditKit.jsx'
 import { concept } from '../../components/PaymentHistory.jsx'
 
 const SERVICE_ICON = { plan: 'horseshoe', boarding: 'saddle', camp: 'balloons', rental: 'horseHead', events: 'cake' }
@@ -129,21 +130,23 @@ export default function AdminPayments() {
   )
 }
 
-/** Bank details shown to families when they pay by transfer. */
 /** Prices of the classes outside the packages (plans stay the main path). */
 function ClassPrices() {
   const { t, fmtMoney } = useI18n()
   const toast = useToast()
   const [editing, setEditing] = useState(false)
   const [f, setF] = useState({})
+  const [base, setBase] = useState('{}')
   const [busy, setBusy] = useState(false)
-  const start = () => { setF({ ...CLASS_PRICES }); setEditing(true) }
+  const [error, setError] = useState(null)
+  const start = () => { const next = { ...CLASS_PRICES }; setF(next); setBase(JSON.stringify(next)); setError(null); setEditing(true) }
   const onSave = async (e) => {
     e.preventDefault()
     setBusy(true)
+    setError(null)
     const res = await saveClassPrices(f)
     setBusy(false)
-    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    if (!res.ok) return setError(t(`errors.${res.code}`))
     toast(t('toasts.pricesSaved'))
     setEditing(false)
   }
@@ -168,10 +171,7 @@ function ClassPrices() {
             value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} />
         </label>
       ))}
-      <div className="row gap-sm mt12 end">
-        <button type="button" className="btn btn--sm" onClick={() => setEditing(false)}>{t('common.cancel')}</button>
-        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
-      </div>
+      <SaveBar busy={busy} dirty={JSON.stringify(f) !== base} error={error} onCancel={() => setEditing(false)} />
     </form>
   )
 }
@@ -182,14 +182,17 @@ function BankSettings() {
   const { settings = {} } = useStore()
   const [editing, setEditing] = useState(false)
   const [f, setF] = useState({})
+  const [base, setBase] = useState('{}')
   const [busy, setBusy] = useState(false)
-  const start = () => { setF({ bankName: settings?.bankName || '', accountHolder: settings?.accountHolder || '', clabe: settings?.clabe || '' }); setEditing(true) }
+  const [error, setError] = useState(null)
+  const start = () => { const next = { bankName: settings?.bankName || '', accountHolder: settings?.accountHolder || '', clabe: settings?.clabe || '' }; setF(next); setBase(JSON.stringify(next)); setError(null); setEditing(true) }
   const onSave = async (e) => {
     e.preventDefault()
     setBusy(true)
+    setError(null)
     const res = await saveSettings(f)
     setBusy(false)
-    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    if (!res.ok) return setError(t(`errors.${res.code}`))
     toast(t('toasts.bankSaved'))
     setEditing(false)
   }
@@ -212,10 +215,7 @@ function BankSettings() {
       <label className="field" htmlFor="bank-clabe"><span>CLABE (18)</span>
         <input id="bank-clabe" className="input" inputMode="numeric" maxLength={22} value={f.clabe} onChange={(e) => setF({ ...f, clabe: e.target.value })} />
       </label>
-      <div className="row gap-sm mt12 end">
-        <button type="button" className="btn btn--sm" onClick={() => setEditing(false)}>{t('common.cancel')}</button>
-        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
-      </div>
+      <SaveBar busy={busy} dirty={JSON.stringify(f) !== base} error={error} onCancel={() => setEditing(false)} />
     </form>
   )
 }

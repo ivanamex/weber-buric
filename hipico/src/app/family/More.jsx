@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, familyRiders, getPlan, registerCamp, bookRental, campTaken, setPassword, careOf, lastByKind, horseAge,
+  useStore, byId, familyRiders, getPlan, registerCamp, bookRental, campTaken, setPassword,
 } from '../../data/store.js'
 import { FROM_PRICES, RENTAL_PER_HOUR, RENTAL_HOURS } from '../../data/prices.js'
 import { Icon } from '../../components/Icon.jsx'
@@ -9,7 +9,7 @@ import { Badge, SectionTitle, Segmented, waLink } from '../../components/ui.jsx'
 import { LangToggle } from '../../components/LangToggle.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { ResetDemoRow } from '../../components/ResetDemoRow.jsx'
-import { DailyRation, HorsePhoto, NextDates } from '../../components/HorseCare.jsx'
+import { MyHorseCard } from '../../components/HorseCare.jsx'
 import { todayKey, addDays, hoursUntil } from '../../lib/time.js'
 
 const RENTAL_TIMES = ['07:00', '08:00', '09:00', '10:00', '11:00', '16:00', '17:00']
@@ -59,20 +59,7 @@ export default function FamilyMore() {
       {myHorses.map((h) => (
         <section key={h.id} className="myhorse" aria-label={t('myHorse.title')}>
           <SectionTitle icon="horseHead">{t('myHorse.title')}</SectionTitle>
-          <div className="card">
-            <div className="row gap">
-              <HorsePhoto horse={h} size={72} />
-              <div className="grow">
-                <p className="card__title">{h.name}</p>
-                <p className="small muted">{[horseAge(h) != null ? t('horses.years', { n: horseAge(h) }) : null, h.breed, h.coat].filter(Boolean).join(' · ')}</p>
-              </div>
-            </div>
-            <p className="card__label mt16">{t('horseProfile.ration')}</p>
-            <DailyRation care={careOf(s, h.id)} />
-            <p className="card__label mt16">{t('myHorse.next')}</p>
-            <NextDates last={lastByKind(s, h.id)} />
-            <p className="small muted mt8">{t('myHorse.readOnly')}</p>
-          </div>
+          <MyHorseCard horse={h} />
         </section>
       ))}
 

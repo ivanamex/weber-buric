@@ -680,6 +680,14 @@ function addHealth({ horseId, kind, doneOn, nextDue, note }) {
     s.horseHealth.push({ id: nextId(s, 'hh'), horseId, kind, doneOn, nextDue: nextDue || null, note: note?.trim() || null })
   })
 }
+function updateHealth({ id, doneOn, nextDue, note }) {
+  return mutate((s) => {
+    const row = (s.horseHealth || []).find((x) => x.id === id)
+    if (!row) return fail('notFound')
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(doneOn || '')) return fail('missing')
+    Object.assign(row, { doneOn, nextDue: nextDue || null, note: note?.trim() || null })
+  })
+}
 function deleteHealth(id) {
   return mutate((s) => { s.horseHealth = (s.horseHealth || []).filter((x) => x.id !== id) })
 }
@@ -810,7 +818,7 @@ export const actions = {
   selfSignup: () => fail('notFound'),
   setPassword, resume: liveOnly, signInPassword: liveOnly,
   uploadReceipt, reviewReceipt, receiptUrl, saveSettings, bookSingleClass, saveClassPrices,
-  saveHorseCare, addHealth, deleteHealth,
+  saveHorseCare, addHealth, updateHealth, deleteHealth,
   sellHorse, uploadHorsePhoto, removeHorsePhoto, horsePhotoUrl, saveEmployee, paySalary, saveExpense, deleteExpense, saveCategory, saveModules,
   saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,
 }

@@ -14,6 +14,7 @@ import { BOARDING_MONTHLY } from '../../data/prices.js'
 import { ReceiptBadge } from '../../components/Transfer.jsx'
 import { concept } from '../../components/PaymentHistory.jsx'
 import { ActivePlanCard } from './ActivePlan.jsx'
+import { GreetingMark } from '../../components/GreetingMark.jsx'
 
 function greetingKey() {
   const h = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: TZ }).format(new Date()))
@@ -45,7 +46,7 @@ export default function FamilyHome() {
     <div className="page">
       <div className="hello">
         <p className="hello__eyebrow">{t(`family.greeting.${greetingKey()}`)}</p>
-        <h1>{family.contact.split(' ')[0]} <span aria-hidden="true">👋</span></h1>
+        <h1>{family.contact.split(' ')[0]} <GreetingMark time={greetingKey()} /></h1>
       </div>
       <RiderPicker />
       <ActivePlanCard riderId={riderId} />

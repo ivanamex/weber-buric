@@ -7,13 +7,14 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge } from '../../components/ui.jsx'
 import { HorsePhoto } from '../../components/HorseCare.jsx'
 import { useSave } from './useSave.js'
+import { SaveBar, useFormState } from '../../components/EditKit.jsx'
 
 function SellForm({ horse, onDone }) {
   const { t } = useI18n()
-  const [run, busy] = useSave()
-  const [f, setF] = useState({ price: horse.salePrice ?? '', buyer: '' })
+  const [run, busy, error] = useSave()
+  const [f, setF, dirty] = useFormState({ price: horse.salePrice ?? '', buyer: '' })
   return (
-    <form className="inline-form sellform" onSubmit={(e) => { e.preventDefault(); run(() => sellHorse({ horseId: horse.id, ...f }), t('horses.soldToast', { name: horse.name }), onDone) }}>
+    <form className="inline-form sellform" onSubmit={(e) => { e.preventDefault(); run(() => sellHorse({ horseId: horse.id, ...f }), t('horses.soldToast', { name: horse.name }), onDone, { inline: true }) }}>
       <p className="small">{t('horses.sellText')}</p>
       <label className="field"><span>{t('horses.salePriceFinal')}</span>
         <input className="input" type="number" inputMode="numeric" min={0} step={1000} required value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} />
@@ -21,10 +22,7 @@ function SellForm({ horse, onDone }) {
       <label className="field"><span>{t('horses.buyer')}</span>
         <input className="input" value={f.buyer} onChange={(e) => setF({ ...f, buyer: e.target.value })} />
       </label>
-      <div className="row gap-sm end">
-        <button type="button" className="btn btn--sm" onClick={onDone}>{t('common.cancel')}</button>
-        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('horses.markSold')}</button>
-      </div>
+      <SaveBar busy={busy} dirty={dirty} error={error} onCancel={onDone} label={t('horses.markSold')} />
     </form>
   )
 }
