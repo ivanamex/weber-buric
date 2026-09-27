@@ -6,6 +6,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 1. **STEP-21 (urgent)**: demo never gets stuck: always opens on the role picker, a Familia ⇄ Dirección switch, separate from the live sign-in
 2. **STEP-22**: remove the letter-horse from the hero (keep the galloping one at the end), tighter hero
+3. **STEP-23**: "Confirmar clase" for classes in the plan (reservar only for paid single classes); tab "Clases"
 
 Check in the browser after each step, then "ok".
 
