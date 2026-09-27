@@ -45,6 +45,17 @@ export const resetDemo = act('resetDemo')
 export const bookClass = act('bookClass')
 export const bookSingleClass = act('bookSingleClass') // trial / single / extra, paid on its own
 export const saveClassPrices = act('saveClassPrices') // management: Clase muestra, suelta, adicional
+// Owner's panel (management only)
+export const sellHorse = act('sellHorse')
+export const uploadHorsePhoto = act('uploadHorsePhoto')
+export const removeHorsePhoto = act('removeHorsePhoto')
+export const horsePhotoUrl = (path) => backend().horsePhotoUrl(path) // synchronous: a public link
+export const saveEmployee = act('saveEmployee')
+export const paySalary = act('paySalary')
+export const saveExpense = act('saveExpense')
+export const deleteExpense = act('deleteExpense')
+export const saveCategory = act('saveCategory')
+export const saveModules = act('saveModules') // Nómina / Rentabilidad / Caballos en venta on or off
 export const cancelBooking = act('cancelBooking')
 export const markAttendance = act('markAttendance')
 export const choosePlan = act('choosePlan')

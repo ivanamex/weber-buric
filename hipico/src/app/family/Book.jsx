@@ -31,13 +31,13 @@ export default function FamilyBook() {
   const days = Array.from({ length: DAYS }, (_, i) => addDays(start, i))
   const occ = occurrencesFor(s, date, riderId)
   const month = monthKeyOf(date)
-  const plan = getPlan(s, riderId, month)
+  const plan = getPlan(s, riderId, date)
   const monthName = fmtDate(`${month}-01`, { month: 'long' })
 
   const changeWeek = (w) => { setWeek(w); setDate(w === 0 ? today : addDays(today, w * DAYS)) }
 
   // No plan (and none renewing) or a used-up plan: plans come first, a single class is the quiet option.
-  const standing = rider.planClasses && (!rider.planStart || monthKeyOf(rider.planStart) <= month)
+  const standing = rider.planClasses && (!rider.planStart || rider.planStart <= date)
   const needsChoice = !plan ? (standing ? null : 'noPlan') : plan.used >= plan.total ? 'planEmpty' : null
 
   const onBook = async (o, e) => {
@@ -75,7 +75,7 @@ export default function FamilyBook() {
         {plan ? (
           <>
             <Icon name="plan" size={18} />
-            <span>{t('family.book.planLine', { name: rider.name, n: planRemaining(plan), month: monthName })}</span>
+            <span>{t('family.book.planLine', { name: rider.name, n: planRemaining(plan), date: fmtDate(planExpiry(plan), { day: 'numeric', month: 'short' }) })}</span>
             <span className="muted small">· {t(`levels.${rider.level}`)}</span>
           </>
         ) : (

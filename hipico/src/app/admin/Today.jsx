@@ -6,7 +6,7 @@ import { useStore, byId, occurrencesFor, getPlan, planRemaining, markAttendance,
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
-import { todayKey, addDays, monthKeyOf } from '../../lib/time.js'
+import { todayKey, addDays } from '../../lib/time.js'
 
 export default function AdminToday() {
   const { t, fmtDate, fmtTime } = useI18n()
@@ -78,7 +78,7 @@ export default function AdminToday() {
                   const rider = byId(s.riders, b.riderId)
                   const family = byId(s.families, rider.familyId)
                   const horse = byId(s.horses, b.horseId)
-                  const plan = getPlan(s, rider.id, monthKeyOf(date))
+                  const plan = getPlan(s, rider.id, date)
                   return (
                     <li key={b.id} className={`attendee attendee--${b.status}`}>
                       <div className="attendee__info">

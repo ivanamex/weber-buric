@@ -111,7 +111,8 @@
     "payments": "Payments",
     "reports": "Reports",
     "families": "Families",
-    "schedule": "Schedule"
+    "schedule": "Schedule",
+    "summary": "Overview"
   },
   "levels": {
     "beginner": "Beginner",
@@ -164,7 +165,7 @@
     },
     "book": {
       "title": "Book a class",
-      "planLine": "{name}: {n} classes available in {month}",
+      "planLine": "{name}: {n} classes left until {date}",
       "noPlanLine": "No plan for {month}.",
       "noSlotsTitle": "The club rests on this day",
       "spotsLeft": "{n} of {cap} spots open",
@@ -465,7 +466,8 @@
     "weakPassword": "That password is too easy. Try another one.",
     "reauthNeeded": "For security, sign in again with a code and try once more.",
     "hasPlan": "This rider already has a plan this month: book from the plan.",
-    "trialUsed": "This rider has already had their trial class."
+    "trialUsed": "This rider has already had their trial class.",
+    "duplicate": "There's already one with that name."
   },
   "live": {
     "loading": "Loading…",
@@ -677,5 +679,153 @@
         "step3": "Sign in with your email: you'll get a 6-digit code."
       }
     }
+  },
+  "summary": {
+    "title": "Overview",
+    "active": "Active",
+    "families": "Families",
+    "riders": "Riders",
+    "plans": "Active plans",
+    "planType": "{n} cl.: {c}",
+    "boarded": "Boarded horses",
+    "money": "Money",
+    "today": "Today",
+    "thisMonth": "This month",
+    "last30": "Last 30 days",
+    "expected": "Collected of what was charged this month",
+    "chartTitle": "Income per day, last 30 days",
+    "day": "Day",
+    "amount": "Amount",
+    "owes": "Who owes ({n})",
+    "nobodyOwes": "Nobody is behind on payments.",
+    "daysLate": "{n} days late",
+    "remind": "Remind {name} on WhatsApp",
+    "waReminder": "Hi {contact}, this is Hípico Riviera Maya. A friendly reminder about the payment for {what}: {amount}. You can pay by transfer in the app or at the club. Thank you!",
+    "showAll": "See all {n}",
+    "showLess": "See less",
+    "renewing": "Renewing (7 days)",
+    "noRenewals": "No plans renew this week.",
+    "occupancy": "Occupancy",
+    "thisWeek": "This week's classes",
+    "salaries": "Salaries (next 15 days)",
+    "salariesTotal": "Total",
+    "open": "Open",
+    "more": "More"
+  },
+  "payroll": {
+    "title": "Payroll",
+    "next15": "Salaries in the next 15 days",
+    "noneDue": "Nothing to pay in 15 days.",
+    "staff": "Staff",
+    "name": "Name",
+    "role": "Role",
+    "salary": "Salary (MXN)",
+    "frequency": "Paid",
+    "freq": {
+      "quincenal": "Twice a month",
+      "mensual": "Monthly"
+    },
+    "roles": {
+      "instructor": "Instructor",
+      "groom": "Groom",
+      "office": "Office",
+      "other": "Other"
+    },
+    "nextPay": "Next payment",
+    "days": "Working days (optional)",
+    "daysPh": "Mon–Fri",
+    "active": "Active",
+    "nextOn": "Next payment: {date}",
+    "pay": "Pay",
+    "confirmPay": "Record payment",
+    "amount": "Amount",
+    "date": "Date",
+    "paidToast": "{amount} paid to {name}",
+    "history": "Payments ({n})",
+    "noPays": "No payments yet.",
+    "noStaff": "No staff yet.",
+    "add": "Add a person"
+  },
+  "profit": {
+    "title": "Profitability",
+    "month": "Month",
+    "result": "Month's result",
+    "income": "Income",
+    "expenses": "Expenses",
+    "incomeBySource": "Income by source",
+    "sources": {
+      "plan": "Plans",
+      "boarding": "Boarding",
+      "classes": "Single classes",
+      "events": "Events and camps",
+      "rental": "Horse rentals",
+      "horses": "Horse sales"
+    },
+    "categories": "Categories",
+    "category": "Category",
+    "note": "Note (optional)",
+    "noCategory": "No category",
+    "deleteExpense": "Delete expense",
+    "expenseDeleted": "Expense deleted",
+    "expenseSaved": "Expense saved",
+    "noExpenses": "No expenses this month.",
+    "addExpense": "Add expense",
+    "trend": "Result, last 6 months",
+    "newCategory": "New category",
+    "turnOn": "Turn on",
+    "turnOff": "Turn off"
+  },
+  "modules": {
+    "title": "Settings",
+    "intro": "Turn on only what the club uses. You can change it anytime.",
+    "turnedOn": "{name}: on",
+    "turnedOff": "{name}: off",
+    "payroll": {
+      "title": "Payroll",
+      "text": "Staff, twice-monthly or monthly salaries and payments."
+    },
+    "profit": {
+      "title": "Profitability",
+      "text": "Expenses by category and each month's result."
+    },
+    "sales": {
+      "title": "Horses for sale",
+      "text": "Price, details and photos of the horses the club sells."
+    }
+  },
+  "horses": {
+    "status": {
+      "school": "School",
+      "boarded": "Boarding",
+      "for_sale": "For sale",
+      "retired": "Retired",
+      "sold": "Sold"
+    },
+    "group": {
+      "school": "School horses",
+      "boarded": "Boarded horses",
+      "for_sale": "For sale",
+      "retired": "Retired",
+      "sold": "Sold"
+    },
+    "salePrice": "Price (MXN)",
+    "age": "Age (years)",
+    "breed": "Breed",
+    "level": "Level",
+    "description": "Short description",
+    "photos": "Photos",
+    "addPhoto": "Photo",
+    "removePhoto": "Remove photo",
+    "photoAdded": "Photo added",
+    "photoRemoved": "Photo removed",
+    "photosAfterSave": "Save the horse, then add photos.",
+    "inClasses": "Available for classes",
+    "years": "{n} years",
+    "sell": "Sold",
+    "sellText": "Record the sale: the income counts in Profitability and the horse leaves the lists.",
+    "salePriceFinal": "Sale price (MXN)",
+    "buyer": "Buyer (optional)",
+    "markSold": "Mark as sold",
+    "soldToast": "{name}: sale recorded"
   }
 }

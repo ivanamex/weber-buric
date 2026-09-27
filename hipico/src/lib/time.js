@@ -33,3 +33,21 @@ export const hoursUntil = (key, time) => (toInstant(key, time).getTime() - Date.
 
 /** Date object suitable for Intl formatting with timeZone 'UTC' (no day shifting). */
 export const displayDate = (key) => utcNoon(key)
+
+/** anchor + k months, clamped to the month's last day and always counted from the anchor (31 Jan → 28 Feb → 31 Mar). */
+export function addMonthsFrom(anchor, k) {
+  const [y, m, d] = anchor.split('-').map(Number)
+  const first = new Date(Date.UTC(y, m - 1 + k, 1, 12))
+  const last = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0, 12)).getUTCDate()
+  first.setUTCDate(Math.min(d, last))
+  return first.toISOString().slice(0, 10)
+}
+/** The plan period (date to date) that contains `date`, for a plan that started on `anchor`. Same rule as period_of() in the database. */
+export function periodOf(anchor, date) {
+  let k = (Number(date.slice(0, 4)) - Number(anchor.slice(0, 4))) * 12 + Number(date.slice(5, 7)) - Number(anchor.slice(5, 7))
+  if (addMonthsFrom(anchor, k) > date) k -= 1
+  if (k < 0) k = 0
+  return { startsOn: addMonthsFrom(anchor, k), endsOn: addDays(addMonthsFrom(anchor, k + 1), -1) }
+}
+/** Whole days from a to b (b − a). */
+export const daysBetween = (a, b) => Math.round((utcNoon(b) - utcNoon(a)) / 864e5)

@@ -1,8 +1,8 @@
 // Demo mode: sample data kept in this browser (localStorage). Same rules as the live database.
 import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS_KINDS, applyPrices, resetPrices } from './prices.js'
-import { weekdayOf, monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, toInstant, todayKey } from '../lib/time.js'
-import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS } from './queries.js'
+import { weekdayOf, monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, toInstant, todayKey, periodOf } from '../lib/time.js'
+import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter } from './queries.js'
 
 const KEY = 'hipico.state.v1'
 
@@ -47,6 +47,13 @@ export function activate(setState, inMemory = false) {
   publish = setState
   if (inMemory !== memoryOnly) { state = null; memoryOnly = inMemory }
   state ||= memoryOnly ? { ...createSeed(), session: { role: 'family', familyId: DEMO_FAMILY_ID } } : load() || persist(createSeed())
+  // Demo states saved before the owner's panel: add its sample data once.
+  if (!state.employees && !memoryOnly) {
+    const seed = createSeed()
+    for (const k of ['employees', 'salaryPayments', 'expenseCategories', 'expenses', 'horseSales']) state[k] = seed[k]
+    state.settings = { ...seed.settings, ...state.settings, modulePayroll: true, moduleProfit: true, moduleSales: true }
+    persist(state)
+  }
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
   if (!memoryOnly && !storageListener && typeof window !== 'undefined') {
     storageListener = true
@@ -100,15 +107,10 @@ function bookClass({ riderId, slotId, date }) {
     if (active.length >= slot.capacity) return fail('full')
     if (rider.level !== slot.level) return fail('level')
     const month = monthKeyOf(date)
-    let plan = getPlan(s, riderId, month)
-    // Standing plans renew on the first booking of a month (payment pending at the club).
-    if (!plan && rider.planClasses && (!rider.planStart || monthKeyOf(rider.planStart) <= month) && planPrice(rider.planClasses)) {
-      plan = { id: nextId(s, 'pl'), riderId, month, total: rider.planClasses, used: 0, paid: false }
-      s.plans.push(plan)
-      s.payments.push({
-        id: nextId(s, 'pay'), familyId: rider.familyId, service: 'plan', amount: planPrice(rider.planClasses),
-        status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, month, classes: rider.planClasses },
-      })
+    let plan = getPlan(s, riderId, date)
+    // A standing plan renews on its own date: the new period is created (unpaid) on the first booking in it.
+    if (!plan && rider.planClasses && (!rider.planStart || rider.planStart <= date) && planPrice(rider.planClasses)) {
+      plan = openPeriod(s, rider, date)
     }
     if (!plan) return fail('noPlan', { month })
     if (plan.used >= plan.total) return fail('planEmpty', { month })
@@ -121,6 +123,20 @@ function bookClass({ riderId, slotId, date }) {
     s.bookings.push(booking)
     return { ok: true, booking, remaining: planRemaining(plan) }
   })
+}
+
+/** Create the period of a standing plan that covers `date` (unpaid, with its pending payment). */
+function openPeriod(s, rider, date) {
+  const { startsOn, endsOn } = periodOf(rider.planStart || `${monthKeyOf(date)}-01`, date)
+  const month = monthKeyOf(startsOn)
+  if (s.plans.some((p) => p.riderId === rider.id && p.month === month)) return null
+  const plan = { id: nextId(s, 'pl'), riderId: rider.id, month, startsOn, endsOn, total: rider.planClasses, used: 0, paid: false }
+  s.plans.push(plan)
+  s.payments.push({
+    id: nextId(s, 'pay'), familyId: rider.familyId, service: 'plan', amount: planPrice(rider.planClasses),
+    status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId: rider.id, month, start: startsOn, classes: rider.planClasses },
+  })
+  return plan
 }
 
 /** Horse: the rider's own boarded horse if free, else the first free school horse at that time. */
@@ -143,7 +159,7 @@ function bookSingleClass({ riderId, slotId, date, kind }) {
     if (!CLASS_KINDS.includes(kind) || !rider || rider.active === false || !slot || slot.active === false || slot.weekday !== weekdayOf(date)) return fail('notFound')
     if (hoursUntil(date, slot.time) <= 0) return fail('past')
     if ((s.cancellations || []).some((c) => c.slotId === slotId && c.date === date)) return fail('classCancelled')
-    const hasPlan = Boolean(getPlan(s, riderId, monthKeyOf(date)))
+    const hasPlan = Boolean(getPlan(s, riderId, date))
     if (kind === 'extra' && !hasPlan) return fail('noPlan')
     if (kind !== 'extra' && hasPlan) return fail('hasPlan')
     if (kind === 'trial' && s.bookings.some((b) => b.riderId === riderId && b.kind === 'trial' && isActiveBooking(b))) return fail('trialUsed')
@@ -168,7 +184,7 @@ function bookSingleClass({ riderId, slotId, date, kind }) {
 /** A plan class returns to the plan; a class paid on its own drops its unpaid charge. */
 function releaseBooking(s, b) {
   if ((b.kind || 'plan') === 'plan') {
-    const plan = getPlan(s, b.riderId, monthKeyOf(b.date))
+    const plan = getPlan(s, b.riderId, b.date)
     if (plan) plan.used = Math.max(plan.used - 1, 0)
   } else if (b.paymentId) {
     s.payments = s.payments.filter((p) => !(p.id === b.paymentId && p.status === 'pending' && p.receiptStatus !== 'review'))
@@ -211,39 +227,43 @@ function markAttendance(bookingId, status) {
   })
 }
 
-/** Choose / renew a monthly package, to be paid at the club. Creates a pending payment. */
-function choosePlan({ riderId, classes, month }) {
+/** Choose a plan: with none running today it starts today and renews on that day each month. Payment pending. */
+function choosePlan({ riderId, classes }) {
   return mutate((s) => {
     const rider = byId(s.riders, riderId)
-    if (!rider) return fail('notFound')
-    const pendingSame = s.payments.find((p) => p.service === 'plan' && p.status === 'pending' && p.meta?.riderId === riderId && p.meta?.month === month)
-    if (pendingSame) return fail('pendingExists')
-    let plan = getPlan(s, riderId, month)
+    if (!rider || !planPrice(classes)) return fail('notFound')
+    const today = todayKey()
+    let plan = getPlan(s, riderId, today)
+    let from = null
     if (plan) {
+      if (s.payments.some((p) => p.service === 'plan' && p.status === 'pending' && p.meta?.riderId === riderId && p.meta?.month === plan.month)) return fail('pendingExists')
       if (plan.total === classes) return fail('samePlan')
       if (classes < plan.used) return fail('belowUsed')
+      from = plan.total
       plan.total = classes
       plan.paid = false
     } else {
-      plan = { id: nextId(s, 'pl'), riderId, month, total: classes, used: 0, paid: false }
+      rider.planStart = today
+      const { startsOn, endsOn } = periodOf(today, today)
+      s.plans = s.plans.filter((p) => !(p.riderId === riderId && p.month === monthKeyOf(startsOn) && !p.used && !p.paid))
+      plan = { id: nextId(s, 'pl'), riderId, month: monthKeyOf(startsOn), startsOn, endsOn, total: classes, used: 0, paid: false }
       s.plans.push(plan)
     }
     const payment = {
       id: nextId(s, 'pay'), familyId: rider.familyId, service: 'plan', amount: planPrice(classes),
-      status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, month, classes },
+      status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, month: plan.month, start: planStart(plan), classes },
     }
     s.payments.push(payment)
-    const from = rider.planClasses
     rider.planClasses = classes
-    rider.planStart ||= `${month}-01`
-    logChange(s, rider, { from: from ?? null, to: classes, kind: 'new', month, paymentId: payment.id })
+    rider.planStart ||= planStart(plan)
+    logChange(s, rider, { from, to: classes, kind: 'new', month: plan.month, on: planStart(plan), paymentId: payment.id })
     return { ok: true, payment }
   })
 }
 
-function logChange(s, rider, { from, to, kind, month, paymentId = null }) {
+function logChange(s, rider, { from, to, kind, month, on = null, paymentId = null }) {
   s.planChanges ||= []
-  s.planChanges.unshift({ id: nextId(s, 'pc'), riderId: rider.id, familyId: rider.familyId, fromClasses: from ?? null, toClasses: to, kind, effectiveMonth: month, paymentId, createdAt: now() })
+  s.planChanges.unshift({ id: nextId(s, 'pc'), riderId: rider.id, familyId: rider.familyId, fromClasses: from ?? null, toClasses: to, kind, effectiveMonth: month, effectiveOn: on, paymentId, createdAt: now() })
 }
 
 /** Same rules as change_plan() in the database: upgrade now (pay the difference), downgrade from the next renewal. */
@@ -252,10 +272,10 @@ function changePlan({ riderId, classes }) {
     const rider = byId(s.riders, riderId)
     if (!rider || rider.active === false) return fail('notFound')
     if (!planPrice(classes)) return fail('badPlan')
-    const month = currentMonthKey()
-    const next = nextMonthKey(month)
-    const plan = getPlan(s, riderId, month)
+    const today = todayKey()
+    const plan = getPlan(s, riderId, today)
     if (!plan) return fail('noPlan')
+    const month = plan.month
     if (classes === plan.total && (rider.planClasses ?? plan.total) === classes) return fail('samePlan')
     const planPayments = (m) => s.payments.filter((p) => p.service === 'plan' && p.status === 'pending' && p.meta?.riderId === riderId && p.meta?.month === m)
     const before = plan.total
@@ -270,27 +290,29 @@ function changePlan({ riderId, classes }) {
       } else {
         payment = {
           id: nextId(s, 'pay'), familyId: rider.familyId, service: 'plan', amount: Math.max(planPrice(classes) - planPrice(plan.total), 0),
-          status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, month, classes, fromClasses: plan.total, kind: 'upgrade' },
+          status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, month, start: planStart(plan), classes, fromClasses: plan.total, kind: 'upgrade' },
         }
       }
       if (!payment) {
-        payment = { id: nextId(s, 'pay'), familyId: rider.familyId, service: 'plan', amount: planPrice(classes), status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, month, classes } }
+        payment = { id: nextId(s, 'pay'), familyId: rider.familyId, service: 'plan', amount: planPrice(classes), status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, month, start: planStart(plan), classes } }
       }
       if (!s.payments.includes(payment)) s.payments.push(payment)
-      logChange(s, rider, { from: before, to: classes, kind: 'upgrade', month, paymentId: payment.id })
+      logChange(s, rider, { from: before, to: classes, kind: 'upgrade', month, on: today, paymentId: payment.id })
       rider.planClasses = classes
-      rider.planStart ||= `${month}-01`
-      return { ok: true, kind: 'upgrade', payment, effective: month }
+      rider.planStart ||= planStart(plan)
+      return { ok: true, kind: 'upgrade', payment, effective: today }
     }
+    // Downgrade: from the next renewal date.
+    const effective = planRenewal(plan)
     rider.planClasses = classes
-    rider.planStart ||= `${month}-01`
-    const nextPlan = getPlan(s, riderId, next)
+    rider.planStart ||= planStart(plan)
+    const nextPlan = getPlan(s, riderId, effective)
     if (nextPlan && !nextPlan.paid && nextPlan.used <= classes) {
       nextPlan.total = classes
-      for (const p of planPayments(next)) if (p.receiptStatus !== 'review') Object.assign(p, { amount: planPrice(classes), meta: { ...p.meta, classes } })
+      for (const p of planPayments(nextPlan.month)) if (p.receiptStatus !== 'review') Object.assign(p, { amount: planPrice(classes), meta: { ...p.meta, classes } })
     }
-    logChange(s, rider, { from: before, to: classes, kind: 'downgrade', month: next })
-    return { ok: true, kind: 'downgrade', effective: next }
+    logChange(s, rider, { from: before, to: classes, kind: 'downgrade', month: monthKeyOf(effective), on: effective })
+    return { ok: true, kind: 'downgrade', effective }
   })
 }
 
@@ -397,7 +419,9 @@ function createFamilyIn(s, p, preloaded = true) {
   if (riders.some((r) => !LEVELS.includes(r.level))) return fail('missing')
   const start = p.start || todayKey()
   if (!/^\d{4}-\d{2}-\d{2}$/.test(start)) return fail('missing')
-  const month = [monthKeyOf(start), currentMonthKey()].sort().pop()
+  const today = todayKey()
+  const period = periodOf(start, start > today ? start : today)
+  const month = monthKeyOf(period.startsOn)
   const plans = riders.map((r) => (preloaded ? Number(r.plan || p.plan) || null : null))
   if (plans.some((n) => n && !planPrice(n))) return fail('badPlan')
   const family = {
@@ -411,7 +435,7 @@ function createFamilyIn(s, p, preloaded = true) {
       active: true, planClasses: plans[i], planStart: plans[i] ? start : null,
     }
     s.riders.push(rider)
-    if (plans[i]) s.plans.push({ id: nextId(s, 'pl'), riderId: rider.id, month, total: plans[i], used: 0, paid: true })
+    if (plans[i]) s.plans.push({ id: nextId(s, 'pl'), riderId: rider.id, month, ...period, total: plans[i], used: 0, paid: true })
   })
   return { ok: true, family }
 }
@@ -420,19 +444,28 @@ function createFamily(p) {
   return mutate((s) => createFamilyIn(s, p))
 }
 
-/** Assign a plan the club already collected (no payment): active from the start date's month. */
+/** Assign a plan the club already collected (no payment): its period runs date to date from the start date. */
 function setPlanIn(s, riderId, classes, start) {
   const rider = byId(s.riders, riderId)
   if (!rider) return fail('notFound')
   if (classes && !planPrice(classes)) return fail('badPlan')
-  const month = [monthKeyOf(start || todayKey()), currentMonthKey()].sort().pop()
+  if (!classes) {
+    rider.planClasses = null
+    rider.planStart = null
+    return { ok: true }
+  }
+  const today = todayKey()
+  const anchor = start || rider.planStart || today
+  const { startsOn, endsOn } = periodOf(anchor, anchor > today ? anchor : today)
+  const month = monthKeyOf(startsOn)
   const plan = getPlan(s, riderId, month)
-  if (classes && plan && classes < plan.used) return fail('belowUsed')
-  rider.planClasses = classes || null
-  rider.planStart = classes ? start || rider.planStart || todayKey() : null
-  if (classes) {
-    if (plan) Object.assign(plan, { total: classes, paid: true })
-    else s.plans.push({ id: nextId(s, 'pl'), riderId, month, total: classes, used: 0, paid: true })
+  if (plan && classes < plan.used) return fail('belowUsed')
+  rider.planClasses = classes
+  rider.planStart = anchor
+  if (plan) Object.assign(plan, { total: classes, paid: true, startsOn, endsOn })
+  else {
+    s.plans = s.plans.filter((p) => !(p.riderId === riderId && !p.used && !p.paid && planStart(p) <= endsOn && planEnd(p) >= startsOn))
+    s.plans.push({ id: nextId(s, 'pl'), riderId, month, startsOn, endsOn, total: classes, used: 0, paid: true })
   }
   return { ok: true }
 }
@@ -593,12 +626,103 @@ function saveInstructor(i) {
 
 function saveHorse(h) {
   return mutate((s) => {
-    if (!h.name?.trim() || !['school', 'boarded'].includes(h.type)) return fail('missing')
+    const status = h.status || (h.type === 'boarded' ? 'boarded' : 'school')
+    if (!h.name?.trim() || !HORSE_STATUSES.includes(status)) return fail('missing')
     const existing = h.id && byId(s.horses, h.id)
-    const row = { name: h.name.trim(), type: h.type, active: h.active !== false, ownerFamilyId: h.type === 'boarded' ? h.ownerFamilyId || null : null }
+    const row = {
+      name: h.name.trim(), status, type: status === 'boarded' ? 'boarded' : 'school',
+      active: status === 'retired' ? false : h.active !== false,
+      ownerFamilyId: status === 'boarded' ? h.ownerFamilyId || null : null,
+      salePrice: h.salePrice === '' || h.salePrice == null ? null : Number(h.salePrice),
+      age: h.age === '' || h.age == null ? null : Number(h.age),
+      breed: h.breed?.trim() || null, level: h.level || null, description: h.description?.trim() || null,
+      photos: existing?.photos || [], // photos change only through upload / remove
+    }
     if (existing) Object.assign(existing, row)
     else s.horses.push({ id: nextId(s, 'h'), ...row })
     return { ok: true }
+  })
+}
+
+/* ───────── Owner's panel: horses sold, payroll, expenses, modules ───────── */
+function sellHorse({ horseId, price, buyer, date }) {
+  return mutate((s) => {
+    const horse = byId(s.horses, horseId)
+    if (!horse) return fail('notFound')
+    if (!(Number(price) >= 0) || price === '') return fail('missing')
+    s.horseSales ||= []
+    s.horseSales.push({ id: nextId(s, 'hs'), horseId, soldOn: date || todayKey(), price: Math.round(Number(price)), buyer: buyer?.trim() || null })
+    Object.assign(horse, { status: 'sold', active: false })
+    return { ok: true }
+  })
+}
+// Demo photos stay in this browser as small data URLs.
+async function uploadHorsePhoto(horseId, file) {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return fail('fileType')
+  if (file.size > 8 * 1024 * 1024) return fail('fileTooBig')
+  const url = await new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result); r.onerror = reject; r.readAsDataURL(file) })
+  return mutate((s) => {
+    const horse = byId(s.horses, horseId)
+    if (!horse) return fail('notFound')
+    horse.photos = [...(horse.photos || []), url].slice(0, 6)
+  })
+}
+function removeHorsePhoto(horseId, path) {
+  return mutate((s) => {
+    const horse = byId(s.horses, horseId)
+    if (!horse) return fail('notFound')
+    horse.photos = (horse.photos || []).filter((p) => p !== path)
+  })
+}
+const horsePhotoUrl = (path) => path
+
+function saveEmployee(e) {
+  return mutate((s) => {
+    if (!e.name?.trim() || !(Number(e.salary) >= 0) || !['quincenal', 'mensual'].includes(e.frequency) || !/^\d{4}-\d{2}-\d{2}$/.test(e.nextPayDate || '')) return fail('missing')
+    s.employees ||= []
+    const existing = e.id && byId(s.employees, e.id)
+    const row = { name: e.name.trim(), role: e.role || 'other', salary: Math.round(Number(e.salary)), frequency: e.frequency, nextPayDate: e.nextPayDate, workingDays: e.workingDays?.trim() || null, active: e.active !== false }
+    if (existing) Object.assign(existing, row)
+    else s.employees.push({ id: nextId(s, 'e'), ...row })
+  })
+}
+function paySalary({ employeeId, amount, method, date }) {
+  return mutate((s) => {
+    const emp = byId(s.employees || [], employeeId)
+    if (!emp) return fail('notFound')
+    if (!(Number(amount) >= 0) || !['cash', 'transfer', 'card'].includes(method)) return fail('missing')
+    s.salaryPayments ||= []
+    s.salaryPayments.push({ id: nextId(s, 'sp'), employeeId, paidOn: date || todayKey(), amount: Math.round(Number(amount)), method, periodDate: emp.nextPayDate })
+    emp.nextPayDate = nextPayAfter(emp.nextPayDate, emp.frequency)
+  })
+}
+function saveExpense(x) {
+  return mutate((s) => {
+    if (!(Number(x.amount) > 0) || !/^\d{4}-\d{2}-\d{2}$/.test(x.spentOn || '')) return fail('missing')
+    s.expenses ||= []
+    const row = { spentOn: x.spentOn, categoryId: x.categoryId || null, amount: Math.round(Number(x.amount)), note: x.note?.trim() || null }
+    const existing = x.id && byId(s.expenses, x.id)
+    if (existing) Object.assign(existing, row)
+    else s.expenses.push({ id: nextId(s, 'x'), ...row })
+  })
+}
+function deleteExpense(id) {
+  return mutate((s) => { s.expenses = (s.expenses || []).filter((x) => x.id !== id) })
+}
+function saveCategory(c) {
+  return mutate((s) => {
+    const name = c.name?.trim()
+    if (!name) return fail('missing')
+    s.expenseCategories ||= []
+    if (s.expenseCategories.some((x) => x.id !== c.id && x.name.toLowerCase() === name.toLowerCase())) return fail('duplicate')
+    const existing = c.id && byId(s.expenseCategories, c.id)
+    if (existing) Object.assign(existing, { name, active: c.active !== false })
+    else s.expenseCategories.push({ id: nextId(s, 'ec'), name, active: true })
+  })
+}
+function saveModules(mods) {
+  return mutate((s) => {
+    s.settings = { ...s.settings, modulePayroll: Boolean(mods.modulePayroll), moduleProfit: Boolean(mods.moduleProfit), moduleSales: Boolean(mods.moduleSales) }
   })
 }
 
@@ -646,5 +770,6 @@ export const actions = {
   selfSignup: () => fail('notFound'),
   setPassword, resume: liveOnly, signInPassword: liveOnly,
   uploadReceipt, reviewReceipt, receiptUrl, saveSettings, bookSingleClass, saveClassPrices,
+  sellHorse, uploadHorsePhoto, removeHorsePhoto, horsePhotoUrl, saveEmployee, paySalary, saveExpense, deleteExpense, saveCategory, saveModules,
   saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,
 }

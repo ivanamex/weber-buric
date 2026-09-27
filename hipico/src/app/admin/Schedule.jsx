@@ -7,25 +7,13 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty, Segmented } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { todayKey, addDays, weekStart } from '../../lib/time.js'
+import { useSave } from './useSave.js'
+import HorsesView from './Horses.jsx'
 
 const DISCIPLINES = ['basics', 'dressage', 'jumping', 'ponies']
 const ARENAS = ['main', 'covered', 'jumping']
 const WEEK = [1, 2, 3, 4, 5, 6, 0] // Monday … Sunday
 
-function useSave() {
-  const { t } = useI18n()
-  const toast = useToast()
-  const [busy, setBusy] = useState(false)
-  const run = async (fn, okMsg, after) => {
-    setBusy(true)
-    const res = await fn()
-    setBusy(false)
-    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
-    toast(okMsg)
-    after?.()
-  }
-  return [run, busy]
-}
 
 function SlotForm({ slot, onDone }) {
   const { t } = useI18n()
@@ -222,63 +210,6 @@ function InstructorsView() {
   )
 }
 
-function HorsesView() {
-  const { t } = useI18n()
-  const s = useStore()
-  const [run, busy] = useSave()
-  const [editing, setEditing] = useState(null)
-  const [f, setF] = useState({})
-  const families = s.families.filter((fam) => !isDeletedFamily(fam))
-  const open = (h) => { setEditing(h?.id || 'new'); setF(h ? { ...h } : { name: '', type: 'school', ownerFamilyId: '', active: true }) }
-  const form = (
-    <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => saveHorse(f), t('schedule.saved'), () => setEditing(null)) }}>
-      <input className="input" aria-label={t('schedule.name')} placeholder={t('schedule.name')} value={f.name || ''} onChange={(e) => setF({ ...f, name: e.target.value })} required />
-      <Segmented small value={f.type} onChange={(type) => setF({ ...f, type })}
-        options={[{ value: 'school', label: t('schedule.school') }, { value: 'boarded', label: t('schedule.boarded') }]} />
-      {f.type === 'boarded' && (
-        <select className="input" aria-label={t('schedule.owner')} value={f.ownerFamilyId || ''} onChange={(e) => setF({ ...f, ownerFamilyId: e.target.value })} required>
-          <option value="">{t('schedule.owner')}</option>
-          {families.map((fam) => <option key={fam.id} value={fam.id}>{fam.name}</option>)}
-        </select>
-      )}
-      <label className="check"><input type="checkbox" checked={f.active !== false} onChange={(e) => setF({ ...f, active: e.target.checked })} /> <span>{t('schedule.activeLabel')}</span></label>
-      <div className="row gap-sm end">
-        <button type="button" className="btn btn--sm" onClick={() => setEditing(null)}>{t('common.cancel')}</button>
-        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
-      </div>
-    </form>
-  )
-  const group = (type) => s.horses.filter((h) => h.type === type)
-  return (
-    <>
-      {['school', 'boarded'].map((type) => (
-        <div key={type} className="card">
-          <p className="card__label">{t(type === 'school' ? 'schedule.schoolHorses' : 'schedule.boardedHorses')}</p>
-          <ul className="list">
-            {group(type).map((h) => (
-              <li key={h.id} className="list__row list__row--stack">
-                {editing === h.id ? form : (
-                  <div className="row gap">
-                    <span className="tile-icon"><Icon name={type === 'school' ? 'shoe' : 'barn'} size={20} /></span>
-                    <div className="grow">
-                      <p className="list__title">{h.name} {h.active === false && <Badge tone="neutral">{t('schedule.off')}</Badge>}</p>
-                      {type === 'boarded' && <p className="small muted">{byId(s.families, h.ownerFamilyId)?.name || t('schedule.noOwner')}</p>}
-                    </div>
-                    <button type="button" className="link" onClick={() => open(h)}>{t('more.profile.edit')}</button>
-                  </div>
-                )}
-              </li>
-            ))}
-            {group(type).length === 0 && <li className="list__row small muted">{t('schedule.noHorses')}</li>}
-          </ul>
-        </div>
-      ))}
-      {editing === 'new' ? <div className="card">{form}</div> : (
-        <button type="button" className="btn btn--outline btn--sm btn--block" onClick={() => open(null)}><Icon name="plus" size={16} /> {t('schedule.addHorse')}</button>
-      )}
-    </>
-  )
-}
 
 export default function AdminSchedule() {
   const { t } = useI18n()

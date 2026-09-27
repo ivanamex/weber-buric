@@ -1,6 +1,6 @@
 // Pure read-only calculations over the app state. Both the demo and the live (Supabase) data
 // produce the same state shape, so every screen works unchanged in either mode.
-import { todayKey, addDays, weekdayOf, weekStart, monthKeyOf, currentMonthKey, monthEnd, hoursUntil, toInstant } from '../lib/time.js'
+import { todayKey, addDays, weekdayOf, weekStart, monthKeyOf, currentMonthKey, monthEnd, hoursUntil, toInstant, addMonthsFrom, daysBetween } from '../lib/time.js'
 
 export const CANCEL_WINDOW_HOURS = 12
 export const LEVELS = ['beginner', 'intermediate', 'advanced']
@@ -8,11 +8,19 @@ export const LEVELS = ['beginner', 'intermediate', 'advanced']
 export const byId = (list, id) => list.find((x) => x.id === id)
 export const isActiveBooking = (b) => b.status !== 'cancelled'
 
-export function getPlan(s, riderId, month = currentMonthKey()) {
-  return s.plans.find((p) => p.riderId === riderId && p.month === month) || null
+// Plans run date to date (15 Sep → 14 Oct). Older rows without dates cover their calendar month.
+export const planStart = (p) => p.startsOn || `${p.month}-01`
+export const planEnd = (p) => p.endsOn || monthEnd(p.month)
+/** The rider's plan that covers a date ('YYYY-MM-DD', default today); a 'YYYY-MM' key finds the period that starts in that month. */
+export function getPlan(s, riderId, at = todayKey()) {
+  if (at.length === 7) return s.plans.find((p) => p.riderId === riderId && p.month === at) || null
+  return s.plans.filter((p) => p.riderId === riderId && planStart(p) <= at && planEnd(p) >= at)
+    .sort((a, b) => planStart(b).localeCompare(planStart(a)))[0] || null
 }
 export const planRemaining = (plan) => (plan ? Math.max(plan.total - plan.used, 0) : 0)
-export const planExpiry = (plan) => monthEnd(plan.month)
+export const planExpiry = (plan) => planEnd(plan)
+/** The day the plan renews (the next period starts). */
+export const planRenewal = (plan) => addDays(planEnd(plan), 1)
 
 /** Riders of a family. Removed (inactive) riders are hidden unless asked for (management history). */
 export function familyRiders(s, familyId, { includeInactive = false } = {}) {
@@ -104,8 +112,10 @@ export function weekOccupancy(s, anchor = todayKey()) {
     byLevel: Object.fromEntries(LEVELS.map((l) => [l, pct(byLevel[l].taken, byLevel[l].seats)])),
   }
 }
-export const activePlansCount = (s) =>
-  s.plans.filter((p) => p.month === currentMonthKey()).length
+export const activePlansCount = (s) => {
+  const today = todayKey()
+  return s.plans.filter((p) => planStart(p) <= today && planEnd(p) >= today).length
+}
 
 
 /** Registrations for an event (live families only see their own rows, so use the server count). */
@@ -132,8 +142,10 @@ export function planStatus(s, plan) {
   return planPaymentsFor(s, plan.riderId, plan.month).some((p) => p.meta?.kind !== 'upgrade' && p.receiptStatus === 'review') ? 'review' : 'pending'
 }
 /** An upgrade whose difference is not paid yet (the extra classes arrive on approval). */
-export const pendingUpgrade = (s, riderId, month = currentMonthKey()) =>
-  planPaymentsFor(s, riderId, month).find((p) => p.meta?.kind === 'upgrade') || null
+export const pendingUpgrade = (s, riderId) => {
+  const plan = getPlan(s, riderId)
+  return plan ? planPaymentsFor(s, riderId, plan.month).find((p) => p.meta?.kind === 'upgrade') || null : null
+}
 export const planChangesFor = (s, familyId) =>
   (s.planChanges || []).filter((c) => c.familyId === familyId).sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 /** A family's payments of the last 12 months, newest first. */
@@ -143,4 +155,107 @@ export function paymentHistory(s, familyId) {
   return s.payments
     .filter((p) => p.familyId === familyId && new Date(when(p)).getTime() >= since)
     .sort((a, b) => when(b).localeCompare(when(a)))
+}
+
+// ── Owner's panel ──
+export const HORSE_STATUSES = ['school', 'boarded', 'for_sale', 'retired']
+export const horseStatus = (h) => h.status || (h.type === 'boarded' ? 'boarded' : h.active === false ? 'retired' : 'school')
+export const EMPLOYEE_ROLES = ['instructor', 'groom', 'office', 'other']
+export const moduleOn = (s, key) => Boolean(s.settings?.[key])
+
+/** Next pay date after d: quincenal = the 15th and the month's last day; mensual = same day next month. Same as next_pay_after(). */
+export function nextPayAfter(d, frequency) {
+  if (frequency === 'mensual') return addMonthsFrom(d, 1)
+  const day = Number(d.slice(8, 10))
+  const end = monthEnd(d.slice(0, 7))
+  if (day < 15) return `${d.slice(0, 8)}15`
+  if (d < end) return end
+  return `${nextMonthKeyOf(d)}-15`
+}
+const nextMonthKeyOf = (d) => monthKeyOf(addDays(monthEnd(d.slice(0, 7)), 1))
+
+/** Salaries due in the next `days` days (and overdue ones). */
+export const upcomingSalaries = (s, days = 15) => {
+  const until = addDays(todayKey(), days)
+  return (s.employees || []).filter((e) => e.active !== false && e.nextPayDate <= until).sort((a, b) => a.nextPayDate.localeCompare(b.nextPayDate))
+}
+
+/** Income of a calendar month by source, for Rentabilidad. */
+export const INCOME_SOURCES = ['plan', 'boarding', 'classes', 'events', 'rental', 'horses']
+const sourceOf = (p) => (p.service === 'class' ? 'classes' : p.service === 'camp' ? 'events' : p.service)
+export function monthResult(s, month) {
+  const income = Object.fromEntries(INCOME_SOURCES.map((k) => [k, 0]))
+  for (const p of s.payments) {
+    if (p.status === 'paid' && p.paidAt && monthKeyOf(dateKeyFromIso(p.paidAt)) === month) income[sourceOf(p)] = (income[sourceOf(p)] || 0) + p.amount
+  }
+  for (const h of s.horseSales || []) if (monthKeyOf(h.soldOn) === month) income.horses += h.price
+  const payroll = (s.salaryPayments || []).filter((x) => monthKeyOf(x.paidOn) === month).reduce((sum, x) => sum + x.amount, 0)
+  const byCategory = {}
+  for (const x of s.expenses || []) if (monthKeyOf(x.spentOn) === month) byCategory[x.categoryId || 'none'] = (byCategory[x.categoryId || 'none'] || 0) + x.amount
+  const expenses = Object.values(byCategory).reduce((a, b) => a + b, 0)
+  const totalIncome = Object.values(income).reduce((a, b) => a + b, 0)
+  return { income, totalIncome, payroll, byCategory, expenses, result: totalIncome - payroll - expenses }
+}
+
+/** Money for the Resumen: today, this calendar month, the last 30 days, and a daily series. */
+export function moneySummary(s) {
+  const today = todayKey()
+  const from30 = addDays(today, -29)
+  const paid = s.payments.filter((p) => p.status === 'paid' && p.paidAt).map((p) => ({ ...p, day: dateKeyFromIso(p.paidAt) }))
+  const sales = (s.horseSales || []).map((h) => ({ amount: h.price, day: h.soldOn }))
+  const all = [...paid, ...sales]
+  const sum = (list) => list.reduce((t, p) => t + p.amount, 0)
+  const month = currentMonthKey()
+  const daily = Array.from({ length: 30 }, (_, i) => {
+    const day = addDays(from30, i)
+    return { day, amount: sum(all.filter((p) => p.day === day)) }
+  })
+  // Expected this month: every charge created this month (paid or not) vs what's been collected of it.
+  const monthCharges = s.payments.filter((p) => monthKeyOf(dateKeyFromIso(p.createdAt)) === month)
+  return {
+    today: sum(all.filter((p) => p.day === today)),
+    month: sum(all.filter((p) => monthKeyOf(p.day) === month)),
+    last30: sum(all.filter((p) => p.day >= from30)),
+    expected: sum(monthCharges),
+    expectedPaid: sum(monthCharges.filter((p) => p.status === 'paid')),
+    daily,
+  }
+}
+
+/** Plans and pensiones not paid after their date, oldest first. */
+export function overdue(s) {
+  const today = todayKey()
+  return s.payments
+    .filter((p) => p.status === 'pending' && (p.service === 'plan' || p.service === 'boarding'))
+    .map((p) => ({ payment: p, due: p.meta?.start || (p.meta?.month ? `${p.meta.month}-01` : dateKeyFromIso(p.createdAt)) }))
+    .filter((x) => x.due < today)
+    .map((x) => ({ ...x, days: daysBetween(x.due, today), family: s.families.find((f) => f.id === x.payment.familyId) }))
+    .sort((a, b) => b.days - a.days)
+}
+
+/** Standing plans that renew in the next `days` days. */
+export function renewingSoon(s, days = 7) {
+  const today = todayKey()
+  const until = addDays(today, days)
+  return s.riders
+    .filter((r) => r.active !== false && r.planClasses)
+    .map((r) => ({ rider: r, plan: getPlan(s, r.id, today) }))
+    .filter((x) => x.plan && planEnd(x.plan) >= today && planEnd(x.plan) < until)
+    .map((x) => ({ ...x, renews: addDays(planEnd(x.plan), 1), family: s.families.find((f) => f.id === x.rider.familyId) }))
+    .sort((a, b) => a.renews.localeCompare(b.renews))
+}
+
+/** Active families, riders, plans by size and boarded horses. */
+export function activeCounts(s) {
+  const today = todayKey()
+  const families = s.families.filter((f) => f.active !== false && !f.deletedAt)
+  const famIds = new Set(families.map((f) => f.id))
+  const riders = s.riders.filter((r) => r.active !== false && famIds.has(r.familyId))
+  const plans = s.plans.filter((p) => planStart(p) <= today && planEnd(p) >= today)
+  const byType = {}
+  for (const p of plans) byType[p.total] = (byType[p.total] || 0) + 1
+  return {
+    families: families.length, riders: riders.length, plans: plans.length, byType,
+    boarded: s.horses.filter((h) => horseStatus(h) === 'boarded').length,
+  }
 }

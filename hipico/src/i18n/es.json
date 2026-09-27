@@ -111,7 +111,8 @@
     "payments": "Cobros",
     "reports": "Reportes",
     "families": "Familias",
-    "schedule": "Horario"
+    "schedule": "Horario",
+    "summary": "Resumen"
   },
   "levels": {
     "beginner": "Principiante",
@@ -164,7 +165,7 @@
     },
     "book": {
       "title": "Reservar clase",
-      "planLine": "{name}: {n} clases disponibles en {month}",
+      "planLine": "{name}: {n} clases disponibles hasta el {date}",
       "noPlanLine": "Sin plan para {month}.",
       "noSlotsTitle": "El club descansa este día",
       "spotsLeft": "{n} de {cap} lugares libres",
@@ -465,7 +466,8 @@
     "weakPassword": "Esa contraseña es muy fácil. Prueba otra.",
     "reauthNeeded": "Por seguridad, entra de nuevo con un código y vuelve a intentarlo.",
     "hasPlan": "Este jinete ya tiene plan este mes: reserva desde su plan.",
-    "trialUsed": "Este jinete ya tomó su clase muestra."
+    "trialUsed": "Este jinete ya tomó su clase muestra.",
+    "duplicate": "Ya existe una con ese nombre."
   },
   "live": {
     "loading": "Cargando…",
@@ -677,5 +679,153 @@
         "step3": "Sign in with your email: you'll get a 6-digit code."
       }
     }
+  },
+  "summary": {
+    "title": "Resumen",
+    "active": "Activos",
+    "families": "Familias",
+    "riders": "Jinetes",
+    "plans": "Planes activos",
+    "planType": "{n} cl.: {c}",
+    "boarded": "Caballos en pensión",
+    "money": "Dinero",
+    "today": "Hoy",
+    "thisMonth": "Este mes",
+    "last30": "Últimos 30 días",
+    "expected": "Cobrado de lo que se generó este mes",
+    "chartTitle": "Ingresos por día, últimos 30 días",
+    "day": "Día",
+    "amount": "Monto",
+    "owes": "Quién debe ({n})",
+    "nobodyOwes": "Nadie tiene pagos atrasados.",
+    "daysLate": "{n} días de atraso",
+    "remind": "Recordar a {name} por WhatsApp",
+    "waReminder": "Hola {contact}, te escribimos del Hípico Riviera Maya. Te recordamos amablemente el pago de {what}: {amount}. Puedes pagar por transferencia desde la app o en el club. ¡Gracias!",
+    "showAll": "Ver los {n}",
+    "showLess": "Ver menos",
+    "renewing": "Por renovar (7 días)",
+    "noRenewals": "Ningún plan se renueva esta semana.",
+    "occupancy": "Ocupación",
+    "thisWeek": "Clases de esta semana",
+    "salaries": "Sueldos (próximos 15 días)",
+    "salariesTotal": "Total",
+    "open": "Abrir",
+    "more": "Más"
+  },
+  "payroll": {
+    "title": "Nómina",
+    "next15": "Sueldos de los próximos 15 días",
+    "noneDue": "Nada por pagar en 15 días.",
+    "staff": "Personal",
+    "name": "Nombre",
+    "role": "Puesto",
+    "salary": "Sueldo (MXN)",
+    "frequency": "Pago",
+    "freq": {
+      "quincenal": "Quincenal",
+      "mensual": "Mensual"
+    },
+    "roles": {
+      "instructor": "Instructor",
+      "groom": "Caballerango",
+      "office": "Oficina",
+      "other": "Otro"
+    },
+    "nextPay": "Próximo pago",
+    "days": "Días de trabajo (opcional)",
+    "daysPh": "L–V",
+    "active": "Activo",
+    "nextOn": "Próximo pago: {date}",
+    "pay": "Pagar",
+    "confirmPay": "Registrar pago",
+    "amount": "Monto",
+    "date": "Fecha",
+    "paidToast": "Pago de {amount} a {name} registrado",
+    "history": "Pagos ({n})",
+    "noPays": "Sin pagos registrados.",
+    "noStaff": "Aún no hay personal.",
+    "add": "Agregar persona"
+  },
+  "profit": {
+    "title": "Rentabilidad",
+    "month": "Mes",
+    "result": "Resultado del mes",
+    "income": "Ingresos",
+    "expenses": "Gastos",
+    "incomeBySource": "Ingresos por fuente",
+    "sources": {
+      "plan": "Planes",
+      "boarding": "Pensión",
+      "classes": "Clases sueltas",
+      "events": "Eventos y campamentos",
+      "rental": "Renta de caballos",
+      "horses": "Venta de caballos"
+    },
+    "categories": "Categorías",
+    "category": "Categoría",
+    "note": "Nota (opcional)",
+    "noCategory": "Sin categoría",
+    "deleteExpense": "Borrar gasto",
+    "expenseDeleted": "Gasto borrado",
+    "expenseSaved": "Gasto guardado",
+    "noExpenses": "Sin gastos este mes.",
+    "addExpense": "Agregar gasto",
+    "trend": "Resultado, últimos 6 meses",
+    "newCategory": "Nueva categoría",
+    "turnOn": "Activar",
+    "turnOff": "Desactivar"
+  },
+  "modules": {
+    "title": "Ajustes",
+    "intro": "Enciende solo lo que el club usa. Se puede cambiar cuando quieras.",
+    "turnedOn": "{name}: activado",
+    "turnedOff": "{name}: desactivado",
+    "payroll": {
+      "title": "Nómina",
+      "text": "Personal, sueldos quincenales o mensuales y pagos."
+    },
+    "profit": {
+      "title": "Rentabilidad",
+      "text": "Gastos por categoría y resultado de cada mes."
+    },
+    "sales": {
+      "title": "Caballos en venta",
+      "text": "Precio, datos y fotos de los caballos que el club vende."
+    }
+  },
+  "horses": {
+    "status": {
+      "school": "Escuela",
+      "boarded": "Pensión",
+      "for_sale": "En venta",
+      "retired": "Retirado",
+      "sold": "Vendido"
+    },
+    "group": {
+      "school": "Caballos de escuela",
+      "boarded": "Caballos en pensión",
+      "for_sale": "En venta",
+      "retired": "Retirados",
+      "sold": "Vendidos"
+    },
+    "salePrice": "Precio (MXN)",
+    "age": "Edad (años)",
+    "breed": "Raza",
+    "level": "Nivel",
+    "description": "Descripción corta",
+    "photos": "Fotos",
+    "addPhoto": "Foto",
+    "removePhoto": "Quitar foto",
+    "photoAdded": "Foto agregada",
+    "photoRemoved": "Foto quitada",
+    "photosAfterSave": "Guarda el caballo y luego agrega fotos.",
+    "inClasses": "Disponible para clases",
+    "years": "{n} años",
+    "sell": "Vendido",
+    "sellText": "Registra la venta: el ingreso cuenta en Rentabilidad y el caballo sale de las listas.",
+    "salePriceFinal": "Precio de venta (MXN)",
+    "buyer": "Comprador (opcional)",
+    "markSold": "Marcar vendido",
+    "soldToast": "{name}: venta registrada"
   }
 }

@@ -36,7 +36,7 @@ export default function FamilyPlan() {
   const [selected, setSelected] = useState(PLANS.find((p) => p.popular)?.classes ?? PLANS[0].classes)
   const monthName = (m) => fmtDate(`${m}-01`, { month: 'long' })
 
-  const current = getPlan(s, riderId, thisMonth)
+  const current = getPlan(s, riderId)
   const boarding = boardingStatus(s, familyId)
   const pending = s.payments.filter((p) => p.familyId === familyId && p.status === 'pending')
 
@@ -51,7 +51,7 @@ export default function FamilyPlan() {
     setOpenId(id)
     setTimeout(() => document.getElementById(`pay-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60)
   }
-  const pendingPlanPayment = () => s.payments.find((p) => p.service === 'plan' && p.status === 'pending' && p.meta?.riderId === riderId && p.meta?.month === month)?.id
+  const pendingPlanPayment = () => getState().payments.filter((p) => p.service === 'plan' && p.status === 'pending' && p.meta?.riderId === riderId).pop()?.id
   const payPlan = async (method) => {
     setBusy(true)
     const res = await choosePlan({ riderId, classes: selected, month })

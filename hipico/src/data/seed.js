@@ -17,7 +17,7 @@ const horses = [
   { id: 'h2', name: 'Lucero', type: 'school' },
   { id: 'h3', name: 'Tornado', type: 'school' },
   { id: 'h4', name: 'Brisa', type: 'school' },
-  { id: 'h5', name: 'Cacao', type: 'school' },
+  { id: 'h5', name: 'Cacao', type: 'school', status: 'for_sale', salePrice: 165000, age: 9, breed: 'Cuarto de milla', level: 'intermediate', description: 'Noble y tranquilo, ideal para salto bajo y paseos.', photos: [] },
   { id: 'h6', name: 'Relámpago', type: 'boarded', ownerFamilyId: 'f1' },
   { id: 'h7', name: 'Zafiro', type: 'boarded', ownerFamilyId: 'f2' },
   { id: 'h8', name: 'Maya', type: 'boarded', ownerFamilyId: 'f3' },
@@ -81,6 +81,33 @@ function rng(seed) {
     let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/** Owner's panel sample: staff, a few expenses, one horse for sale. */
+function ownerSample(today) {
+  const d = (n) => addDays(today, n)
+  return {
+    employees: [
+      { id: 'e1', name: 'Mariana López', role: 'instructor', salary: 9000, frequency: 'quincenal', nextPayDate: d(3), active: true, workingDays: 'L–V' },
+      { id: 'e2', name: 'Diego Ramírez', role: 'instructor', salary: 8500, frequency: 'quincenal', nextPayDate: d(3), active: true, workingDays: 'Ma–S' },
+      { id: 'e3', name: 'Pedro Canul', role: 'groom', salary: 7200, frequency: 'mensual', nextPayDate: d(9), active: true, workingDays: 'L–S' },
+      { id: 'e4', name: 'Rosa Pech', role: 'office', salary: 6800, frequency: 'mensual', nextPayDate: d(20), active: true, workingDays: 'L–V' },
+    ],
+    salaryPayments: [
+      { id: 'sp1', employeeId: 'e1', paidOn: d(-12), amount: 9000, method: 'transfer' },
+      { id: 'sp2', employeeId: 'e2', paidOn: d(-12), amount: 8500, method: 'transfer' },
+      { id: 'sp3', employeeId: 'e3', paidOn: d(-21), amount: 7200, method: 'cash' },
+    ],
+    expenseCategories: ['Alimento', 'Veterinario', 'Herrero', 'Renta', 'Servicios', 'Otros'].map((name, i) => ({ id: `ec${i + 1}`, name, active: true })),
+    expenses: [
+      { id: 'x1', spentOn: d(-2), categoryId: 'ec1', amount: 14800, note: 'Pacas de alfalfa' },
+      { id: 'x2', spentOn: d(-9), categoryId: 'ec3', amount: 3600, note: '6 caballos' },
+      { id: 'x3', spentOn: d(-15), categoryId: 'ec4', amount: 18000, note: '' },
+      { id: 'x4', spentOn: d(-33), categoryId: 'ec1', amount: 13900, note: '' },
+      { id: 'x5', spentOn: d(-40), categoryId: 'ec2', amount: 2400, note: 'Vacunas' },
+    ],
+    horseSales: [],
   }
 }
 
@@ -237,7 +264,8 @@ export function createSeed() {
     campRegistrations,
     rentals,
     // Bank details for transfers: empty until management fills them in (the app shows placeholders).
-    settings: { bankName: null, accountHolder: null, clabe: null },
+    settings: { bankName: null, accountHolder: null, clabe: null, modulePayroll: true, moduleProfit: true, moduleSales: true },
+    ...ownerSample(today),
     cancellations: [], // single class dates cancelled by the club
     planChanges: [], // plan history: new / upgrade / downgrade
     nextId: n + 1,

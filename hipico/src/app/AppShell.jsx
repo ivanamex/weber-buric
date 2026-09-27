@@ -17,11 +17,11 @@ const TABS = {
     { to: 'familia/mas', icon: 'more', key: 'more' },
   ],
   admin: [
-    { to: 'direccion', icon: 'helmet', key: 'today', end: true },
+    { to: 'direccion', icon: 'chart', key: 'summary', end: true },
+    { to: 'direccion/hoy', icon: 'helmet', key: 'today' },
     { to: 'direccion/horario', icon: 'calendar', key: 'schedule' },
     { to: 'direccion/cobros', icon: 'receipt', key: 'payments' },
     { to: 'direccion/familias', icon: 'family', key: 'families' },
-    { to: 'direccion/reportes', icon: 'chart', key: 'reports' },
   ],
 }
 const RIDER_KEY = 'hipico.rider'

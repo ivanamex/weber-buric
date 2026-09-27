@@ -103,6 +103,11 @@ async function load() {
       ])
     applyPrices(Object.fromEntries(rows(prices).map((p) => [p.key, p.amount])))
     const riderRows = rows(riders)
+    // Owner's panel (management only; before the database update these tables don't exist yet).
+    const owner = who.data.is_admin
+      ? await Promise.all(['employees', 'salary_payments', 'expenses', 'expense_categories', 'horse_sales'].map((tbl) => sb.from(tbl).select('*')))
+      : []
+    const ownerRows = (i) => (owner[i] && !owner[i].error ? rows(owner[i]) : [])
     lastRiders = riderRows
     lastLoad = Date.now()
     lastRole = who.data.is_admin ? 'admin' : 'family'
@@ -129,6 +134,11 @@ async function load() {
       // Bank details for transfers (missing before the database update → placeholders).
       settings: settings.data ? camel(settings.data) : {},
       cancellations: cancellations.error ? [] : rows(cancellations),
+      employees: ownerRows(0),
+      salaryPayments: ownerRows(1),
+      expenses: ownerRows(2),
+      expenseCategories: ownerRows(3).sort((a, b) => a.name.localeCompare(b.name)),
+      horseSales: ownerRows(4),
       planChanges: planChanges.error ? [] : rows(planChanges),
     })
   } catch (err) {
@@ -321,9 +331,61 @@ async function upsertRow(table, id, row) {
 const saveSlot = (slot) => upsertRow('slots', slot.id,
   Object.fromEntries(Object.entries(SLOT_COLS).filter(([k]) => slot[k] !== undefined).map(([k, col]) => [col, ['weekday', 'duration', 'capacity'].includes(k) ? Number(slot[k]) : slot[k]])))
 const saveInstructor = (i) => upsertRow('instructors', i.id, { name: i.name?.trim(), specialty: i.specialty || null, active: i.active !== false })
-const saveHorse = (h) => upsertRow('horses', h.id, {
-  name: h.name?.trim(), type: h.type, active: h.active !== false, owner_family_id: h.type === 'boarded' ? h.ownerFamilyId || null : null,
-})
+const numOrNull = (v) => (v === '' || v == null ? null : Math.round(Number(v)))
+const saveHorse = (h) => {
+  const status = h.status || (h.type === 'boarded' ? 'boarded' : 'school')
+  return upsertRow('horses', h.id, {
+    name: h.name?.trim(), status, type: status === 'boarded' ? 'boarded' : 'school',
+    active: status === 'retired' ? false : h.active !== false,
+    owner_family_id: status === 'boarded' ? h.ownerFamilyId || null : null,
+    sale_price: numOrNull(h.salePrice), age: numOrNull(h.age), breed: h.breed?.trim() || null, level: h.level || null,
+    description: h.description?.trim() || null,
+  })
+}
+
+/* ───────── Owner's panel ───────── */
+const sellHorse = ({ horseId, price, buyer, date }) => call('sell_horse', { p_horse: horseId, p_price: numOrNull(price), p_buyer: buyer || null, p_date: date || null })
+const PHOTO_EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }
+async function uploadHorsePhoto(horseId, file) {
+  if (!PHOTO_EXT[file.type]) return { ok: false, code: 'fileType' }
+  if (file.size > 8 * 1024 * 1024) return { ok: false, code: 'fileTooBig' }
+  const path = `${horseId}/${Date.now()}.${PHOTO_EXT[file.type]}`
+  const up = await sb.storage.from('horse-photos').upload(path, file, { contentType: file.type, upsert: false })
+  if (up.error) { console.error('[hipico] photo upload failed', up.error); return { ok: false, code: 'uploadFailed' } }
+  const { data } = await sb.from('horses').select('photos').eq('id', horseId).maybeSingle()
+  return upsertRow('horses', horseId, { photos: [...(data?.photos || []), path].slice(0, 6) })
+}
+async function removeHorsePhoto(horseId, path) {
+  await sb.storage.from('horse-photos').remove([path])
+  const { data } = await sb.from('horses').select('photos').eq('id', horseId).maybeSingle()
+  return upsertRow('horses', horseId, { photos: (data?.photos || []).filter((p) => p !== path) })
+}
+const horsePhotoUrl = (path) => sb.storage.from('horse-photos').getPublicUrl(path).data.publicUrl
+const saveEmployee = (e) => {
+  if (!e.name?.trim() || !(Number(e.salary) >= 0) || !e.nextPayDate) return Promise.resolve({ ok: false, code: 'missing' })
+  return upsertRow('employees', e.id, {
+    name: e.name.trim(), role: e.role || 'other', salary: numOrNull(e.salary), frequency: e.frequency,
+    next_pay_date: e.nextPayDate, working_days: e.workingDays?.trim() || null, active: e.active !== false,
+  })
+}
+const paySalary = ({ employeeId, amount, method, date }) => call('pay_salary', { p_employee: employeeId, p_amount: numOrNull(amount), p_method: method, p_date: date || null })
+const saveExpense = (x) => {
+  if (!(Number(x.amount) > 0) || !x.spentOn) return Promise.resolve({ ok: false, code: 'missing' })
+  return upsertRow('expenses', x.id, { spent_on: x.spentOn, category_id: x.categoryId || null, amount: numOrNull(x.amount), note: x.note?.trim() || null })
+}
+async function deleteExpense(id) {
+  const res = await sb.from('expenses').delete().eq('id', id)
+  if (res.error) return { ok: false, code: 'network' }
+  await refresh()
+  return { ok: true }
+}
+const saveCategory = (c) => (c.name?.trim() ? upsertRow('expense_categories', c.id, { name: c.name.trim(), active: c.active !== false }) : Promise.resolve({ ok: false, code: 'missing' }))
+async function saveModules(m) {
+  const res = await sb.from('club_settings').update({ module_payroll: Boolean(m.modulePayroll), module_profit: Boolean(m.moduleProfit), module_sales: Boolean(m.moduleSales) }).eq('id', 1)
+  if (res.error) { console.error('[hipico] settings save failed', res.error); return { ok: false, code: 'network' } }
+  await refresh()
+  return { ok: true }
+}
 const bookSingleClass = ({ riderId, slotId, date, kind }) => call('book_single_class', { p_rider: riderId, p_slot: slotId, p_date: date, p_kind: kind })
 async function saveClassPrices(prices) {
   const rowsToSave = []
@@ -419,4 +481,14 @@ export const actions = {
   saveSettings,
   bookSingleClass,
   saveClassPrices,
+  sellHorse,
+  uploadHorsePhoto,
+  removeHorsePhoto,
+  horsePhotoUrl,
+  saveEmployee,
+  paySalary,
+  saveExpense,
+  deleteExpense,
+  saveCategory,
+  saveModules,
 }

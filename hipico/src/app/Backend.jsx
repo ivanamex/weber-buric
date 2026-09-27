@@ -15,6 +15,10 @@ import AdminPayments from './admin/Payments.jsx'
 import AdminFamilies from './admin/Families.jsx'
 import AdminReports from './admin/Reports.jsx'
 import AdminSchedule from './admin/Schedule.jsx'
+import AdminSummary from './admin/Summary.jsx'
+import AdminPayroll from './admin/Payroll.jsx'
+import AdminProfit from './admin/Profit.jsx'
+import AdminModules from './admin/Modules.jsx'
 
 const BaseContext = createContext('/app')
 /** '/app' (live, or demo when Supabase isn't set up) or '/demo'. */
@@ -73,7 +77,11 @@ export default function Backend({ mode, base }) {
           <Route path="mas" element={<FamilyMore />} />
         </Route>
         <Route path="direccion" element={<RequireRole role="admin"><AppShell role="admin" /></RequireRole>}>
-          <Route index element={<AdminToday />} />
+          <Route index element={<AdminSummary />} />
+          <Route path="hoy" element={<AdminToday />} />
+          <Route path="nomina" element={<AdminPayroll />} />
+          <Route path="rentabilidad" element={<AdminProfit />} />
+          <Route path="ajustes" element={<AdminModules />} />
           <Route path="horario" element={<AdminSchedule />} />
           <Route path="cobros" element={<AdminPayments />} />
           <Route path="familias" element={<AdminFamilies />} />
