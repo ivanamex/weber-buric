@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-—
+1. **STEP-24**: clear view ⇄ edit mode with a sticky Guardar + "Guardado" toast: horse profile first, then every management form
 
 Check in the browser after each step, then "ok".
 
