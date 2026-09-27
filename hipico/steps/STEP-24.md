@@ -4,7 +4,7 @@ Problem: in the horse profile you edit things (photos, ración, salud) but there
 
 ## Pattern: view mode ⇄ edit mode (apply it to every management form)
 - **View mode (default):** the finished profile, clean and read-only: photo on top, name, the facts line (age · sex · breed · color · height), category + level chips, a Ración diaria card, a Salud list with next due dates. One **Editar** button (top right).
-- **Edit mode:** all fields editable in one screen, with a **sticky bottom bar**: **Guardar** (coral glass, primary) + **Cancelar** (secondary). Guardar is disabled until something changes.
+- **Edit per section (keep what exists):** each card (Datos, Fotos, Ración diaria, Salud) has its own **Editar**. While a section is being edited, its **Guardar** is the clear primary button (coral glass, white text, full width on phones) with **Cancelar** as a text link next to it. The current pale "Guardar cambios" looks disabled, so fix that. Only one section is in edit mode at a time, and the rest stays in view mode.
 - **After Guardar:** back to view mode + toast **"Caballo guardado"**. Errors appear next to the field.
 - **Leaving with unsaved changes:** ask "¿Descartar cambios?" (Descartar / Seguir editando).
 - **New horse:** "+ Nuevo caballo" opens edit mode directly; the button says **"Guardar caballo"**, and after saving it shows the finished profile.
