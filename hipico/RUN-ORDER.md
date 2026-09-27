@@ -6,6 +6,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 1. **STEP-17**: Clase muestra (trial, 1 per rider) + clase suelta / adicional outside the packages, each with its own price
 2. **STEP-18**: QR code to share the app: download, printable poster, small QR on the desktop landing
+3. **STEP-19**: owner panel: Resumen (active members, who owes, income), date-to-date billing, payroll, profitability, horse status (modules on/off)
 
 Check in the browser after each step, then "ok".
 
@@ -19,7 +20,7 @@ Check in the browser after each step, then "ok".
 
 ## Meeting 27 Sep: ask the owner (Mara Wills)
 
-Prices · schedule · instructors · horses · plan rules · her email for management · bank details (bank, holder, 18-digit CLABE → Cobros → Datos para transferencia) · Mercado Pago account (verified, club or owner) + access for credentials, and what is charged by card · who manages the domain (Wix / Martín Vilavedra) · the logo as an original file · barter terms in writing
+Prices · schedule · instructors · horses · plan rules · her email for management · bank details (bank, holder, 18-digit CLABE → Cobros → Datos para transferencia) · Mercado Pago account (verified, club or owner) + access for credentials, and what is charged by card · who manages the domain (Wix / Martín Vilavedra) · the logo as an original file · barter terms in writing · payroll: does she want it, quincenal or mensual, does she track working days
 
 ## Done
 

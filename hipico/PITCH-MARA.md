@@ -37,6 +37,8 @@
 - [ ] Cuenta de Mercado Pago (verificada) y acceso un momento
 - [ ] Quién maneja el dominio: Wix o Martín Vilavedra
 - [ ] Logo en archivo original (SVG, AI o PDF)
+- [ ] Nómina: ¿la quiere en la app? ¿Paga quincenal o mensual? ¿Necesita registrar los días de trabajo?
+- [ ] Caballos en venta: ¿quiere publicarlos en la web?
 - [ ] El trato por escrito
 
 ## 7. Cierre
