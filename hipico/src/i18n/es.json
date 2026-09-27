@@ -426,7 +426,8 @@
     "upgradeRequested": "Listo: plan de {n} clases. Paga la diferencia para sumar las clases.",
     "downgradeScheduled": "Tu plan de {n} clases empieza el {date}.",
     "singleBooked": "{kind} reservada para {name}. Paga {amount} por transferencia o en el club.",
-    "pricesSaved": "Precios guardados"
+    "pricesSaved": "Precios guardados",
+    "demoReset": "Demo reiniciada: datos de ejemplo de nuevo."
   },
   "errors": {
     "notFound": "No se encontró el registro.",
@@ -881,5 +882,12 @@
     "nextOn": "Próxima: {date}",
     "overdue": "Vencida: {date}",
     "lastOn": "Última: {date}"
+  },
+  "demoBar": {
+    "label": "Barra de la demo",
+    "switch": "Ver la demo como",
+    "family": "Familia",
+    "admin": "Dirección",
+    "exit": "Salir de la demo"
   }
 }

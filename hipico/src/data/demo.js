@@ -4,21 +4,25 @@ import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS
 import { weekdayOf, monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, toInstant, todayKey, periodOf } from '../lib/time.js'
 import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS } from './queries.js'
 
-const KEY = 'hipico.state.v1'
+// The demo keeps its data under its own names, apart from the real app. The chosen role is never saved:
+// every visit to /demo starts on the role picker.
+const KEY = 'hipico.demo.state'
+const OLD_KEY = 'hipico.state.v1' // before the demo had its own names
 
 function load() {
   try {
+    localStorage.removeItem(OLD_KEY)
     const raw = localStorage.getItem(KEY)
     if (raw) {
       const s = JSON.parse(raw)
-      if (s?.version === 1) return s
+      if (s?.version === 1) return { ...s, session: null }
     }
   } catch { /* corrupted or unavailable storage → reseed */ }
   return null
 }
 function persist(s) {
   if (memoryOnly) return s
-  try { localStorage.setItem(KEY, JSON.stringify(s)) } catch { /* private mode: keep in memory */ }
+  try { localStorage.setItem(KEY, JSON.stringify({ ...s, session: null })) } catch { /* private mode: keep in memory */ }
   return s
 }
 
@@ -67,7 +71,7 @@ export function activate(setState, inMemory = false) {
     storageListener = true
     // Keep tabs in sync when the demo is open twice.
     window.addEventListener('storage', (e) => {
-      if (e.key === KEY && !memoryOnly) { const s = load(); if (s) { state = s; publish(view()) } }
+      if (e.key === KEY && !memoryOnly) { const s = load(); if (s) { state = { ...s, session: state.session }; publish(view()) } }
     })
   }
   publish(view())
@@ -89,11 +93,12 @@ function setPassword(password) {
 }
 const liveOnly = () => ({ ok: true })
 
-function resetDemo() {
+/** Back to the sample data. `{ wipe: true }` (from /demo?reset=1) also leaves the role, back to the picker. */
+function resetDemo({ wipe = false } = {}) {
   resetPrices()
   receiptFiles.clear()
   try { localStorage.removeItem(FILES_KEY) } catch { /* ignore */ }
-  const session = state.session
+  const session = wipe ? null : state.session
   commit({ ...createSeed(), session })
   return { ok: true }
 }
@@ -535,7 +540,7 @@ function setFamilyActive(familyId, active) {
 
 /* ───────── Transfer receipts ───────── */
 // The demo has no file storage: small receipts are kept in this browser, larger ones only for this visit.
-const FILES_KEY = 'hipico.demoReceipts'
+const FILES_KEY = 'hipico.demo.receipts'
 const receiptFiles = new Map(Object.entries((() => { try { return JSON.parse(localStorage.getItem(FILES_KEY)) || {} } catch { return {} } })()))
 const keepFile = (id, file) => {
   receiptFiles.set(id, { url: URL.createObjectURL(file), type: file.type })

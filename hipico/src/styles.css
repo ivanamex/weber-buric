@@ -786,3 +786,11 @@ p.center { display: block; }
 .nextdates li.is-soon { border-color: var(--accent); background: var(--accent-soft); }
 .nextdates li.is-late { border-color: var(--danger); background: var(--danger-soft); }
 .nextdates li.is-late .nextdates__when { color: var(--danger-ink); }
+
+/* Demo bar: always visible in the demo */
+.demobar { position: sticky; top: calc(56px + env(safe-area-inset-top, 0px)); z-index: 9; display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--accent-soft); border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+.demobar__tag { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-ink); }
+.demobar__switch { display: inline-flex; padding: 2px; border-radius: 999px; background: #fff; border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+.demobar__switch button { border: 0; background: transparent; padding: 5px 12px; border-radius: 999px; font-size: .8rem; font-weight: 600; color: var(--green-dark); white-space: nowrap; }
+.demobar__switch button.is-active { background: var(--green); color: #fff; }
+.demobar__exit { margin-left: auto; border: 0; background: transparent; padding: 4px 2px; font-size: .8rem; font-weight: 600; color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }

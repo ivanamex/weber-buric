@@ -426,7 +426,8 @@
     "upgradeRequested": "Done: {n}-class plan. Pay the difference to add the classes.",
     "downgradeScheduled": "Your {n}-class plan starts on {date}.",
     "singleBooked": "{kind} booked for {name}. Pay {amount} by transfer or at the club.",
-    "pricesSaved": "Prices saved"
+    "pricesSaved": "Prices saved",
+    "demoReset": "Demo reset: sample data is back."
   },
   "errors": {
     "notFound": "Record not found.",
@@ -881,5 +882,12 @@
     "nextOn": "Next: {date}",
     "overdue": "Overdue: {date}",
     "lastOn": "Last: {date}"
+  },
+  "demoBar": {
+    "label": "Demo bar",
+    "switch": "See the demo as",
+    "family": "Family",
+    "admin": "Management",
+    "exit": "Leave the demo"
   }
 }

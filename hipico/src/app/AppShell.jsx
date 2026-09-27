@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { familyRiders, logout, useStore, byId } from '../data/store.js'
+import { familyRiders, login, logout, useStore, byId } from '../data/store.js'
 import { Logo } from '../components/Logo.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
 import { Icon } from '../components/Icon.jsx'
@@ -24,7 +24,39 @@ const TABS = {
     { to: 'direccion/familias', icon: 'family', key: 'families' },
   ],
 }
-const RIDER_KEY = 'hipico.rider'
+// The demo keeps its own copy, so it never changes what the real app remembers.
+const riderKey = (mode) => (mode === 'demo' ? 'hipico.demo.rider' : 'hipico.rider')
+
+/** Demo only: always visible — switch Familia ⇄ Dirección (same demo data) or leave to the role picker. */
+function DemoBar({ role }) {
+  const { t } = useI18n()
+  const toast = useToast()
+  const navigate = useNavigate()
+  const base = useBase()
+  const switchTo = async (next) => {
+    if (next === role) return
+    const res = await login(next)
+    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    navigate(`${base}/${next === 'admin' ? 'direccion' : 'familia'}`)
+  }
+  const leave = async () => {
+    await logout()
+    navigate(base)
+  }
+  return (
+    <div className="demobar" role="region" aria-label={t('demoBar.label')}>
+      <span className="demobar__tag">{t('app.demo')}</span>
+      <div className="demobar__switch" role="group" aria-label={t('demoBar.switch')}>
+        {['family', 'admin'].map((r) => (
+          <button key={r} type="button" className={r === role ? 'is-active' : ''} aria-pressed={r === role} onClick={() => switchTo(r)}>
+            {t(r === 'admin' ? 'demoBar.admin' : 'demoBar.family')}
+          </button>
+        ))}
+      </div>
+      <button type="button" className="demobar__exit" onClick={leave}>{t('demoBar.exit')}</button>
+    </div>
+  )
+}
 
 export default function AppShell({ role }) {
   const { t } = useI18n()
@@ -36,12 +68,12 @@ export default function AppShell({ role }) {
 
   const riders = useMemo(() => (role === 'family' ? familyRiders(s, s.session.familyId) : []), [s, role])
   const [riderId, setRiderIdState] = useState(() => {
-    try { return localStorage.getItem(RIDER_KEY) } catch { return null }
+    try { return localStorage.getItem(riderKey(s.mode)) } catch { return null }
   })
   const activeRiderId = riders.some((r) => r.id === riderId) ? riderId : riders[0]?.id ?? null
   const setRiderId = (id) => {
     setRiderIdState(id)
-    try { localStorage.setItem(RIDER_KEY, id) } catch { /* ignore */ }
+    try { localStorage.setItem(riderKey(s.mode), id) } catch { /* ignore */ }
   }
 
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
@@ -65,9 +97,10 @@ export default function AppShell({ role }) {
           </button>
         </div>
       </header>
+      {s.mode === 'demo' && <DemoBar role={role} />}
       <div className="appbar__role">
         <span>{role === 'admin' ? t('app.roleAdmin') : family?.name}</span>
-        {s.mode === 'demo' ? <span className="appbar__demo">{t('app.demo')}</span> : <span className="appbar__email">{s.session.email}</span>}
+        {s.mode !== 'demo' && <span className="appbar__email">{s.session.email}</span>}
       </div>
       <main className="app__main">
         {s.mode !== 'preview' && role === 'family' && <PasswordNudge />}

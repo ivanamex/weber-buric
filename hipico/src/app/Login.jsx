@@ -1,6 +1,7 @@
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { login, useStore } from '../data/store.js'
+import { login, logout, resetDemo, useStore } from '../data/store.js'
 import { Mark } from '../components/Logo.jsx'
 import { useBase } from './Backend.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
@@ -13,7 +14,18 @@ export default function Login() {
   const navigate = useNavigate()
   const toast = useToast()
   const base = useBase()
-  if (session) return <Navigate to={`${base}/${session.role === 'admin' ? 'direccion' : 'familia'}`} replace />
+  const [params, setParams] = useSearchParams()
+
+  // The picker always shows, even with a role open in the demo: arriving here leaves it.
+  // /demo?reset=1 also puts the sample data back.
+  useEffect(() => {
+    if (params.get('reset') === '1') {
+      resetDemo({ wipe: true }).then(() => toast(t('toasts.demoReset'), 'info'))
+      setParams({}, { replace: true })
+    } else if (session) {
+      logout()
+    }
+  }, []) // runs once, on arrival
 
   const enter = async (role) => {
     const res = await login(role)

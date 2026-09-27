@@ -6,6 +6,8 @@ import { Icon } from './Icon.jsx'
 import { useToast } from './Toast.jsx'
 
 const OFFERED_KEY = 'hipico.installOffered'
+// The demo remembers its own "shown once" flags, apart from the real app.
+const keyFor = (key, mode) => (mode === 'demo' ? key.replace('hipico.', 'hipico.demo.') : key)
 
 /** Phone pictograms: rounded with an island on top (iPhone), squarer with a camera dot and nav keys (Android). */
 function PhoneGlyph({ kind }) {
@@ -180,14 +182,16 @@ export function InstallButtons({ className = '', onChoice }) {
 /** Offered once, right after the first sign-in on a phone that hasn't installed the app. */
 export function InstallPrompt() {
   const { t } = useI18n()
+  const { mode } = useStore()
   const { standalone } = useInstallState()
+  const offeredKey = keyFor(OFFERED_KEY, mode)
   const [show] = useState(() => {
-    try { return !localStorage.getItem(OFFERED_KEY) } catch { return false }
+    try { return !localStorage.getItem(offeredKey) } catch { return false }
   })
   const [open, setOpen] = useState(true)
   useEffect(() => {
-    if (show) try { localStorage.setItem(OFFERED_KEY, '1') } catch { /* ignore */ }
-  }, [show])
+    if (show) try { localStorage.setItem(offeredKey, '1') } catch { /* ignore */ }
+  }, [show, offeredKey])
   if (!show || !open || standalone) return null
   return (
     <section className="card installcard" aria-label={t('install.promptTitle')}>
@@ -216,15 +220,15 @@ export function PasswordNudge() {
   const s = useStore()
   const { standalone } = useInstallState()
   const [show] = useState(() => {
-    try { return !localStorage.getItem(NUDGE_KEY) } catch { return false }
+    try { return !localStorage.getItem(keyFor(NUDGE_KEY, s.mode)) } catch { return false }
   })
   const [open, setOpen] = useState(true)
   const [value, setValue] = useState('')
   const [busy, setBusy] = useState(false)
   const eligible = show && !standalone && !s.hasPassword && detectDevice().platform === 'ios' && (s.mode === 'demo' || s.viaLink)
   useEffect(() => {
-    if (eligible) try { localStorage.setItem(NUDGE_KEY, '1') } catch { /* ignore */ }
-  }, [eligible])
+    if (eligible) try { localStorage.setItem(keyFor(NUDGE_KEY, s.mode), '1') } catch { /* ignore */ }
+  }, [eligible, s.mode])
   if (!eligible || !open) return null
   const onSave = async (e) => {
     e.preventDefault()
