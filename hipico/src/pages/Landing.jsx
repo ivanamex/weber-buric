@@ -7,6 +7,7 @@ import { Icon } from '../components/Icon.jsx'
 import { waLink } from '../components/ui.jsx'
 import { InstallButtons } from '../components/Install.jsx'
 import { HeroHorse, RunningHorse } from '../components/TextHorse.jsx'
+import { QrSvg, appLink } from '../components/QrCode.jsx'
 
 const STEPS = [
   { key: 'book', icon: 'calendar' },
@@ -50,6 +51,20 @@ function LivePhone() {
         </div>
       </div>
       <span className="iphone__ground" />
+    </div>
+  )
+}
+
+/** On a computer, a small QR next to the download buttons (hidden on phones: they're already on one). */
+function DesktopQr() {
+  const { t } = useI18n()
+  const [link, setLink] = useState('')
+  useEffect(() => { setLink(appLink()) }, [])
+  if (!link) return null
+  return (
+    <div className="install__qr">
+      <QrSvg value={link} size={112} title={t('share.qrLabel')} />
+      <p><Icon name="phone" size={16} /> {t('landing.install.scan')}</p>
     </div>
   )
 }
@@ -184,7 +199,10 @@ export default function Landing() {
             <h2 className="lsection__title">{t('landing.install.title')}</h2>
             <p className="lsection__lead">{t('landing.install.text')}</p>
           </div>
-          <InstallButtons />
+          <div className="install__actions">
+            <InstallButtons />
+            <DesktopQr />
+          </div>
         </div>
       </section>
 

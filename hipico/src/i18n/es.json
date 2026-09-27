@@ -67,7 +67,8 @@
     "install": {
       "eyebrow": "Instálala",
       "title": "Se instala como una app, desde el navegador",
-      "text": "Sin App Store ni Play Store. Toca el botón de tu teléfono y sigue los pasos: la app queda en tu pantalla de inicio, con su propio ícono y en pantalla completa."
+      "text": "Sin App Store ni Play Store. Toca el botón de tu teléfono y sigue los pasos: la app queda en tu pantalla de inicio, con su propio ícono y en pantalla completa.",
+      "scan": "Escanéalo con tu celular"
     },
     "footer": {
       "place": "Paamul, Quintana Roo, México",
@@ -651,5 +652,30 @@
   "prices": {
     "title": "Precios de clases",
     "hint": "Clase muestra: una por jinete. Clase suelta: sin plan. Clase adicional: cuando el plan ya se usó."
+  },
+  "share": {
+    "short": "Compartir la app",
+    "title": "Compartir la app",
+    "text": "Las familias escanean este código con la cámara del celular y abren la app.",
+    "qrLabel": "Código QR de la app del club",
+    "download": "Descargar QR (PNG)",
+    "print": "Imprimir cartel",
+    "copy": "Copiar enlace",
+    "copied": "Enlace copiado",
+    "waText": "Descarga la app del Hípico Riviera Maya: reserva clases, lleva tu plan y paga desde el celular. {link}",
+    "poster": {
+      "es": {
+        "title": "Descarga la app del club",
+        "step1": "Escanea el código con la cámara de tu celular.",
+        "step2": "Toca «Descargar para iPhone» o «Descargar para Android».",
+        "step3": "Entra con tu correo: te llega un código de 6 dígitos."
+      },
+      "en": {
+        "title": "Get the club app",
+        "step1": "Scan the code with your phone's camera.",
+        "step2": "Tap “Download for iPhone” or “Download for Android”.",
+        "step3": "Sign in with your email: you'll get a 6-digit code."
+      }
+    }
   }
 }

@@ -4,8 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-18**: QR code to share the app: download, printable poster, small QR on the desktop landing
-2. **STEP-19**: owner panel: Resumen (active members, who owes, income), date-to-date billing, payroll, profitability, horse status (modules on/off)
+1. **STEP-19**: owner panel: Resumen (active members, who owes, income), date-to-date billing, payroll, profitability, horse status (modules on/off)
 
 Check in the browser after each step, then "ok".
 
@@ -23,7 +22,7 @@ Prices · schedule · instructors · horses · plan rules · her email for manag
 
 ## Done
 
-STEP-17 clase muestra / suelta / adicional (quiet option under the plans; prices in Cobros → Precios de clases; tags in Hoy; split in Reportes) · STEP-16 plan activo, change plan, payment history, password nudge · Landing + app live · Supabase login + database rules · management panel (Hoy, Cobros, Familias, Reportes) · STEP-08 families added by management · STEP-09 transfer receipts (bank details still "Por definir") · logos in `public/` · STEP-08B open sign-up, assign existing plans, block / delete (CSV import removed) · STEP-10 Horario: edit classes, cancel a date, instructors and horses, "Todos vinieron" · STEP-11 logo, pictograms, horseshoe counter, booking celebration, empty states · STEP-14 soft coral accent (gold removed) · STEP-12 6-digit code login with resend countdown, "Descargar para iPhone / Android" with install guides, stay signed in per device · STEP-13 landing: phone with the live app, letter-horse (hero glow, galloping band), faded photos, subtle hovers · one-tap "Continuar como…" after Salir, optional password · STEP-15 coral glass buttons, nothing wider than the screen on phones
+STEP-18 QR to share the app (Familias → Compartir la app: PNG, printable poster ES/EN, copy, WhatsApp; small QR on the desktop landing) · STEP-17 clase muestra / suelta / adicional (quiet option under the plans; prices in Cobros → Precios de clases; tags in Hoy; split in Reportes) · STEP-16 plan activo, change plan, payment history, password nudge · Landing + app live · Supabase login + database rules · management panel (Hoy, Cobros, Familias, Reportes) · STEP-08 families added by management · STEP-09 transfer receipts (bank details still "Por definir") · logos in `public/` · STEP-08B open sign-up, assign existing plans, block / delete (CSV import removed) · STEP-10 Horario: edit classes, cancel a date, instructors and horses, "Todos vinieron" · STEP-11 logo, pictograms, horseshoe counter, booking celebration, empty states · STEP-14 soft coral accent (gold removed) · STEP-12 6-digit code login with resend countdown, "Descargar para iPhone / Android" with install guides, stay signed in per device · STEP-13 landing: phone with the live app, letter-horse (hero glow, galloping band), faded photos, subtle hovers · one-tap "Continuar como…" after Salir, optional password · STEP-15 coral glass buttons, nothing wider than the screen on phones
 
 ## Rules
 

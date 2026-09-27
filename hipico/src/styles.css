@@ -685,3 +685,29 @@ p.center { display: block; }
 .link--quiet:disabled { opacity: .5; }
 .bar__fill--trial { background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
 .bar__fill--classes { background: #A7B79B; }
+
+/* Share the app: QR with the logo, poster */
+.share { display: grid; gap: 12px; margin-bottom: 12px; }
+.share__qr { display: grid; place-items: center; padding: 12px; border-radius: var(--radius); background: #fff; border: 1px solid var(--border); }
+.share__qr .qr { width: min(100%, 260px); height: auto; }
+.share__link { text-align: center; font-size: .85rem; color: var(--muted); }
+.install__actions { display: grid; gap: 16px; align-items: center; }
+.install__qr { display: none; }
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .install__actions { grid-template-columns: 1fr auto; }
+  .install__qr { display: grid; justify-items: center; gap: 8px; padding: 12px; border-radius: var(--radius); background: #fff; border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .install__qr p { display: flex; align-items: center; gap: 6px; margin: 0; font-size: .82rem; font-weight: 600; color: var(--green-dark); }
+}
+.poster { display: none; }
+@media print {
+  @page { size: A4; margin: 14mm; }
+  body > *:not(.poster) { display: none !important; }
+  .poster { display: grid !important; justify-items: center; gap: 10px; text-align: center; color: var(--green-dark); font-family: var(--font-body); }
+  .poster h1 { font-family: var(--font-head); font-size: 30pt; margin: 8mm 0 0; }
+  .poster__en { font-family: var(--font-head); font-size: 16pt; color: var(--muted); margin: 0; }
+  .poster__qr { width: 95mm; height: 95mm; margin: 6mm 0 2mm; }
+  .poster__link { font-size: 12pt; color: var(--muted); margin: 0; }
+  .poster__steps { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; margin-top: 8mm; text-align: left; font-size: 11.5pt; line-height: 1.45; }
+  .poster__steps ol { margin: 0; padding-left: 6mm; display: grid; gap: 2.5mm; }
+  .poster__steps ol[lang="en"] { color: var(--muted); }
+}

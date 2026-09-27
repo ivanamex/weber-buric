@@ -9,6 +9,7 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty, Segmented } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { PaymentHistory, PlanHistory } from '../../components/PaymentHistory.jsx'
+import ShareApp from './ShareApp.jsx'
 
 const NEW_RIDER = { name: '', level: 'beginner' }
 const newFamily = () => ({ contact: '', email: '', phone: '', name: '', plan: '8', start: todayKey(), riders: [{ ...NEW_RIDER }] })
@@ -275,7 +276,7 @@ export default function AdminFamilies() {
   const { t } = useI18n()
   const s = useStore()
   const [query, setQuery] = useState('')
-  const [panel, setPanel] = useState(null) // 'new' | null
+  const [panel, setPanel] = useState(null) // 'new' | 'share' | null
   const [view, setView] = useState('active')
 
   const listed = s.families.filter((f) => !isDeletedFamily(f))
@@ -293,6 +294,9 @@ export default function AdminFamilies() {
         <h1 className="page__title">{t('admin.families.title')}</h1>
         {!panel && (
           <div className="row gap-sm">
+            <button type="button" className="btn btn--sm" onClick={() => setPanel('share')}>
+              <Icon name="qr" size={16} /> {t('share.short')}
+            </button>
             <button type="button" className="btn btn--primary btn--sm" onClick={() => setPanel('new')}>
               <Icon name="plus" size={16} /> {t('admin.families.add')}
             </button>
@@ -302,6 +306,7 @@ export default function AdminFamilies() {
       <p className="small muted">{t('admin.families.intro')}</p>
 
       {panel === 'new' && <NewFamilyForm onDone={() => setPanel(null)} />}
+      {panel === 'share' && <ShareApp onClose={() => setPanel(null)} />}
 
       {inactiveCount > 0 && (
         <Segmented small value={shown} onChange={setView} options={[
