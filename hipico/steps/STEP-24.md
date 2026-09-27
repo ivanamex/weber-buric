@@ -23,3 +23,11 @@ Mirror it in `/demo`.
 - Tapping a line in Historial opens the same sheet to edit or delete it.
 - Remove the separate "+ Registrar" link (the tiles replace it).
 - Tile color: coral when due within 14 days or overdue, neutral otherwise.
+
+## Greeting: replace the 👋 emoji
+- Remove every emoji from the app (they render as default system icons and don't match the design).
+- The greeting gets a small custom line pictogram (same stroke style as the others, coral) that matches the time of day:
+  - **Buenos días:** a small sun rising over a horizon line
+  - **Buenas tardes:** a sun half-set
+  - **Buenas noches:** a crescent moon with a star
+- Place it to the right of the name at about 60% of the name's height. On load it does one gentle 400 ms motion (the sun rises a few px, or the moon fades in). Respect reduced motion.
