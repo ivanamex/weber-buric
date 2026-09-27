@@ -2,7 +2,7 @@
 import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS_KINDS, applyPrices, resetPrices } from './prices.js'
 import { weekdayOf, monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, toInstant, todayKey, periodOf } from '../lib/time.js'
-import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter } from './queries.js'
+import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS } from './queries.js'
 
 const KEY = 'hipico.state.v1'
 
@@ -52,6 +52,14 @@ export function activate(setState, inMemory = false) {
     const seed = createSeed()
     for (const k of ['employees', 'salaryPayments', 'expenseCategories', 'expenses', 'horseSales']) state[k] = seed[k]
     state.settings = { ...seed.settings, ...state.settings, modulePayroll: true, moduleProfit: true, moduleSales: true }
+    persist(state)
+  }
+  // Demo states saved before the horse profile: add the sample care, health and horse details once.
+  if (!state.horseCare && !memoryOnly) {
+    const seed = createSeed()
+    state.horseCare = seed.horseCare
+    state.horseHealth = seed.horseHealth
+    for (const h of state.horses) Object.assign(h, { ...Object.fromEntries(Object.entries(byId(seed.horses, h.id) || {}).filter(([k]) => h[k] == null)) })
     persist(state)
   }
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
@@ -636,12 +644,39 @@ function saveHorse(h) {
       salePrice: h.salePrice === '' || h.salePrice == null ? null : Number(h.salePrice),
       age: h.age === '' || h.age == null ? null : Number(h.age),
       breed: h.breed?.trim() || null, level: h.level || null, description: h.description?.trim() || null,
+      birthYear: h.birthYear === '' || h.birthYear == null ? null : Number(h.birthYear),
+      sex: h.sex || null, coat: h.coat?.trim() || null,
+      heightCm: h.heightCm === '' || h.heightCm == null ? null : Number(h.heightCm),
       photos: existing?.photos || [], // photos change only through upload / remove
     }
-    if (existing) Object.assign(existing, row)
-    else s.horses.push({ id: nextId(s, 'h'), ...row })
-    return { ok: true }
+    if (existing) { Object.assign(existing, row); return { ok: true, id: existing.id } }
+    const id = nextId(s, 'h')
+    s.horses.push({ id, ...row })
+    return { ok: true, id }
   })
+}
+
+/* ───────── Horse profile: daily ration and health ───────── */
+function saveHorseCare({ horseId, feed = [], rationsPerDay, supplements, notes }) {
+  return mutate((s) => {
+    if (!byId(s.horses, horseId)) return fail('notFound')
+    const lines = feed.filter((f) => f.type?.trim()).map((f) => ({ type: f.type.trim(), kg: Number(f.kg) || 0 }))
+    s.horseCare ||= []
+    const row = { horseId, feed: lines, rationsPerDay: Number(rationsPerDay) || null, supplements: supplements?.trim() || null, notes: notes?.trim() || null }
+    const existing = s.horseCare.find((c) => c.horseId === horseId)
+    if (existing) Object.assign(existing, row)
+    else s.horseCare.push(row)
+  })
+}
+function addHealth({ horseId, kind, doneOn, nextDue, note }) {
+  return mutate((s) => {
+    if (!byId(s.horses, horseId) || !HEALTH_KINDS.includes(kind) || !/^\d{4}-\d{2}-\d{2}$/.test(doneOn || '')) return fail('missing')
+    s.horseHealth ||= []
+    s.horseHealth.push({ id: nextId(s, 'hh'), horseId, kind, doneOn, nextDue: nextDue || null, note: note?.trim() || null })
+  })
+}
+function deleteHealth(id) {
+  return mutate((s) => { s.horseHealth = (s.horseHealth || []).filter((x) => x.id !== id) })
 }
 
 /* ───────── Owner's panel: horses sold, payroll, expenses, modules ───────── */
@@ -770,6 +805,7 @@ export const actions = {
   selfSignup: () => fail('notFound'),
   setPassword, resume: liveOnly, signInPassword: liveOnly,
   uploadReceipt, reviewReceipt, receiptUrl, saveSettings, bookSingleClass, saveClassPrices,
+  saveHorseCare, addHealth, deleteHealth,
   sellHorse, uploadHorsePhoto, removeHorsePhoto, horsePhotoUrl, saveEmployee, paySalary, saveExpense, deleteExpense, saveCategory, saveModules,
   saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,
 }

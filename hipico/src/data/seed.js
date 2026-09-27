@@ -13,15 +13,46 @@ const instructors = [
 ]
 
 const horses = [
-  { id: 'h1', name: 'Canela', type: 'school' },
-  { id: 'h2', name: 'Lucero', type: 'school' },
-  { id: 'h3', name: 'Tornado', type: 'school' },
-  { id: 'h4', name: 'Brisa', type: 'school' },
-  { id: 'h5', name: 'Cacao', type: 'school', status: 'for_sale', salePrice: 165000, age: 9, breed: 'Cuarto de milla', level: 'intermediate', description: 'Noble y tranquilo, ideal para salto bajo y paseos.', photos: [] },
-  { id: 'h6', name: 'Relámpago', type: 'boarded', ownerFamilyId: 'f1' },
-  { id: 'h7', name: 'Zafiro', type: 'boarded', ownerFamilyId: 'f2' },
-  { id: 'h8', name: 'Maya', type: 'boarded', ownerFamilyId: 'f3' },
+  { id: 'h1', name: 'Canela', type: 'school', birthYear: 2014, sex: 'mare', breed: 'Cuarto de milla', coat: 'Alazán', heightCm: 150, level: 'beginner' },
+  { id: 'h2', name: 'Lucero', type: 'school', birthYear: 2012, sex: 'gelding', breed: 'Criollo mexicano', coat: 'Tordillo', heightCm: 148, level: 'beginner' },
+  { id: 'h3', name: 'Tornado', type: 'school', birthYear: 2015, sex: 'gelding', breed: 'Pura sangre', coat: 'Negro', heightCm: 163, level: 'advanced' },
+  { id: 'h4', name: 'Brisa', type: 'school', birthYear: 2013, sex: 'mare', breed: 'Árabe', coat: 'Bayo', heightCm: 152, level: 'intermediate' },
+  { id: 'h5', name: 'Cacao', type: 'school', status: 'for_sale', salePrice: 165000, age: 9, birthYear: 2017, sex: 'gelding', breed: 'Cuarto de milla', coat: 'Castaño', heightCm: 155, level: 'intermediate', description: 'Noble y tranquilo, ideal para salto bajo y paseos.', photos: [] },
+  { id: 'h6', name: 'Relámpago', type: 'boarded', ownerFamilyId: 'f1', birthYear: 2011, sex: 'gelding', breed: 'Warmblood', coat: 'Castaño oscuro', heightCm: 168, level: 'competition' },
+  { id: 'h7', name: 'Zafiro', type: 'boarded', ownerFamilyId: 'f2', birthYear: 2016, sex: 'mare', breed: 'Andaluz', coat: 'Tordo', heightCm: 158 },
+  { id: 'h8', name: 'Maya', type: 'boarded', ownerFamilyId: 'f3', birthYear: 2018, sex: 'mare', breed: 'Appaloosa', coat: 'Atigrado', heightCm: 150 },
 ]
+
+/** Daily ration and health history for the sample horses (realistic, all made up). */
+function horseSample(today) {
+  const d = (n) => addDays(today, n)
+  const feed = (alfalfa, avena, conc) => [
+    { type: 'Alfalfa', kg: alfalfa }, ...(avena ? [{ type: 'Avena', kg: avena }] : []), ...(conc ? [{ type: 'Concentrado', kg: conc }] : []),
+  ]
+  const horseCare = [
+    { horseId: 'h1', feed: feed(2.5, 0.5, 0.5), rationsPerDay: 3, supplements: 'Sal mineral', notes: 'Come despacio; dejarle agua limpia siempre.' },
+    { horseId: 'h2', feed: feed(2.5, 0, 0.5), rationsPerDay: 3, supplements: 'Aceite de maíz 50 ml', notes: 'Sin azúcar: nada de melaza ni premios dulces.' },
+    { horseId: 'h3', feed: feed(3, 1, 1), rationsPerDay: 3, supplements: 'Electrolitos en días de calor', notes: '' },
+    { horseId: 'h4', feed: feed(2.5, 0.5, 0.5), rationsPerDay: 3, supplements: '', notes: 'Remojar el heno 20 minutos.' },
+    { horseId: 'h5', feed: feed(2.5, 0.5, 0.5), rationsPerDay: 3, supplements: '', notes: '' },
+    { horseId: 'h6', feed: feed(3, 1, 1.5), rationsPerDay: 3, supplements: 'Biotina para cascos', notes: 'Heno remojado; revisar vendas después de entrenar.' },
+    { horseId: 'h7', feed: feed(2.5, 0.5, 0.5), rationsPerDay: 2, supplements: 'Sal mineral', notes: '' },
+    { horseId: 'h8', feed: feed(2, 0, 0.5), rationsPerDay: 3, supplements: '', notes: 'Poca avena: se pone nerviosa.' },
+  ]
+  let n = 0
+  const e = (horseId, kind, done, next, note = '') => ({ id: `hh${++n}`, horseId, kind, doneOn: d(done), nextDue: next == null ? null : d(next), note })
+  const horseHealth = [
+    e('h1', 'vaccine', -170, 10, 'Influenza y tétanos'), e('h1', 'farrier', -38, 4, 'Herraje completo'), e('h1', 'deworming', -60, 30, 'Ivermectina'),
+    e('h2', 'vaccine', -120, 60, 'Influenza y tétanos'), e('h2', 'farrier', -30, 12, 'Solo recorte'), e('h2', 'vet', -20, null, 'Revisión de dientes'),
+    e('h3', 'farrier', -45, -3, 'Herraje completo'), e('h3', 'deworming', -85, 5, 'Ivermectina'),
+    e('h4', 'vaccine', -30, 150, 'Encefalitis'), e('h4', 'farrier', -20, 22, 'Herraje delantero'),
+    e('h5', 'vet', -10, null, 'Revisión para venta: sano'), e('h5', 'farrier', -25, 17, 'Herraje completo'),
+    e('h6', 'vaccine', -175, 8, 'Influenza, tétanos y rinoneumonitis'), e('h6', 'farrier', -35, 7, 'Herraje de competencia'), e('h6', 'deworming', -40, 50, 'Pamoato de pirantel'), e('h6', 'vet', -15, null, 'Revisión de tendones: bien'),
+    e('h7', 'vaccine', -60, 120, 'Influenza y tétanos'), e('h7', 'farrier', -28, 14, 'Solo recorte'),
+    e('h8', 'deworming', -80, 10, 'Ivermectina'), e('h8', 'farrier', -30, 12, 'Herraje completo'),
+  ]
+  return { horseCare, horseHealth }
+}
 
 const families = [
   { id: 'f1', email: 'paola.hernandez@ejemplo.com', name: 'Familia Hernández', contact: 'Paola Hernández', phone: '+52 984 111 2233' },
@@ -108,6 +139,7 @@ function ownerSample(today) {
       { id: 'x5', spentOn: d(-40), categoryId: 'ec2', amount: 2400, note: 'Vacunas' },
     ],
     horseSales: [],
+    ...horseSample(today),
   }
 }
 

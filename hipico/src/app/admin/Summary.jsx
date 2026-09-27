@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, activeCounts, moneySummary, overdue, renewingSoon, weekOccupancy, upcomingSalaries, moduleOn,
+  useStore, byId, activeCounts, moneySummary, overdue, renewingSoon, weekOccupancy, upcomingSalaries, moduleOn, healthDueSoon,
 } from '../../data/store.js'
 import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
@@ -30,6 +30,7 @@ export default function AdminSummary() {
   const renewing = renewingSoon(s)
   const occ = weekOccupancy(s)
   const salaries = moduleOn(s, 'modulePayroll') ? upcomingSalaries(s, 15) : []
+  const horseDue = healthDueSoon(s, 14)
   const pct = money.expected ? Math.round((money.expectedPaid / money.expected) * 100) : 0
   const owedShown = allOwed ? owed : owed.slice(0, 5)
   const short = (d) => fmtDate(d, { day: 'numeric', month: 'short' })
@@ -114,6 +115,20 @@ export default function AdminSummary() {
           <p className="small muted">{t('summary.thisWeek')}</p>
         </div>
       </div>
+
+      {horseDue.length > 0 && (
+        <>
+          <SectionTitle icon="horseHead">{t('summary.horsesDue')}</SectionTitle>
+          <ul className="list card">
+            {horseDue.map((x) => (
+              <li key={`${x.horse.id}-${x.kind}`} className="list__row">
+                <Link to={`${base}/direccion/caballos/${x.horse.id}`} className="grow"><span className="list__title">{x.horse.name}</span> <span className="small muted">· {t(`horseProfile.kinds.${x.kind}`)}</span></Link>
+                <span className={`small ${x.due < todayKey() ? 'owed__late' : ''}`}>{x.due < todayKey() ? t('horseProfile.overdue', { date: short(x.due) }) : short(x.due)}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
       {salaries.length > 0 && (
         <>

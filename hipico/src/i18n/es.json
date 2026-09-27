@@ -117,7 +117,8 @@
   "levels": {
     "beginner": "Principiante",
     "intermediate": "Intermedio",
-    "advanced": "Avanzado"
+    "advanced": "Avanzado",
+    "competition": "Competencia"
   },
   "disciplines": {
     "basics": "Equitación básica",
@@ -710,7 +711,8 @@
     "salaries": "Sueldos (próximos 15 días)",
     "salariesTotal": "Total",
     "open": "Abrir",
-    "more": "Más"
+    "more": "Más",
+    "horsesDue": "Caballos: próximos pendientes"
   },
   "payroll": {
     "title": "Nómina",
@@ -827,5 +829,57 @@
     "buyer": "Comprador (opcional)",
     "markSold": "Marcar vendido",
     "soldToast": "{name}: venta registrada"
+  },
+  "myHorse": {
+    "title": "Mi caballo",
+    "next": "Próximas citas",
+    "readOnly": "Lo actualiza el club. Si algo cambia, avísanos por WhatsApp."
+  },
+  "horseProfile": {
+    "basics": "Datos",
+    "category": "Categoría",
+    "birthYear": "Año de nacimiento",
+    "sex": "Sexo",
+    "sexes": {
+      "mare": "Yegua",
+      "gelding": "Castrado",
+      "stallion": "Semental"
+    },
+    "coat": "Capa (color)",
+    "height": "Alzada (cm)",
+    "noBasics": "Sin datos todavía.",
+    "firstIsMain": "la primera es la principal",
+    "notFound": "No encontramos este caballo",
+    "ration": "Ración diaria",
+    "noRation": "Sin ración registrada.",
+    "feed": "Alimento",
+    "perRation": "Por ración",
+    "perDay": "Al día",
+    "rationsDay": "{n} raciones al día",
+    "supplements": "Suplementos",
+    "notes": "Indicaciones",
+    "notesPh": "p. ej. sin azúcar, remojar el heno",
+    "feedPerRation": "Alimento por ración",
+    "addFeed": "Agregar alimento",
+    "removeFeed": "Quitar alimento",
+    "rationsLabel": "Raciones al día",
+    "health": "Salud",
+    "addHealth": "Registrar",
+    "history": "Historial",
+    "kinds": {
+      "vaccine": "Vacunas",
+      "deworming": "Desparasitación",
+      "farrier": "Herrero",
+      "vet": "Veterinario"
+    },
+    "doneOn": "Fecha",
+    "nextDue": "Próxima (opcional)",
+    "healthNotePh": "Nota (p. ej. influenza y tétanos)",
+    "healthSaved": "Registro guardado",
+    "healthDeleted": "Registro borrado",
+    "deleteHealth": "Borrar registro",
+    "nextOn": "Próxima: {date}",
+    "overdue": "Vencida: {date}",
+    "lastOn": "Última: {date}"
   }
 }

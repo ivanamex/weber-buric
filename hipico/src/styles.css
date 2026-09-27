@@ -759,3 +759,30 @@ p.center { display: block; }
 .switch input:checked + span { background: var(--green); }
 .switch input:checked + span::after { transform: translateX(20px); }
 .switch input:focus-visible + span { outline: 3px solid color-mix(in srgb, var(--accent) 70%, transparent); outline-offset: 2px; }
+
+/* Horse profile */
+.backlink { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--green); font-size: .9rem; }
+.horsehead { display: flex; align-items: center; gap: 14px; }
+.horsehead .page__title { margin: 0 0 4px; }
+.horse__photo { flex: none; border-radius: 16px; object-fit: cover; }
+.horse__photo--empty { display: grid; place-items: center; background: var(--green-soft); color: var(--green); }
+.horse__link { display: flex; align-items: center; gap: 12px; color: inherit; min-width: 0; }
+.horse__link .grow { display: grid; gap: 1px; min-width: 0; }
+.horse__facts { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card--ration { border-color: var(--green-soft); }
+.ration { display: grid; gap: 10px; }
+.ration__table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+.ration__table th { text-align: left; font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 0 0 6px; }
+.ration__table td { padding: 8px 0; border-top: 1px solid var(--border); }
+.ration__table td strong { font-family: var(--font-head); font-size: 1.1rem; color: var(--green-dark); }
+.ration__times { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--green-dark); }
+.ration__note { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+.ration__note .icon { flex: none; margin-top: 2px; }
+.feedline { display: grid; grid-template-columns: minmax(0, 1fr) 84px 36px; gap: 6px; align-items: center; margin-bottom: 6px; }
+.nextdates { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.nextdates li { display: grid; gap: 2px; padding: 10px 12px; border-radius: var(--radius-sm); background: #FAF7F0; border: 1px solid var(--border); }
+.nextdates__kind { font-size: .75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.nextdates__when { font-weight: 600; color: var(--green-dark); }
+.nextdates li.is-soon { border-color: var(--accent); background: var(--accent-soft); }
+.nextdates li.is-late { border-color: var(--danger); background: var(--danger-soft); }
+.nextdates li.is-late .nextdates__when { color: var(--danger-ink); }

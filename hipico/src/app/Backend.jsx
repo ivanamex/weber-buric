@@ -19,6 +19,7 @@ import AdminSummary from './admin/Summary.jsx'
 import AdminPayroll from './admin/Payroll.jsx'
 import AdminProfit from './admin/Profit.jsx'
 import AdminModules from './admin/Modules.jsx'
+import HorseProfile from './admin/HorseProfile.jsx'
 
 const BaseContext = createContext('/app')
 /** '/app' (live, or demo when Supabase isn't set up) or '/demo'. */
@@ -82,6 +83,7 @@ export default function Backend({ mode, base }) {
           <Route path="nomina" element={<AdminPayroll />} />
           <Route path="rentabilidad" element={<AdminProfit />} />
           <Route path="ajustes" element={<AdminModules />} />
+          <Route path="caballos/:id" element={<HorseProfile />} />
           <Route path="horario" element={<AdminSchedule />} />
           <Route path="cobros" element={<AdminPayments />} />
           <Route path="familias" element={<AdminFamilies />} />

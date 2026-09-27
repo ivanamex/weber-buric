@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
   useStore, byId, isActiveBooking, isDeletedFamily, LEVELS, saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate,
@@ -213,7 +214,8 @@ function InstructorsView() {
 
 export default function AdminSchedule() {
   const { t } = useI18n()
-  const [view, setView] = useState('classes')
+  const [params] = useSearchParams()
+  const [view, setView] = useState(params.get('vista') === 'caballos' ? 'horses' : 'classes')
   return (
     <div className="page">
       <h1 className="page__title">{t('schedule.title')}</h1>

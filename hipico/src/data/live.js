@@ -107,6 +107,8 @@ async function load() {
     const owner = who.data.is_admin
       ? await Promise.all(['employees', 'salary_payments', 'expenses', 'expense_categories', 'horse_sales'].map((tbl) => sb.from(tbl).select('*')))
       : []
+    // Horse care and health: management sees all; a family only its own boarded horses (row-level security).
+    const [care, health] = await Promise.all([sb.from('horse_care').select('*'), sb.from('horse_health').select('*')])
     const ownerRows = (i) => (owner[i] && !owner[i].error ? rows(owner[i]) : [])
     lastRiders = riderRows
     lastLoad = Date.now()
@@ -139,6 +141,8 @@ async function load() {
       expenses: ownerRows(2),
       expenseCategories: ownerRows(3).sort((a, b) => a.name.localeCompare(b.name)),
       horseSales: ownerRows(4),
+      horseCare: care.error ? [] : rows(care),
+      horseHealth: health.error ? [] : rows(health),
       planChanges: planChanges.error ? [] : rows(planChanges),
     })
   } catch (err) {
@@ -323,10 +327,10 @@ async function setFamilyActive(familyId, active) {
 /* ───────── Schedule (management) ───────── */
 const SLOT_COLS = { weekday: 'weekday', time: 'time', duration: 'duration', discipline: 'discipline', level: 'level', instructorId: 'instructor_id', arena: 'arena', capacity: 'capacity', active: 'active' }
 async function upsertRow(table, id, row) {
-  const res = id ? await sb.from(table).update(row).eq('id', id) : await sb.from(table).insert(row)
+  const res = id ? await sb.from(table).update(row).eq('id', id) : await sb.from(table).insert(row).select('id')
   if (res.error) { console.error(`[hipico] ${table} save failed`, res.error); return { ok: false, code: 'missing' } }
   await refresh()
-  return { ok: true }
+  return { ok: true, id: id || res.data?.[0]?.id }
 }
 const saveSlot = (slot) => upsertRow('slots', slot.id,
   Object.fromEntries(Object.entries(SLOT_COLS).filter(([k]) => slot[k] !== undefined).map(([k, col]) => [col, ['weekday', 'duration', 'capacity'].includes(k) ? Number(slot[k]) : slot[k]])))
@@ -340,7 +344,27 @@ const saveHorse = (h) => {
     owner_family_id: status === 'boarded' ? h.ownerFamilyId || null : null,
     sale_price: numOrNull(h.salePrice), age: numOrNull(h.age), breed: h.breed?.trim() || null, level: h.level || null,
     description: h.description?.trim() || null,
+    birth_year: numOrNull(h.birthYear), sex: h.sex || null, coat: h.coat?.trim() || null, height_cm: numOrNull(h.heightCm),
   })
+}
+async function saveHorseCare({ horseId, feed = [], rationsPerDay, supplements, notes }) {
+  const row = {
+    feed: feed.filter((f) => f.type?.trim()).map((f) => ({ type: f.type.trim(), kg: Number(f.kg) || 0 })),
+    rations_per_day: numOrNull(rationsPerDay), supplements: supplements?.trim() || null, notes: notes?.trim() || null,
+  }
+  const exists = (await sb.from('horse_care').select('horse_id').eq('horse_id', horseId).maybeSingle()).data
+  const res = exists ? await sb.from('horse_care').update(row).eq('horse_id', horseId) : await sb.from('horse_care').insert({ horse_id: horseId, ...row })
+  if (res.error) { console.error('[hipico] care save failed', res.error); return { ok: false, code: 'network' } }
+  await refresh()
+  return { ok: true }
+}
+const addHealth = ({ horseId, kind, doneOn, nextDue, note }) =>
+  upsertRow('horse_health', null, { horse_id: horseId, kind, done_on: doneOn, next_due: nextDue || null, note: note?.trim() || null })
+async function deleteHealth(id) {
+  const res = await sb.from('horse_health').delete().eq('id', id)
+  if (res.error) return { ok: false, code: 'network' }
+  await refresh()
+  return { ok: true }
 }
 
 /* ───────── Owner's panel ───────── */
@@ -481,6 +505,9 @@ export const actions = {
   saveSettings,
   bookSingleClass,
   saveClassPrices,
+  saveHorseCare,
+  addHealth,
+  deleteHealth,
   sellHorse,
   uploadHorsePhoto,
   removeHorsePhoto,

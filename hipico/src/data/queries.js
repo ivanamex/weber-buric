@@ -259,3 +259,33 @@ export function activeCounts(s) {
     boarded: s.horses.filter((h) => horseStatus(h) === 'boarded').length,
   }
 }
+
+// ── Horse profile ──
+export const HORSE_LEVELS = ['beginner', 'intermediate', 'advanced', 'competition']
+export const HORSE_SEXES = ['mare', 'gelding', 'stallion']
+export const HEALTH_KINDS = ['vaccine', 'deworming', 'farrier', 'vet']
+/** Age from the birth year when known, else the age typed in. */
+export const horseAge = (h) => (h.birthYear ? Number(todayKey().slice(0, 4)) - h.birthYear : h.age ?? null)
+export const careOf = (s, horseId) => (s.horseCare || []).find((c) => c.horseId === horseId) || null
+export const healthOf = (s, horseId) =>
+  (s.horseHealth || []).filter((x) => x.horseId === horseId).sort((a, b) => b.doneOn.localeCompare(a.doneOn))
+/** Latest record of each kind for a horse, with its next due date. */
+export function lastByKind(s, horseId) {
+  const out = {}
+  for (const x of healthOf(s, horseId)) if (!out[x.kind]) out[x.kind] = x
+  return out
+}
+/** Vaccines, deworming and farrier due in the next `days` days (or overdue), for horses still at the club. */
+export function healthDueSoon(s, days = 14) {
+  const until = addDays(todayKey(), days)
+  const out = []
+  for (const h of s.horses) {
+    if (['sold', 'retired'].includes(horseStatus(h))) continue
+    const last = lastByKind(s, h.id)
+    for (const kind of ['vaccine', 'deworming', 'farrier']) {
+      const x = last[kind]
+      if (x?.nextDue && x.nextDue <= until) out.push({ horse: h, kind, due: x.nextDue })
+    }
+  }
+  return out.sort((a, b) => a.due.localeCompare(b.due))
+}

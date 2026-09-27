@@ -117,7 +117,8 @@
   "levels": {
     "beginner": "Beginner",
     "intermediate": "Intermediate",
-    "advanced": "Advanced"
+    "advanced": "Advanced",
+    "competition": "Competition"
   },
   "disciplines": {
     "basics": "Riding basics",
@@ -710,7 +711,8 @@
     "salaries": "Salaries (next 15 days)",
     "salariesTotal": "Total",
     "open": "Open",
-    "more": "More"
+    "more": "More",
+    "horsesDue": "Horses: coming up"
   },
   "payroll": {
     "title": "Payroll",
@@ -827,5 +829,57 @@
     "buyer": "Buyer (optional)",
     "markSold": "Mark as sold",
     "soldToast": "{name}: sale recorded"
+  },
+  "myHorse": {
+    "title": "My horse",
+    "next": "Coming up",
+    "readOnly": "The club keeps this up to date. If something changes, tell us on WhatsApp."
+  },
+  "horseProfile": {
+    "basics": "Details",
+    "category": "Category",
+    "birthYear": "Year of birth",
+    "sex": "Sex",
+    "sexes": {
+      "mare": "Mare",
+      "gelding": "Gelding",
+      "stallion": "Stallion"
+    },
+    "coat": "Coat colour",
+    "height": "Height (cm)",
+    "noBasics": "No details yet.",
+    "firstIsMain": "the first one is the main photo",
+    "notFound": "We couldn't find this horse",
+    "ration": "Daily ration",
+    "noRation": "No ration recorded.",
+    "feed": "Feed",
+    "perRation": "Per ration",
+    "perDay": "Per day",
+    "rationsDay": "{n} rations a day",
+    "supplements": "Supplements",
+    "notes": "Instructions",
+    "notesPh": "e.g. no sugar, soak the hay",
+    "feedPerRation": "Feed per ration",
+    "addFeed": "Add feed",
+    "removeFeed": "Remove feed",
+    "rationsLabel": "Rations per day",
+    "health": "Health",
+    "addHealth": "Add",
+    "history": "History",
+    "kinds": {
+      "vaccine": "Vaccines",
+      "deworming": "Deworming",
+      "farrier": "Farrier",
+      "vet": "Vet"
+    },
+    "doneOn": "Date",
+    "nextDue": "Next (optional)",
+    "healthNotePh": "Note (e.g. flu and tetanus)",
+    "healthSaved": "Record saved",
+    "healthDeleted": "Record deleted",
+    "deleteHealth": "Delete record",
+    "nextOn": "Next: {date}",
+    "overdue": "Overdue: {date}",
+    "lastOn": "Last: {date}"
   }
 }
