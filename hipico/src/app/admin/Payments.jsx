@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { useStore, byId, pendingPayments, markPaid, monthCollected, recentPaid, saveSettings } from '../../data/store.js'
+import { useStore, byId, pendingPayments, markPaid, monthCollected, recentPaid, saveSettings, saveClassPrices } from '../../data/store.js'
+import { CLASS_PRICES, CLASS_KINDS } from '../../data/prices.js'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty, SectionTitle, Segmented } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
@@ -28,6 +29,7 @@ export default function AdminPayments() {
     if (p.meta?.classes && p.meta?.kind !== 'upgrade') bits.push(t('plan.classesPlan', { n: p.meta.classes }))
     if (p.meta?.riderId) bits.push(byId(s.riders, p.meta.riderId)?.name)
     if (p.meta?.horseId) bits.push(byId(s.horses, p.meta.horseId)?.name)
+    if (p.meta?.date) bits.push(fmtDate(p.meta.date, { day: 'numeric', month: 'short' }))
     if (p.meta?.month) bits.push(fmtDate(`${p.meta.month}-01`, { month: 'long' }))
     return bits.filter(Boolean).join(' · ')
   }
@@ -98,6 +100,9 @@ export default function AdminPayments() {
       <SectionTitle>{t('receipt.bankTitle')}</SectionTitle>
       <BankSettings />
 
+      <SectionTitle icon="horseshoe">{t('prices.title')}</SectionTitle>
+      <ClassPrices />
+
       <SectionTitle>{t('admin.payments.recent')}</SectionTitle>
       {recentPaid(s, 6).length ? (
         <ul className="card list">
@@ -125,6 +130,52 @@ export default function AdminPayments() {
 }
 
 /** Bank details shown to families when they pay by transfer. */
+/** Prices of the classes outside the packages (plans stay the main path). */
+function ClassPrices() {
+  const { t, fmtMoney } = useI18n()
+  const toast = useToast()
+  const [editing, setEditing] = useState(false)
+  const [f, setF] = useState({})
+  const [busy, setBusy] = useState(false)
+  const start = () => { setF({ ...CLASS_PRICES }); setEditing(true) }
+  const onSave = async (e) => {
+    e.preventDefault()
+    setBusy(true)
+    const res = await saveClassPrices(f)
+    setBusy(false)
+    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    toast(t('toasts.pricesSaved'))
+    setEditing(false)
+  }
+  if (!editing) {
+    return (
+      <div className="card">
+        <ul className="list">
+          {CLASS_KINDS.map((k) => (
+            <li key={k} className="list__row"><span className="grow">{t(`classKind.${k}`)}</span><strong>{fmtMoney(CLASS_PRICES[k])}</strong></li>
+          ))}
+        </ul>
+        <p className="small muted mt8">{t('prices.hint')}</p>
+        <button type="button" className="btn btn--outline btn--sm btn--block mt12" onClick={start}>{t('more.profile.edit')}</button>
+      </div>
+    )
+  }
+  return (
+    <form className="card" onSubmit={onSave}>
+      {CLASS_KINDS.map((k) => (
+        <label key={k} className="field" htmlFor={`price-${k}`}><span>{t(`classKind.${k}`)} (MXN)</span>
+          <input id={`price-${k}`} className="input" type="number" inputMode="numeric" min={0} step={10} required
+            value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} />
+        </label>
+      ))}
+      <div className="row gap-sm mt12 end">
+        <button type="button" className="btn btn--sm" onClick={() => setEditing(false)}>{t('common.cancel')}</button>
+        <button type="submit" className="btn btn--sm btn--primary" disabled={busy}>{t('admin.families.saveChanges')}</button>
+      </div>
+    </form>
+  )
+}
+
 function BankSettings() {
   const { t } = useI18n()
   const toast = useToast()

@@ -84,8 +84,11 @@ export default function AdminToday() {
                       <div className="attendee__info">
                         <p className="list__title">{rider.name} <span className="muted small">· {family.name.replace(/^Familia |^Family /, '')}</span></p>
                         <p className="small muted"><Icon name="shoe" size={13} /> {horse?.name}{horse?.type === 'boarded' ? ` (${t('admin.today.own')})` : ''}</p>
-                        <p className="small">
-                          {plan
+                        <p className="small row gap-sm wrap">
+                          <Badge tone={(b.kind || 'plan') === 'plan' ? 'neutral' : 'accent'}>{t(`classKind.tag.${b.kind || 'plan'}`)}</Badge>
+                          {(b.kind || 'plan') !== 'plan'
+                            ? <Badge tone={byId(s.payments, b.paymentId)?.status === 'paid' ? 'success' : 'alert'}>{t(byId(s.payments, b.paymentId)?.status === 'paid' ? 'plan.paid' : 'plan.pendingPay')}</Badge>
+                            : plan
                             ? <Badge tone={plan.paid ? 'success' : 'alert'}>{plan.paid ? t('admin.today.planOk', { n: planRemaining(plan) }) : t('plan.pendingPay')}</Badge>
                             : <Badge tone="alert">{t('plan.none')}</Badge>}
                         </p>

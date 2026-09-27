@@ -134,7 +134,10 @@
     "camp": "Camp",
     "rental": "Horse rental",
     "events": "Parties & events",
-    "planDiff": "Plan difference ({from} → {to} classes)"
+    "planDiff": "Plan difference ({from} → {to} classes)",
+    "class": "Class",
+    "trial": "Trial classes",
+    "classes": "Single and extra classes"
   },
   "methods": {
     "cash": "Cash",
@@ -171,7 +174,13 @@
       "fullBtn": "Full",
       "otherLevel": "Other level",
       "cancelRule": "Cancel up to 12 h before and the class returns to your plan",
-      "nextDay": "See the next day"
+      "nextDay": "See the next day",
+      "choiceNoPlan": "{name} doesn't have a plan yet. With a plan every class costs less.",
+      "tryTrial": "or try a trial class ({price})",
+      "paySingle": "or pay just this class ({price})",
+      "choiceEmpty": "{name} has used all of this month's classes.",
+      "biggerPlan": "Change to a bigger plan",
+      "bookExtra": "or book an extra class ({price})"
     }
   },
   "plan": {
@@ -217,7 +226,9 @@
     "upgradeUnpaidInfo": "Starts today. This month's payment changes to {amount}.",
     "downgradeInfo": "Your new plan starts on {date}. This month you keep {n} classes.",
     "keepInfo": "You keep {n} classes/month and the pending change is cancelled.",
-    "changeTo": "Change to {n} classes"
+    "changeTo": "Change to {n} classes",
+    "likedIt": "Did you enjoy it? Choose your plan",
+    "likedItText": "With a plan, {name} has classes every month and each one costs less."
   },
   "boarding": {
     "title": "Horse boarding",
@@ -410,7 +421,9 @@
     "familyDeleted": "{name} deleted. Their history is kept.",
     "allCame": "Attendance recorded for {n} riders",
     "upgradeRequested": "Done: {n}-class plan. Pay the difference to add the classes.",
-    "downgradeScheduled": "Your {n}-class plan starts on {date}."
+    "downgradeScheduled": "Your {n}-class plan starts on {date}.",
+    "singleBooked": "{kind} booked for {name}. Pay {amount} by transfer or at the club.",
+    "pricesSaved": "Prices saved"
   },
   "errors": {
     "notFound": "Record not found.",
@@ -449,7 +462,9 @@
     "badPassword": "Wrong email or password.",
     "shortPassword": "Use at least 8 characters.",
     "weakPassword": "That password is too easy. Try another one.",
-    "reauthNeeded": "For security, sign in again with a code and try once more."
+    "reauthNeeded": "For security, sign in again with a code and try once more.",
+    "hasPlan": "This rider already has a plan this month: book from the plan.",
+    "trialUsed": "This rider has already had their trial class."
   },
   "live": {
     "loading": "Loading…",
@@ -621,5 +636,20 @@
   "nudge": {
     "title": "Create a password to open the installed app without waiting for the code",
     "save": "Save"
+  },
+  "classKind": {
+    "trial": "Trial class",
+    "single": "Single class",
+    "extra": "Extra class",
+    "tag": {
+      "plan": "Plan",
+      "trial": "Trial",
+      "single": "Single",
+      "extra": "Extra"
+    }
+  },
+  "prices": {
+    "title": "Class prices",
+    "hint": "Trial class: one per rider. Single class: no plan. Extra class: when the plan is used up."
   }
 }

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { useStore, byId, occurrencesFor, bookClass, getPlan, planRemaining, planExpiry } from '../../data/store.js'
+import { useStore, byId, occurrencesFor, bookClass, bookSingleClass, getPlan, planRemaining, planExpiry, hadTrial } from '../../data/store.js'
+import { CLASS_PRICES } from '../../data/prices.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
 import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
@@ -14,7 +15,7 @@ const DAYS = 7
 const MAX_WEEKS = 2
 
 export default function FamilyBook() {
-  const { t, fmtDate, fmtTime } = useI18n()
+  const { t, fmtDate, fmtTime, fmtMoney } = useI18n()
   const s = useStore()
   const toast = useToast()
   const { riderId } = useFamilyContext()
@@ -24,6 +25,7 @@ export default function FamilyBook() {
   const [week, setWeek] = useState(0)
   const [date, setDate] = useState(today)
   const [busy, setBusy] = useState(null)
+  const [choice, setChoice] = useState(null) // { slotId, reason: 'noPlan' | 'planEmpty' }
 
   const start = addDays(today, week * DAYS)
   const days = Array.from({ length: DAYS }, (_, i) => addDays(start, i))
@@ -34,17 +36,34 @@ export default function FamilyBook() {
 
   const changeWeek = (w) => { setWeek(w); setDate(w === 0 ? today : addDays(today, w * DAYS)) }
 
+  // No plan (and none renewing) or a used-up plan: plans come first, a single class is the quiet option.
+  const standing = rider.planClasses && (!rider.planStart || monthKeyOf(rider.planStart) <= month)
+  const needsChoice = !plan ? (standing ? null : 'noPlan') : plan.used >= plan.total ? 'planEmpty' : null
+
   const onBook = async (o, e) => {
+    if (needsChoice) return setChoice({ slotId: o.slot.id, reason: needsChoice })
     const r = e?.currentTarget?.getBoundingClientRect()
     setBusy(o.slot.id)
     const res = await bookClass({ riderId, slotId: o.slot.id, date })
     setBusy(null)
+    if (!res.ok && (res.code === 'noPlan' || res.code === 'planEmpty')) return setChoice({ slotId: o.slot.id, reason: res.code })
     if (res.ok) {
       if (r) celebrate(r.left + r.width / 2, r.top + r.height / 2)
       toast(t('toasts.booked', { name: rider.name, date: fmtDate(date, { weekday: 'short', day: 'numeric', month: 'short' }), time: fmtTime(o.slot.time), n: res.remaining }))
     } else {
       toast(t(`errors.${res.code}`, { month: monthName }), 'error')
     }
+  }
+
+  const onSingle = async (o, kind, e) => {
+    const r = e?.currentTarget?.getBoundingClientRect()
+    setBusy(o.slot.id)
+    const res = await bookSingleClass({ riderId, slotId: o.slot.id, date, kind })
+    setBusy(null)
+    if (!res.ok) return toast(t(`errors.${res.code}`, { month: monthName }), 'error')
+    setChoice(null)
+    if (r) celebrate(r.left + r.width / 2, r.top + r.height / 2)
+    toast(t('toasts.singleBooked', { kind: t(`classKind.${kind}`), name: rider.name, amount: fmtMoney(res.amount ?? CLASS_PRICES[kind]) }))
   }
 
   return (
@@ -130,6 +149,36 @@ export default function FamilyBook() {
                   {state === 'full' && <button type="button" className="btn btn--sm" disabled>{t('family.book.fullBtn')}</button>}
                   {state === 'level' && <button type="button" className="btn btn--sm" disabled title={t('errors.level')}>{t('family.book.otherLevel')}</button>}
                 </div>
+                {state === 'open' && choice?.slotId === o.slot.id && (
+                  <div className="slot__choice">
+                    {choice.reason === 'noPlan' ? (
+                      <>
+                        <p className="small">{t('family.book.choiceNoPlan', { name: rider.name })}</p>
+                        <Link to={`${base}/familia/plan?elegir=1`} className="btn btn--primary btn--block">{t('plan.choose')}</Link>
+                        <p className="slot__quiet">
+                          {!hadTrial(s, riderId) && (
+                            <button type="button" className="link link--quiet" disabled={busy !== null} onClick={(e) => onSingle(o, 'trial', e)}>
+                              {t('family.book.tryTrial', { price: fmtMoney(CLASS_PRICES.trial) })}
+                            </button>
+                          )}
+                          <button type="button" className="link link--quiet" disabled={busy !== null} onClick={(e) => onSingle(o, 'single', e)}>
+                            {t('family.book.paySingle', { price: fmtMoney(CLASS_PRICES.single) })}
+                          </button>
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="small">{t('family.book.choiceEmpty', { name: rider.name })}</p>
+                        <Link to={`${base}/familia/plan?cambiar=1`} className="btn btn--primary btn--block">{t('family.book.biggerPlan')}</Link>
+                        <p className="slot__quiet">
+                          <button type="button" className="link link--quiet" disabled={busy !== null} onClick={(e) => onSingle(o, 'extra', e)}>
+                            {t('family.book.bookExtra', { price: fmtMoney(CLASS_PRICES.extra) })}
+                          </button>
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
               </li>
             )
           })}

@@ -17,6 +17,10 @@ export const RENTAL_HOURS = [1, 2]
 
 export const CAMP = { price: 12500, deposit: 3000 }
 
+// Classes outside the packages: Clase muestra (one per rider), Clase suelta (no plan), Clase adicional (plan used up)
+export const CLASS_PRICES = { trial: 400, single: 650, extra: 600 }
+export const CLASS_KINDS = ['trial', 'single', 'extra']
+
 // "Desde" prices for quote-based services
 export const FROM_PRICES = {
   birthday: 8500,
@@ -30,6 +34,7 @@ export function applyPrices(map) {
   if (map.boarding_monthly != null) BOARDING_MONTHLY = map.boarding_monthly
   if (map.rental_per_hour != null) RENTAL_PER_HOUR = map.rental_per_hour
   for (const k of Object.keys(FROM_PRICES)) if (map[`from_${k}`] != null) FROM_PRICES[k] = map[`from_${k}`]
+  for (const k of CLASS_KINDS) if (map[`class_${k}`] != null) CLASS_PRICES[k] = map[`class_${k}`]
 }
 
 const DEFAULTS = {
@@ -37,6 +42,7 @@ const DEFAULTS = {
   boarding_monthly: BOARDING_MONTHLY,
   rental_per_hour: RENTAL_PER_HOUR,
   ...Object.fromEntries(Object.entries(FROM_PRICES).map(([k, v]) => [`from_${k}`, v])),
+  ...Object.fromEntries(Object.entries(CLASS_PRICES).map(([k, v]) => [`class_${k}`, v])),
 }
 /** Back to the example prices (switching from live to the demo). */
 export const resetPrices = () => applyPrices(DEFAULTS)

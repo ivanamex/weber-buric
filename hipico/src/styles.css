@@ -676,3 +676,12 @@ p.center { display: block; }
 .history .right { text-align: right; }
 .history__receipt { display: inline-flex; align-items: center; gap: 4px; justify-self: start; font-size: .82rem; }
 .family-history { display: grid; gap: 4px; }
+
+/* Classes outside the packages: a quiet option under the plan choice */
+.slot { flex-wrap: wrap; }
+.slot__choice { flex-basis: 100%; display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); }
+.slot__quiet { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; }
+.link--quiet { font-weight: 500; font-size: .85rem; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.link--quiet:disabled { opacity: .5; }
+.bar__fill--trial { background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.bar__fill--classes { background: #A7B79B; }

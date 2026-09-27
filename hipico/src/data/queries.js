@@ -68,12 +68,19 @@ const paidThisMonth = (s) => {
 }
 const dateKeyFromIso = (iso) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Cancun' }).format(new Date(iso))
 
-export const SERVICES = ['plan', 'boarding', 'camp', 'rental', 'events']
+// Income types in Reportes: plans, trial classes and single/extra classes apart, then the other services.
+export const SERVICES = ['plan', 'trial', 'classes', 'boarding', 'camp', 'rental', 'events']
+const incomeType = (p) => (p.service === 'class' ? (p.meta?.kind === 'trial' ? 'trial' : 'classes') : p.service)
 export function incomeByService(s) {
   const totals = Object.fromEntries(SERVICES.map((k) => [k, 0]))
-  for (const p of paidThisMonth(s)) totals[p.service] = (totals[p.service] || 0) + p.amount
+  for (const p of paidThisMonth(s)) totals[incomeType(p)] = (totals[incomeType(p)] || 0) + p.amount
   return totals
 }
+/** The rider already had (or has booked) their trial class. */
+/** The trial class already happened (for the gentle "¿Te gustó? Elige tu plan"). */
+export const trialDone = (s, riderId) => s.bookings.some((b) => b.riderId === riderId && b.kind === 'trial' &&
+  (b.status === 'attended' || (b.status === 'booked' && b.date < todayKey())))
+export const hadTrial = (s, riderId) => s.bookings.some((b) => b.riderId === riderId && b.kind === 'trial' && b.status !== 'cancelled')
 export const monthCollected = (s) => paidThisMonth(s).reduce((sum, p) => sum + p.amount, 0)
 export const recentPaid = (s, limit = 5) =>
   paidThisMonth(s).sort((a, b) => b.paidAt.localeCompare(a.paidAt)).slice(0, limit)

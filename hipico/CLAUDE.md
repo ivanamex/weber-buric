@@ -75,6 +75,7 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
   - instructors and horses, with on/off.
 - **Hoy:** Vino / No vino, plus "Todos vinieron".
 - **Plans (family):** a "Plan activo" card tops Inicio and Mi plan (horseshoes, "Se renueva el…", Pagado / Por revisar / Pendiente, Reservar clase / Cambiar plan). A chosen plan is the rider's standing plan (`riders.plan_classes`) and renews monthly. `change_plan()`: upgrade applies now and charges only the difference (`payments.meta.kind = 'upgrade'`; the classes are added when it's approved, via `apply_plan_payment()`); downgrade starts at the next renewal. `plan_changes` keeps the history. Mi plan has "Historial de pagos" (12 months, receipt link); Familias shows plan + payment history per family. After an email-link sign-in in Safari on iPhone, a one-time card offers a password.
+- **Classes outside the packages:** `book_single_class()` books a Clase muestra (one per rider, ever; no plan), Clase suelta (no plan) or Clase adicional (plan that month) with its own `payments` row (`service = 'class'`, `meta.kind`); `bookings.kind` / `payment_id` link them. Cancelling returns a plan class to the plan and drops a single class's unpaid charge (`release_booking()`). In Reservar, a rider without a plan (or with it used up) sees the plan first (coral) and the single options as small links. Prices `class_trial/single/extra` are edited in Cobros → Precios de clases; Hoy tags each rider; Reportes splits trial and single/extra income.
 - **Visual:**
   - club logo: white on green (header, hero), green on cream (login, splash); coral accent (no gold);
   - PWA icons and favicon made from the logo;
@@ -85,7 +86,7 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
 - **Landing:** a phone drawn in CSS shows the real app (`/vista`: the demo in memory, nothing saved, touring Inicio → Reservar → Mi plan); a horse drawn with letters (`components/TextHorse.jsx`) glows sage→coral near the pointer in the hero and gallops across the closing band; WebP photo bands fade in on scroll; hovers are desktop-only and respect reduced motion.
 - **Install** (`components/Install.jsx`, `lib/install.js`): "Descargar para iPhone / Android" on the landing and once after the first sign-in; the visitor's phone is highlighted. Android opens the native dialog (`beforeinstallprompt`, captured in `main.jsx`) or shows the ⋮ menu guide; iPhone shows a two-step sheet with an arrow to Safari's Share; in-app browsers (WhatsApp, Instagram…) get "Copiar enlace". Hidden when running installed.
 
-**Database updates so far:** `20260927_family_accounts`, `20260928_transfer_receipts`, `20260929_family_block_delete`, `20260930_schedule`, `20261001_plan_changes`.
+**Database updates so far:** `20260927_family_accounts`, `20260928_transfer_receipts`, `20260929_family_block_delete`, `20260930_schedule`, `20261001_plan_changes`, `20261002_single_classes`.
 
 **Waiting on the club:** bank details (bank, holder, 18-digit CLABE), real prices, schedule, instructors and horses, the owner's email for management, and the logo as a vector file (the PNG is 171×226, so keep it at 64 px tall or less).
 

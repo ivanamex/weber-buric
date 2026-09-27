@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, getPlan, planRemaining, planExpiry, planStatus, pendingUpgrade, changePlan,
+  useStore, byId, getPlan, planRemaining, planExpiry, planStatus, pendingUpgrade, changePlan, trialDone,
 } from '../../data/store.js'
 import { PLANS, planPrice } from '../../data/prices.js'
 import { useBase } from '../Backend.jsx'
@@ -23,11 +23,12 @@ export function ActivePlanCard({ riderId, onChange }) {
   if (!rider) return null
 
   if (!plan) {
+    const tried = trialDone(s, riderId)
     return (
       <section className="card activeplan activeplan--empty">
         <span className="tile-icon tile-icon--accent"><Icon name="horseshoe" /></span>
-        <p className="card__title">{t('plan.noneYet')}</p>
-        <p className="small muted">{t('plan.noneYetText', { name: rider.name })}</p>
+        <p className="card__title">{t(tried ? 'plan.likedIt' : 'plan.noneYet')}</p>
+        <p className="small muted">{t(tried ? 'plan.likedItText' : 'plan.noneYetText', { name: rider.name })}</p>
         <Link to={`${base}/familia/plan?elegir=1`} className="btn btn--primary btn--block">{t('plan.choose')}</Link>
       </section>
     )

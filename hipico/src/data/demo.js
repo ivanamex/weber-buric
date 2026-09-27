@@ -1,6 +1,6 @@
 // Demo mode: sample data kept in this browser (localStorage). Same rules as the live database.
 import { createSeed, DEMO_FAMILY_ID } from './seed.js'
-import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR } from './prices.js'
+import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS_KINDS, applyPrices, resetPrices } from './prices.js'
 import { weekdayOf, monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, toInstant, todayKey } from '../lib/time.js'
 import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS } from './queries.js'
 
@@ -47,6 +47,7 @@ export function activate(setState, inMemory = false) {
   publish = setState
   if (inMemory !== memoryOnly) { state = null; memoryOnly = inMemory }
   state ||= memoryOnly ? { ...createSeed(), session: { role: 'family', familyId: DEMO_FAMILY_ID } } : load() || persist(createSeed())
+  if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
   if (!memoryOnly && !storageListener && typeof window !== 'undefined') {
     storageListener = true
     // Keep tabs in sync when the demo is open twice.
@@ -74,6 +75,7 @@ function setPassword(password) {
 const liveOnly = () => ({ ok: true })
 
 function resetDemo() {
+  resetPrices()
   receiptFiles.clear()
   try { localStorage.removeItem(FILES_KEY) } catch { /* ignore */ }
   const session = state.session
@@ -111,15 +113,7 @@ function bookClass({ riderId, slotId, date }) {
     if (!plan) return fail('noPlan', { month })
     if (plan.used >= plan.total) return fail('planEmpty', { month })
 
-    // Horse: rider's own boarded horse if free, else first free school horse at that time.
-    const busy = new Set(
-      s.bookings
-        .filter((b) => b.date === date && isActiveBooking(b) && byId(s.slots, b.slotId)?.time === slot.time)
-        .map((b) => b.horseId),
-    )
-    const own = rider.horseId && byId(s.horses, rider.horseId)
-    let horseId = own && own.active !== false && !busy.has(own.id) ? own.id : null
-    horseId ||= s.horses.find((h) => h.type === 'school' && h.active !== false && !busy.has(h.id))?.id
+    const horseId = pickHorse(s, rider, slot, date)
     if (!horseId) return fail('noHorse')
 
     plan.used += 1
@@ -127,6 +121,70 @@ function bookClass({ riderId, slotId, date }) {
     s.bookings.push(booking)
     return { ok: true, booking, remaining: planRemaining(plan) }
   })
+}
+
+/** Horse: the rider's own boarded horse if free, else the first free school horse at that time. */
+function pickHorse(s, rider, slot, date) {
+  const busy = new Set(
+    s.bookings
+      .filter((b) => b.date === date && isActiveBooking(b) && byId(s.slots, b.slotId)?.time === slot.time)
+      .map((b) => b.horseId),
+  )
+  const own = rider.horseId && byId(s.horses, rider.horseId)
+  if (own && own.active !== false && !busy.has(own.id)) return own.id
+  return s.horses.find((h) => h.type === 'school' && h.active !== false && !busy.has(h.id))?.id || null
+}
+
+/** Same rules as book_single_class(): trial (one per rider, no plan), single (no plan), extra (plan that month). */
+function bookSingleClass({ riderId, slotId, date, kind }) {
+  return mutate((s) => {
+    const rider = byId(s.riders, riderId)
+    const slot = byId(s.slots, slotId)
+    if (!CLASS_KINDS.includes(kind) || !rider || rider.active === false || !slot || slot.active === false || slot.weekday !== weekdayOf(date)) return fail('notFound')
+    if (hoursUntil(date, slot.time) <= 0) return fail('past')
+    if ((s.cancellations || []).some((c) => c.slotId === slotId && c.date === date)) return fail('classCancelled')
+    const hasPlan = Boolean(getPlan(s, riderId, monthKeyOf(date)))
+    if (kind === 'extra' && !hasPlan) return fail('noPlan')
+    if (kind !== 'extra' && hasPlan) return fail('hasPlan')
+    if (kind === 'trial' && s.bookings.some((b) => b.riderId === riderId && b.kind === 'trial' && isActiveBooking(b))) return fail('trialUsed')
+    const active = s.bookings.filter((b) => b.slotId === slotId && b.date === date && isActiveBooking(b))
+    if (active.some((b) => b.riderId === riderId)) return fail('already')
+    if (active.length >= slot.capacity) return fail('full')
+    if (rider.level !== slot.level) return fail('level')
+    const horseId = pickHorse(s, rider, slot, date)
+    if (!horseId) return fail('noHorse')
+    const booking = { id: nextId(s, 'b'), slotId, date, riderId, horseId, status: 'booked', kind, createdAt: now() }
+    const payment = {
+      id: nextId(s, 'pay'), familyId: rider.familyId, service: 'class', amount: CLASS_PRICES[kind],
+      status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, kind, date, slotId, bookingId: booking.id },
+    }
+    booking.paymentId = payment.id
+    s.bookings.push(booking)
+    s.payments.push(payment)
+    return { ok: true, booking, payment, amount: payment.amount }
+  })
+}
+
+/** A plan class returns to the plan; a class paid on its own drops its unpaid charge. */
+function releaseBooking(s, b) {
+  if ((b.kind || 'plan') === 'plan') {
+    const plan = getPlan(s, b.riderId, monthKeyOf(b.date))
+    if (plan) plan.used = Math.max(plan.used - 1, 0)
+  } else if (b.paymentId) {
+    s.payments = s.payments.filter((p) => !(p.id === b.paymentId && p.status === 'pending' && p.receiptStatus !== 'review'))
+  }
+}
+
+function saveClassPrices(prices) {
+  const clean = {}
+  for (const k of CLASS_KINDS) {
+    const n = Number(prices[k])
+    if (!Number.isFinite(n) || n < 0) return fail('missing')
+    clean[k] = Math.round(n)
+  }
+  const res = mutate((s) => { s.classPrices = clean })
+  applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, clean[k]])))
+  return res
 }
 
 /** Cancel ≥12 h before start → class returns to the plan. */
@@ -138,8 +196,7 @@ function cancelBooking(bookingId) {
     if (!canCancel(b, slot)) return fail('tooLate')
     b.status = 'cancelled'
     b.cancelledAt = now()
-    const plan = getPlan(s, b.riderId, monthKeyOf(b.date))
-    if (plan) plan.used = Math.max(plan.used - 1, 0)
+    releaseBooking(s, b)
     return { ok: true }
   })
 }
@@ -557,8 +614,7 @@ function cancelClassDate(slotId, date, reason) {
     let cancelled = 0
     for (const b of s.bookings.filter((x) => x.slotId === slotId && x.date === date && x.status === 'booked')) {
       Object.assign(b, { status: 'cancelled', cancelledByClub: true, cancelledAt: now() })
-      const plan = getPlan(s, b.riderId, monthKeyOf(date))
-      if (plan) plan.used = Math.max(plan.used - 1, 0)
+      releaseBooking(s, b)
       cancelled++
     }
     return { ok: true, cancelled }
@@ -589,6 +645,6 @@ export const actions = {
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),
   setPassword, resume: liveOnly, signInPassword: liveOnly,
-  uploadReceipt, reviewReceipt, receiptUrl, saveSettings,
+  uploadReceipt, reviewReceipt, receiptUrl, saveSettings, bookSingleClass, saveClassPrices,
   saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,
 }

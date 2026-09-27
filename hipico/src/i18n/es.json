@@ -134,7 +134,10 @@
     "camp": "Campamento",
     "rental": "Renta de caballo",
     "events": "Fiestas y eventos",
-    "planDiff": "Diferencia de plan ({from} → {to} clases)"
+    "planDiff": "Diferencia de plan ({from} → {to} clases)",
+    "class": "Clase",
+    "trial": "Clases muestra",
+    "classes": "Clases sueltas y adicionales"
   },
   "methods": {
     "cash": "Efectivo",
@@ -171,7 +174,13 @@
       "fullBtn": "Llena",
       "otherLevel": "Otro nivel",
       "cancelRule": "Cancela hasta 12 h antes y la clase regresa a tu plan",
-      "nextDay": "Ver el día siguiente"
+      "nextDay": "Ver el día siguiente",
+      "choiceNoPlan": "{name} aún no tiene plan. Con un plan cada clase sale más barata.",
+      "tryTrial": "o prueba una clase muestra ({price})",
+      "paySingle": "o paga solo esta clase ({price})",
+      "choiceEmpty": "{name} ya usó todas las clases de este mes.",
+      "biggerPlan": "Cambiar a un plan más grande",
+      "bookExtra": "o reserva una clase adicional ({price})"
     }
   },
   "plan": {
@@ -217,7 +226,9 @@
     "upgradeUnpaidInfo": "Empieza hoy. Tu pago de este mes cambia a {amount}.",
     "downgradeInfo": "Tu nuevo plan empieza el {date}. Este mes sigues con {n} clases.",
     "keepInfo": "Te quedas con {n} clases/mes y se cancela el cambio pendiente.",
-    "changeTo": "Cambiar a {n} clases"
+    "changeTo": "Cambiar a {n} clases",
+    "likedIt": "¿Te gustó? Elige tu plan",
+    "likedItText": "Con un plan, {name} tiene sus clases de cada mes y cada una sale más barata."
   },
   "boarding": {
     "title": "Pensión de caballos",
@@ -410,7 +421,9 @@
     "familyDeleted": "{name} eliminada. Su historial se conserva.",
     "allCame": "Asistencia registrada para {n} jinetes",
     "upgradeRequested": "Listo: plan de {n} clases. Paga la diferencia para sumar las clases.",
-    "downgradeScheduled": "Tu plan de {n} clases empieza el {date}."
+    "downgradeScheduled": "Tu plan de {n} clases empieza el {date}.",
+    "singleBooked": "{kind} reservada para {name}. Paga {amount} por transferencia o en el club.",
+    "pricesSaved": "Precios guardados"
   },
   "errors": {
     "notFound": "No se encontró el registro.",
@@ -449,7 +462,9 @@
     "badPassword": "Correo o contraseña incorrectos.",
     "shortPassword": "Usa al menos 8 caracteres.",
     "weakPassword": "Esa contraseña es muy fácil. Prueba otra.",
-    "reauthNeeded": "Por seguridad, entra de nuevo con un código y vuelve a intentarlo."
+    "reauthNeeded": "Por seguridad, entra de nuevo con un código y vuelve a intentarlo.",
+    "hasPlan": "Este jinete ya tiene plan este mes: reserva desde su plan.",
+    "trialUsed": "Este jinete ya tomó su clase muestra."
   },
   "live": {
     "loading": "Cargando…",
@@ -621,5 +636,20 @@
   "nudge": {
     "title": "Crea una contraseña para abrir la app instalada sin esperar el código",
     "save": "Guardar"
+  },
+  "classKind": {
+    "trial": "Clase muestra",
+    "single": "Clase suelta",
+    "extra": "Clase adicional",
+    "tag": {
+      "plan": "Plan",
+      "trial": "Muestra",
+      "single": "Suelta",
+      "extra": "Adicional"
+    }
+  },
+  "prices": {
+    "title": "Precios de clases",
+    "hint": "Clase muestra: una por jinete. Clase suelta: sin plan. Clase adicional: cuando el plan ya se usó."
   }
 }

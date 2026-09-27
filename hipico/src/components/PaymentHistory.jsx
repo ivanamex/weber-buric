@@ -7,6 +7,7 @@ import { Icon } from './Icon.jsx'
 
 /** What a payment was for: "Plan mensual", "Diferencia de plan (4 → 8 clases)", "Pensión"… */
 export function concept(t, p) {
+  if (p.service === 'class') return t(`classKind.${p.meta?.kind || 'single'}`)
   if (p.service === 'plan' && p.meta?.kind === 'upgrade') return t('services.planDiff', { from: p.meta.fromClasses, to: p.meta.classes })
   return t(`services.${p.service}`)
 }

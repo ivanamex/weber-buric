@@ -324,6 +324,22 @@ const saveInstructor = (i) => upsertRow('instructors', i.id, { name: i.name?.tri
 const saveHorse = (h) => upsertRow('horses', h.id, {
   name: h.name?.trim(), type: h.type, active: h.active !== false, owner_family_id: h.type === 'boarded' ? h.ownerFamilyId || null : null,
 })
+const bookSingleClass = ({ riderId, slotId, date, kind }) => call('book_single_class', { p_rider: riderId, p_slot: slotId, p_date: date, p_kind: kind })
+async function saveClassPrices(prices) {
+  const rowsToSave = []
+  for (const k of ['trial', 'single', 'extra']) {
+    const n = Number(prices[k])
+    if (!Number.isFinite(n) || n < 0) return { ok: false, code: 'missing' }
+    rowsToSave.push({ key: `class_${k}`, amount: Math.round(n) })
+  }
+  // The rows exist since the database update that added them.
+  for (const row of rowsToSave) {
+    const res = await sb.from('prices').update({ amount: row.amount }).eq('key', row.key)
+    if (res.error) { console.error('[hipico] prices save failed', res.error); return { ok: false, code: 'network' } }
+  }
+  await refresh()
+  return { ok: true }
+}
 const cancelClassDate = (slotId, date, reason) => call('cancel_class_date', { p_slot: slotId, p_date: date, p_reason: reason || null })
 const reopenClassDate = (slotId, date) => call('reopen_class_date', { p_slot: slotId, p_date: date })
 const markClassAttended = (slotId, date) => call('mark_class_attended', { p_slot: slotId, p_date: date })
@@ -401,4 +417,6 @@ export const actions = {
   reviewReceipt,
   receiptUrl,
   saveSettings,
+  bookSingleClass,
+  saveClassPrices,
 }
