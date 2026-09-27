@@ -5,6 +5,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 ## Now
 
 1. **STEP-24**: clear view ⇄ edit mode with a sticky Guardar + "Guardado" toast: horse profile first, then every management form
+2. **STEP-25**: Horario in bulk: days L–D multi-select, several times at once, date range or no end; club closed days (Mondays + holidays); edit one / following / all; cancel a range; copy week
 
 Check in the browser after each step, then "ok".
 
