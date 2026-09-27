@@ -142,7 +142,7 @@ export default function FamilyBook() {
                   )}
                 </div>
                 <div className="slot__action">
-                  {state === 'open' && <button type="button" className="btn btn--primary btn--sm" onClick={(e) => onBook(o, e)} disabled={busy !== null}>{busy === o.slot.id ? '…' : t('family.book.book')}</button>}
+                  {state === 'open' && <button type="button" className="btn btn--primary btn--sm" onClick={(e) => onBook(o, e)} disabled={busy !== null}>{busy === o.slot.id ? '…' : t(needsChoice ? 'family.book.options' : 'family.book.book')}</button>}
                   {state === 'mine' && <Badge tone="success"><Icon name="check" size={14} /> {t('family.book.booked')}</Badge>}
                   {state === 'past' && <button type="button" className="btn btn--sm" disabled>{t('family.book.past')}</button>}
                   {state === 'cancelled' && <Badge tone="alert">{t('schedule.cancelledBadge')}</Badge>}

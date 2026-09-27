@@ -57,7 +57,7 @@ export function ActivePlanCard({ riderId, onChange }) {
       {nextSize && <p className="activeplan__note"><Icon name="calendar" size={15} /> {t('plan.downgradeNote', { n: nextSize, date: fmtDate(nextStart, { day: 'numeric', month: 'short' }) })}</p>}
       <div className="grid2">
         <Link to={`${base}/familia/reservar`} className="btn btn--primary">{t('plan.bookClass')}</Link>
-        <Change className="btn" {...changeProps.props}>{t('plan.change')}</Change>
+        <Change className="btn activeplan__change" {...changeProps.props}>{t('plan.change')}</Change>
       </div>
     </section>
   )

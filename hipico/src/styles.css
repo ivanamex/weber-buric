@@ -794,3 +794,8 @@ p.center { display: block; }
 .demobar__switch button { border: 0; background: transparent; padding: 5px 12px; border-radius: 999px; font-size: .8rem; font-weight: 600; color: var(--green-dark); white-space: nowrap; }
 .demobar__switch button.is-active { background: var(--green); color: #fff; }
 .demobar__exit { margin-left: auto; border: 0; background: transparent; padding: 4px 2px; font-size: .8rem; font-weight: 600; color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+/* Narrow phones: "Confirmar clase" full width, "Cambiar plan" as a text link under it */
+@media (max-width: 380px) {
+  .activeplan .grid2 { grid-template-columns: 1fr; gap: 4px; }
+  .activeplan__change { min-height: 0; padding: 6px; border: 0; background: none; box-shadow: none; color: var(--green); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+}

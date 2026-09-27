@@ -16,7 +16,7 @@
     "openShort": "Open the app",
     "eyebrow": "Hípico Riviera Maya · Paamul",
     "headline": "Your club, in your pocket",
-    "subline": "Book classes, track your monthly plan, your horse's boarding and riding-school payments — all from your phone, no calls or spreadsheets.",
+    "subline": "Confirm your classes, track your monthly plan, your horse's boarding and riding-school payments — all from your phone, no calls or spreadsheets.",
     "ctaOpen": "Open the app",
     "ctaHow": "See how it works",
     "heroNote": "No downloads: installs from your browser",
@@ -24,12 +24,12 @@
       "eyebrow": "How it works",
       "title": "Three steps, zero hassle",
       "book": {
-        "title": "Book your class",
+        "title": "Confirm your class",
         "text": "Pick a day and time for your level. See open spots in real time."
       },
       "plan": {
         "title": "Your plan updates itself",
-        "text": "Each booked class is deducted from your monthly package. Cancel in time and it comes back."
+        "text": "Each confirmed class is deducted from your monthly package. Cancel in time and it comes back."
       },
       "pay": {
         "title": "Pay from your phone",
@@ -40,7 +40,7 @@
       "eyebrow": "The whole club",
       "title": "Built for families, riders and management",
       "bookings": {
-        "title": "Class bookings",
+        "title": "Your classes",
         "text": "Schedules by level, instructor and arena. No overbooked groups."
       },
       "plans": {
@@ -88,7 +88,7 @@
     "back": "Home",
     "subtitle": "Choose how you want to sign in",
     "family": "Enter as family",
-    "familyHint": "Bookings, plan, boarding and events",
+    "familyHint": "Classes, plan, boarding and events",
     "admin": "Enter as management",
     "adminHint": "Attendance, payments and reports",
     "demoNote": "Demo version — sample data",
@@ -104,7 +104,7 @@
   },
   "tabs": {
     "home": "Home",
-    "book": "Book",
+    "book": "Classes",
     "plan": "My plan",
     "more": "More",
     "today": "Today",
@@ -155,9 +155,9 @@
     },
     "home": {
       "nextClass": "Next class",
-      "noClassTitle": "{name} doesn't have any classes booked yet",
-      "bookNow": "Book a class",
-      "moreBooked": "+{count} more class(es) booked",
+      "noClassTitle": "{name} doesn't have any classes confirmed yet",
+      "bookNow": "Confirm class",
+      "moreBooked": "+{count} more class(es) confirmed",
       "cancel": "Cancel class",
       "cancelClosed": "Can no longer be cancelled (less than {hours} h)",
       "monthlyPlan": "Monthly plan",
@@ -165,25 +165,26 @@
       "boarding": "Boarding"
     },
     "book": {
-      "title": "Book a class",
+      "title": "Classes",
       "planLine": "{name}: {n} classes left until {date}",
       "noPlanLine": "No plan for {month}.",
       "noSlotsTitle": "The club rests on this day",
       "spotsLeft": "{n} of {cap} spots open",
       "full": "Class full",
-      "book": "Book",
-      "booked": "Booked",
+      "book": "Confirm",
+      "booked": "Confirmed",
       "past": "Past",
       "fullBtn": "Full",
       "otherLevel": "Other level",
       "cancelRule": "Cancel up to 12 h before and the class returns to your plan",
       "nextDay": "See the next day",
       "choiceNoPlan": "{name} doesn't have a plan yet. With a plan every class costs less.",
-      "tryTrial": "or try a trial class ({price})",
-      "paySingle": "or pay just this class ({price})",
+      "tryTrial": "or book a trial class ({price})",
+      "paySingle": "or book a single class ({price})",
       "choiceEmpty": "{name} has used all of this month's classes.",
       "biggerPlan": "Change to a bigger plan",
-      "bookExtra": "or book an extra class ({price})"
+      "bookExtra": "or book an extra class ({price})",
+      "options": "Options"
     }
   },
   "plan": {
@@ -219,7 +220,7 @@
     "renews": "Renews on {date}",
     "upgradeWaiting": "Change to {n} classes: they're added as soon as the payment is approved.",
     "downgradeNote": "From {date}: {n} classes/month.",
-    "bookClass": "Book a class",
+    "bookClass": "Confirm class",
     "change": "Change plan",
     "changeTitle": "Change plan",
     "yours": "Your plan",
@@ -324,7 +325,7 @@
       "noshow": "No-show",
       "own": "own",
       "planOk": "Plan up to date · {n} left",
-      "emptyTitle": "No classes booked this day",
+      "emptyTitle": "No confirmed classes this day",
       "rule": "Both “Came” and “No-show” count the class as used.",
       "allCame": "All came",
       "seeSchedule": "See schedule"
@@ -398,7 +399,7 @@
     }
   },
   "toasts": {
-    "booked": "Class booked for {name}: {date}, {time}. {n} left in the plan.",
+    "booked": "Class confirmed · {n} left. {name}: {date}, {time}.",
     "cancelled": "Class cancelled. It's back in your plan.",
     "cardSoon": "Coming soon — Mercado Pago",
     "planPending": "{n}-class plan for {name} ({month}). Payment pending at the club.",
@@ -467,7 +468,7 @@
     "shortPassword": "Use at least 8 characters.",
     "weakPassword": "That password is too easy. Try another one.",
     "reauthNeeded": "For security, sign in again with a code and try once more.",
-    "hasPlan": "This rider already has a plan this month: book from the plan.",
+    "hasPlan": "This rider already has a plan this month: confirm the class from the plan.",
     "trialUsed": "This rider has already had their trial class.",
     "duplicate": "There's already one with that name."
   },
@@ -555,11 +556,11 @@
     "activeClass": "Class active",
     "activeLabel": "Active",
     "off": "Off",
-    "booked": "{n} of {cap} booked",
+    "booked": "{n} of {cap} confirmed",
     "cancelDate": "Cancel this date",
     "cancelReason": "Reason (families will see it)",
     "cancelPh": "E.g. rain",
-    "cancelHint": "{n} bookings will be cancelled and the class returns to their plan.",
+    "cancelHint": "{n} confirmed classes will be cancelled and return to their plan.",
     "cancelDone": "Date cancelled. Families can see it now.",
     "reopen": "Reopen date",
     "reopened": "Date reopened",
@@ -666,7 +667,7 @@
     "print": "Print poster",
     "copy": "Copy link",
     "copied": "Link copied",
-    "waText": "Get the Hípico Riviera Maya app: book classes, follow your plan and pay from your phone. {link}",
+    "waText": "Get the Hípico Riviera Maya app: confirm your classes, follow your plan and pay from your phone. {link}",
     "poster": {
       "es": {
         "title": "Descarga la app del club",
