@@ -128,7 +128,7 @@ p.center { display: block; }
 .lheader__inner { display: flex; align-items: center; justify-content: space-between; height: 66px; gap: 12px; }
 .lheader__actions { display: flex; align-items: center; gap: 10px; }
 
-.hero { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 85% 10%, #3a6a48 0%, var(--green) 45%, var(--green-dark) 100%); color: #fff; padding: 56px 0 72px; }
+.hero { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 85% 10%, #3a6a48 0%, var(--green) 45%, var(--green-dark) 100%); color: #fff; padding: 44px 0 40px; }
 .hero__bg { position: absolute; right: -180px; top: -120px; width: 640px; opacity: .14; pointer-events: none; }
 .hero__bg circle { fill: none; stroke: var(--accent); stroke-width: 2; }
 .hero__inner { position: relative; display: grid; gap: 48px; align-items: center; }
@@ -144,10 +144,10 @@ p.center { display: block; }
 .hero__head { grid-area: head; }
 .hero__phone { grid-area: phone; }
 .hero__body { grid-area: body; }
-.hero__horse { margin-top: 36px; max-width: 560px; }
-.texthorse, .runhorse { display: block; width: 100%; }
+.runhorse { display: block; width: 100%; }
 @media (min-width: 900px) {
-  .hero__inner { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); grid-template-areas: "head phone" "body phone"; gap: 0 56px; align-items: start; }
+  .hero__inner { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); grid-template-areas: "head phone" "body phone"; gap: 0 56px; align-items: center; }
+  .hero__body { align-self: start; }
   .hero__head { align-self: end; }
   .hero__sub { margin-top: 18px; }
 }
@@ -308,7 +308,7 @@ p.center { display: block; }
 .lfooter__legal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-top: 36px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.12); font-size: .82rem; color: rgba(255,255,255,.55); }
 
 @media (min-width: 760px) {
-  .hero { padding: 88px 0 104px; }
+  .hero { padding: 64px 0 56px; }
   .steps { grid-template-columns: repeat(3, 1fr); }
   .features { grid-template-columns: repeat(2, 1fr); }
 }

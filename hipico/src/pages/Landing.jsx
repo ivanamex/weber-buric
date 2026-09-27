@@ -6,7 +6,7 @@ import { LangToggle } from '../components/LangToggle.jsx'
 import { Icon } from '../components/Icon.jsx'
 import { waLink } from '../components/ui.jsx'
 import { InstallButtons } from '../components/Install.jsx'
-import { HeroHorse, RunningHorse } from '../components/TextHorse.jsx'
+import { RunningHorse } from '../components/TextHorse.jsx'
 import { QrSvg, appLink } from '../components/QrCode.jsx'
 
 const STEPS = [
@@ -105,7 +105,6 @@ function useScrollEffects(root) {
 export default function Landing() {
   const { t } = useI18n()
   const root = useRef(null)
-  const hero = useRef(null)
   useScrollEffects(root)
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
@@ -121,7 +120,7 @@ export default function Landing() {
         </div>
       </header>
 
-      <section className="hero" ref={hero}>
+      <section className="hero">
         <div className="hero__bg" aria-hidden="true">
           <svg viewBox="0 0 600 600"><circle cx="300" cy="300" r="220" /><circle cx="300" cy="300" r="290" /></svg>
         </div>
@@ -143,7 +142,6 @@ export default function Landing() {
               </button>
             </div>
             <p className="hero__note"><Icon name="shield" size={16} /> {t('landing.heroNote')}</p>
-            <div className="hero__horse"><HeroHorse glowArea={hero} /></div>
           </div>
         </div>
       </section>
