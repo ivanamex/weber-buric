@@ -133,7 +133,8 @@
     "boarding": "Boarding",
     "camp": "Camp",
     "rental": "Horse rental",
-    "events": "Parties & events"
+    "events": "Parties & events",
+    "planDiff": "Plan difference ({from} → {to} classes)"
   },
   "methods": {
     "cash": "Cash",
@@ -198,7 +199,25 @@
     "pendingTitle": "Your pending payments",
     "noPending": "No pending payments. You're all set!",
     "payTransfer": "Bank transfer",
-    "payCash": "Cash at the club"
+    "payCash": "Cash at the club",
+    "activeLabel": "Active plan · {n} classes/month",
+    "statusPending": "Pending",
+    "noneYet": "You don't have a plan yet",
+    "noneYetText": "Choose how many classes a month {name} will take.",
+    "renews": "Renews on {date}",
+    "upgradeWaiting": "Change to {n} classes: they're added as soon as the payment is approved.",
+    "downgradeNote": "From {date}: {n} classes/month.",
+    "bookClass": "Book a class",
+    "change": "Change plan",
+    "changeTitle": "Change plan",
+    "yours": "Your plan",
+    "perClassShort": "{price} per class",
+    "saves": "Save {n}% per class",
+    "upgradeInfo": "Starts today. This month you only pay the difference: {amount}. The extra classes are added as soon as the payment is approved.",
+    "upgradeUnpaidInfo": "Starts today. This month's payment changes to {amount}.",
+    "downgradeInfo": "Your new plan starts on {date}. This month you keep {n} classes.",
+    "keepInfo": "You keep {n} classes/month and the pending change is cancelled.",
+    "changeTo": "Change to {n} classes"
   },
   "boarding": {
     "title": "Horse boarding",
@@ -389,7 +408,9 @@
     "familyBlocked": "{name} blocked. They can't sign in or book.",
     "familyUnblocked": "{name} unblocked",
     "familyDeleted": "{name} deleted. Their history is kept.",
-    "allCame": "Attendance recorded for {n} riders"
+    "allCame": "Attendance recorded for {n} riders",
+    "upgradeRequested": "Done: {n}-class plan. Pay the difference to add the classes.",
+    "downgradeScheduled": "Your {n}-class plan starts on {date}."
   },
   "errors": {
     "notFound": "Record not found.",
@@ -579,5 +600,26 @@
     "illInstall": "Install app",
     "illNewTab": "New tab",
     "illHistory": "History"
+  },
+  "history": {
+    "title": "Payment history",
+    "empty": "No payments yet.",
+    "paid": "Paid",
+    "pending": "Pending",
+    "receipt": "View receipt",
+    "noChanges": "No plan changes.",
+    "plans": "Plan history",
+    "show": "Show history",
+    "hide": "Hide history",
+    "from": "from {month}",
+    "kind": {
+      "new": "{to}-class plan",
+      "upgrade": "Up from {from} to {to} classes",
+      "downgrade": "Changed from {from} to {to} classes"
+    }
+  },
+  "nudge": {
+    "title": "Create a password to open the installed app without waiting for the code",
+    "save": "Save"
   }
 }

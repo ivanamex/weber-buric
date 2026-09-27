@@ -1,17 +1,19 @@
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, getPlan, planRemaining, planExpiry, upcomingBookings, canCancel, cancelBooking,
+  useStore, byId, upcomingBookings, canCancel, cancelBooking,
   boardingStatus, CANCEL_WINDOW_HOURS, clubCancelledBookings,
 } from '../../data/store.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
 import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
-import { Badge, Empty, Horseshoes, SectionTitle, waLink } from '../../components/ui.jsx'
+import { Badge, Empty, SectionTitle, waLink } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { TZ } from '../../lib/time.js'
 import { BOARDING_MONTHLY } from '../../data/prices.js'
 import { ReceiptBadge } from '../../components/Transfer.jsx'
+import { concept } from '../../components/PaymentHistory.jsx'
+import { ActivePlanCard } from './ActivePlan.jsx'
 
 function greetingKey() {
   const h = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: TZ }).format(new Date()))
@@ -26,7 +28,6 @@ export default function FamilyHome() {
   const base = useBase()
   const rider = byId(s.riders, riderId)
   const family = byId(s.families, s.session.familyId)
-  const plan = getPlan(s, riderId)
   const upcoming = upcomingBookings(s, [riderId])
   const cancelled = clubCancelledBookings(s, riders.map((r) => r.id))
   const next = upcoming[0]
@@ -47,6 +48,7 @@ export default function FamilyHome() {
         <h1>{family.contact.split(' ')[0]} <span aria-hidden="true">👋</span></h1>
       </div>
       <RiderPicker />
+      <ActivePlanCard riderId={riderId} />
 
       {cancelled.map((b) => {
         const reason = (s.cancellations || []).find((c) => c.slotId === b.slotId && c.date === b.date)?.reason
@@ -73,30 +75,6 @@ export default function FamilyHome() {
         <p className="muted small">{t('family.home.moreBooked', { count: upcoming.length - 1 })}</p>
       )}
 
-      <SectionTitle icon="horseshoe" action={<Link to={`${base}/familia/plan`} className="link">{t('family.home.seePlan')}</Link>}>
-        {t('family.home.monthlyPlan')}
-      </SectionTitle>
-      {plan ? (
-        <div className="card">
-          <div className="row between">
-            <div>
-              <p className="card__label">{t('plan.classesPlan', { n: plan.total })} · {rider.name}</p>
-              <p className="bignum">{t('plan.usedOf', { used: plan.used, total: plan.total })}</p>
-            </div>
-            {plan.paid ? <Badge tone="success">{t('plan.paid')}</Badge> : <Badge tone="alert">{t('plan.pendingPay')}</Badge>}
-          </div>
-          <Horseshoes used={plan.used} total={plan.total} label={t('plan.usedOf', { used: plan.used, total: plan.total })} />
-          <div className="row between small muted mt8">
-            <span>{t('plan.remaining', { n: planRemaining(plan) })}</span>
-            <span>{t('plan.expires', { date: fmtDate(planExpiry(plan), { day: 'numeric', month: 'short' }) })}</span>
-          </div>
-        </div>
-      ) : (
-        <Empty icon="horseshoe" title={t('plan.noPlanTitle')}>
-          <Link to={`${base}/familia/plan`} className="btn btn--primary">{t('plan.choose')}</Link>
-        </Empty>
-      )}
-
       {receipts.length > 0 && (
         <>
           <SectionTitle icon="receipt">{t('receipt.homeTitle')}</SectionTitle>
@@ -105,7 +83,7 @@ export default function FamilyHome() {
               <li key={p.id} className="list__row list__row--stack">
                 <div className="row gap">
                   <span className="grow">
-                    <span className="list__title">{t(`services.${p.service}`)}{p.meta?.riderId ? ` · ${byId(s.riders, p.meta.riderId)?.name}` : ''}</span>
+                    <span className="list__title">{concept(t, p)}{p.meta?.riderId ? ` · ${byId(s.riders, p.meta.riderId)?.name}` : ''}</span>
                     <span className="small muted"> · {fmtMoney(p.amount)}</span>
                   </span>
                   <ReceiptBadge status={p.receiptStatus} />

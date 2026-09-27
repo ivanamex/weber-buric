@@ -23,7 +23,11 @@ Prices · schedule · instructors · horses · plan rules · her email for manag
 
 ## Done
 
+<<<<<<< HEAD
 STEP-16 plan activo, change plan, payment history, password nudge · Landing + app live · Supabase login + database rules · management panel (Hoy, Cobros, Familias, Reportes) · STEP-08 families added by management · STEP-09 transfer receipts (bank details still "Por definir") · logos in `public/` · STEP-08B open sign-up, assign existing plans, block / delete (CSV import removed) · STEP-10 Horario: edit classes, cancel a date, instructors and horses, "Todos vinieron" · STEP-11 logo, pictograms, horseshoe counter, booking celebration, empty states · STEP-14 soft coral accent (gold removed) · STEP-12 6-digit code login with resend countdown, "Descargar para iPhone / Android" with install guides, stay signed in per device · STEP-13 landing: phone with the live app, letter-horse (hero glow, galloping band), faded photos, subtle hovers · one-tap "Continuar como…" after Salir, optional password · STEP-15 coral glass buttons, nothing wider than the screen on phones
+=======
+Landing + app live · Supabase login + database rules · management panel (Hoy, Cobros, Familias, Reportes) · STEP-08 families added by management · STEP-09 transfer receipts (bank details still "Por definir") · logos in `public/` · STEP-08B open sign-up, assign existing plans, block / delete (CSV import removed) · STEP-10 Horario: edit classes, cancel a date, instructors and horses, "Todos vinieron" · STEP-11 logo, pictograms, horseshoe counter, booking celebration, empty states · STEP-14 soft coral accent (gold removed) · STEP-12 6-digit code login with resend countdown, "Descargar para iPhone / Android" with install guides, stay signed in per device · STEP-13 landing: phone with the live app, letter-horse (hero glow, galloping band), faded photos, subtle hovers · one-tap "Continuar como…" after Salir, optional password · STEP-15 coral glass buttons, nothing wider than the screen on phones · STEP-16 "Plan activo" card, change plan (upgrade now paying the difference / downgrade at renewal), payment and plan history, password nudge
+>>>>>>> 45e9961 (Active plan card, change plan with honest upgrade and downgrade, payment and plan history, password nudge)
 
 ## Rules
 

@@ -7,6 +7,7 @@ import { useToast } from '../../components/Toast.jsx'
 import { currentMonthKey } from '../../lib/time.js'
 import { ReceiptBadge, BankDetails } from '../../components/Transfer.jsx'
 import ReceiptViewer from './ReceiptViewer.jsx'
+import { concept } from '../../components/PaymentHistory.jsx'
 
 const SERVICE_ICON = { plan: 'horseshoe', boarding: 'saddle', camp: 'balloons', rental: 'horseHead', events: 'cake' }
 
@@ -23,8 +24,8 @@ export default function AdminPayments() {
   const monthName = fmtDate(`${currentMonthKey()}-01`, { month: 'long', year: 'numeric' })
 
   const describe = (p) => {
-    const bits = [t(`services.${p.service}`)]
-    if (p.meta?.classes) bits.push(t('plan.classesPlan', { n: p.meta.classes }))
+    const bits = [concept(t, p)]
+    if (p.meta?.classes && p.meta?.kind !== 'upgrade') bits.push(t('plan.classesPlan', { n: p.meta.classes }))
     if (p.meta?.riderId) bits.push(byId(s.riders, p.meta.riderId)?.name)
     if (p.meta?.horseId) bits.push(byId(s.horses, p.meta.horseId)?.name)
     if (p.meta?.month) bits.push(fmtDate(`${p.meta.month}-01`, { month: 'long' }))
@@ -105,7 +106,7 @@ export default function AdminPayments() {
               <Icon name={SERVICE_ICON[p.service]} size={18} />
               <div className="grow">
                 <p className="list__title">{byId(s.families, p.familyId)?.name}</p>
-                <p className="small muted">{t(`services.${p.service}`)} · {fmtInstant(p.paidAt)}</p>
+                <p className="small muted">{concept(t, p)} · {fmtInstant(p.paidAt)}</p>
               </div>
               <div className="right">
                 <strong>{fmtMoney(p.amount)}</strong>

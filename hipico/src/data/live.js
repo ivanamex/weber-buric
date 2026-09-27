@@ -13,6 +13,7 @@ let loading = null
 let lastLoad = 0
 let lastRiders = []
 let lastRole = null
+let viaLink = false
 // "Salir" on a family's phone keeps the account on this device, so coming back is one tap ("Continuar como…").
 const PAUSED_KEY = 'hipico.paused'
 const readPaused = () => { try { return localStorage.getItem(PAUSED_KEY) } catch { return null } }
@@ -35,6 +36,8 @@ export async function activate(setState) {
   publish = setState
   if (!sb) {
     publish({ ...empty, status: 'loading' })
+    // Signed in by tapping the email link (the session arrives in the address): used for the password nudge.
+    viaLink = /access_token=|token_hash=/.test(window.location.hash + window.location.search)
     const { createClient } = await import('@supabase/supabase-js')
     sb = createClient(URL, KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' } })
     sb.auth.onAuthStateChange((event) => {
@@ -78,7 +81,7 @@ async function load() {
     const today = todayKey()
     const from = addDays(today, -62)
     const to = addDays(today, 62)
-    const [prices, instructors, horses, families, riders, slots, plans, bookings, payments, events, campRegistrations, rentals, counts, camp, settings, cancellations] =
+    const [prices, instructors, horses, families, riders, slots, plans, bookings, payments, events, campRegistrations, rentals, counts, camp, settings, cancellations, planChanges] =
       await Promise.all([
         sb.from('prices').select('key, amount'),
         sb.from('instructors').select('*'),
@@ -96,6 +99,7 @@ async function load() {
         sb.rpc('camp_counts'),
         sb.from('club_settings').select('*').maybeSingle(),
         sb.from('slot_cancellations').select('*').gte('date', from),
+        sb.from('plan_changes').select('*').order('created_at', { ascending: false }),
       ])
     applyPrices(Object.fromEntries(rows(prices).map((p) => [p.key, p.amount])))
     const riderRows = rows(riders)
@@ -107,6 +111,7 @@ async function load() {
       status: 'ready',
       email,
       hasPassword: Boolean(session.user?.user_metadata?.has_password),
+      viaLink,
       session: { role: who.data.is_admin ? 'admin' : 'family', familyId: who.data.family_id, email },
       instructors: rows(instructors),
       horses: rows(horses),
@@ -124,6 +129,7 @@ async function load() {
       // Bank details for transfers (missing before the database update → placeholders).
       settings: settings.data ? camel(settings.data) : {},
       cancellations: cancellations.error ? [] : rows(cancellations),
+      planChanges: planChanges.error ? [] : rows(planChanges),
     })
   } catch (err) {
     console.error('[hipico] load failed', err)
@@ -375,6 +381,7 @@ export const actions = {
   cancelBooking: (id) => call('cancel_booking', { p_booking: id }),
   markAttendance: (id, status) => call('mark_attendance', { p_booking: id, p_status: status }),
   choosePlan: ({ riderId, classes, month }) => call('choose_plan', { p_rider: riderId, p_classes: classes, p_month: month }),
+  changePlan: ({ riderId, classes }) => call('change_plan', { p_rider: riderId, p_classes: classes }),
   requestBoardingPayment: (familyId) => call('request_boarding_payment', { p_family: familyId ?? null }),
   markPaid: (id, method) => call('mark_paid', { p_payment: id, p_method: method }),
   registerCamp: ({ eventId, riderId }) => call('register_camp', { p_event: eventId, p_rider: riderId }),

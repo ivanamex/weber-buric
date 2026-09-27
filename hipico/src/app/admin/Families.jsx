@@ -8,6 +8,7 @@ import { todayKey } from '../../lib/time.js'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty, Segmented } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
+import { PaymentHistory, PlanHistory } from '../../components/PaymentHistory.jsx'
 
 const NEW_RIDER = { name: '', level: 'beginner' }
 const newFamily = () => ({ contact: '', email: '', phone: '', name: '', plan: '8', start: todayKey(), riders: [{ ...NEW_RIDER }] })
@@ -195,6 +196,7 @@ function FamilyCard({ family }) {
   const s = useStore()
   const toast = useToast()
   const [editing, setEditing] = useState(false)
+  const [history, setHistory] = useState(false)
   const riders = familyRiders(s, family.id)
   const horses = s.horses.filter((h) => h.ownerFamilyId === family.id)
   const active = isActiveFamily(family)
@@ -247,6 +249,17 @@ function FamilyCard({ family }) {
             })}
             {riders.length === 0 && <li className="list__row small muted">{t('admin.families.noRiders')}</li>}
           </ul>
+          <button type="button" className="link mt8" onClick={() => setHistory(!history)} aria-expanded={history}>
+            <Icon name="receipt" size={14} /> {t(history ? 'history.hide' : 'history.show')}
+          </button>
+          {history && (
+            <div className="family-history">
+              <p className="card__label mt8">{t('history.plans')}</p>
+              <PlanHistory familyId={family.id} />
+              <p className="card__label mt12">{t('history.title')}</p>
+              <PaymentHistory familyId={family.id} />
+            </div>
+          )}
           {!active && (
             <button type="button" className="btn btn--outline btn--sm btn--block mt8" onClick={onReactivate}>
               <Icon name="refresh" size={16} /> {t('admin.families.unblock')}

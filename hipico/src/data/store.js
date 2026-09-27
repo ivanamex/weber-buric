@@ -46,6 +46,7 @@ export const bookClass = act('bookClass')
 export const cancelBooking = act('cancelBooking')
 export const markAttendance = act('markAttendance')
 export const choosePlan = act('choosePlan')
+export const changePlan = act('changePlan') // upgrade now (pay the difference) or downgrade from the next renewal
 export const requestBoardingPayment = act('requestBoardingPayment')
 export const markPaid = act('markPaid')
 export const registerCamp = act('registerCamp')

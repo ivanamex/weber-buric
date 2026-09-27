@@ -1,7 +1,7 @@
 // Demo mode: sample data kept in this browser (localStorage). Same rules as the live database.
 import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR } from './prices.js'
-import { weekdayOf, monthKeyOf, currentMonthKey, hoursUntil, toInstant, todayKey } from '../lib/time.js'
+import { weekdayOf, monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, toInstant, todayKey } from '../lib/time.js'
 import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS } from './queries.js'
 
 const KEY = 'hipico.state.v1'
@@ -176,8 +176,74 @@ function choosePlan({ riderId, classes, month }) {
       status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, month, classes },
     }
     s.payments.push(payment)
+    const from = rider.planClasses
+    rider.planClasses = classes
+    rider.planStart ||= `${month}-01`
+    logChange(s, rider, { from: from ?? null, to: classes, kind: 'new', month, paymentId: payment.id })
     return { ok: true, payment }
   })
+}
+
+function logChange(s, rider, { from, to, kind, month, paymentId = null }) {
+  s.planChanges ||= []
+  s.planChanges.unshift({ id: nextId(s, 'pc'), riderId: rider.id, familyId: rider.familyId, fromClasses: from ?? null, toClasses: to, kind, effectiveMonth: month, paymentId, createdAt: now() })
+}
+
+/** Same rules as change_plan() in the database: upgrade now (pay the difference), downgrade from the next renewal. */
+function changePlan({ riderId, classes }) {
+  return mutate((s) => {
+    const rider = byId(s.riders, riderId)
+    if (!rider || rider.active === false) return fail('notFound')
+    if (!planPrice(classes)) return fail('badPlan')
+    const month = currentMonthKey()
+    const next = nextMonthKey(month)
+    const plan = getPlan(s, riderId, month)
+    if (!plan) return fail('noPlan')
+    if (classes === plan.total && (rider.planClasses ?? plan.total) === classes) return fail('samePlan')
+    const planPayments = (m) => s.payments.filter((p) => p.service === 'plan' && p.status === 'pending' && p.meta?.riderId === riderId && p.meta?.month === m)
+    const before = plan.total
+    if (classes > plan.total) {
+      if (planPayments(month).some((p) => p.meta?.kind === 'upgrade')) return fail('pendingExists')
+      let payment
+      if (!plan.paid) {
+        payment = planPayments(month)[0]
+        if (payment?.receiptStatus === 'review') return fail('pendingExists')
+        plan.total = classes
+        if (payment) Object.assign(payment, { amount: planPrice(classes), meta: { ...payment.meta, classes } })
+      } else {
+        payment = {
+          id: nextId(s, 'pay'), familyId: rider.familyId, service: 'plan', amount: Math.max(planPrice(classes) - planPrice(plan.total), 0),
+          status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, month, classes, fromClasses: plan.total, kind: 'upgrade' },
+        }
+      }
+      if (!payment) {
+        payment = { id: nextId(s, 'pay'), familyId: rider.familyId, service: 'plan', amount: planPrice(classes), status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, month, classes } }
+      }
+      if (!s.payments.includes(payment)) s.payments.push(payment)
+      logChange(s, rider, { from: before, to: classes, kind: 'upgrade', month, paymentId: payment.id })
+      rider.planClasses = classes
+      rider.planStart ||= `${month}-01`
+      return { ok: true, kind: 'upgrade', payment, effective: month }
+    }
+    rider.planClasses = classes
+    rider.planStart ||= `${month}-01`
+    const nextPlan = getPlan(s, riderId, next)
+    if (nextPlan && !nextPlan.paid && nextPlan.used <= classes) {
+      nextPlan.total = classes
+      for (const p of planPayments(next)) if (p.receiptStatus !== 'review') Object.assign(p, { amount: planPrice(classes), meta: { ...p.meta, classes } })
+    }
+    logChange(s, rider, { from: before, to: classes, kind: 'downgrade', month: next })
+    return { ok: true, kind: 'downgrade', effective: next }
+  })
+}
+
+/** A regular plan payment marks the month paid; an upgrade difference adds the classes. */
+function applyPlanPayment(s, p) {
+  if (p.service !== 'plan') return
+  const plan = getPlan(s, p.meta.riderId, p.meta.month)
+  if (!plan) return
+  if (p.meta.kind === 'upgrade') plan.total = Math.max(plan.total, p.meta.classes)
+  else plan.paid = true
 }
 
 function requestBoardingPayment(familyId, month = currentMonthKey()) {
@@ -211,10 +277,7 @@ function markPaid(paymentId, method) {
     p.method = method
     p.paidAt = now()
     if (p.receiptStatus) { p.receiptStatus = 'approved'; p.reviewedAt = now() }
-    if (p.service === 'plan') {
-      const plan = getPlan(s, p.meta.riderId, p.meta.month)
-      if (plan) plan.paid = true
-    }
+    applyPlanPayment(s, p)
     return { ok: true, payment: p }
   })
 }
@@ -415,10 +478,7 @@ function reviewReceipt(paymentId, approve, note) {
     if (!p || p.status !== 'pending' || p.receiptStatus !== 'review') return fail('notFound')
     if (approve) {
       Object.assign(p, { status: 'paid', method: 'transfer', paidAt: now(), receiptStatus: 'approved', receiptNote: null, reviewedAt: now() })
-      if (p.service === 'plan') {
-        const plan = getPlan(s, p.meta.riderId, p.meta.month)
-        if (plan) plan.paid = true
-      }
+      applyPlanPayment(s, p)
     } else {
       if (!note?.trim()) return fail('noteRequired')
       Object.assign(p, { receiptStatus: 'rejected', receiptNote: note.trim().slice(0, 280), reviewedAt: now() })
@@ -524,7 +584,7 @@ function markClassAttended(slotId, date) {
 }
 
 export const actions = {
-  login, logout, resetDemo, bookClass, cancelBooking, markAttendance, choosePlan,
+  login, logout, resetDemo, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
   requestBoardingPayment, markPaid, registerCamp, bookRental,
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),

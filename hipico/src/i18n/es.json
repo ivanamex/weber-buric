@@ -133,7 +133,8 @@
     "boarding": "Pensión",
     "camp": "Campamento",
     "rental": "Renta de caballo",
-    "events": "Fiestas y eventos"
+    "events": "Fiestas y eventos",
+    "planDiff": "Diferencia de plan ({from} → {to} clases)"
   },
   "methods": {
     "cash": "Efectivo",
@@ -198,7 +199,25 @@
     "pendingTitle": "Tus pagos pendientes",
     "noPending": "No tienes pagos pendientes. ¡Todo al corriente!",
     "payTransfer": "Transferencia",
-    "payCash": "Efectivo en el club"
+    "payCash": "Efectivo en el club",
+    "activeLabel": "Plan activo · {n} clases/mes",
+    "statusPending": "Pendiente",
+    "noneYet": "Aún no tienes plan",
+    "noneYetText": "Elige cuántas clases al mes tomará {name}.",
+    "renews": "Se renueva el {date}",
+    "upgradeWaiting": "Cambio a {n} clases: se suman en cuanto se apruebe el pago.",
+    "downgradeNote": "Desde el {date}: {n} clases/mes.",
+    "bookClass": "Reservar clase",
+    "change": "Cambiar plan",
+    "changeTitle": "Cambiar plan",
+    "yours": "Tu plan",
+    "perClassShort": "{price} por clase",
+    "saves": "Ahorras {n}% por clase",
+    "upgradeInfo": "Empieza hoy. Este mes pagas solo la diferencia: {amount}. Las clases extra se suman en cuanto se apruebe el pago.",
+    "upgradeUnpaidInfo": "Empieza hoy. Tu pago de este mes cambia a {amount}.",
+    "downgradeInfo": "Tu nuevo plan empieza el {date}. Este mes sigues con {n} clases.",
+    "keepInfo": "Te quedas con {n} clases/mes y se cancela el cambio pendiente.",
+    "changeTo": "Cambiar a {n} clases"
   },
   "boarding": {
     "title": "Pensión de caballos",
@@ -389,7 +408,9 @@
     "familyBlocked": "{name} bloqueada. No puede entrar ni reservar.",
     "familyUnblocked": "{name} desbloqueada",
     "familyDeleted": "{name} eliminada. Su historial se conserva.",
-    "allCame": "Asistencia registrada para {n} jinetes"
+    "allCame": "Asistencia registrada para {n} jinetes",
+    "upgradeRequested": "Listo: plan de {n} clases. Paga la diferencia para sumar las clases.",
+    "downgradeScheduled": "Tu plan de {n} clases empieza el {date}."
   },
   "errors": {
     "notFound": "No se encontró el registro.",
@@ -579,5 +600,26 @@
     "illInstall": "Instalar app",
     "illNewTab": "Nueva pestaña",
     "illHistory": "Historial"
+  },
+  "history": {
+    "title": "Historial de pagos",
+    "empty": "Aún no hay pagos.",
+    "paid": "Pagado",
+    "pending": "Pendiente",
+    "receipt": "Ver comprobante",
+    "noChanges": "Sin cambios de plan.",
+    "plans": "Historial de plan",
+    "show": "Ver historial",
+    "hide": "Ocultar historial",
+    "from": "desde {month}",
+    "kind": {
+      "new": "Plan de {to} clases",
+      "upgrade": "Sube de {from} a {to} clases",
+      "downgrade": "Cambia de {from} a {to} clases"
+    }
+  },
+  "nudge": {
+    "title": "Crea una contraseña para abrir la app instalada sin esperar el código",
+    "save": "Guardar"
   }
 }

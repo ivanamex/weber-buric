@@ -1,15 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, getState, byId, getPlan, planRemaining, planExpiry, choosePlan, boardingStatus, requestBoardingPayment,
+  useStore, getState, byId, getPlan, choosePlan, boardingStatus, requestBoardingPayment,
 } from '../../data/store.js'
 import { PLANS, BOARDING_MONTHLY } from '../../data/prices.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
 import { Icon } from '../../components/Icon.jsx'
-import { Badge, Horseshoes, SectionTitle, Segmented } from '../../components/ui.jsx'
+import { Badge, SectionTitle } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { ReceiptBadge, TransferPanel } from '../../components/Transfer.jsx'
-import { currentMonthKey, nextMonthKey } from '../../lib/time.js'
+import { currentMonthKey } from '../../lib/time.js'
+import { ActivePlanCard, ChangePlan } from './ActivePlan.jsx'
+import { PaymentHistory, concept } from '../../components/PaymentHistory.jsx'
 
 export default function FamilyPlan() {
   const { t, fmtDate, fmtMoney, fmtInstant } = useI18n()
@@ -19,12 +22,21 @@ export default function FamilyPlan() {
   const rider = byId(s.riders, riderId)
   const familyId = s.session.familyId
   const thisMonth = currentMonthKey()
-  const [month, setMonth] = useState(() => (getPlan(s, riderId, thisMonth) ? nextMonthKey(thisMonth) : thisMonth))
+  const month = thisMonth
+  const [params, setParams] = useSearchParams()
+  const [changing, setChanging] = useState(params.get('cambiar') === '1')
+  const scrollToId = (id) => setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
+  // Arriving from "Cambiar plan" / "Elegir plan" on Inicio.
+  useEffect(() => {
+    const target = params.get('cambiar') === '1' ? 'cambiar' : params.get('elegir') === '1' ? 'elegir' : null
+    if (!target) return
+    scrollToId(target)
+    setParams({}, { replace: true })
+  }, [])
   const [selected, setSelected] = useState(PLANS.find((p) => p.popular)?.classes ?? PLANS[0].classes)
   const monthName = (m) => fmtDate(`${m}-01`, { month: 'long' })
 
   const current = getPlan(s, riderId, thisMonth)
-  const target = getPlan(s, riderId, month)
   const boarding = boardingStatus(s, familyId)
   const pending = s.payments.filter((p) => p.familyId === familyId && p.status === 'pending')
 
@@ -64,51 +76,35 @@ export default function FamilyPlan() {
       <h1 className="page__title">{t('plan.title')}</h1>
       <RiderPicker />
 
-      {current ? (
-        <div className="card">
-          <div className="row between">
-            <div>
-              <p className="card__label">{t('plan.current', { month: monthName(thisMonth) })} · {rider.name}</p>
-              <p className="bignum">{t('plan.usedOf', { used: current.used, total: current.total })}</p>
-            </div>
-            {current.paid ? <Badge tone="success">{t('plan.paid')}</Badge> : <Badge tone="alert">{t('plan.pendingPay')}</Badge>}
-          </div>
-          <Horseshoes used={current.used} total={current.total} label={t('plan.usedOf', { used: current.used, total: current.total })} />
-          <div className="row between small muted mt8">
-            <span>{t('plan.remaining', { n: planRemaining(current) })}</span>
-            <span>{t('plan.expires', { date: fmtDate(planExpiry(current), { day: 'numeric', month: 'short' }) })}</span>
-          </div>
-        </div>
-      ) : (
-        <div className="notice"><Icon name="info" size={18} /> {t('plan.noPlanFor', { name: rider.name, month: monthName(thisMonth) })}</div>
+      <ActivePlanCard riderId={riderId} onChange={() => { setChanging(true); scrollToId('cambiar') }} />
+      {current && changing && (
+        <ChangePlan key={riderId} riderId={riderId} onCancel={() => setChanging(false)}
+          onDone={(paymentId) => { setChanging(false); openTransfer(paymentId) }} />
       )}
 
-      <SectionTitle icon="horseshoe">{t('plan.packages')}</SectionTitle>
-      <Segmented
-        options={[thisMonth, nextMonthKey(thisMonth)].map((m) => ({ value: m, label: monthName(m) }))}
-        value={month}
-        onChange={setMonth}
-      />
-      {target && <p className="small muted mt8">{t('plan.changeNote', { n: target.total, month: monthName(month) })}</p>}
-
-      <div className="packages">
-        {PLANS.map((p) => (
-          <button key={p.classes} type="button" className={`package ${selected === p.classes ? 'is-active' : ''}`} onClick={() => setSelected(p.classes)} aria-pressed={selected === p.classes}>
-            {p.popular && <span className="package__tag">{t('plan.popular')}</span>}
-            <span className="package__n">{p.classes}</span>
-            <span className="package__label">{t('plan.classesMonth')}</span>
-            <span className="package__price">{fmtMoney(p.price)}</span>
-            <span className="package__per">{t('plan.perClass', { price: fmtMoney(Math.round(p.price / p.classes)) })}</span>
-          </button>
-        ))}
-      </div>
-      <div className="stack">
-        <button type="button" className="btn btn--primary btn--block" onClick={payCard}><Icon name="card" size={20} /> {t('plan.payCard')}</button>
-        <div className="grid2">
-          <button type="button" className="btn btn--outline" onClick={() => payPlan('transfer')} disabled={busy}><Icon name="share" size={18} /> {t('plan.payTransfer')}</button>
-          <button type="button" className="btn btn--outline" onClick={() => payPlan('cash')} disabled={busy}><Icon name="cash" size={18} /> {t('plan.payCash')}</button>
-        </div>
-      </div>
+      {!current && (
+        <>
+          <SectionTitle icon="horseshoe">{t('plan.packages')}</SectionTitle>
+          <div className="packages" id="elegir">
+            {PLANS.map((p) => (
+              <button key={p.classes} type="button" className={`package ${selected === p.classes ? 'is-active' : ''}`} onClick={() => setSelected(p.classes)} aria-pressed={selected === p.classes}>
+                {p.popular && <span className="package__tag">{t('plan.popular')}</span>}
+                <span className="package__n">{p.classes}</span>
+                <span className="package__label">{t('plan.classesMonth')}</span>
+                <span className="package__price">{fmtMoney(p.price)}</span>
+                <span className="package__per">{t('plan.perClass', { price: fmtMoney(Math.round(p.price / p.classes)) })}</span>
+              </button>
+            ))}
+          </div>
+          <div className="stack">
+            <button type="button" className="btn btn--primary btn--block" onClick={payCard}><Icon name="card" size={20} /> {t('plan.payCard')}</button>
+            <div className="grid2">
+              <button type="button" className="btn btn--outline" onClick={() => payPlan('transfer')} disabled={busy}><Icon name="share" size={18} /> {t('plan.payTransfer')}</button>
+              <button type="button" className="btn btn--outline" onClick={() => payPlan('cash')} disabled={busy}><Icon name="cash" size={18} /> {t('plan.payCash')}</button>
+            </div>
+          </div>
+        </>
+      )}
 
       <SectionTitle icon="saddle">{t('boarding.title')}</SectionTitle>
       <div className="card pricecard">
@@ -147,7 +143,7 @@ export default function FamilyPlan() {
             <li key={p.id} id={`pay-${p.id}`} className="list__row list__row--stack">
               <div className="row gap">
                 <div className="grow">
-                  <p className="list__title">{t(`services.${p.service}`)}{p.meta?.riderId ? ` · ${byId(s.riders, p.meta.riderId)?.name}` : ''}{p.meta?.horseId ? ` · ${byId(s.horses, p.meta.horseId)?.name}` : ''}</p>
+                  <p className="list__title">{concept(t, p)}{p.meta?.riderId ? ` · ${byId(s.riders, p.meta.riderId)?.name}` : ''}{p.meta?.horseId ? ` · ${byId(s.horses, p.meta.horseId)?.name}` : ''}</p>
                   <p className="small muted">{fmtInstant(p.createdAt)} · {p.receiptStatus ? t('receipt.byTransfer') : t('plan.payAtClubShort')}</p>
                 </div>
                 <div className="right">
@@ -166,6 +162,8 @@ export default function FamilyPlan() {
       ) : (
         <p className="muted small">{t('plan.noPending')}</p>
       )}
+      <SectionTitle icon="receipt">{t('history.title')}</SectionTitle>
+      <PaymentHistory familyId={familyId} />
       <p className="sample-note">{t('common.samplePrices')}</p>
     </div>
   )

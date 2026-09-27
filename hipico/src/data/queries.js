@@ -114,3 +114,26 @@ export function clubCancelledBookings(s, riderIds) {
     .filter((b) => b.slot)
     .sort((a, b) => (a.date + a.slot.time).localeCompare(b.date + b.slot.time))
 }
+
+// ── Plans: status, pending changes, history ──
+const planPaymentsFor = (s, riderId, month) =>
+  s.payments.filter((p) => p.service === 'plan' && p.status === 'pending' && p.meta?.riderId === riderId && p.meta?.month === month)
+/** 'paid' | 'review' (transfer receipt waiting) | 'pending'. */
+export function planStatus(s, plan) {
+  if (!plan) return null
+  if (plan.paid) return 'paid'
+  return planPaymentsFor(s, plan.riderId, plan.month).some((p) => p.meta?.kind !== 'upgrade' && p.receiptStatus === 'review') ? 'review' : 'pending'
+}
+/** An upgrade whose difference is not paid yet (the extra classes arrive on approval). */
+export const pendingUpgrade = (s, riderId, month = currentMonthKey()) =>
+  planPaymentsFor(s, riderId, month).find((p) => p.meta?.kind === 'upgrade') || null
+export const planChangesFor = (s, familyId) =>
+  (s.planChanges || []).filter((c) => c.familyId === familyId).sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+/** A family's payments of the last 12 months, newest first. */
+export function paymentHistory(s, familyId) {
+  const since = Date.now() - 365 * 864e5
+  const when = (p) => p.paidAt || p.createdAt
+  return s.payments
+    .filter((p) => p.familyId === familyId && new Date(when(p)).getTime() >= since)
+    .sort((a, b) => when(b).localeCompare(when(a)))
+}

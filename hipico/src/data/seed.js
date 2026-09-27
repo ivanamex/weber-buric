@@ -239,6 +239,7 @@ export function createSeed() {
     // Bank details for transfers: empty until management fills them in (the app shows placeholders).
     settings: { bankName: null, accountHolder: null, clabe: null },
     cancellations: [], // single class dates cancelled by the club
+    planChanges: [], // plan history: new / upgrade / downgrade
     nextId: n + 1,
   }
 }

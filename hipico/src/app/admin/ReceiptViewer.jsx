@@ -4,8 +4,8 @@ import { receiptUrl, reviewReceipt } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { useToast } from '../../components/Toast.jsx'
 
-/** Full-screen viewer for a transfer receipt, with Aprobar / Rechazar (with a short note). */
-export default function ReceiptViewer({ payment, title, onClose }) {
+/** Full-screen viewer for a transfer receipt, with Aprobar / Rechazar (with a short note) unless read-only. */
+export default function ReceiptViewer({ payment, title, onClose, readOnly = false }) {
   const { t, fmtMoney } = useI18n()
   const toast = useToast()
   const [file, setFile] = useState(null)
@@ -52,7 +52,7 @@ export default function ReceiptViewer({ payment, title, onClose }) {
         )}
         {file?.url && !isPdf && !isHeic && <img className="viewer__img" src={file.url} alt={t('receipt.viewerTitle')} />}
       </div>
-      <div className="viewer__actions">
+      {!readOnly && <div className="viewer__actions">
         {rejecting ? (
           <>
             <label className="field" htmlFor="reject-note"><span>{t('receipt.rejectNote')}</span>
@@ -69,7 +69,7 @@ export default function ReceiptViewer({ payment, title, onClose }) {
             <button type="button" className="btn btn--primary" disabled={busy} onClick={() => decide(true)}><Icon name="check" size={18} /> {t('receipt.approve')}</button>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   )
 }

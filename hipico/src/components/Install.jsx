@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { detectDevice, promptInstall, useInstallState } from '../lib/install.js'
+import { setPassword, useStore } from '../data/store.js'
 import { Icon } from './Icon.jsx'
 import { useToast } from './Toast.jsx'
 
@@ -200,5 +201,53 @@ export function InstallPrompt() {
       <InstallButtons className="dlbtns--compact" />
       <button type="button" className="link installcard__later" onClick={() => setOpen(false)}>{t('install.later')}</button>
     </section>
+  )
+}
+
+const NUDGE_KEY = 'hipico.passwordNudge'
+
+/**
+ * After signing in by email link in Safari on an iPhone: offer a password once, so the installed app
+ * (which can't open email links) can sign in without waiting for a code.
+ */
+export function PasswordNudge() {
+  const { t } = useI18n()
+  const toast = useToast()
+  const s = useStore()
+  const { standalone } = useInstallState()
+  const [show] = useState(() => {
+    try { return !localStorage.getItem(NUDGE_KEY) } catch { return false }
+  })
+  const [open, setOpen] = useState(true)
+  const [value, setValue] = useState('')
+  const [busy, setBusy] = useState(false)
+  const eligible = show && !standalone && !s.hasPassword && detectDevice().platform === 'ios' && (s.mode === 'demo' || s.viaLink)
+  useEffect(() => {
+    if (eligible) try { localStorage.setItem(NUDGE_KEY, '1') } catch { /* ignore */ }
+  }, [eligible])
+  if (!eligible || !open) return null
+  const onSave = async (e) => {
+    e.preventDefault()
+    setBusy(true)
+    const res = await setPassword(value)
+    setBusy(false)
+    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    toast(t('more.password.saved'))
+    setOpen(false)
+  }
+  return (
+    <form className="card installcard" onSubmit={onSave} aria-label={t('nudge.title')}>
+      <div className="row between gap">
+        <p className="card__title">{t('nudge.title')}</p>
+        <button type="button" className="iconbtn" onClick={() => setOpen(false)} aria-label={t('install.later')}><Icon name="x" size={18} /></button>
+      </div>
+      <input type="email" autoComplete="username" value={s.session?.email || ''} readOnly hidden />
+      <label className="field" htmlFor="nudge-password"><span>{t('more.password.new')}</span>
+        <input id="nudge-password" className="input" type="password" autoComplete="new-password" minLength={8}
+          value={value} onChange={(e) => setValue(e.target.value)} required />
+      </label>
+      <button type="submit" className="btn btn--primary btn--block" disabled={busy}>{busy ? '…' : t('nudge.save')}</button>
+      <button type="button" className="link installcard__later" onClick={() => setOpen(false)}>{t('install.later')}</button>
+    </form>
   )
 }

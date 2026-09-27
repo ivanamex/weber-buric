@@ -7,7 +7,7 @@ import { LangToggle } from '../components/LangToggle.jsx'
 import { Icon } from '../components/Icon.jsx'
 import { useToast } from '../components/Toast.jsx'
 import { useBase } from './Backend.jsx'
-import { InstallPrompt } from '../components/Install.jsx'
+import { InstallPrompt, PasswordNudge } from '../components/Install.jsx'
 
 const TABS = {
   family: [
@@ -70,6 +70,7 @@ export default function AppShell({ role }) {
         {s.mode === 'demo' ? <span className="appbar__demo">{t('app.demo')}</span> : <span className="appbar__email">{s.session.email}</span>}
       </div>
       <main className="app__main">
+        {s.mode !== 'preview' && role === 'family' && <PasswordNudge />}
         {s.mode !== 'preview' && <InstallPrompt />}
         <Outlet context={{ riders, riderId: activeRiderId, setRiderId }} />
       </main>

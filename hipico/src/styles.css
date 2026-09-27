@@ -662,3 +662,17 @@ p.center { display: block; }
 .grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .grid2 > .btn { white-space: normal; text-align: center; line-height: 1.2; padding: 8px 12px; }
 .card, .stack { min-width: 0; }
+
+/* Active plan + change plan */
+.activeplan { display: grid; gap: 8px; }
+.activeplan .grid2 { margin-top: 6px; }
+.activeplan--empty { justify-items: center; text-align: center; }
+.activeplan__note { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--accent-ink); font-size: .85rem; font-weight: 500; }
+.changeplan { display: grid; gap: 12px; }
+.changeplan .packages { margin-top: 0; }
+.changeplan__info { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--green-soft); color: var(--green-dark); }
+.package__tag--mine { background: var(--green); color: #fff; }
+.package__save { margin-top: 4px; font-size: .72rem; font-weight: 600; color: var(--green); }
+.history .right { text-align: right; }
+.history__receipt { display: inline-flex; align-items: center; gap: 4px; justify-self: start; font-size: .82rem; }
+.family-history { display: grid; gap: 4px; }
