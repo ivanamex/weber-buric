@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-—
+1. **STEP-20**: horse profile: photo, age, breed, height, category + level, food (daily ration), health (vet, vaccines, farrier with due dates); owners see their own horse
 
 Check in the browser after each step, then "ok".
 
