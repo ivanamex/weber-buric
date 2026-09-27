@@ -10,6 +10,7 @@ Check in the browser after each step, then "ok".
 
 ## Next
 
+- **Device test:** `hipico/TEST-INSTALL.md` on a real iPhone and a real Android, before inviting families
 - **In the Supabase dashboard, not a build step:** Gmail as SMTP, raise the email limit (fixes "Demasiados intentos")
 - STEP-06: the club's real data (after the 27 Sep meeting)
 - STEP-04/05: Resend + the club's domain (waits for DNS access to hipicorivieramaya.com)
