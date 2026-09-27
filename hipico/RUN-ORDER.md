@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-—
+1. **STEP-16**: "Plan activo" always visible, change plan (upgrade now / downgrade next month), payment history, password nudge after email-link login
 
 Check in the browser after each step, then "ok".
 
