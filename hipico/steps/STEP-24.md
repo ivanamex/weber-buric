@@ -15,3 +15,11 @@ Problem: in the horse profile you edit things (photos, ración, salud) but there
 Apply the same view/edit/Guardar/toast behavior to: families and riders, classes in Horario, employees (Nómina), expenses, prices and bank details in settings. Anywhere an edit happens, there's one obvious **Guardar** and a confirmation.
 
 Mirror it in `/demo`.
+
+## Salud: tap the tile, not "+ Registrar"
+- The four tiles (Vacunas, Desparasitación, Herrero, Veterinario) are **tappable**. Tapping one opens a small sheet already set to that type: **date done** (default today), **next due date** (suggested automatically: vaccines +6 months, deworming +3 months, farrier +6 weeks, all editable), and **note**, plus a big **Guardar**.
+- After Guardar: the tile updates right away ("Próxima: 22 oct") and a new line appears in Historial. Toast "Registrado".
+- Empty tiles ("—") show "Toca para registrar" in small text, so it's obvious.
+- Tapping a line in Historial opens the same sheet to edit or delete it.
+- Remove the separate "+ Registrar" link (the tiles replace it).
+- Tile color: coral when due within 14 days or overdue, neutral otherwise.
