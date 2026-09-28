@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued. Add the next step here.
+1. **STEP-30**: desktop family view full width (2 columns), no "Más" on desktop (everything in the sidebar), logo = home + "← back" links and breadcrumbs for both roles
 
 Check in the browser after each step, then "ok".
 
