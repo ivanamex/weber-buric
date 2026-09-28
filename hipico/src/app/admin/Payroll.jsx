@@ -8,6 +8,8 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, SectionTitle, Segmented } from '../../components/ui.jsx'
 import { todayKey } from '../../lib/time.js'
 import { useSave } from './useSave.js'
+import { DataTable, exportCsv, useDesktop, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
+import { Sheet } from '../../components/EditKit.jsx'
 import { SaveBar, useFormState } from '../../components/EditKit.jsx'
 
 function EmployeeForm({ employee, onDone }) {
@@ -69,7 +71,74 @@ function PayForm({ employee, onDone }) {
 }
 
 /** Nómina (management only, module on/off): staff, salaries, "Pagar" and each person's payment history. */
+/** One person in the side panel: details, Pagar, Editar and the payments made. */
+function EmployeePanel({ employee: e }) {
+  const { t, fmtMoney, fmtDate } = useI18n()
+  const s = useStore()
+  const [mode, setMode] = useState(null) // 'pay' | 'edit'
+  const pays = (s.salaryPayments || []).filter((p) => p.employeeId === e.id).sort((a, b) => b.paidOn.localeCompare(a.paidOn))
+  if (mode === 'edit') return <EmployeeForm employee={e} onDone={() => setMode(null)} />
+  return (
+    <>
+      <div className="card">
+        <p className="list__title">{t(`payroll.roles.${e.role}`)} · {fmtMoney(e.salary)} {t(`payroll.freq.${e.frequency}`).toLowerCase()}</p>
+        {e.workingDays && <p className="small muted">{e.workingDays}</p>}
+        {e.active !== false && <p className="small">{t('payroll.nextOn', { date: fmtDate(e.nextPayDate, { day: 'numeric', month: 'short' }) })}</p>}
+        <div className="row gap-sm mt12">
+          {e.active !== false && mode !== 'pay' && <button type="button" className="btn btn--sm btn--primary" onClick={() => setMode('pay')}>{t('payroll.pay')}</button>}
+          <button type="button" className="btn btn--sm" onClick={() => setMode('edit')}>{t('more.profile.edit')}</button>
+        </div>
+      </div>
+      {mode === 'pay' && <div className="card"><PayForm employee={e} onDone={() => setMode(null)} /></div>}
+      <p className="card__label">{t('payroll.history', { n: pays.length })}</p>
+      <ul className="list card">
+        {pays.length ? pays.map((p) => (
+          <li key={p.id} className="list__row small"><span className="grow">{fmtDate(p.paidOn, { day: 'numeric', month: 'short', year: 'numeric' })} · {t(`methods.${p.method}`)}</span><strong>{fmtMoney(p.amount)}</strong></li>
+        )) : <li className="list__row small muted">{t('payroll.noPays')}</li>}
+      </ul>
+    </>
+  )
+}
+
+/** Nómina on a computer: a table of the staff, details and payments in a side panel. */
+function PayrollDesk() {
+  const { t, fmtMoney, fmtDate } = useI18n()
+  const s = useStore()
+  const q = useDeskSearch(t('payroll.search'))
+  const [open, setOpen] = useState(null) // id | 'new'
+  const today = todayKey()
+  const upcoming = upcomingSalaries(s, 15)
+  const rows = (s.employees || []).filter((e) => !q || [e.name, t(`payroll.roles.${e.role}`)].some((v) => v.toLowerCase().includes(q)))
+  const columns = [
+    { key: 'name', label: t('payroll.name'), render: (e) => <span className="dtable__strong">{e.name}</span> },
+    { key: 'role', label: t('payroll.role'), value: (e) => t(`payroll.roles.${e.role}`) },
+    { key: 'salary', label: t('payroll.salary'), align: 'right', nowrap: true, value: (e) => Number(e.salary), render: (e) => fmtMoney(e.salary) },
+    { key: 'frequency', label: t('payroll.frequency'), value: (e) => t(`payroll.freq.${e.frequency}`) },
+    { key: 'next', label: t('payroll.nextPay'), nowrap: true, value: (e) => (e.active === false ? null : e.nextPayDate),
+      render: (e) => (e.active === false ? '—' : <span className={e.nextPayDate <= today ? 'owed__late' : ''}>{fmtDate(e.nextPayDate, { day: 'numeric', month: 'short' })}</span>) },
+    { key: 'days', label: t('payroll.days'), value: (e) => e.workingDays || '' },
+    { key: 'state', label: t('desk.status'), value: (e) => (e.active === false ? t('schedule.off') : t('payroll.active')),
+      render: (e) => <Badge tone={e.active === false ? 'neutral' : 'success'}>{e.active === false ? t('schedule.off') : t('payroll.active')}</Badge> },
+  ]
+  useDeskAction({ label: t('payroll.add'), icon: 'plus', onClick: () => setOpen('new') }, [])
+  const selected = open && open !== 'new' ? (s.employees || []).find((e) => e.id === open) : null
+  return (
+    <div className="page">
+      <div className="card">
+        <p className="card__label">{t('payroll.next15')}</p>
+        <p className="bignum">{fmtMoney(upcoming.reduce((a, e) => a + e.salary, 0))}</p>
+        <p className="small muted">{upcoming.length ? upcoming.map((e) => `${e.name.split(' ')[0]} · ${fmtDate(e.nextPayDate, { day: 'numeric', month: 'short' })}`).join(' · ') : t('payroll.noneDue')}</p>
+      </div>
+      <div className="dtoolbar"><span className="grow" /><button type="button" className="btn btn--sm" onClick={() => exportCsv(`nomina-${today}.csv`, columns, rows)}><Icon name="download" size={16} /> {t('desk.export')}</button></div>
+      <DataTable columns={columns} rows={rows} onRow={(e) => setOpen(e.id)} selected={open} defaultSort={{ key: 'name', dir: 1 }} />
+      {open === 'new' && <Sheet title={t('payroll.add')} onClose={() => setOpen(null)}><EmployeeForm onDone={() => setOpen(null)} /></Sheet>}
+      {selected && <Sheet title={selected.name} onClose={() => setOpen(null)}><EmployeePanel employee={selected} /></Sheet>}
+    </div>
+  )
+}
+
 export default function AdminPayroll() {
+  const desk = useDesktop()
   const { t, fmtMoney, fmtDate } = useI18n()
   const s = useStore()
   const base = useBase()
@@ -77,6 +146,7 @@ export default function AdminPayroll() {
   const [paying, setPaying] = useState(null)
   const [history, setHistory] = useState(null)
   if (!moduleOn(s, 'modulePayroll')) return <Navigate to={`${base}/direccion/ajustes`} replace />
+  if (desk) return <PayrollDesk />
   const employees = [...(s.employees || [])].sort((a, b) => (b.active !== false) - (a.active !== false) || a.name.localeCompare(b.name))
   const upcoming = upcomingSalaries(s, 15)
   const today = todayKey()

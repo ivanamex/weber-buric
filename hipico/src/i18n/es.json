@@ -82,7 +82,8 @@
       "title": "Tu próxima clase, a un toque",
       "text": "Descárgala gratis en tu teléfono. Sin tiendas, sin contraseñas.",
       "open": "O ábrela en el navegador"
-    }
+    },
+    "signIn": "Entrar"
   },
   "login": {
     "back": "Inicio",
@@ -404,7 +405,18 @@
       "delete": "Eliminar",
       "deleteTitle": "¿Eliminar a {name}?",
       "deleteText": "Pierde el acceso y deja de aparecer en las listas. Su historial de pagos y asistencia se conserva para Reportes.",
-      "assignHint": "Al asignar o cambiar un plan aquí queda activo desde esa fecha, sin generar cobro (el club ya lo cobró)."
+      "assignHint": "Al asignar o cambiar un plan aquí queda activo desde esa fecha, sin generar cobro (el club ya lo cobró).",
+      "plansCol": "Planes",
+      "owedCol": "Por cobrar",
+      "activeState": "Activa",
+      "anyPlan": "Con y sin plan",
+      "withPlan": "Con plan",
+      "withoutPlan": "Sin plan",
+      "owingFilter": "Con adeudo",
+      "colContact": "Contacto",
+      "colPhone": "Teléfono",
+      "colEmail": "Correo",
+      "ridersPlans": "Jinetes (plan)"
     }
   },
   "toasts": {
@@ -675,7 +687,8 @@
     "untilDate": "hasta {date}",
     "fromDate": "desde {date}",
     "addAt": "Nueva clase el {day} a las {time}",
-    "free": "Libre"
+    "free": "Libre",
+    "dragHint": "Clic para una hora, o arrastra hacia abajo para una clase más larga"
   },
   "install": {
     "iphone": "Descargar para iPhone",
@@ -798,7 +811,8 @@
     "salariesTotal": "Total",
     "open": "Abrir",
     "more": "Más",
-    "horsesDue": "Caballos: próximos pendientes"
+    "horsesDue": "Caballos: próximos pendientes",
+    "ridersN": "{n}/{cap} jinetes"
   },
   "payroll": {
     "title": "Nómina",
@@ -832,7 +846,8 @@
     "history": "Pagos ({n})",
     "noPays": "Sin pagos registrados.",
     "noStaff": "Aún no hay personal.",
-    "add": "Agregar persona"
+    "add": "Agregar persona",
+    "search": "Buscar persona o puesto"
   },
   "profit": {
     "title": "Rentabilidad",
@@ -897,7 +912,7 @@
       "sold": "Vendidos"
     },
     "salePrice": "Precio (MXN)",
-    "age": "Edad (años)",
+    "age": "Edad",
     "breed": "Raza",
     "level": "Nivel",
     "description": "Descripción corta",
@@ -914,7 +929,11 @@
     "salePriceFinal": "Precio de venta (MXN)",
     "buyer": "Comprador (opcional)",
     "markSold": "Marcar vendido",
-    "soldToast": "{name}: venta registrada"
+    "soldToast": "{name}: venta registrada",
+    "search": "Buscar caballo, raza o dueño",
+    "ownerOrPrice": "Dueño / precio",
+    "pending": "Pendientes (14 días)",
+    "openFull": "Abrir la ficha completa"
   },
   "myHorse": {
     "title": "Mi caballo",
@@ -1059,7 +1078,19 @@
     "flowShow": "Ver detalle",
     "flowHide": "Ocultar detalle",
     "paidTag": "Pagado",
-    "notCharged": "El cobro se genera en el envío de la mañana."
+    "notCharged": "El cobro se genera en el envío de la mañana.",
+    "searchPh": "Buscar familia o concepto",
+    "col": {
+      "family": "Familia",
+      "concept": "Concepto",
+      "due": "Vence",
+      "amount": "Monto"
+    },
+    "status2": {
+      "pending": "Por cobrar",
+      "paid": "Pagados (60 días)"
+    },
+    "tableTotal": "{n} pagos · {amount}"
   },
   "reminders": {
     "title": "Recordatorios de pago",
@@ -1082,5 +1113,18 @@
     "soon": "Vence el {date}",
     "pay": "Pagar por transferencia",
     "atClub": "o paga en el club"
+  },
+  "desk": {
+    "noRows": "Nada que mostrar.",
+    "sortBy": "Ordenar por {col}",
+    "collapse": "Contraer menú",
+    "expand": "Abrir menú",
+    "export": "Exportar CSV (Excel)",
+    "print": "Imprimir",
+    "search": "Buscar",
+    "close": "Cerrar panel",
+    "all": "Todos",
+    "status": "Estado",
+    "filters": "Filtros"
   }
 }

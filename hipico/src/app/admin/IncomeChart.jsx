@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
+import { useDesktop } from '../../components/Desk.jsx'
 
-const W = 330
-const H = 132
 const PAD = { top: 10, right: 6, bottom: 22, left: 40 }
 
 /** Rounded top (4 px data-end), square at the baseline. */
@@ -20,6 +19,10 @@ const niceMax = (v) => {
 export default function IncomeChart({ daily }) {
   const { t, fmtMoney, fmtDate } = useI18n()
   const [hover, setHover] = useState(null)
+  // Wider and flatter on a computer, so the labels keep their size.
+  const wide = useDesktop()
+  const W = wide ? 760 : 330
+  const H = wide ? 170 : 132
   const max = niceMax(Math.max(...daily.map((d) => d.amount)))
   const plotW = W - PAD.left - PAD.right
   const plotH = H - PAD.top - PAD.bottom

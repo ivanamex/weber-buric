@@ -10,7 +10,8 @@ import { BankDetails } from '../../components/Transfer.jsx'
 import ReceiptViewer from './ReceiptViewer.jsx'
 import { SaveBar } from '../../components/EditKit.jsx'
 import { concept } from '../../components/PaymentHistory.jsx'
-import { Receivables, Cashflow, SERVICE_ICON } from './Receivables.jsx'
+import { Receivables, ReceivablesDesk, Cashflow, SERVICE_ICON } from './Receivables.jsx'
+import { useDesktop } from '../../components/Desk.jsx'
 
 
 export default function AdminPayments() {
@@ -19,6 +20,7 @@ export default function AdminPayments() {
   // Receipts waiting for review first.
   const pending = pendingPayments(s).sort((a, b) => (b.receiptStatus === 'review') - (a.receiptStatus === 'review'))
   const [viewing, setViewing] = useState(null)
+  const desk = useDesktop()
   const pendingTotal = pending.reduce((sum, p) => sum + p.amount, 0)
   const monthName = fmtDate(`${currentMonthKey()}-01`, { month: 'long', year: 'numeric' })
 
@@ -42,7 +44,7 @@ export default function AdminPayments() {
         <p className="small">{t('admin.payments.pendingSum', { n: pending.length, amount: fmtMoney(pendingTotal) })}</p>
       </div>
 
-      <Receivables onView={setViewing} />
+      {desk ? <ReceivablesDesk onView={setViewing} /> : <Receivables onView={setViewing} />}
       <Cashflow />
 
       <SectionTitle>{t('receipt.bankTitle')}</SectionTitle>

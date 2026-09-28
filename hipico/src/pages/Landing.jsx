@@ -115,6 +115,7 @@ export default function Landing() {
           <Link to="/" aria-label="Hípico Riviera Maya"><Logo light compact /></Link>
           <div className="lheader__actions">
             <LangToggle light />
+            <Link to="/app" className="lheader__login">{t('landing.signIn')}</Link>
             <Link to="/app" className="btn btn--accent btn--sm lheader__cta">{t('landing.openShort')}</Link>
           </div>
         </div>

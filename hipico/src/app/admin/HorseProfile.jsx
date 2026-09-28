@@ -246,12 +246,14 @@ function HealthSheet({ horse, kind, entry, onClose }) {
 }
 
 /** Management → Caballos → a horse: the finished profile, with one section at a time open for editing. */
-export default function HorseProfile() {
+/** `id` + `embedded`: the same profile inside the desktop side panel (no back link). */
+export default function HorseProfile({ id: forcedId, embedded = false } = {}) {
   const { t, fmtDate, fmtMoney } = useI18n()
   const s = useStore()
   const base = useBase()
   const navigate = useNavigate()
-  const { id } = useParams()
+  const params = useParams()
+  const id = forcedId || params.id
   const [edit, setEdit] = useState(null) // 'basics' | 'photos' | 'care'
   const [dirty, setDirty] = useState(false)
   const [sheet, setSheet] = useState(null) // { kind, entry? } | 'owner'
@@ -310,8 +312,8 @@ export default function HorseProfile() {
   ].filter(Boolean)
 
   return (
-    <div className="page">
-      {back}
+    <div className={`page ${embedded ? 'page--embedded' : ''}`}>
+      {!embedded && back}
       <div className="horsehero">
         <HorsePhoto horse={horse} size={112} />
         <div className="grow">

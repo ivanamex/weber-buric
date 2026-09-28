@@ -7,6 +7,10 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge } from '../../components/ui.jsx'
 import { HorsePhoto } from '../../components/HorseCare.jsx'
 import { useSave } from './useSave.js'
+import { useNavigate } from 'react-router-dom'
+import { DataTable, exportCsv, useDesktop, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
+import { Sheet } from '../../components/EditKit.jsx'
+import HorseProfile from './HorseProfile.jsx'
 import { SaveBar, useFormState } from '../../components/EditKit.jsx'
 
 function SellForm({ horse, onDone }) {
@@ -28,7 +32,61 @@ function SellForm({ horse, onDone }) {
 }
 
 /** Caballos: the list by status; tap a horse for its profile (basics, photos, daily ration, health). */
+/** Caballos on a computer: one table (status filter, search), the profile in a side panel. */
+function HorsesDesk() {
+  const { t, fmtMoney } = useI18n()
+  const s = useStore()
+  const base = useBase()
+  const navigate = useNavigate()
+  const q = useDeskSearch(t('horses.search'))
+  const [status, setStatus] = useState('all')
+  const [open, setOpen] = useState(null)
+  const due = healthDueSoon(s, 14)
+  const statuses = ['school', 'boarded', ...(moduleOn(s, 'moduleSales') ? ['for_sale'] : []), 'retired', 'sold']
+  const rows = s.horses
+    .filter((h) => status === 'all' ? horseStatus(h) !== 'sold' : horseStatus(h) === status)
+    .filter((h) => !q || [h.name, h.breed, byId(s.families, h.ownerFamilyId)?.name].some((v) => v?.toLowerCase().includes(q)))
+  const columns = [
+    { key: 'name', label: t('schedule.name'), render: (h) => <span className="row gap-sm"><HorsePhoto horse={h} size={32} /><span className="dtable__strong">{h.name}</span></span> },
+    { key: 'status', label: t('horseProfile.category'), value: (h) => t(`horses.status.${horseStatus(h)}`) },
+    { key: 'level', label: t('horses.level'), value: (h) => (h.level ? t(`levels.${h.level}`) : '') },
+    { key: 'age', label: t('horses.age'), value: (h) => horseAge(h), render: (h) => (horseAge(h) != null ? t('horses.years', { n: horseAge(h) }) : '—') },
+    { key: 'breed', label: t('horses.breed'), value: (h) => h.breed || '' },
+    { key: 'owner', label: t('horses.ownerOrPrice'), value: (h) => (horseStatus(h) === 'boarded' ? byId(s.families, h.ownerFamilyId)?.name || '' : h.salePrice != null && horseStatus(h) === 'for_sale' ? fmtMoney(h.salePrice) : '') },
+    { key: 'due', label: t('horses.pending'), value: (h) => due.filter((x) => x.horse.id === h.id).map((x) => t(`horseProfile.kinds.${x.kind}`)).join(', '),
+      render: (h) => { const d = due.filter((x) => x.horse.id === h.id); return d.length ? <span className="owed__late small">{d.map((x) => t(`horseProfile.kinds.${x.kind}`)).join(', ')}</span> : '' } },
+  ]
+  useDeskAction({ label: t('schedule.addHorse'), icon: 'plus', onClick: () => navigate(`${base}/direccion/caballos/nuevo`) }, [])
+  return (
+    <>
+      <div className="dtoolbar">
+        <div className="chips-scroll grow" role="group">
+          {['all', ...statuses].map((st) => (
+            <button key={st} type="button" className={`chip ${status === st ? 'is-active' : ''}`} aria-pressed={status === st} onClick={() => setStatus(st)}>
+              {st === 'all' ? t('desk.all') : t(`horses.group.${st}`)}
+            </button>
+          ))}
+        </div>
+        <button type="button" className="btn btn--sm" onClick={() => exportCsv('caballos.csv', columns, rows)}><Icon name="download" size={16} /> {t('desk.export')}</button>
+      </div>
+      <DataTable columns={columns} rows={rows} onRow={(h) => setOpen(h.id)} selected={open} defaultSort={{ key: 'name', dir: 1 }} />
+      {open && (
+        <Sheet title={byId(s.horses, open)?.name || ''} onClose={() => setOpen(null)}>
+          <HorseProfile id={open} embedded />
+          <Link to={`${base}/direccion/caballos/${open}`} className="link">{t('horses.openFull')}</Link>
+        </Sheet>
+      )}
+    </>
+  )
+}
+
 export default function HorsesView() {
+  const desk = useDesktop()
+  if (desk) return <HorsesDesk />
+  return <HorsesList />
+}
+
+function HorsesList() {
   const { t, fmtMoney } = useI18n()
   const s = useStore()
   const base = useBase()

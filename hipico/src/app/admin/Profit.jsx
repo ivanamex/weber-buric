@@ -107,6 +107,8 @@ export default function AdminProfit() {
         {[...months].reverse().map((m) => <option key={m} value={m}>{monthName(m)}</option>)}
       </select>
 
+      <div className="profitgrid">
+      <section className="sumblock">
       <div className={`card result ${r.result < 0 ? 'result--neg' : ''}`}>
         <p className="card__label">{t('profit.result')}</p>
         <p className="bignum">{r.result < 0 ? '−' : ''}{fmtMoney(Math.abs(r.result))}</p>
@@ -124,6 +126,8 @@ export default function AdminProfit() {
         ))}
       </ul>
 
+      </section>
+      <section className="sumblock">
       <SectionTitle icon="receipt" action={<button type="button" className="link" onClick={() => setShowCats(!showCats)}>{t('profit.categories')}</button>}>{t('profit.expenses')}</SectionTitle>
       {showCats && <Categories />}
       <ul className="list card">
@@ -143,6 +147,8 @@ export default function AdminProfit() {
         <button type="button" className="btn btn--outline btn--sm btn--block" onClick={() => setAdding(true)}><Icon name="plus" size={16} /> {t('profit.addExpense')}</button>
       )}
 
+      </section>
+      <section className="sumblock">
       <SectionTitle icon="chart">{t('profit.trend')}</SectionTitle>
       <div className="card trend" role="table" aria-label={t('profit.trend')}>
         {trend.map((x) => (
@@ -154,6 +160,8 @@ export default function AdminProfit() {
             <strong className="trend__value" role="cell">{x.result < 0 ? '−' : ''}{fmtMoney(Math.abs(x.result))}</strong>
           </div>
         ))}
+      </div>
+      </section>
       </div>
     </div>
   )

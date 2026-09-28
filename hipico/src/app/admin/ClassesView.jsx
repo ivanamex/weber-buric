@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { DateInput } from '../../components/DateInput.jsx'
@@ -13,6 +13,7 @@ import { ConfirmDialog, SaveBar, Sheet, useFormState } from '../../components/Ed
 import { useToast } from '../../components/Toast.jsx'
 import { todayKey, addDays, weekStart, daysBetween } from '../../lib/time.js'
 import { useSave } from './useSave.js'
+import { useDeskAction, useDesktop } from '../../components/Desk.jsx'
 
 const DISCIPLINES = ['basics', 'dressage', 'jumping', 'ponies']
 const ARENAS = ['main', 'covered', 'jumping']
@@ -103,7 +104,7 @@ function BulkForm({ preset, onDone }) {
   const open = WEEK.filter((d) => !closed.includes(d))
   const [f, setF, dirty] = useFormState(() => ({
     weekdays: preset?.weekday != null && !closed.includes(preset.weekday) ? [preset.weekday] : [],
-    times: [preset?.time || '16:00'], duration: 60, discipline: 'basics', level: 'beginner',
+    times: [preset?.time || '16:00'], duration: preset?.duration || 60, discipline: 'basics', level: 'beginner',
     instructorId: s.instructors.find((i) => i.active !== false)?.id || '', arena: 'main', capacity: 4,
     startsOn: preset?.date && preset.date > todayKey() ? preset.date : todayKey(), endsOn: '', noEnd: true,
   }))
@@ -406,8 +407,22 @@ function WeekGrid({ days, onOpen, onAdd }) {
   const hi = Math.max(18, ...hours)
   const rows = Array.from({ length: hi - lo + 1 }, (_, i) => lo + i)
   const today = todayKey()
+  // Drag down a day's empty hours to create a class that long (one click = one hour).
+  const [drag, setDrag] = useState(null) // { date, wd, from, to }
+  useEffect(() => {
+    if (!drag) return undefined
+    const up = () => {
+      const start = Math.min(drag.from, drag.to)
+      const hoursLong = Math.abs(drag.to - drag.from) + 1
+      setDrag(null)
+      onAdd(drag.wd, `${String(start).padStart(2, '0')}:00`, drag.date, Math.min(hoursLong * 60, 240))
+    }
+    window.addEventListener('mouseup', up)
+    return () => window.removeEventListener('mouseup', up)
+  }, [drag, onAdd])
+  const inDrag = (date, h) => drag && drag.date === date && h >= Math.min(drag.from, drag.to) && h <= Math.max(drag.from, drag.to)
   return (
-    <div className="wgrid" role="grid">
+    <div className={`wgrid ${drag ? 'is-dragging' : ''}`} role="grid">
       <div className="wgrid__corner" />
       {days.map(({ wd, date }) => (
         <div key={date} className={`wgrid__head ${date === today ? 'is-today' : ''} ${isClosed(s, date) ? 'is-closed' : ''}`} role="columnheader">
@@ -423,7 +438,7 @@ function WeekGrid({ days, onOpen, onAdd }) {
             const closed = isClosed(s, date)
             const here = byDay[i].filter((sl) => Number(sl.time.slice(0, 2)) === h)
             return (
-              <div key={`${date}-${h}`} className={`wgrid__cell ${closed ? 'is-closed' : ''}`}>
+              <div key={`${date}-${h}`} className={`wgrid__cell ${closed ? 'is-closed' : ''} ${inDrag(date, h) ? 'is-drag' : ''}`}>
                 {here.map((sl) => {
                   const cx = cancelledOn(s, sl.id, date)
                   const taken = Math.max(s.bookings.filter((b) => b.slotId === sl.id && b.date === date && isActiveBooking(b)).length, s.slotCounts?.[`${sl.id}|${date}`] ?? 0)
@@ -435,7 +450,11 @@ function WeekGrid({ days, onOpen, onAdd }) {
                   )
                 })}
                 {!closed && here.length === 0 && date >= today && (
-                  <button type="button" className="wgrid__add" aria-label={t('schedule.addAt', { day: fmtDate(date, { weekday: 'long', day: 'numeric' }), time: fmtTime(hh) })} onClick={() => onAdd(wd, hh, date)}>
+                  <button type="button" className="wgrid__add" aria-label={t('schedule.addAt', { day: fmtDate(date, { weekday: 'long', day: 'numeric' }), time: fmtTime(hh) })}
+                    title={t('schedule.dragHint')}
+                    onMouseDown={(e) => { if (e.button === 0) { e.preventDefault(); setDrag({ date, wd, from: h, to: h }) } }}
+                    onMouseEnter={() => { if (drag && drag.date === date) setDrag({ ...drag, to: h }) }}
+                    onClick={(e) => { if (e.detail === 0) onAdd(wd, hh, date) }}>
                     <Icon name="plus" size={14} />
                   </button>
                 )}
@@ -453,6 +472,7 @@ export default function ClassesView() {
   const s = useStore()
   const toast = useToast()
   const wide = useWide()
+  const desk = useDesktop()
   const today = todayKey()
   const [week, setWeek] = useState(0)
   const [day, setDay] = useState(today)
@@ -463,7 +483,9 @@ export default function ClassesView() {
   const goWeek = (w) => { setWeek(w); setDay(w === 0 ? today : addDays(weekStart(today), w * 7)) }
   const selected = days.find((d) => d.date === day) || days[0]
   const daySlots = slotsOn(s, selected.date, { includeOff: true })
-  const openForm = (preset) => { setAdding(preset); window.scrollTo?.({ top: 0, behavior: 'smooth' }) }
+  const openForm = (preset) => { setAdding(preset); if (!window.matchMedia?.('(min-width: 1024px)').matches) window.scrollTo?.({ top: 0, behavior: 'smooth' }) }
+  const addAt = useCallback((weekday, time, date, duration) => openForm({ weekday, time, date, duration }), [])
+  useDeskAction({ label: t('schedule.newClass'), icon: 'plus', onClick: () => openForm({}) }, [])
 
   return (
     <>
@@ -472,7 +494,12 @@ export default function ClassesView() {
         <p className="card__title center grow">{t('schedule.weekOf', { from: fmtDate(start, { day: 'numeric', month: 'short' }), to: fmtDate(addDays(start, 6), { day: 'numeric', month: 'short' }) })}</p>
         <button type="button" className="iconbtn iconbtn--card" onClick={() => goWeek(week + 1)} aria-label={t('common.next')}><Icon name="chevronRight" size={20} /></button>
       </div>
-      {adding ? (
+      {adding && desk && (
+        <Sheet title={t('schedule.newClass')} onClose={() => setAdding(null)}>
+          <BulkForm key={JSON.stringify(adding)} preset={adding} onDone={(count) => { setAdding(null); if (count) toast(t('schedule.createdMany', { n: count })) }} />
+        </Sheet>
+      )}
+      {adding && !desk ? (
         <section className="card">
           <p className="card__title">{t('schedule.newClass')}</p>
           <BulkForm key={JSON.stringify(adding)} preset={adding} onDone={(count) => { setAdding(null); if (count) toast(t('schedule.createdMany', { n: count })) }} />
@@ -488,7 +515,7 @@ export default function ClassesView() {
       )}
 
       {wide ? (
-        <WeekGrid days={days} onOpen={(slot, date) => setSheet({ slot, date })} onAdd={(weekday, time, date) => openForm({ weekday, time, date })} />
+        <WeekGrid days={days} onOpen={(slot, date) => setSheet({ slot, date })} onAdd={addAt} />
       ) : (
         <>
           <div className="daystrip__days schedstrip">

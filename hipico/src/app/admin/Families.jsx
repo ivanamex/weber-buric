@@ -12,6 +12,9 @@ import { useToast } from '../../components/Toast.jsx'
 import { PaymentHistory, PlanHistory } from '../../components/PaymentHistory.jsx'
 import { SaveBar, useFormState } from '../../components/EditKit.jsx'
 import ShareApp from './ShareApp.jsx'
+import { DataTable, exportCsv, useDesktop, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
+import { Sheet } from '../../components/EditKit.jsx'
+import { dueOf } from '../../data/store.js'
 
 const NEW_RIDER = { name: '', level: 'beginner' }
 const newFamily = () => ({ contact: '', email: '', phone: '', name: '', plan: '8', start: todayKey(), riders: [{ ...NEW_RIDER }] })
@@ -272,7 +275,79 @@ function FamilyCard({ family }) {
   )
 }
 
+/** Familias on a computer: a sortable table with filters, details and editing in a side panel, CSV export. */
+function FamiliesDesk() {
+  const { t, fmtMoney } = useI18n()
+  const s = useStore()
+  const q = useDeskSearch(t('admin.families.search'))
+  const [status, setStatus] = useState('active')
+  const [planFilter, setPlanFilter] = useState('all')
+  const [owing, setOwing] = useState(false)
+  const [open, setOpen] = useState(null) // family id | 'new' | 'share'
+  const today = todayKey()
+  const listed = s.families.filter((f) => !isDeletedFamily(f))
+  const info = (f) => {
+    const riders = familyRiders(s, f.id)
+    const pending = s.payments.filter((p) => p.familyId === f.id && p.status === 'pending')
+    return {
+      riders,
+      plans: riders.filter((r) => r.planClasses).map((r) => `${r.name}: ${r.planClasses}`),
+      owed: pending.reduce((a, p) => a + p.amount, 0),
+      late: pending.some((p) => dueOf(s, p) < today),
+    }
+  }
+  const rows = listed
+    .filter((f) => (status === 'all' ? true : status === 'active' ? isActiveFamily(f) : !isActiveFamily(f)))
+    .map((f) => ({ ...f, info: info(f) }))
+    .filter((f) => planFilter === 'all' || (planFilter === 'with' ? f.info.plans.length > 0 : f.info.plans.length === 0))
+    .filter((f) => !owing || f.info.owed > 0)
+    .filter((f) => !q || [f.name, f.contact, f.email, f.phone, ...f.info.riders.map((r) => r.name)].some((v) => v?.toLowerCase().includes(q)))
+  const columns = [
+    { key: 'name', label: t('admin.families.name'), render: (f) => <span className="dtable__strong">{f.name}</span> },
+    { key: 'contact', label: t('admin.families.colContact') },
+    { key: 'phone', label: t('admin.families.colPhone'), nowrap: true },
+    { key: 'email', label: t('admin.families.colEmail'), csvOnly: true },
+    { key: 'riders', label: t('admin.families.ridersPlans'), value: (f) => f.info.riders.map((r) => (r.planClasses ? `${r.name} (${r.planClasses})` : r.name)).join(' · ') },
+    { key: 'owed', label: t('admin.families.owedCol'), align: 'right', nowrap: true, value: (f) => f.info.owed,
+      render: (f) => (f.info.owed ? <strong className={f.info.late ? 'owed__late' : ''}>{fmtMoney(f.info.owed)}</strong> : <span className="muted">—</span>) },
+    { key: 'state', label: t('desk.status'), value: (f) => (isActiveFamily(f) ? t('admin.families.activeState') : t('admin.families.blocked')),
+      render: (f) => <Badge tone={isActiveFamily(f) ? 'success' : 'alert'}>{isActiveFamily(f) ? t('admin.families.activeState') : t('admin.families.blocked')}</Badge> },
+  ]
+  useDeskAction({ label: t('admin.families.add'), icon: 'plus', onClick: () => setOpen('new') }, [])
+  const selected = open && open !== 'new' && open !== 'share' ? byIdSafe(listed, open) : null
+  return (
+    <div className="page">
+      <p className="small muted">{t('admin.families.intro')}</p>
+      <div className="dtoolbar">
+        <Segmented small value={status} onChange={setStatus} options={[
+          { value: 'active', label: t('admin.families.activeState') }, { value: 'inactive', label: t('admin.families.blocked') }, { value: 'all', label: t('desk.all') },
+        ]} />
+        <Segmented small value={planFilter} onChange={setPlanFilter} options={[
+          { value: 'all', label: t('admin.families.anyPlan') }, { value: 'with', label: t('admin.families.withPlan') }, { value: 'without', label: t('admin.families.withoutPlan') },
+        ]} />
+        <button type="button" className={`chip ${owing ? 'is-active' : ''}`} aria-pressed={owing} onClick={() => setOwing(!owing)}>{t('admin.families.owingFilter')}</button>
+        <span className="grow" />
+        <button type="button" className="btn btn--sm" onClick={() => setOpen('share')}><Icon name="qr" size={16} /> {t('share.short')}</button>
+        <button type="button" className="btn btn--sm" onClick={() => exportCsv(`familias-${today}.csv`, columns, rows)}><Icon name="download" size={16} /> {t('desk.export')}</button>
+      </div>
+      <DataTable columns={columns} rows={rows} onRow={(f) => setOpen(f.id)} selected={open} defaultSort={{ key: 'name', dir: 1 }}
+        empty={<Empty icon="family" title={t(q ? 'admin.families.noMatch' : 'admin.families.emptyTitle')} />} />
+      <p className="small muted">{t('admin.families.count', { n: rows.length, riders: rows.reduce((a, f) => a + f.info.riders.length, 0) })}</p>
+      {open === 'new' && <Sheet title={t('admin.families.newTitle')} onClose={() => setOpen(null)}><NewFamilyForm onDone={() => setOpen(null)} /></Sheet>}
+      {open === 'share' && <Sheet title={t('share.short')} onClose={() => setOpen(null)}><ShareApp onClose={() => setOpen(null)} /></Sheet>}
+      {selected && <Sheet title={selected.name} onClose={() => setOpen(null)}><FamilyCard family={selected} /></Sheet>}
+    </div>
+  )
+}
+const byIdSafe = (list, id) => list.find((x) => x.id === id) || null
+
 export default function AdminFamilies() {
+  const desk = useDesktop()
+  if (desk) return <FamiliesDesk />
+  return <AdminFamiliesPhone />
+}
+
+function AdminFamiliesPhone() {
   const { t } = useI18n()
   const s = useStore()
   const [query, setQuery] = useState('')

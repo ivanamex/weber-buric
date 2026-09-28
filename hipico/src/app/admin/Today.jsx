@@ -7,6 +7,7 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { todayKey, addDays } from '../../lib/time.js'
+import { useDeskAction } from '../../components/Desk.jsx'
 
 export default function AdminToday() {
   const { t, fmtDate, fmtTime } = useI18n()
@@ -15,6 +16,7 @@ export default function AdminToday() {
   const today = todayKey()
   const [date, setDate] = useState(today)
   const base = useBase()
+  useDeskAction({ label: t('desk.print'), icon: 'printer', onClick: () => window.print() }, [])
 
   const occ = occurrencesFor(s, date, null, { includeClosed: true }).filter((o) => o.bookings.length > 0)
   const hours = [...new Set(occ.map((o) => o.slot.time))]
@@ -56,7 +58,7 @@ export default function AdminToday() {
         <Empty icon="helmet" title={t('admin.today.emptyTitle')}>
           <Link to={`${base}/direccion/horario`} className="btn btn--outline"><Icon name="calendar" size={18} /> {t('admin.today.seeSchedule')}</Link>
         </Empty>
-      ) : hours.map((h) => (
+      ) : <div className="hours">{hours.map((h) => (
         <section key={h} className="hourgroup">
           <h2 className="hourgroup__time">{fmtTime(h)}</h2>
           {occ.filter((o) => o.slot.time === h).map((o) => (
@@ -108,7 +110,7 @@ export default function AdminToday() {
             </div>
           ))}
         </section>
-      ))}
+      ))}</div>}
       <p className="muted small center mt16">{t('admin.today.rule')}</p>
     </div>
   )

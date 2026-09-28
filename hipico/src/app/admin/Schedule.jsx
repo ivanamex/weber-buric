@@ -62,8 +62,10 @@ function InstructorsView() {
 
 export default function AdminSchedule() {
   const { t } = useI18n()
-  const [params] = useSearchParams()
-  const [view, setView] = useState(params.get('vista') === 'caballos' ? 'horses' : 'classes')
+  // The view lives in the address (?vista=caballos | instructores), so the sidebar and back links can open it.
+  const [params, setParams] = useSearchParams()
+  const view = { caballos: 'horses', instructores: 'instructors' }[params.get('vista')] || 'classes'
+  const setView = (v) => setParams(v === 'classes' ? {} : { vista: v === 'horses' ? 'caballos' : 'instructores' }, { replace: true })
   return (
     <div className="page">
       <h1 className="page__title">{t('schedule.title')}</h1>

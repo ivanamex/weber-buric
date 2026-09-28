@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, activeCounts, moneySummary, overdue, renewingSoon, weekOccupancy, upcomingSalaries, moduleOn, healthDueSoon,
+  useStore, byId, activeCounts, moneySummary, overdue, renewingSoon, weekOccupancy, upcomingSalaries, moduleOn, healthDueSoon, occurrencesFor,
 } from '../../data/store.js'
 import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
@@ -20,7 +20,7 @@ export function familyWaLink(phone, text) {
 
 /** Management's first screen: who's active, money, who owes, renewals, occupancy. */
 export default function AdminSummary() {
-  const { t, fmtMoney, fmtDate } = useI18n()
+  const { t, fmtMoney, fmtDate, fmtTime } = useI18n()
   const s = useStore()
   const base = useBase()
   const [allOwed, setAllOwed] = useState(false)
@@ -34,12 +34,15 @@ export default function AdminSummary() {
   const pct = money.expected ? Math.round((money.expectedPaid / money.expected) * 100) : 0
   const owedShown = allOwed ? owed : owed.slice(0, 5)
   const short = (d) => fmtDate(d, { day: 'numeric', month: 'short' })
+  const todayClasses = occurrencesFor(s, todayKey(), null, { includeClosed: true }).filter((o) => o.bookings.length > 0)
 
   return (
     <div className="page">
       <h1 className="page__title">{t('summary.title')}</h1>
       <p className="daylabel">{fmtDate(todayKey())}</p>
 
+      <div className="sumgrid">
+      <section className="sumblock sumblock--wide">
       <SectionTitle icon="family">{t('summary.active')}</SectionTitle>
       <div className="stats stats--4">
         <div className="stat"><strong>{counts.families}</strong><span>{t('summary.families')}</span></div>
@@ -51,6 +54,8 @@ export default function AdminSummary() {
         <div className="stat"><strong>{counts.boarded}</strong><span>{t('summary.boarded')}</span></div>
       </div>
 
+      </section>
+      <section className="sumblock sumblock--money">
       <SectionTitle icon="receipt">{t('summary.money')}</SectionTitle>
       <div className="card">
         <div className="money3">
@@ -66,6 +71,22 @@ export default function AdminSummary() {
         <IncomeChart daily={money.daily} />
       </div>
 
+      </section>
+      <section className="sumblock sumblock--today">
+        <SectionTitle icon="helmet" action={<Link to={`${base}/direccion/hoy`} className="link">{t('summary.open')}</Link>}>{t('tabs.today')}</SectionTitle>
+        {todayClasses.length === 0 ? <p className="muted small">{t('admin.today.emptyTitle')}</p> : (
+          <ul className="list card">
+            {todayClasses.map((o) => (
+              <li key={o.slot.id} className="list__row">
+                <strong className="sumtime">{fmtTime(o.slot.time)}</strong>
+                <span className="grow"><span className="list__title">{t(`disciplines.${o.slot.discipline}`)}</span> <span className="small muted">· {t(`levels.${o.slot.level}`)}</span></span>
+                <span className="small">{t('summary.ridersN', { n: o.bookings.length, cap: o.slot.capacity })}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section className="sumblock">
       <SectionTitle icon="alert">{t('summary.owes', { n: owed.length })}</SectionTitle>
       {owed.length === 0 ? (
         <p className="muted small">{t('summary.nobodyOwes')}</p>
@@ -93,6 +114,8 @@ export default function AdminSummary() {
         </ul>
       )}
 
+      </section>
+      <section className="sumblock">
       <SectionTitle icon="refresh">{t('summary.renewing')}</SectionTitle>
       {renewing.length === 0 ? (
         <p className="muted small">{t('summary.noRenewals')}</p>
@@ -107,6 +130,8 @@ export default function AdminSummary() {
         </ul>
       )}
 
+      </section>
+      <section className="sumblock">
       <SectionTitle icon="calendar">{t('summary.occupancy')}</SectionTitle>
       <div className="card row gap">
         <div className="donut" style={{ '--p': occ.pct }}><span>{occ.pct}%</span></div>
@@ -116,8 +141,9 @@ export default function AdminSummary() {
         </div>
       </div>
 
+      </section>
       {horseDue.length > 0 && (
-        <>
+        <section className="sumblock">
           <SectionTitle icon="horseHead">{t('summary.horsesDue')}</SectionTitle>
           <ul className="list card">
             {horseDue.map((x) => (
@@ -127,11 +153,11 @@ export default function AdminSummary() {
               </li>
             ))}
           </ul>
-        </>
+        </section>
       )}
 
       {salaries.length > 0 && (
-        <>
+        <section className="sumblock">
           <SectionTitle icon="users" action={<Link to={`${base}/direccion/nomina`} className="link">{t('summary.open')}</Link>}>{t('summary.salaries')}</SectionTitle>
           <ul className="list card">
             {salaries.map((e) => (
@@ -142,8 +168,9 @@ export default function AdminSummary() {
             ))}
             <li className="list__row small"><span className="grow muted">{t('summary.salariesTotal')}</span><strong>{fmtMoney(salaries.reduce((a, e) => a + e.salary, 0))}</strong></li>
           </ul>
-        </>
+        </section>
       )}
+      </div>
 
       <SectionTitle>{t('summary.more')}</SectionTitle>
       <div className="tiles">

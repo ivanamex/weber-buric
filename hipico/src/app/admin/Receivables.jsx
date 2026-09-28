@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { useStore, byId, markPaid, receivables, cashflow, remindersFor } from '../../data/store.js'
+import { useStore, byId, markPaid, receivables, cashflow, remindersFor, dueOf } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, SectionTitle, Segmented } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
@@ -8,6 +8,9 @@ import { ReceiptBadge } from '../../components/Transfer.jsx'
 import { concept } from '../../components/PaymentHistory.jsx'
 import { daysBetween, todayKey } from '../../lib/time.js'
 import { familyWaLink } from './Summary.jsx'
+import { DataTable, exportCsv, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
+import { Sheet } from '../../components/EditKit.jsx'
+import { addDays } from '../../lib/time.js'
 
 export const SERVICE_ICON = { plan: 'horseshoe', boarding: 'saddle', camp: 'balloons', rental: 'horseHead', events: 'cake', class: 'helmet' }
 const GROUPS = ['overdue', 'today', 'soon', 'later']
@@ -210,6 +213,86 @@ export function Cashflow() {
           )
         })}
       </div>
+    </>
+  )
+}
+
+/** Cobros on a computer: the four totals, then one sortable table (search, status and concept filters), details in a side panel, CSV export. */
+export function ReceivablesDesk({ onView }) {
+  const { t, fmtMoney, fmtDate, fmtInstant } = useI18n()
+  const s = useStore()
+  const describe = useDescribe()
+  const q = useDeskSearch(t('collect.searchPh'))
+  const [status, setStatus] = useState('pending')
+  const [filter, setFilter] = useState('all')
+  const [only, setOnly] = useState(null)
+  const [open, setOpen] = useState(null)
+  const today = todayKey()
+  const { groups } = receivables(s)
+  const sum = (list) => list.reduce((a, x) => a + x.amount, 0)
+  const pending = GROUPS.flatMap((g) => groups[g])
+  const since = addDays(today, -60)
+  const paid = s.payments.filter((p) => p.status === 'paid' && p.paidAt && p.paidAt.slice(0, 10) >= since)
+    .map((p) => ({ ...p, due: dueOf(s, p), state: 'paid' }))
+  const base = status === 'pending' ? pending : status === 'paid' ? paid : [...pending, ...paid]
+  const rows = base
+    .filter((x) => matches(filter, x) && (!only || x.state === only))
+    .filter((x) => !q || [byId(s.families, x.familyId)?.name, describe(x)].some((v) => v?.toLowerCase().includes(q)))
+  const stateLabel = (x) => (x.state === 'paid' ? t('collect.paidTag') : x.state === 'overdue' ? t('collect.dueOverdue', { date: fmtDate(x.due, { day: 'numeric', month: 'short' }), n: daysBetween(x.due, today) })
+    : t(`collect.groups.${x.state}`))
+  const columns = [
+    { key: 'family', label: t('collect.col.family'), value: (x) => byId(s.families, x.familyId)?.name || '', render: (x) => <span className="dtable__strong">{byId(s.families, x.familyId)?.name}</span> },
+    { key: 'concept', label: t('collect.col.concept'), value: (x) => describe(x) },
+    { key: 'due', nowrap: true, label: t('collect.col.due'), value: (x) => x.due, render: (x) => fmtDate(x.due, { day: 'numeric', month: 'short', year: 'numeric' }), csv: (x) => x.due },
+    { key: 'state', label: t('desk.status'), value: (x) => ({ overdue: 0, today: 1, soon: 2, later: 3, paid: 4 }[x.state]), csv: (x) => stateLabel(x),
+      render: (x) => (
+        <span className="row gap-sm wrap">
+          <Badge tone={x.state === 'paid' ? 'success' : x.state === 'overdue' ? 'alert' : x.state === 'later' ? 'neutral' : 'accent'}>{stateLabel(x)}</Badge>
+          {x.projected && <Badge tone="neutral">{t('collect.expected')}</Badge>}
+          {x.receiptStatus && x.state !== 'paid' && <ReceiptBadge status={x.receiptStatus} />}
+        </span>
+      ) },
+    { key: 'reminders', label: t('collect.reminders'), value: (x) => (x.projected || x.state === 'paid' ? 0 : remindersFor(s, x).length), csv: (x) => (x.projected || x.state === 'paid' ? '' : remindersFor(s, x).length) },
+    { key: 'amount', nowrap: true, label: t('collect.col.amount'), align: 'right', value: (x) => x.amount, render: (x) => <strong>{fmtMoney(x.amount)}</strong> },
+  ]
+  useDeskAction({ label: t('desk.export'), icon: 'download', onClick: () => exportCsv(`cobros-${today}.csv`, columns, rows) }, [rows.length, status, filter, only, q])
+  const selected = open && [...pending, ...paid].find((x) => x.id === open)
+  return (
+    <>
+      <div className="duegroups" role="group" aria-label={t('collect.title')}>
+        {GROUPS.map((g) => (
+          <button key={g} type="button" className={`duegroup duegroup--${g} ${only === g ? 'is-active' : ''}`} aria-pressed={only === g} onClick={() => { setOnly(only === g ? null : g); setStatus('pending') }}>
+            <span className="duegroup__label">{t(`collect.groups.${g}`)}</span>
+            <strong className="duegroup__sum">{fmtMoney(sum(groups[g]))}</strong>
+            <span className="duegroup__n">{t('collect.count', { n: groups[g].length })}</span>
+          </button>
+        ))}
+      </div>
+      <div className="dtoolbar">
+        <Segmented small value={status} onChange={(v) => { setStatus(v); if (v !== 'pending') setOnly(null) }} options={[
+          { value: 'pending', label: t('collect.status2.pending') }, { value: 'paid', label: t('collect.status2.paid') }, { value: 'all', label: t('desk.all') },
+        ]} />
+        <div className="chips-scroll grow" role="group">
+          {FILTERS.map((f) => (
+            <button key={f} type="button" className={`chip ${filter === f ? 'is-active' : ''}`} aria-pressed={filter === f} onClick={() => setFilter(f)}>{t(`collect.filters.${f}`)}</button>
+          ))}
+        </div>
+        <button type="button" className="btn btn--sm" onClick={() => window.print()} title={t('desk.print')}><Icon name="printer" size={16} /> {t('desk.print')}</button>
+      </div>
+      <DataTable columns={columns} rows={rows} onRow={(x) => setOpen(x.id)} selected={open} defaultSort={{ key: 'due', dir: status === 'paid' ? -1 : 1 }}
+        empty={<p className="muted small">{t('collect.none')}</p>} />
+      <p className="small muted">{t('collect.tableTotal', { n: rows.length, amount: fmtMoney(sum(rows)) })}</p>
+      {selected && (
+        <Sheet title={byId(s.families, selected.familyId)?.name || ''} onClose={() => setOpen(null)}>
+          {selected.state === 'paid' ? (
+            <div className="card">
+              <p className="list__title">{describe(selected)}</p>
+              <p className="small muted">{t('collect.dueOn', { date: fmtDate(selected.due, { day: 'numeric', month: 'short' }) })}</p>
+              <p className="mt8"><strong>{fmtMoney(selected.amount)}</strong> · <Badge tone="success">{t(`methods.${selected.method}`)}</Badge> · {fmtInstant(selected.paidAt)}</p>
+            </div>
+          ) : <ul className="paylist"><PayRow item={selected} onView={onView} /></ul>}
+        </Sheet>
+      )}
     </>
   )
 }

@@ -82,7 +82,8 @@
       "title": "Your next ride, one tap away",
       "text": "Get it free on your phone. No stores, no passwords.",
       "open": "Or open it in your browser"
-    }
+    },
+    "signIn": "Sign in"
   },
   "login": {
     "back": "Home",
@@ -404,7 +405,18 @@
       "delete": "Delete",
       "deleteTitle": "Delete {name}?",
       "deleteText": "They lose access and no longer appear in the lists. Their payment and attendance history is kept for Reports.",
-      "assignHint": "A plan assigned or changed here is active from that date, with no charge created (the club already collected it)."
+      "assignHint": "A plan assigned or changed here is active from that date, with no charge created (the club already collected it).",
+      "plansCol": "Plans",
+      "owedCol": "To collect",
+      "activeState": "Active",
+      "anyPlan": "Any plan",
+      "withPlan": "With plan",
+      "withoutPlan": "No plan",
+      "owingFilter": "Owing",
+      "colContact": "Contact",
+      "colPhone": "Phone",
+      "colEmail": "Email",
+      "ridersPlans": "Riders (plan)"
     }
   },
   "toasts": {
@@ -675,7 +687,8 @@
     "untilDate": "until {date}",
     "fromDate": "from {date}",
     "addAt": "New class on {day} at {time}",
-    "free": "Free"
+    "free": "Free",
+    "dragHint": "Click for one hour, or drag down for a longer class"
   },
   "install": {
     "iphone": "Download for iPhone",
@@ -798,7 +811,8 @@
     "salariesTotal": "Total",
     "open": "Open",
     "more": "More",
-    "horsesDue": "Horses: coming up"
+    "horsesDue": "Horses: coming up",
+    "ridersN": "{n}/{cap} riders"
   },
   "payroll": {
     "title": "Payroll",
@@ -832,7 +846,8 @@
     "history": "Payments ({n})",
     "noPays": "No payments yet.",
     "noStaff": "No staff yet.",
-    "add": "Add a person"
+    "add": "Add a person",
+    "search": "Search person or role"
   },
   "profit": {
     "title": "Profitability",
@@ -897,7 +912,7 @@
       "sold": "Sold"
     },
     "salePrice": "Price (MXN)",
-    "age": "Age (years)",
+    "age": "Age",
     "breed": "Breed",
     "level": "Level",
     "description": "Short description",
@@ -914,7 +929,11 @@
     "salePriceFinal": "Sale price (MXN)",
     "buyer": "Buyer (optional)",
     "markSold": "Mark as sold",
-    "soldToast": "{name}: sale recorded"
+    "soldToast": "{name}: sale recorded",
+    "search": "Search horse, breed or owner",
+    "ownerOrPrice": "Owner / price",
+    "pending": "Due (14 days)",
+    "openFull": "Open the full profile"
   },
   "myHorse": {
     "title": "My horse",
@@ -1059,7 +1078,19 @@
     "flowShow": "Show details",
     "flowHide": "Hide details",
     "paidTag": "Paid",
-    "notCharged": "The charge is created in the morning run."
+    "notCharged": "The charge is created in the morning run.",
+    "searchPh": "Search family or concept",
+    "col": {
+      "family": "Family",
+      "concept": "Concept",
+      "due": "Due",
+      "amount": "Amount"
+    },
+    "status2": {
+      "pending": "To collect",
+      "paid": "Paid (60 days)"
+    },
+    "tableTotal": "{n} payments · {amount}"
   },
   "reminders": {
     "title": "Payment reminders",
@@ -1082,5 +1113,18 @@
     "soon": "Due {date}",
     "pay": "Pay by transfer",
     "atClub": "or pay at the club"
+  },
+  "desk": {
+    "noRows": "Nothing to show.",
+    "sortBy": "Sort by {col}",
+    "collapse": "Collapse menu",
+    "expand": "Open menu",
+    "export": "Export CSV (Excel)",
+    "print": "Print",
+    "search": "Search",
+    "close": "Close panel",
+    "all": "All",
+    "status": "Status",
+    "filters": "Filters"
   }
 }
