@@ -4,7 +4,8 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued. Add the next step here.
+1. **STEP-26 (urgent)**: iPhone layout bugs: floating tab bar, overlapping Fecha/Monto fields, DEMO bar cut off, quick pass on every screen
+2. Nothing queued. Add the next step here.
 
 Check in the browser after each step, then "ok".
 
