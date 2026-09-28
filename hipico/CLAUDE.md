@@ -44,6 +44,8 @@ supabase/schema.sql  tables + Row Level Security + SECURITY DEFINER functions (t
 ## Editing pattern
 Every management form uses `components/EditKit.jsx`: `useFormState` (knows when it's dirty), `SaveBar` (one coral `btn--save` Guardar, full width on phones, Cancelar as a link, error shown above it), `useDiscardGuard` / `ConfirmDialog` ("¿Descartar cambios?"), `Sheet` (bottom sheet). `admin/useSave.js` returns `[run, busy, error]`; pass `{ inline: true }` to show errors in the form instead of a toast. No emoji anywhere: the family greeting uses `components/GreetingMark.jsx` (sun rising / half-set / moon and star).
 
+Phone layout rules (iPhone Safari): dates use `components/DateInput.jsx` (shows "27 sep 2026" in the app's language; the native picker sits on top, invisible); every field is 46 px with the same padding and corners; form grids stack one field per row under 480 px. The tab bar is `position: fixed; left: 0; right: 0; bottom: 0` with no transform, and its background continues below it (Safari's translucent toolbar). The header and the demo bar share one sticky block (`.apptop`). `.page` fades with opacity only: a transform would break fixed sheets inside it.
+
 ## Database updates
 
 Database changes ship as files in `supabase/migrations/` (`YYYYMMDD_name.sql`, safe to run twice, no `begin`/`commit`). The production build runs `scripts/migrate.mjs` first, which applies new files automatically via `POSTGRES_URL_NON_POOLING`, with TLS verified against `scripts/supabase-ca.crt`. Don't ask the user to paste SQL.

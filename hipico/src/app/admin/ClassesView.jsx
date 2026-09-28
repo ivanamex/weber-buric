@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
+import { DateInput } from '../../components/DateInput.jsx'
 import {
   useStore, byId, isActiveBooking, LEVELS, cancelClassDate, reopenClassDate, createClasses, editClass, cancelClassRange, copyWeek,
   slotsOn, isClosed, closedDateOn, closedWeekdays, isOneOff,
@@ -159,12 +160,12 @@ function BulkForm({ preset, onDone }) {
       <ClassFields f={f} set={set} idPrefix="bulk" />
       <div className="grid2">
         <label className="field" htmlFor="bulk-from"><span>{t('schedule.from')}</span>
-          <input id="bulk-from" className="input" type="date" min={todayKey()} required value={f.startsOn} onChange={(e) => set({ startsOn: e.target.value })} />
+          <DateInput id="bulk-from" min={todayKey()} required value={f.startsOn} onChange={(e) => set({ startsOn: e.target.value })} />
         </label>
         <label className="field" htmlFor="bulk-until"><span>{t('schedule.until')}</span>
           {f.noEnd
             ? <input id="bulk-until" className="input" value={t('schedule.noEnd')} readOnly onFocus={() => set({ noEnd: false, endsOn: addDays(f.startsOn, 90) })} />
-            : <input id="bulk-until" className="input" type="date" min={f.startsOn} required value={f.endsOn} onChange={(e) => set({ endsOn: e.target.value })} />}
+            : <DateInput id="bulk-until" min={f.startsOn} required value={f.endsOn} onChange={(e) => set({ endsOn: e.target.value })} />}
         </label>
       </div>
       <label className="check"><input type="checkbox" checked={f.noEnd} onChange={(e) => set({ noEnd: e.target.checked, endsOn: e.target.checked ? '' : addDays(f.startsOn, 90) })} /> <span>{t('schedule.noEnd')}</span></label>
@@ -291,10 +292,10 @@ function DateRange({ from, to, onChange, idPrefix, min }) {
   return (
     <div className="grid2">
       <label className="field" htmlFor={`${idPrefix}-from`}><span>{t('schedule.from')}</span>
-        <input id={`${idPrefix}-from`} className="input" type="date" min={min} required value={from} onChange={(e) => onChange({ from: e.target.value, to: e.target.value > to ? e.target.value : to })} />
+        <DateInput id={`${idPrefix}-from`} min={min} required value={from} onChange={(e) => onChange({ from: e.target.value, to: e.target.value > to ? e.target.value : to })} />
       </label>
       <label className="field" htmlFor={`${idPrefix}-to`}><span>{t('schedule.until')}</span>
-        <input id={`${idPrefix}-to`} className="input" type="date" min={from} required value={to} onChange={(e) => onChange({ from, to: e.target.value })} />
+        <DateInput id={`${idPrefix}-to`} min={from} required value={to} onChange={(e) => onChange({ from, to: e.target.value })} />
       </label>
     </div>
   )

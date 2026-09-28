@@ -88,6 +88,7 @@ export default function AppShell({ role }) {
 
   return (
     <div className="app">
+      <div className="apptop">
       <header className="appbar">
         <Logo light compact />
         <div className="appbar__right">
@@ -98,6 +99,7 @@ export default function AppShell({ role }) {
         </div>
       </header>
       {s.mode === 'demo' && <DemoBar role={role} />}
+      </div>
       <div className="appbar__role">
         <span>{role === 'admin' ? t('app.roleAdmin') : family?.name}</span>
         {s.mode !== 'demo' && <span className="appbar__email">{s.session.email}</span>}

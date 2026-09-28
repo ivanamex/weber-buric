@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
+import { DateInput } from '../../components/DateInput.jsx'
 import {
   useStore, byId, familyRiders, getPlan, registerCamp, bookRental, campTaken, setPassword,
 } from '../../data/store.js'
@@ -122,7 +123,7 @@ export default function FamilyMore() {
         <div className="grid2">
           <label className="field">
             <span>{t('more.rental.date')}</span>
-            <input className="input" type="date" min={firstRentalDate} value={rental.date} onChange={(e) => setRental({ ...rental, date: e.target.value })} required />
+            <DateInput min={firstRentalDate} value={rental.date} onChange={(e) => setRental({ ...rental, date: e.target.value })} required />
           </label>
           <label className="field">
             <span>{t('more.rental.time')}</span>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
+import { DateInput } from '../../components/DateInput.jsx'
 import { useStore, saveModules, closedWeekdays, saveClosedWeekdays, addClosedDates, deleteClosedDate } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { SectionTitle } from '../../components/ui.jsx'
@@ -70,10 +71,10 @@ function ClosedDates() {
       <form key={key} className="inline-form mt12" onSubmit={onAdd}>
         <div className="grid2">
           <label className="field" htmlFor="cd-from"><span>{t('schedule.from')}</span>
-            <input id="cd-from" className="input" type="date" min={today} required value={f.from} onChange={(e) => setF({ ...f, from: e.target.value, to: e.target.value > f.to ? e.target.value : f.to })} />
+            <DateInput id="cd-from" min={today} required value={f.from} onChange={(e) => setF({ ...f, from: e.target.value, to: e.target.value > f.to ? e.target.value : f.to })} />
           </label>
           <label className="field" htmlFor="cd-to"><span>{t('schedule.until')}</span>
-            <input id="cd-to" className="input" type="date" min={f.from} required value={f.to} onChange={(e) => setF({ ...f, to: e.target.value })} />
+            <DateInput id="cd-to" min={f.from} required value={f.to} onChange={(e) => setF({ ...f, to: e.target.value })} />
           </label>
         </div>
         <label className="field" htmlFor="cd-note"><span>{t('closed.note')}</span>

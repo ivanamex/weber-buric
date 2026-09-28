@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
+import { DateInput } from '../../components/DateInput.jsx'
 import { useStore, saveEmployee, paySalary, upcomingSalaries, moduleOn, EMPLOYEE_ROLES } from '../../data/store.js'
 import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
@@ -34,7 +35,7 @@ function EmployeeForm({ employee, onDone }) {
       </div>
       <div className="grid2">
         <label className="field"><span>{t('payroll.nextPay')}</span>
-          <input className="input" type="date" required value={f.nextPayDate} onChange={(e) => setF({ ...f, nextPayDate: e.target.value })} />
+          <DateInput required value={f.nextPayDate} onChange={(e) => setF({ ...f, nextPayDate: e.target.value })} />
         </label>
         <label className="field"><span>{t('payroll.days')}</span>
           <input className="input" placeholder={t('payroll.daysPh')} value={f.workingDays || ''} onChange={(e) => setF({ ...f, workingDays: e.target.value })} />
@@ -57,7 +58,7 @@ function PayForm({ employee, onDone }) {
           <input className="input" type="number" inputMode="numeric" min={0} required value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} />
         </label>
         <label className="field"><span>{t('payroll.date')}</span>
-          <input className="input" type="date" required value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} />
+          <DateInput required value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} />
         </label>
       </div>
       <Segmented small value={f.method} onChange={(method) => setF({ ...f, method })}

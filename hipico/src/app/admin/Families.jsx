@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
+import { DateInput } from '../../components/DateInput.jsx'
 import {
   useStore, familyRiders, getPlan, createFamily, saveFamily, setFamilyActive, deleteFamily, isActiveFamily, isDeletedFamily, LEVELS,
 } from '../../data/store.js'
@@ -104,7 +105,7 @@ function NewFamilyForm({ onDone }) {
           <PlanSelect id="nf-plan" value={f.plan} onChange={(plan) => setF({ ...f, plan })} />
         </label>
         <label className="field" htmlFor="nf-start"><span>{t('admin.families.planStart')}</span>
-          <input id="nf-start" className="input" type="date" value={f.start} onChange={(e) => setF({ ...f, start: e.target.value })} required />
+          <DateInput id="nf-start" value={f.start} onChange={(e) => setF({ ...f, start: e.target.value })} required />
         </label>
       </div>
       <label className="field" htmlFor="nf-name"><span>{t('admin.families.nameOptional')}</span>
@@ -169,7 +170,7 @@ function FamilyEditor({ family, onDone }) {
         <RidersEditor idPrefix={`ef-rider-${id}`} riders={riders} setRiders={setRiders} withPlan />
       </div>
       <label className="field" htmlFor={`ef-start-${id}`}><span>{t('admin.families.planStart')}</span>
-        <input id={`ef-start-${id}`} className="input" type="date" value={planStart} onChange={(e) => setPlanStart(e.target.value)} required />
+        <DateInput id={`ef-start-${id}`} value={planStart} onChange={(e) => setPlanStart(e.target.value)} required />
       </label>
       <p className="small muted mt8">{t('admin.families.assignHint')}</p>
       <SaveBar busy={busy} dirty={fieldsDirty || ridersDirty} error={error} onCancel={onDone} />

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
+import { DateInput } from '../../components/DateInput.jsx'
 import {
   useStore, byId, isDeletedFamily, saveHorse, uploadHorsePhoto, removeHorsePhoto, horsePhotoUrl, saveHorseCare, addHealth, updateHealth, deleteHealth,
   horseStatus, moduleOn, horseAge, careOf, healthOf, lastByKind, HORSE_LEVELS, HORSE_SEXES,
@@ -226,10 +227,10 @@ function HealthSheet({ horse, kind, entry, onClose }) {
       <form className="inline-form" onSubmit={save}>
         <div className="grid2">
           <label className="field"><span>{t('horseProfile.doneOn')}</span>
-            <input className="input" type="date" required max={today} value={f.doneOn} onChange={onDone} />
+            <DateInput required max={today} value={f.doneOn} onChange={onDone} />
           </label>
           <label className="field"><span>{t('horseProfile.nextDue')}</span>
-            <input className="input" type="date" min={f.doneOn} value={f.nextDue} onChange={(e) => { setNextTouched(true); setF({ ...f, nextDue: e.target.value }) }} />
+            <DateInput min={f.doneOn} value={f.nextDue} onChange={(e) => { setNextTouched(true); setF({ ...f, nextDue: e.target.value }) }} />
           </label>
         </div>
         <label className="field"><span>{t('profit.note')}</span>

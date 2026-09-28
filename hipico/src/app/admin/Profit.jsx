@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
+import { DateInput } from '../../components/DateInput.jsx'
 import {
   useStore, byId, monthResult, moduleOn, saveExpense, deleteExpense, saveCategory, INCOME_SOURCES,
 } from '../../data/store.js'
@@ -26,7 +27,7 @@ function ExpenseForm({ categories, month, onDone }) {
     <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => saveExpense(f), t('profit.expenseSaved'), onDone, { inline: true }) }}>
       <div className="grid2">
         <label className="field"><span>{t('payroll.date')}</span>
-          <input className="input" type="date" required value={f.spentOn} onChange={(e) => setF({ ...f, spentOn: e.target.value })} />
+          <DateInput required value={f.spentOn} onChange={(e) => setF({ ...f, spentOn: e.target.value })} />
         </label>
         <label className="field"><span>{t('payroll.amount')}</span>
           <input className="input" type="number" inputMode="numeric" min={1} required value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} />
