@@ -5,7 +5,6 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 ## Now
 
 1. **STEP-28 (bug)**: a confirmed class must show up: clear success/failure message, "Próximas clases" on Inicio and Mi plan, next-period bookings explained, dots on the calendar
-2. Nothing queued. Add the next step here.
 
 Check in the browser after each step, then "ok".
 
