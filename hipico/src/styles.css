@@ -979,3 +979,23 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .reminders__status { display: flex; gap: 6px; align-items: flex-start; color: var(--green-dark); }
 .reminders__status .icon { flex: none; margin-top: 3px; }
 .reminders__status.is-off { color: var(--accent-ink); }
+
+/* Confirmed classes stay visible */
+.day__dot { background: transparent; }
+.day--mine .day__dot, .day.is-active.day--mine .day__dot { background: var(--accent-strong); width: 6px; height: 6px; }
+.day:disabled { opacity: .35; cursor: not-allowed; }
+.toast--sticky { pointer-events: auto; align-items: flex-start; }
+.toast__close { display: grid; place-items: center; flex: none; width: 28px; height: 28px; margin: -4px -6px -4px 0; border: 0; border-radius: 50%; background: rgba(255,255,255,.14); color: inherit; cursor: pointer; }
+.grow { flex: 1; min-width: 0; }
+.upcoming__row { gap: 12px; }
+.upcoming__when { display: grid; justify-items: center; min-width: 48px; padding: 6px 4px; border-radius: 12px; background: var(--green-soft); color: var(--green-dark); line-height: 1.1; }
+.upcoming__when strong { font-family: var(--font-head); font-size: 1.2rem; }
+.upcoming__when span { font-size: .7rem; font-weight: 600; text-transform: uppercase; }
+.upcoming .small .icon { vertical-align: -2px; }
+.upcoming__locked { color: var(--muted); }
+.btn--muted { opacity: .7; }
+.notice--info { align-items: flex-start; }
+.notice--info .icon { flex: none; margin-top: 2px; color: var(--accent-ink); }
+.activeplan__note--next { color: var(--accent-ink); font-weight: 600; }
+.upcoming__meta { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.upcoming__meta span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }

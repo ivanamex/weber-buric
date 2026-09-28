@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
   useStore, byId, occurrencesFor, bookClass, bookSingleClass, getPlan, planRemaining, planExpiry, hadTrial, slotsOn, isClosed, closedDateOn,
+  planEnd, planRenewal, planStart,
 } from '../../data/store.js'
 import { CLASS_PRICES } from '../../data/prices.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
@@ -42,6 +43,21 @@ export default function FamilyBook() {
   const standing = rider.planClasses && (!rider.planStart || rider.planStart <= date)
   const needsChoice = !plan ? (standing ? null : 'noPlan') : plan.used >= plan.total ? 'planEmpty' : null
 
+  // A date after the current plan renews counts against the next period: say so before confirming.
+  const current = getPlan(s, riderId, today)
+  const inNext = Boolean(current && date > planEnd(current))
+  const periodMonth = plan ? fmtDate(planStart(plan), { month: 'long' }) : fmtDate(current ? planRenewal(current) : date, { month: 'long' })
+  const myDays = new Set(s.bookings.filter((b) => b.riderId === riderId && b.status === 'booked').map((b) => b.date))
+
+  /** Why a class can't be confirmed, in plain words. The message stays until it's closed. */
+  const explain = (code, o) => {
+    if (code === 'level') return t('family.book.errLevel', { level: t(`levels.${o.slot.level}`).toLowerCase(), name: rider.name, riderLevel: t(`levels.${rider.level}`).toLowerCase() })
+    if (code === 'closed') return t('family.book.errClosed', { day: fmtDate(date, { weekday: 'long' }) })
+    if (code === 'full') return t('family.book.errFull')
+    return t(`errors.${code}`, { month: monthName })
+  }
+  const fail = (code, o) => toast(explain(code, o), 'error', { sticky: true })
+
   const onBook = async (o, e) => {
     if (needsChoice) return setChoice({ slotId: o.slot.id, reason: needsChoice })
     const r = e?.currentTarget?.getBoundingClientRect()
@@ -51,9 +67,11 @@ export default function FamilyBook() {
     if (!res.ok && (res.code === 'noPlan' || res.code === 'planEmpty')) return setChoice({ slotId: o.slot.id, reason: res.code })
     if (res.ok) {
       if (r) celebrate(r.left + r.width / 2, r.top + r.height / 2)
-      toast(t('toasts.booked', { name: rider.name, date: fmtDate(date, { weekday: 'short', day: 'numeric', month: 'short' }), time: fmtTime(o.slot.time), n: res.remaining }))
+      toast(t(inNext ? 'toasts.bookedNext' : 'toasts.booked', {
+        name: rider.name, date: fmtDate(date, { weekday: 'short', day: 'numeric', month: 'short' }), time: fmtTime(o.slot.time), n: res.remaining, month: periodMonth,
+      }))
     } else {
-      toast(t(`errors.${res.code}`, { month: monthName }), 'error')
+      fail(res.code, o)
     }
   }
 
@@ -62,7 +80,7 @@ export default function FamilyBook() {
     setBusy(o.slot.id)
     const res = await bookSingleClass({ riderId, slotId: o.slot.id, date, kind })
     setBusy(null)
-    if (!res.ok) return toast(t(`errors.${res.code}`, { month: monthName }), 'error')
+    if (!res.ok) return fail(res.code, o)
     setChoice(null)
     if (r) celebrate(r.left + r.width / 2, r.top + r.height / 2)
     toast(t('toasts.singleBooked', { kind: t(`classKind.${kind}`), name: rider.name, amount: fmtMoney(res.amount ?? CLASS_PRICES[kind]) }))
@@ -98,7 +116,8 @@ export default function FamilyBook() {
             const closed = isClosed(s, d)
             const count = closed ? 0 : slotsOn(s, d).length
             return (
-              <button key={d} type="button" className={`day ${d === date ? 'is-active' : ''} ${count ? '' : 'day--off'} ${closed ? 'day--closed' : ''}`} onClick={() => setDate(d)}>
+              <button key={d} type="button" disabled={d < today} aria-label={myDays.has(d) ? `${fmtDate(d)} · ${t('family.book.hasClass')}` : undefined}
+                className={`day ${d === date ? 'is-active' : ''} ${count ? '' : 'day--off'} ${closed ? 'day--closed' : ''} ${myDays.has(d) ? 'day--mine' : ''}`} onClick={() => setDate(d)}>
                 <span className="day__wd">{fmtDate(d, { weekday: 'short' }).replace('.', '')}</span>
                 <span className="day__num">{fmtDate(d, { day: 'numeric' })}</span>
                 <span className="day__dot" aria-hidden="true" />
@@ -112,6 +131,13 @@ export default function FamilyBook() {
       </div>
 
       <p className="daylabel">{fmtDate(date)}{date === today ? ` · ${t('common.today')}` : ''}</p>
+      {inNext && occ.length > 0 && (
+        <p className="notice notice--info nextperiod" role="note">
+          <Icon name="calendar" size={18} />
+          <span>{t('family.book.nextPeriod', { month: periodMonth, date: fmtDate(planRenewal(current), { day: 'numeric', month: 'short' }) })}
+            {plan && <><br /><strong>{t('family.book.nextPeriodCount', { month: periodMonth.charAt(0).toUpperCase() + periodMonth.slice(1), used: plan.used, total: plan.total })}</strong></>}</span>
+        </p>
+      )}
 
       {occ.length === 0 ? (
         <Empty icon="sun" title={t(isClosed(s, date) ? 'family.book.closedTitle' : 'family.book.noSlotsTitle')}>
@@ -150,8 +176,8 @@ export default function FamilyBook() {
                   {state === 'mine' && <Badge tone="success"><Icon name="check" size={14} /> {t('family.book.booked')}</Badge>}
                   {state === 'past' && <button type="button" className="btn btn--sm" disabled>{t('family.book.past')}</button>}
                   {state === 'cancelled' && <Badge tone="alert">{t('schedule.cancelledBadge')}</Badge>}
-                  {state === 'full' && <button type="button" className="btn btn--sm" disabled>{t('family.book.fullBtn')}</button>}
-                  {state === 'level' && <button type="button" className="btn btn--sm" disabled title={t('errors.level')}>{t('family.book.otherLevel')}</button>}
+                  {state === 'full' && <button type="button" className="btn btn--sm btn--muted" onClick={() => fail('full', o)}>{t('family.book.fullBtn')}</button>}
+                  {state === 'level' && <button type="button" className="btn btn--sm btn--muted" onClick={() => fail('level', o)}>{t('family.book.otherLevel')}</button>}
                 </div>
                 {state === 'open' && choice?.slotId === o.slot.id && (
                   <div className="slot__choice">

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, getPlan, planRemaining, planExpiry, planRenewal, planStatus, pendingUpgrade, changePlan, trialDone,
+  useStore, byId, getPlan, planRemaining, planExpiry, planRenewal, planStatus, pendingUpgrade, changePlan, trialDone, planStart,
 } from '../../data/store.js'
 import { PLANS, planPrice } from '../../data/prices.js'
 import { useBase } from '../Backend.jsx'
@@ -37,6 +37,9 @@ export function ActivePlanCard({ riderId, onChange }) {
   const upgrade = pendingUpgrade(s, riderId)
   const nextSize = rider.planClasses && rider.planClasses < plan.total ? rider.planClasses : null
   const nextStart = planRenewal(plan)
+  // Classes already confirmed in the next period count there: show it, so a booking after the renewal is visible.
+  const nextPlan = getPlan(s, riderId, nextStart)
+  const nextMonth = nextPlan ? fmtDate(planStart(nextPlan), { month: 'long' }) : ''
   const changeProps = onChange
     ? { as: 'button', props: { type: 'button', onClick: onChange } }
     : { as: Link, props: { to: `${base}/familia/plan?cambiar=1` } }
@@ -54,6 +57,14 @@ export function ActivePlanCard({ riderId, onChange }) {
         <span>{t(rider.planClasses ? 'plan.renews' : 'plan.expires', { date: fmtDate(rider.planClasses ? planRenewal(plan) : planExpiry(plan), { day: 'numeric', month: 'short' }) })}</span>
       </div>
       {upgrade && <p className="activeplan__note"><Icon name="clock" size={15} /> {t('plan.upgradeWaiting', { n: upgrade.meta.classes })}</p>}
+      {nextPlan && (
+        <p className="activeplan__note activeplan__note--next">
+          <Icon name="calendar" size={15} /> {t('plan.nextPeriodCount', {
+            month: nextMonth.charAt(0).toUpperCase() + nextMonth.slice(1), date: fmtDate(planStart(nextPlan), { day: 'numeric', month: 'short' }),
+            used: nextPlan.used, total: nextPlan.total,
+          })}
+        </p>
+      )}
       {nextSize && <p className="activeplan__note"><Icon name="calendar" size={15} /> {t('plan.downgradeNote', { n: nextSize, date: fmtDate(nextStart, { day: 'numeric', month: 'short' }) })}</p>}
       <div className="grid2">
         <Link to={`${base}/familia/reservar`} className="btn btn--primary">{t('plan.bookClass')}</Link>

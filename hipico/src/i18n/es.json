@@ -162,7 +162,8 @@
       "cancelClosed": "Ya no se puede cancelar (menos de {hours} h)",
       "monthlyPlan": "Plan mensual",
       "seePlan": "Ver plan",
-      "boarding": "Pensión"
+      "boarding": "Pensión",
+      "upcoming": "Próximas clases"
     },
     "book": {
       "title": "Clases",
@@ -185,7 +186,13 @@
       "biggerPlan": "Cambiar a un plan más grande",
       "bookExtra": "o reserva una clase adicional ({price})",
       "options": "Ver opciones",
-      "closedTitle": "El club está cerrado este día"
+      "closedTitle": "El club está cerrado este día",
+      "errLevel": "Esta clase es de nivel {level} y {name} es de nivel {riderLevel}.",
+      "errClosed": "El {day} el club está cerrado.",
+      "errFull": "No quedan lugares en esta clase.",
+      "hasClass": "tiene clase confirmada",
+      "nextPeriod": "Se descuenta de tu plan de {month}, que empieza el {date}.",
+      "nextPeriodCount": "{month}: {used} de {total} clases"
     }
   },
   "plan": {
@@ -233,7 +240,8 @@
     "keepInfo": "Te quedas con {n} clases/mes y se cancela el cambio pendiente.",
     "changeTo": "Cambiar a {n} clases",
     "likedIt": "¿Te gustó? Elige tu plan",
-    "likedItText": "Con un plan, {name} tiene sus clases de cada mes y cada una sale más barata."
+    "likedItText": "Con un plan, {name} tiene sus clases de cada mes y cada una sale más barata.",
+    "nextPeriodCount": "{month} (desde el {date}): {used} de {total} clases"
   },
   "boarding": {
     "title": "Pensión de caballos",
@@ -400,7 +408,7 @@
     }
   },
   "toasts": {
-    "booked": "Clase confirmada · te quedan {n}. {name}: {date}, {time}.",
+    "booked": "Clase confirmada · {name} · {date}, {time} · te quedan {n}",
     "cancelled": "Clase cancelada. Regresó a tu plan.",
     "cardSoon": "Disponible próximamente — Mercado Pago",
     "planPending": "Plan de {n} clases para {name} ({month}). Pago pendiente en el club.",
@@ -429,7 +437,8 @@
     "downgradeScheduled": "Tu plan de {n} clases empieza el {date}.",
     "singleBooked": "{kind} reservada para {name}. Paga {amount} por transferencia o en el club.",
     "pricesSaved": "Precios guardados",
-    "demoReset": "Demo reiniciada: datos de ejemplo de nuevo."
+    "demoReset": "Demo reiniciada: datos de ejemplo de nuevo.",
+    "bookedNext": "Clase confirmada · {name} · {date}, {time} · te quedan {n} en tu plan de {month}"
   },
   "errors": {
     "notFound": "No se encontró el registro.",

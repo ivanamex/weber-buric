@@ -14,6 +14,7 @@ import { BOARDING_MONTHLY } from '../../data/prices.js'
 import { ReceiptBadge } from '../../components/Transfer.jsx'
 import { concept } from '../../components/PaymentHistory.jsx'
 import { ActivePlanCard } from './ActivePlan.jsx'
+import { UpcomingList, useCancelBooking } from './Upcoming.jsx'
 import { GreetingMark } from '../../components/GreetingMark.jsx'
 
 function greetingKey() {
@@ -39,10 +40,7 @@ export default function FamilyHome() {
 
   const dueSoon = familyDueSoon(s, family.id)
 
-  const onCancel = async (b) => {
-    const res = await cancelBooking(b.id)
-    toast(res.ok ? t('toasts.cancelled') : t(`errors.${res.code}`, { hours: CANCEL_WINDOW_HOURS }), res.ok ? 'success' : 'error')
-  }
+  const onCancel = useCancelBooking()
 
   return (
     <div className="page">
@@ -94,7 +92,10 @@ export default function FamilyHome() {
         </Empty>
       )}
       {upcoming.length > 1 && (
-        <p className="muted small">{t('family.home.moreBooked', { count: upcoming.length - 1 })}</p>
+        <>
+          <SectionTitle icon="calendar">{t('family.home.upcoming')}</SectionTitle>
+          <UpcomingList bookings={upcoming.slice(1)} />
+        </>
       )}
 
       {receipts.length > 0 && (

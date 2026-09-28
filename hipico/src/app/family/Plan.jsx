@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, getState, byId, getPlan, choosePlan, boardingStatus, requestBoardingPayment, dueOf, dueState,
+  useStore, getState, byId, getPlan, choosePlan, boardingStatus, requestBoardingPayment, dueOf, dueState, upcomingBookings,
 } from '../../data/store.js'
 import { PLANS, BOARDING_MONTHLY } from '../../data/prices.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
@@ -12,6 +12,7 @@ import { useToast } from '../../components/Toast.jsx'
 import { ReceiptBadge, TransferPanel } from '../../components/Transfer.jsx'
 import { currentMonthKey } from '../../lib/time.js'
 import { ActivePlanCard, ChangePlan } from './ActivePlan.jsx'
+import { UpcomingList } from './Upcoming.jsx'
 import { PaymentHistory, concept } from '../../components/PaymentHistory.jsx'
 
 export default function FamilyPlan() {
@@ -39,6 +40,7 @@ export default function FamilyPlan() {
   const monthName = (m) => fmtDate(`${m}-01`, { month: 'long' })
 
   const current = getPlan(s, riderId)
+  const upcoming = upcomingBookings(s, [riderId])
   const boarding = boardingStatus(s, familyId)
   const pending = s.payments.filter((p) => p.familyId === familyId && p.status === 'pending')
 
@@ -79,6 +81,12 @@ export default function FamilyPlan() {
       <RiderPicker />
 
       <ActivePlanCard riderId={riderId} onChange={() => { setChanging(true); scrollToId('cambiar') }} />
+      {upcoming.length > 0 && (
+        <>
+          <SectionTitle icon="calendar">{t('family.home.upcoming')}</SectionTitle>
+          <UpcomingList bookings={upcoming} />
+        </>
+      )}
       {current && changing && (
         <ChangePlan key={riderId} riderId={riderId} onCancel={() => setChanging(false)}
           onDone={(paymentId) => { setChanging(false); openTransfer(paymentId) }} />

@@ -162,7 +162,8 @@
       "cancelClosed": "Can no longer be cancelled (less than {hours} h)",
       "monthlyPlan": "Monthly plan",
       "seePlan": "See plan",
-      "boarding": "Boarding"
+      "boarding": "Boarding",
+      "upcoming": "Upcoming classes"
     },
     "book": {
       "title": "Classes",
@@ -185,7 +186,13 @@
       "biggerPlan": "Change to a bigger plan",
       "bookExtra": "or book an extra class ({price})",
       "options": "Options",
-      "closedTitle": "The club is closed this day"
+      "closedTitle": "The club is closed this day",
+      "errLevel": "This class is {level} level and {name} is {riderLevel}.",
+      "errClosed": "The club is closed on {day}.",
+      "errFull": "There are no spots left in this class.",
+      "hasClass": "has a confirmed class",
+      "nextPeriod": "It counts against your {month} plan, which starts on {date}.",
+      "nextPeriodCount": "{month}: {used} of {total} classes"
     }
   },
   "plan": {
@@ -233,7 +240,8 @@
     "keepInfo": "You keep {n} classes/month and the pending change is cancelled.",
     "changeTo": "Change to {n} classes",
     "likedIt": "Did you enjoy it? Choose your plan",
-    "likedItText": "With a plan, {name} has classes every month and each one costs less."
+    "likedItText": "With a plan, {name} has classes every month and each one costs less.",
+    "nextPeriodCount": "{month} (from {date}): {used} of {total} classes"
   },
   "boarding": {
     "title": "Horse boarding",
@@ -400,7 +408,7 @@
     }
   },
   "toasts": {
-    "booked": "Class confirmed · {n} left. {name}: {date}, {time}.",
+    "booked": "Class confirmed · {name} · {date}, {time} · {n} left",
     "cancelled": "Class cancelled. It's back in your plan.",
     "cardSoon": "Coming soon — Mercado Pago",
     "planPending": "{n}-class plan for {name} ({month}). Payment pending at the club.",
@@ -429,7 +437,8 @@
     "downgradeScheduled": "Your {n}-class plan starts on {date}.",
     "singleBooked": "{kind} booked for {name}. Pay {amount} by transfer or at the club.",
     "pricesSaved": "Prices saved",
-    "demoReset": "Demo reset: sample data is back."
+    "demoReset": "Demo reset: sample data is back.",
+    "bookedNext": "Class confirmed · {name} · {date}, {time} · {n} left in your {month} plan"
   },
   "errors": {
     "notFound": "Record not found.",
