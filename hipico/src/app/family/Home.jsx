@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
   useStore, byId, upcomingBookings, canCancel, cancelBooking,
-  boardingStatus, CANCEL_WINDOW_HOURS, clubCancelledBookings,
+  boardingStatus, CANCEL_WINDOW_HOURS, clubCancelledBookings, familyDueSoon,
 } from '../../data/store.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
 import { useBase } from '../Backend.jsx'
@@ -37,6 +37,8 @@ export default function FamilyHome() {
   const receipts = s.payments.filter((p) => p.familyId === family.id && p.receiptStatus &&
     (p.status === 'pending' || (p.reviewedAt && Date.now() - new Date(p.reviewedAt).getTime() < 14 * 864e5)))
 
+  const dueSoon = familyDueSoon(s, family.id)
+
   const onCancel = async (b) => {
     const res = await cancelBooking(b.id)
     toast(res.ok ? t('toasts.cancelled') : t(`errors.${res.code}`, { hours: CANCEL_WINDOW_HOURS }), res.ok ? 'success' : 'error')
@@ -50,6 +52,25 @@ export default function FamilyHome() {
       </div>
       <RiderPicker />
       <ActivePlanCard riderId={riderId} />
+
+      {dueSoon.length > 0 && (
+        <section className={`card duecard ${dueSoon.some((p) => p.state !== 'soon') ? 'duecard--now' : ''}`} aria-label={t('familyDue.title')}>
+          <p className="card__title"><Icon name="receipt" size={18} /> {t('familyDue.title')}</p>
+          <ul className="list">
+            {dueSoon.map((p) => (
+              <li key={p.id} className="list__row">
+                <div className="grow">
+                  <p className="list__title">{concept(t, p)}{p.meta?.riderId ? ` · ${byId(s.riders, p.meta.riderId)?.name}` : ''}{p.meta?.horseId ? ` · ${byId(s.horses, p.meta.horseId)?.name}` : ''}</p>
+                  <p className={`small due due--${p.state === 'overdue' ? 'late' : p.state}`}>{t(`familyDue.${p.state}`, { date: fmtDate(p.due, { day: 'numeric', month: 'short' }) })}</p>
+                </div>
+                <strong>{fmtMoney(p.amount)}</strong>
+              </li>
+            ))}
+          </ul>
+          <Link to={`${base}/familia/plan?pagar=${dueSoon[0].id}`} className="btn btn--primary btn--block">{t('familyDue.pay')}</Link>
+          <p className="small muted center">{t('familyDue.atClub')}</p>
+        </section>
+      )}
 
       {cancelled.map((b) => {
         const reason = (s.cancellations || []).find((c) => c.slotId === b.slotId && c.date === b.date)?.reason

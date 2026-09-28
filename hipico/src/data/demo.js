@@ -930,6 +930,13 @@ function copyWeek({ week, from, to }) {
   })
 }
 
+function saveReminderSettings({ remindersOn, boardingDueDay, reminderNote }) {
+  return mutate((s) => {
+    const day = Math.round(Number(boardingDueDay))
+    if (!(day >= 1 && day <= 28)) return fail('missing')
+    s.settings = { ...s.settings, remindersOn: Boolean(remindersOn), boardingDueDay: day, reminderNote: reminderNote?.trim() || null }
+  })
+}
 function saveClosedWeekdays(weekdays) {
   return mutate((s) => {
     s.settings = { ...s.settings, closedWeekdays: [...new Set(weekdays.map(Number))].filter((d) => d >= 0 && d <= 6).sort() }
@@ -971,5 +978,5 @@ export const actions = {
   saveHorseCare, addHealth, updateHealth, deleteHealth,
   sellHorse, uploadHorsePhoto, removeHorsePhoto, horsePhotoUrl, saveEmployee, paySalary, saveExpense, deleteExpense, saveCategory, saveModules,
   saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,
-  createClasses, editClass, cancelClassRange, copyWeek, saveClosedWeekdays, addClosedDates, deleteClosedDate,
+  createClasses, editClass, cancelClassRange, copyWeek, saveClosedWeekdays, saveReminderSettings, addClosedDates, deleteClosedDate,
 }

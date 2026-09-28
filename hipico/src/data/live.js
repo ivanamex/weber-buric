@@ -106,7 +106,7 @@ async function load() {
     const riderRows = rows(riders)
     // Owner's panel (management only; before the database update these tables don't exist yet).
     const owner = who.data.is_admin
-      ? await Promise.all(['employees', 'salary_payments', 'expenses', 'expense_categories', 'horse_sales'].map((tbl) => sb.from(tbl).select('*')))
+      ? await Promise.all(['employees', 'salary_payments', 'expenses', 'expense_categories', 'horse_sales', 'payment_reminders'].map((tbl) => sb.from(tbl).select('*')))
       : []
     // Horse care and health: management sees all; a family only its own boarded horses (row-level security).
     const [care, health, closed] = await Promise.all([
@@ -145,6 +145,7 @@ async function load() {
       expenses: ownerRows(2),
       expenseCategories: ownerRows(3).sort((a, b) => a.name.localeCompare(b.name)),
       horseSales: ownerRows(4),
+      paymentReminders: ownerRows(5),
       horseCare: care.error ? [] : rows(care),
       horseHealth: health.error ? [] : rows(health),
       planChanges: planChanges.error ? [] : rows(planChanges),
@@ -455,6 +456,14 @@ const editClass = ({ slotId, date, scope, fields = {} }) => call('edit_class', {
 const cancelClassRange = ({ from, to, reason }) => call('cancel_class_range', { p_from: from, p_to: to, p_reason: reason || null })
 const copyWeek = ({ week, from, to }) => call('copy_week', { p_week: week, p_from: from, p_to: to })
 const addClosedDates = ({ from, to, note }) => call('add_closed_dates', { p_from: from, p_to: to, p_note: note || null })
+async function saveReminderSettings({ remindersOn, boardingDueDay, reminderNote }) {
+  const day = Math.round(Number(boardingDueDay))
+  if (!(day >= 1 && day <= 28)) return { ok: false, code: 'missing' }
+  const res = await sb.from('club_settings').update({ reminders_on: Boolean(remindersOn), boarding_due_day: day, reminder_note: reminderNote?.trim() || null }).eq('id', 1)
+  if (res.error) { console.error('[hipico] settings save failed', res.error); return { ok: false, code: 'network' } }
+  await refresh()
+  return { ok: true }
+}
 async function saveClosedWeekdays(weekdays) {
   const res = await sb.from('club_settings').update({ closed_weekdays: [...new Set(weekdays.map(Number))].sort() }).eq('id', 1)
   if (res.error) { console.error('[hipico] settings save failed', res.error); return { ok: false, code: 'network' } }
@@ -544,6 +553,7 @@ export const actions = {
   copyWeek,
   addClosedDates,
   saveClosedWeekdays,
+  saveReminderSettings,
   deleteClosedDate,
   markClassAttended,
   reviewReceipt,

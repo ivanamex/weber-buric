@@ -1,7 +1,40 @@
 {
-  "rewrites": [{ "source": "/((?!assets/|icons/|.*\\..*).*)", "destination": "/index.html" }],
+  "rewrites": [
+    {
+      "source": "/((?!assets/|icons/|api/|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
-    { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
-    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] }
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "api/reminders.js": {
+      "includeFiles": "scripts/supabase-ca.crt",
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/reminders",
+      "schedule": "0 13 * * *"
+    }
   ]
 }

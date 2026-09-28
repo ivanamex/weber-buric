@@ -1,6 +1,7 @@
 // Pure read-only calculations over the app state. Both the demo and the live (Supabase) data
 // produce the same state shape, so every screen works unchanged in either mode.
-import { todayKey, addDays, weekdayOf, weekStart, monthKeyOf, currentMonthKey, monthEnd, hoursUntil, toInstant, addMonthsFrom, daysBetween } from '../lib/time.js'
+import { todayKey, addDays, weekdayOf, weekStart, monthKeyOf, currentMonthKey, monthEnd, hoursUntil, toInstant, addMonthsFrom, daysBetween, nextMonthKey, periodOf } from '../lib/time.js'
+import { planPrice, BOARDING_MONTHLY } from './prices.js'
 
 export const CANCEL_WINDOW_HOURS = 12
 export const LEVELS = ['beginner', 'intermediate', 'advanced']
@@ -246,7 +247,7 @@ export function overdue(s) {
   const today = todayKey()
   return s.payments
     .filter((p) => p.status === 'pending' && (p.service === 'plan' || p.service === 'boarding'))
-    .map((p) => ({ payment: p, due: p.meta?.start || (p.meta?.month ? `${p.meta.month}-01` : dateKeyFromIso(p.createdAt)) }))
+    .map((p) => ({ payment: p, due: dueOf(s, p) }))
     .filter((x) => x.due < today)
     .map((x) => ({ ...x, days: daysBetween(x.due, today), family: s.families.find((f) => f.id === x.payment.familyId) }))
     .sort((a, b) => b.days - a.days)
@@ -307,4 +308,135 @@ export function healthDueSoon(s, days = 14) {
     }
   }
   return out.sort((a, b) => a.due.localeCompare(b.due))
+}
+
+// ── Por cobrar: due dates, what's owed and what's coming ──
+export const DUE_SOON_DAYS = 5
+export const boardingDueDay = (s) => Math.min(Math.max(Number(s.settings?.boardingDueDay) || 1, 1), 28)
+
+/** When a charge falls due (same rule as payment_due() in the database). */
+export function dueOf(s, p) {
+  if (p.dueOn) return String(p.dueOn).slice(0, 10)
+  const m = p.meta || {}
+  let due = null
+  if (p.service === 'plan' && m.kind !== 'upgrade') {
+    due = m.start || s.plans.find((pl) => pl.riderId === m.riderId && pl.month === m.month)?.startsOn || (m.month ? `${m.month}-01` : null)
+  } else if (p.service === 'boarding' && m.month) due = `${m.month}-${String(boardingDueDay(s)).padStart(2, '0')}`
+  else if (p.service === 'class') due = m.date
+  else if (p.service === 'rental') due = (s.rentals || []).find((r) => r.id === m.rentalId)?.date
+  else if (p.service === 'camp' || p.service === 'events') due = (s.events || []).find((e) => e.id === m.eventId)?.startDate
+  return due || dateKeyFromIso(p.createdAt)
+}
+
+/** overdue · today · soon (next 5 days) · later */
+export function dueState(due, today = todayKey()) {
+  if (due < today) return 'overdue'
+  if (due === today) return 'today'
+  if (due <= addDays(today, DUE_SOON_DAYS)) return 'soon'
+  return 'later'
+}
+
+const liveFamily = (s, id) => { const f = byId(s.families, id); return f && f.active !== false && !f.deletedAt ? f : null }
+
+/**
+ * Charges that don't exist yet but will: the next periods of standing plans that continue, and each month's pensión.
+ * They become real charges 5 days before they fall due.
+ */
+export function projectedCharges(s, from, to) {
+  const out = []
+  const today = todayKey()
+  for (const r of s.riders) {
+    if (r.active === false || !r.planClasses || !liveFamily(s, r.familyId) || !planPrice(r.planClasses)) continue
+    const current = getPlan(s, r.id, today)
+    if (!current) continue
+    const anchor = r.planStart || planStart(current)
+    let start = planRenewal(current)
+    for (let guard = 0; start <= to && guard < 24; guard++) {
+      const exists = s.plans.some((pl) => pl.riderId === r.id && planStart(pl) === start) ||
+        s.payments.some((p) => p.service === 'plan' && p.meta?.riderId === r.id && p.meta?.start === start)
+      if (start >= from && !exists) {
+        out.push({ id: `exp-plan-${r.id}-${start}`, projected: true, service: 'plan', familyId: r.familyId, amount: planPrice(r.planClasses),
+          due: start, meta: { riderId: r.id, classes: r.planClasses, start } })
+      }
+      start = addDays(periodOf(anchor, start).endsOn, 1)
+    }
+  }
+  const day = String(boardingDueDay(s)).padStart(2, '0')
+  for (const h of s.horses) {
+    if (horseStatus(h) !== 'boarded' || !liveFamily(s, h.ownerFamilyId) || !BOARDING_MONTHLY) continue
+    for (let m = monthKeyOf(from); m <= monthKeyOf(to); m = nextMonthKey(m)) {
+      const due = `${m}-${day}`
+      if (due < from || due > to) continue
+      if (s.payments.some((p) => p.service === 'boarding' && p.meta?.horseId === h.id && p.meta?.month === m)) continue
+      out.push({ id: `exp-board-${h.id}-${m}`, projected: true, service: 'boarding', familyId: h.ownerFamilyId, amount: BOARDING_MONTHLY,
+        due, meta: { horseId: h.id, month: m } })
+    }
+  }
+  return out
+}
+
+/** Everything unpaid up to the end of the month, in four groups: overdue, due today, next 5 days, later this month. */
+export function receivables(s, { today = todayKey() } = {}) {
+  const until = monthEnd(monthKeyOf(today)) > addDays(today, DUE_SOON_DAYS) ? monthEnd(monthKeyOf(today)) : addDays(today, DUE_SOON_DAYS)
+  const real = s.payments
+    .filter((p) => p.status === 'pending' && liveFamily(s, p.familyId))
+    .map((p) => ({ ...p, due: dueOf(s, p) }))
+    .filter((p) => p.due <= until)
+  // Projected from the 1st: a pensión of this month that was never charged shows as overdue too.
+  const items = [...real, ...projectedCharges(s, `${monthKeyOf(today)}-01`, until)].map((x) => ({ ...x, state: dueState(x.due, today) }))
+    .sort((a, b) => a.due.localeCompare(b.due))
+  const groups = Object.fromEntries(['overdue', 'today', 'soon', 'later'].map((k) => [k, items.filter((x) => x.state === k)]))
+  const total = (list) => list.reduce((sum, x) => sum + x.amount, 0)
+  return { groups, totals: Object.fromEntries(Object.entries(groups).map(([k, v]) => [k, total(v)])), until }
+}
+
+/** Month by month (this one and the next two): expected, collected, still pending and overdue, by due date. */
+export function cashflow(s, months = 3, today = todayKey()) {
+  const out = []
+  for (let m = monthKeyOf(today), i = 0; i < months; m = nextMonthKey(m), i++) {
+    const from = `${m}-01`
+    const to = monthEnd(m)
+    const charges = s.payments.filter((p) => liveFamily(s, p.familyId) || p.status === 'paid')
+      .map((p) => ({ ...p, due: dueOf(s, p) })).filter((p) => p.due >= from && p.due <= to)
+    const projected = projectedCharges(s, from, to)
+    const sum = (list) => list.reduce((t, x) => t + x.amount, 0)
+    const paid = charges.filter((p) => p.status === 'paid')
+    const pending = charges.filter((p) => p.status === 'pending')
+    out.push({
+      month: m,
+      expected: sum(charges) + sum(projected),
+      collected: sum(paid),
+      pending: sum(pending) + sum(projected),
+      overdue: sum(pending.filter((p) => p.due < today)) + sum(projected.filter((p) => p.due < today)),
+      lines: [...charges, ...projected].sort((a, b) => a.due.localeCompare(b.due)),
+    })
+  }
+  return out
+}
+
+/** A family's unpaid charges due within 5 days or already overdue (not while a receipt is being reviewed). */
+export function familyDueSoon(s, familyId, today = todayKey()) {
+  return s.payments
+    .filter((p) => p.familyId === familyId && p.status === 'pending' && p.receiptStatus !== 'review')
+    .map((p) => ({ ...p, due: dueOf(s, p) }))
+    .map((p) => ({ ...p, state: dueState(p.due, today) }))
+    .filter((p) => p.state !== 'later')
+    .sort((a, b) => a.due.localeCompare(b.due))
+}
+
+/** Reminders sent for a charge. Live: the daily job's log. Demo: the same schedule worked out from the dates. */
+export function remindersFor(s, p, today = todayKey()) {
+  if (s.mode !== 'demo') return (s.paymentReminders || []).filter((r) => r.paymentId === p.id).sort((a, b) => a.sentOn.localeCompare(b.sentOn))
+  const due = p.due || dueOf(s, p)
+  const created = dateKeyFromIso(p.createdAt)
+  // Same rules as the daily job: nothing before the charge existed, nor on the day a family books something.
+  const first = ['plan', 'boarding'].includes(p.service) && p.meta?.kind !== 'upgrade' ? created : addDays(created, 1)
+  const out = []
+  const push = (kind, day) => { if (day <= today) out.push({ kind, sentOn: day < first ? first : day, emailStatus: 'sent' }) }
+  if (first > today) return out
+  push('before', addDays(due, -DUE_SOON_DAYS))
+  push('due', due)
+  push('after', addDays(due, 3))
+  for (let d = addDays(due, 10); d <= today; d = addDays(d, 7)) push('weekly', d)
+  return out
 }

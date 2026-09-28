@@ -1,27 +1,24 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { useStore, byId, pendingPayments, markPaid, monthCollected, recentPaid, saveSettings, saveClassPrices } from '../../data/store.js'
+import { useStore, byId, pendingPayments, monthCollected, recentPaid, saveSettings, saveClassPrices } from '../../data/store.js'
 import { CLASS_PRICES, CLASS_KINDS } from '../../data/prices.js'
 import { Icon } from '../../components/Icon.jsx'
-import { Badge, Empty, SectionTitle, Segmented } from '../../components/ui.jsx'
+import { Badge, SectionTitle } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { currentMonthKey } from '../../lib/time.js'
-import { ReceiptBadge, BankDetails } from '../../components/Transfer.jsx'
+import { BankDetails } from '../../components/Transfer.jsx'
 import ReceiptViewer from './ReceiptViewer.jsx'
 import { SaveBar } from '../../components/EditKit.jsx'
 import { concept } from '../../components/PaymentHistory.jsx'
+import { Receivables, Cashflow, SERVICE_ICON } from './Receivables.jsx'
 
-const SERVICE_ICON = { plan: 'horseshoe', boarding: 'saddle', camp: 'balloons', rental: 'horseHead', events: 'cake' }
 
 export default function AdminPayments() {
   const { t, fmtMoney, fmtInstant, fmtDate } = useI18n()
   const s = useStore()
-  const toast = useToast()
   // Receipts waiting for review first.
   const pending = pendingPayments(s).sort((a, b) => (b.receiptStatus === 'review') - (a.receiptStatus === 'review'))
   const [viewing, setViewing] = useState(null)
-  const [openId, setOpenId] = useState(null)
-  const [method, setMethod] = useState('cash')
   const pendingTotal = pending.reduce((sum, p) => sum + p.amount, 0)
   const monthName = fmtDate(`${currentMonthKey()}-01`, { month: 'long', year: 'numeric' })
 
@@ -35,15 +32,6 @@ export default function AdminPayments() {
     return bits.filter(Boolean).join(' · ')
   }
 
-  const [busy, setBusy] = useState(false)
-  const confirm = async (p) => {
-    setBusy(true)
-    const res = await markPaid(p.id, method)
-    setBusy(false)
-    setOpenId(null)
-    toast(res.ok ? t('toasts.paid', { amount: fmtMoney(p.amount), method: t(`methods.${method}`) }) : t('errors.notFound'), res.ok ? 'success' : 'error')
-  }
-
   return (
     <div className="page">
       <h1 className="page__title">{t('admin.payments.title')}</h1>
@@ -54,49 +42,8 @@ export default function AdminPayments() {
         <p className="small">{t('admin.payments.pendingSum', { n: pending.length, amount: fmtMoney(pendingTotal) })}</p>
       </div>
 
-      <SectionTitle icon="receipt">{t('admin.payments.pending')}</SectionTitle>
-      {pending.length === 0 ? (
-        <Empty icon="receipt" title={t('admin.payments.emptyTitle')} />
-      ) : (
-        <ul className="paylist">
-          {pending.map((p) => (
-            <li key={p.id} className="card pay">
-              <div className="row gap">
-                <span className="tile-icon"><Icon name={SERVICE_ICON[p.service]} /></span>
-                <div className="grow">
-                  <p className="list__title">{byId(s.families, p.familyId)?.name}</p>
-                  <p className="small muted">{describe(p)}</p>
-                  <p className="small muted">{t('admin.payments.since', { date: fmtInstant(p.createdAt) })}</p>
-                </div>
-                <div className="right">
-                  <strong className="pay__amount">{fmtMoney(p.amount)}</strong>
-                  <div><ReceiptBadge status={p.receiptStatus} /></div>
-                </div>
-              </div>
-              {p.receiptStatus === 'rejected' && p.receiptNote && <p className="small muted mt8">“{p.receiptNote}”</p>}
-              {p.receiptStatus === 'review' && openId !== p.id && (
-                <button type="button" className="btn btn--accent btn--sm btn--block mt12" onClick={() => setViewing(p)}>
-                  <Icon name="info" size={16} /> {t('receipt.view')}
-                </button>
-              )}
-              {openId === p.id ? (
-                <div className="pay__confirm">
-                  <Segmented small value={method} onChange={setMethod}
-                    options={[{ value: 'cash', label: t('methods.cash') }, { value: 'transfer', label: t('methods.transfer') }]} />
-                  <div className="row gap-sm">
-                    <button type="button" className="btn btn--sm" onClick={() => setOpenId(null)}>{t('common.cancel')}</button>
-                    <button type="button" className="btn btn--sm btn--primary" onClick={() => confirm(p)} disabled={busy}>{t('common.confirm')}</button>
-                  </div>
-                </div>
-              ) : (
-                <button type="button" className="btn btn--outline btn--sm btn--block mt12" onClick={() => { setOpenId(p.id); setMethod('cash') }}>
-                  <Icon name="check" size={16} /> {t('admin.payments.markPaid')}
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+      <Receivables onView={setViewing} />
+      <Cashflow />
 
       <SectionTitle>{t('receipt.bankTitle')}</SectionTitle>
       <BankSettings />

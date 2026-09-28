@@ -1002,5 +1002,76 @@
     "removed": "Date reopened",
     "remove": "Remove {date}",
     "saved": "Closed days saved"
+  },
+  "collect": {
+    "title": "To collect",
+    "groups": {
+      "overdue": "Overdue",
+      "today": "Due today",
+      "soon": "Due soon (5 days)",
+      "later": "Later this month"
+    },
+    "filters": {
+      "all": "All",
+      "plan": "Plans",
+      "boarding": "Boarding",
+      "class": "Classes",
+      "rental": "Rides",
+      "events": "Events"
+    },
+    "expected": "Expected",
+    "expectedHint": "Created 5 days before it's due",
+    "dueOverdue": "Was due {date} · {n} days",
+    "dueToday": "Due today",
+    "dueOn": "Due {date}",
+    "reminders": "Reminders",
+    "kinds": {
+      "before": "5 days before",
+      "due": "on the day",
+      "after": "3 days after",
+      "weekly": "weekly"
+    },
+    "status": {
+      "sent": "email sent",
+      "failed": "email failed",
+      "no_email": "in the app only",
+      "no_address": "no email",
+      "pending": "sending"
+    },
+    "none": "Nothing to collect this month.",
+    "noneGroup": "Nothing here.",
+    "count": "{n} payments",
+    "remind": "Remind {name} on WhatsApp",
+    "flow": "Cash flow by month",
+    "flowExpected": "Expected",
+    "flowCollected": "Collected",
+    "flowPending": "To collect",
+    "flowOverdue": "Overdue",
+    "flowShow": "Show details",
+    "flowHide": "Hide details",
+    "paidTag": "Paid",
+    "notCharged": "The charge is created in the morning run."
+  },
+  "reminders": {
+    "title": "Payment reminders",
+    "intro": "Every morning the app reminds families 5 days before each payment, on the day it's due and 3 days after (then weekly) until it's paid. They see it in the app and by email.",
+    "on": "Send reminders",
+    "dueDay": "Boarding payment day",
+    "dueDayHint": "From the 1st to the 28th of each month. Applies to new months.",
+    "note": "Note on every reminder",
+    "notePh": "E.g.: office hours or transfer details",
+    "saved": "Reminders saved",
+    "emailOk": "Last run: {date}. Emails are going out.",
+    "emailOff": "Last run: {date}. Only shown in the app: email isn't set up yet.",
+    "neverRan": "The first run hasn't happened yet (it goes out every morning at 8).",
+    "demo": "The demo sends no emails: reminders are shown as if they had been sent."
+  },
+  "familyDue": {
+    "title": "Payments due soon",
+    "overdue": "Was due {date}",
+    "today": "Due today",
+    "soon": "Due {date}",
+    "pay": "Pay by transfer",
+    "atClub": "or pay at the club"
   }
 }

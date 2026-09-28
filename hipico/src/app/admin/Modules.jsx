@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { DateInput } from '../../components/DateInput.jsx'
-import { useStore, saveModules, closedWeekdays, saveClosedWeekdays, addClosedDates, deleteClosedDate } from '../../data/store.js'
+import { useStore, saveModules, closedWeekdays, saveClosedWeekdays, addClosedDates, deleteClosedDate, saveReminderSettings } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { SectionTitle } from '../../components/ui.jsx'
 import { SaveBar, useFormState } from '../../components/EditKit.jsx'
@@ -10,6 +10,39 @@ import { todayKey } from '../../lib/time.js'
 import { useSave } from './useSave.js'
 
 const WEEK = [1, 2, 3, 4, 5, 6, 0]
+
+/** Payment reminders: on/off, the pensión's day of the month, a note added to every reminder, and how the last run went. */
+function ReminderSettings() {
+  const { t, fmtInstant } = useI18n()
+  const s = useStore()
+  const [run, busy, error] = useSave()
+  const st = s.settings || {}
+  const [f, setF, dirty] = useFormState(() => ({ remindersOn: st.remindersOn !== false, boardingDueDay: st.boardingDueDay || 1, reminderNote: st.reminderNote || '' }))
+  const status = s.mode === 'demo' ? t('reminders.demo')
+    : !st.remindersLastRun ? t('reminders.neverRan')
+      : t(st.remindersEmail ? 'reminders.emailOk' : 'reminders.emailOff', { date: fmtInstant(st.remindersLastRun, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) })
+  return (
+    <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => saveReminderSettings(f), t('reminders.saved'), null, { inline: true }) }}>
+      <p className="small muted">{t('reminders.intro')}</p>
+      <label className="list__row reminders__switch">
+        <span className="grow list__title">{t('reminders.on')}</span>
+        <span className="switch">
+          <input type="checkbox" role="switch" checked={f.remindersOn} onChange={(e) => setF({ ...f, remindersOn: e.target.checked })} aria-label={t('reminders.on')} />
+          <span aria-hidden="true" />
+        </span>
+      </label>
+      <label className="field" htmlFor="rm-day"><span>{t('reminders.dueDay')}</span>
+        <input id="rm-day" className="input" type="number" inputMode="numeric" min={1} max={28} required value={f.boardingDueDay} onChange={(e) => setF({ ...f, boardingDueDay: e.target.value })} />
+        <small className="muted">{t('reminders.dueDayHint')}</small>
+      </label>
+      <label className="field" htmlFor="rm-note"><span>{t('reminders.note')}</span>
+        <textarea id="rm-note" className="input" rows={2} maxLength={300} placeholder={t('reminders.notePh')} value={f.reminderNote} onChange={(e) => setF({ ...f, reminderNote: e.target.value })} />
+      </label>
+      <p className={`small reminders__status ${s.mode !== 'demo' && st.remindersLastRun && !st.remindersEmail ? 'is-off' : ''}`}><Icon name="info" size={15} /> {status}</p>
+      {dirty && <SaveBar busy={busy} dirty={dirty} error={error} />}
+    </form>
+  )
+}
 
 function ClosedWeekdays() {
   const { t } = useI18n()
@@ -123,6 +156,9 @@ export default function AdminModules() {
           </li>
         ))}
       </ul>
+
+      <SectionTitle icon="receipt">{t('reminders.title')}</SectionTitle>
+      <div className="card" id="recordatorios"><ReminderSettings /></div>
 
       <SectionTitle icon="calendar">{t('closed.title')}</SectionTitle>
       <div className="card" id="cerrados">

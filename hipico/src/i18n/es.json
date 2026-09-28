@@ -1002,5 +1002,76 @@
     "removed": "Fecha reabierta",
     "remove": "Quitar {date}",
     "saved": "Días cerrados guardados"
+  },
+  "collect": {
+    "title": "Por cobrar",
+    "groups": {
+      "overdue": "Vencido",
+      "today": "Vence hoy",
+      "soon": "Por vencer (5 días)",
+      "later": "Más adelante este mes"
+    },
+    "filters": {
+      "all": "Todos",
+      "plan": "Planes",
+      "boarding": "Pensión",
+      "class": "Clases",
+      "rental": "Rentas",
+      "events": "Eventos"
+    },
+    "expected": "Esperado",
+    "expectedHint": "Se genera 5 días antes de vencer",
+    "dueOverdue": "Venció el {date} · {n} días",
+    "dueToday": "Vence hoy",
+    "dueOn": "Vence el {date}",
+    "reminders": "Recordatorios",
+    "kinds": {
+      "before": "5 días antes",
+      "due": "el día",
+      "after": "3 días después",
+      "weekly": "semanal"
+    },
+    "status": {
+      "sent": "correo enviado",
+      "failed": "el correo falló",
+      "no_email": "solo en la app",
+      "no_address": "sin correo",
+      "pending": "enviando"
+    },
+    "none": "Nada por cobrar este mes.",
+    "noneGroup": "Nada aquí.",
+    "count": "{n} pagos",
+    "remind": "Recordar a {name} por WhatsApp",
+    "flow": "Flujo por mes",
+    "flowExpected": "Esperado",
+    "flowCollected": "Cobrado",
+    "flowPending": "Por cobrar",
+    "flowOverdue": "Vencido",
+    "flowShow": "Ver detalle",
+    "flowHide": "Ocultar detalle",
+    "paidTag": "Pagado",
+    "notCharged": "El cobro se genera en el envío de la mañana."
+  },
+  "reminders": {
+    "title": "Recordatorios de pago",
+    "intro": "Cada mañana la app avisa a las familias 5 días antes de cada pago, el día que vence y 3 días después (luego cada semana) hasta que se pague. Lo ven en la app y por correo.",
+    "on": "Enviar recordatorios",
+    "dueDay": "Día de pago de la pensión",
+    "dueDayHint": "Del 1 al 28 de cada mes. Aplica a los meses nuevos.",
+    "note": "Nota en cada recordatorio",
+    "notePh": "Ej.: horario de caja o datos para transferencia",
+    "saved": "Recordatorios guardados",
+    "emailOk": "Último envío: {date}. Los correos salen bien.",
+    "emailOff": "Último envío: {date}. Solo se ven en la app: falta configurar el correo.",
+    "neverRan": "Todavía no ha corrido el primer envío (sale cada mañana a las 8).",
+    "demo": "En la demo no se mandan correos: los recordatorios se muestran como si se hubieran enviado."
+  },
+  "familyDue": {
+    "title": "Pagos por vencer",
+    "overdue": "Venció el {date}",
+    "today": "Vence hoy",
+    "soon": "Vence el {date}",
+    "pay": "Pagar por transferencia",
+    "atClub": "o paga en el club"
   }
 }

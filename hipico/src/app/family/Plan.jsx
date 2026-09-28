@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, getState, byId, getPlan, choosePlan, boardingStatus, requestBoardingPayment,
+  useStore, getState, byId, getPlan, choosePlan, boardingStatus, requestBoardingPayment, dueOf, dueState,
 } from '../../data/store.js'
 import { PLANS, BOARDING_MONTHLY } from '../../data/prices.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
@@ -15,7 +15,7 @@ import { ActivePlanCard, ChangePlan } from './ActivePlan.jsx'
 import { PaymentHistory, concept } from '../../components/PaymentHistory.jsx'
 
 export default function FamilyPlan() {
-  const { t, fmtDate, fmtMoney, fmtInstant } = useI18n()
+  const { t, fmtDate, fmtMoney } = useI18n()
   const s = useStore()
   const toast = useToast()
   const { riderId } = useFamilyContext()
@@ -28,6 +28,8 @@ export default function FamilyPlan() {
   const scrollToId = (id) => setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
   // Arriving from "Cambiar plan" / "Elegir plan" on Inicio.
   useEffect(() => {
+    const pay = params.get('pagar')
+    if (pay) { openTransfer(pay); setParams({}, { replace: true }); return }
     const target = params.get('cambiar') === '1' ? 'cambiar' : params.get('elegir') === '1' ? 'elegir' : null
     if (!target) return
     scrollToId(target)
@@ -144,7 +146,7 @@ export default function FamilyPlan() {
               <div className="row gap">
                 <div className="grow">
                   <p className="list__title">{concept(t, p)}{p.meta?.riderId ? ` · ${byId(s.riders, p.meta.riderId)?.name}` : ''}{p.meta?.horseId ? ` · ${byId(s.horses, p.meta.horseId)?.name}` : ''}</p>
-                  <p className="small muted">{fmtInstant(p.createdAt)} · {p.receiptStatus ? t('receipt.byTransfer') : t('plan.payAtClubShort')}</p>
+                  <p className="small muted">{(() => { const st = dueState(dueOf(s, p)); return <span className={`due due--${st === 'overdue' ? 'late' : st}`}>{t(`familyDue.${st === 'later' ? 'soon' : st}`, { date: fmtDate(dueOf(s, p), { day: 'numeric', month: 'short' }) })}</span> })()} · {p.receiptStatus ? t('receipt.byTransfer') : t('plan.payAtClubShort')}</p>
                 </div>
                 <div className="right">
                   <strong>{fmtMoney(p.amount)}</strong>

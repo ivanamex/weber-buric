@@ -935,3 +935,47 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
   form .grid2, form .grid3, .inline-form .grid2, .inline-form .grid3, .isheet .grid2 { grid-template-columns: minmax(0, 1fr); }
   form .grid2:has(> .field), form .grid3:has(> .field), .isheet .grid2:has(> .field) { row-gap: 0; }
 }
+
+/* Por cobrar */
+.duegroups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.duegroup { display: grid; gap: 2px; text-align: left; padding: 12px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--card); font: inherit; color: var(--ink); cursor: pointer; }
+.duegroup__label { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.duegroup__sum { font-family: var(--font-head); font-size: 1.2rem; color: var(--green-dark); }
+.duegroup__n { font-size: .78rem; color: var(--muted); }
+.duegroup--overdue { border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); background: var(--danger-soft); }
+.duegroup--overdue .duegroup__label, .duegroup--overdue .duegroup__sum { color: var(--danger-ink); }
+.duegroup--today, .duegroup--soon { border-color: color-mix(in srgb, var(--accent-strong) 50%, var(--border)); background: var(--accent-soft); }
+.duegroup--today .duegroup__label, .duegroup--soon .duegroup__label { color: var(--accent-ink); }
+.duegroup.is-active { box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 35%, transparent); border-color: var(--green); }
+.chips-scroll { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 4px; scrollbar-width: none; }
+.chips-scroll::-webkit-scrollbar { display: none; }
+.chips-scroll .chip { flex: none; padding: 6px 14px; }
+.duesection { display: grid; gap: 8px; }
+.duesection__title { font-family: var(--font-head); font-weight: 600; color: var(--green-dark); margin-top: 4px; }
+.duesection__title--overdue { color: var(--danger-ink); }
+.duesection__title--today, .duesection__title--soon { color: var(--accent-ink); }
+.due { font-weight: 600; color: var(--muted); }
+.due--late { color: var(--danger-ink); }
+.due--today, .due--soon { color: var(--accent-ink); }
+.pay--expected { border-style: dashed; background: #FBF9F4; }
+.pay__actions { display: flex; gap: 8px; margin-top: 12px; }
+.pay__actions .btn { flex: 1; }
+.reminders { display: flex; align-items: flex-start; gap: 6px; margin-top: 8px; }
+.reminders .icon { flex: none; margin-top: 3px; }
+.flow { display: grid; gap: 10px; }
+.flow__name::first-letter { text-transform: uppercase; }
+.flow__bar { height: 8px; border-radius: 999px; background: #EDE6D7; overflow: hidden; margin: 8px 0 10px; }
+.flow__bar span { display: block; height: 100%; border-radius: inherit; background: var(--green); }
+.flow__nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; margin: 0 0 8px; }
+.flow__nums dt { font-size: .75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.flow__nums dd { margin: 0; font-family: var(--font-head); font-weight: 600; font-size: 1.05rem; color: var(--green-dark); }
+.flow__nums .is-late dd { color: var(--danger-ink); }
+@media (min-width: 700px) { .duegroups { grid-template-columns: repeat(4, minmax(0, 1fr)); } .flow__nums { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+/* Family: payments due soon */
+.duecard { display: grid; gap: 8px; border-color: color-mix(in srgb, var(--accent-strong) 45%, var(--border)); }
+.duecard .card__title { display: flex; align-items: center; gap: 8px; }
+.duecard--now { background: var(--accent-soft); }
+.reminders__switch { padding: 8px 0; cursor: pointer; }
+.reminders__status { display: flex; gap: 6px; align-items: flex-start; color: var(--green-dark); }
+.reminders__status .icon { flex: none; margin-top: 3px; }
+.reminders__status.is-off { color: var(--accent-ink); }

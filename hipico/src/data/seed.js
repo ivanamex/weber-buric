@@ -298,7 +298,7 @@ export function createSeed() {
     campRegistrations,
     rentals,
     // Bank details for transfers: empty until management fills them in (the app shows placeholders).
-    settings: { bankName: null, accountHolder: null, clabe: null, modulePayroll: true, moduleProfit: true, moduleSales: true, closedWeekdays: [1] },
+    settings: { bankName: null, accountHolder: null, clabe: null, modulePayroll: true, moduleProfit: true, moduleSales: true, closedWeekdays: [1], remindersOn: true, boardingDueDay: 1, reminderNote: null },
     closedDates: [{ id: 'cd1', startsOn: holiday, endsOn: holiday, note: 'Día de Muertos' }],
     ...ownerSample(today),
     cancellations: [], // single class dates cancelled by the club
