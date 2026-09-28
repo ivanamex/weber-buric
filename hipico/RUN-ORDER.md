@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued. Add the next step here.
+1. **STEP-29**: management on a big screen: left sidebar, Resumen grid, tables with side panels (Cobros, Familias), full-width week grid, CSV export; phones unchanged
 
 Check in the browser after each step, then "ok".
 
