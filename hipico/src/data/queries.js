@@ -29,12 +29,31 @@ export function familyRiders(s, familyId, { includeInactive = false } = {}) {
 export const isActiveFamily = (f) => f.active !== false // false = blocked by the club
 export const isDeletedFamily = (f) => Boolean(f.deletedAt)
 
-/** Slot occurrences for a given date, enriched with counts and state for a rider. */
-export function occurrencesFor(s, date, riderId = null) {
-  const rider = riderId ? byId(s.riders, riderId) : null
+// ── Club calendar: closed days, classes valid for a date range, one-date edits ──
+export const DEFAULT_CLOSED_WEEKDAYS = [1] // Monday
+export const closedWeekdays = (s) => s.settings?.closedWeekdays ?? DEFAULT_CLOSED_WEEKDAYS
+/** The closed date range covering that day, if any. */
+export const closedDateOn = (s, date) => (s.closedDates || []).find((c) => c.startsOn <= date && date <= c.endsOn) || null
+export const isClosed = (s, date) => closedWeekdays(s).includes(weekdayOf(date)) || Boolean(closedDateOn(s, date))
+/** Does this weekly class happen on that date (right weekday, inside its validity)? */
+export const slotRuns = (slot, date) =>
+  slot.weekday === weekdayOf(date) && (!slot.startsOn || slot.startsOn <= date) && (!slot.endsOn || date <= slot.endsOn)
+/** A class for one date only (made by editing "Solo esta clase" or copied for one day). */
+export const isOneOff = (slot) => Boolean(slot.startsOn) && slot.startsOn === slot.endsOn
+/** The date was edited on its own: the weekly class gives way to its one-off copy. */
+export const isReplaced = (s, slotId, date) => (s.cancellations || []).some((c) => c.slotId === slotId && c.date === date && c.replacedBy)
+/** Classes that happen on a date, by time. Inactive ones only when asked for (management). */
+export function slotsOn(s, date, { includeOff = false } = {}) {
   return s.slots
-    .filter((sl) => sl.weekday === weekdayOf(date) && sl.active !== false)
+    .filter((sl) => slotRuns(sl, date) && (includeOff || sl.active !== false) && !isReplaced(s, sl.id, date))
     .sort((a, b) => a.time.localeCompare(b.time))
+}
+
+/** Slot occurrences for a given date, enriched with counts and state for a rider. Nothing on closed days unless asked for. */
+export function occurrencesFor(s, date, riderId = null, { includeClosed = false } = {}) {
+  const rider = riderId ? byId(s.riders, riderId) : null
+  if (!includeClosed && isClosed(s, date)) return []
+  return slotsOn(s, date)
     .map((slot) => {
       const bookings = s.bookings.filter((b) => b.slotId === slot.id && b.date === date && isActiveBooking(b))
       // Live mode: families only see their own bookings, so seat counts come from the server.
@@ -43,7 +62,7 @@ export function occurrencesFor(s, date, riderId = null) {
       const past = hoursUntil(date, slot.time) <= 0
       const mine = rider ? bookings.find((b) => b.riderId === rider.id) : null
       const levelOk = rider ? rider.level === slot.level : true
-      const cancellation = (s.cancellations || []).find((c) => c.slotId === slot.id && c.date === date) || null
+      const cancellation = (s.cancellations || []).find((c) => c.slotId === slot.id && c.date === date && !c.replacedBy) || null
       return { slot, date, bookings, taken, spotsLeft, past, cancellation, mine, levelOk, instructor: byId(s.instructors, slot.instructorId) }
     })
 }

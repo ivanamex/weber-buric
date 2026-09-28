@@ -16,7 +16,7 @@ export default function AdminToday() {
   const [date, setDate] = useState(today)
   const base = useBase()
 
-  const occ = occurrencesFor(s, date).filter((o) => o.bookings.length > 0)
+  const occ = occurrencesFor(s, date, null, { includeClosed: true }).filter((o) => o.bookings.length > 0)
   const hours = [...new Set(occ.map((o) => o.slot.time))]
   const all = occ.flatMap((o) => o.bookings)
   const count = (st) => all.filter((b) => b.status === st).length

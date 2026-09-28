@@ -12,6 +12,7 @@ let publish = () => {}
 let loading = null
 let lastLoad = 0
 let lastRiders = []
+let lastClosedWeekdays = [1]
 let lastRole = null
 let viaLink = false
 // "Salir" on a family's phone keeps the account on this device, so coming back is one tap ("Continuar como…").
@@ -108,9 +109,12 @@ async function load() {
       ? await Promise.all(['employees', 'salary_payments', 'expenses', 'expense_categories', 'horse_sales'].map((tbl) => sb.from(tbl).select('*')))
       : []
     // Horse care and health: management sees all; a family only its own boarded horses (row-level security).
-    const [care, health] = await Promise.all([sb.from('horse_care').select('*'), sb.from('horse_health').select('*')])
+    const [care, health, closed] = await Promise.all([
+      sb.from('horse_care').select('*'), sb.from('horse_health').select('*'), sb.from('closed_dates').select('*').order('starts_on'),
+    ])
     const ownerRows = (i) => (owner[i] && !owner[i].error ? rows(owner[i]) : [])
     lastRiders = riderRows
+    lastClosedWeekdays = settings.data?.closed_weekdays ?? [1]
     lastLoad = Date.now()
     lastRole = who.data.is_admin ? 'admin' : 'family'
     publish({
@@ -144,6 +148,7 @@ async function load() {
       horseCare: care.error ? [] : rows(care),
       horseHealth: health.error ? [] : rows(health),
       planChanges: planChanges.error ? [] : rows(planChanges),
+      closedDates: closed.error ? [] : rows(closed),
     })
   } catch (err) {
     console.error('[hipico] load failed', err)
@@ -430,6 +435,38 @@ async function saveClassPrices(prices) {
 }
 const cancelClassDate = (slotId, date, reason) => call('cancel_class_date', { p_slot: slotId, p_date: date, p_reason: reason || null })
 const reopenClassDate = (slotId, date) => call('reopen_class_date', { p_slot: slotId, p_date: date })
+
+/* ───────── Schedule in bulk ───────── */
+async function createClasses({ weekdays = [], times = [], duration, discipline, level, instructorId, arena, capacity, startsOn, endsOn }) {
+  const closed = lastClosedWeekdays
+  const days = [...new Set(weekdays.map(Number))].filter((d) => d >= 0 && d <= 6 && !closed.includes(d))
+  const hours = [...new Set(times)].filter((x) => /^[0-2]\d:[0-5]\d$/.test(x || ''))
+  if (!days.length || !hours.length || !instructorId || !startsOn || (endsOn && endsOn < startsOn)) return { ok: false, code: 'missing' }
+  const rowsIn = days.flatMap((weekday) => hours.map((time) => ({
+    weekday, time, duration: Number(duration) || 60, discipline, level, instructor_id: instructorId, arena,
+    capacity: Number(capacity), active: true, starts_on: startsOn, ends_on: endsOn || null,
+  })))
+  const res = await sb.from('slots').insert(rowsIn)
+  if (res.error) { console.error('[hipico] slots save failed', res.error); return { ok: false, code: 'missing' } }
+  await refresh()
+  return { ok: true, count: rowsIn.length }
+}
+const editClass = ({ slotId, date, scope, fields = {} }) => call('edit_class', { p_slot: slotId, p_date: date || null, p_scope: scope, p_fields: fields })
+const cancelClassRange = ({ from, to, reason }) => call('cancel_class_range', { p_from: from, p_to: to, p_reason: reason || null })
+const copyWeek = ({ week, from, to }) => call('copy_week', { p_week: week, p_from: from, p_to: to })
+const addClosedDates = ({ from, to, note }) => call('add_closed_dates', { p_from: from, p_to: to, p_note: note || null })
+async function saveClosedWeekdays(weekdays) {
+  const res = await sb.from('club_settings').update({ closed_weekdays: [...new Set(weekdays.map(Number))].sort() }).eq('id', 1)
+  if (res.error) { console.error('[hipico] settings save failed', res.error); return { ok: false, code: 'network' } }
+  await refresh()
+  return { ok: true }
+}
+async function deleteClosedDate(id) {
+  const res = await sb.from('closed_dates').delete().eq('id', id)
+  if (res.error) return { ok: false, code: 'network' }
+  await refresh()
+  return { ok: true }
+}
 const markClassAttended = (slotId, date) => call('mark_class_attended', { p_slot: slotId, p_date: date })
 
 /* ───────── Transfer receipts (private bucket: <family>/<payment>/<file>) ───────── */
@@ -501,6 +538,13 @@ export const actions = {
   saveHorse,
   cancelClassDate,
   reopenClassDate,
+  createClasses,
+  editClass,
+  cancelClassRange,
+  copyWeek,
+  addClosedDates,
+  saveClosedWeekdays,
+  deleteClosedDate,
   markClassAttended,
   reviewReceipt,
   receiptUrl,

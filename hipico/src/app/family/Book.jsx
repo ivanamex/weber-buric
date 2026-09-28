@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { useStore, byId, occurrencesFor, bookClass, bookSingleClass, getPlan, planRemaining, planExpiry, hadTrial } from '../../data/store.js'
+import {
+  useStore, byId, occurrencesFor, bookClass, bookSingleClass, getPlan, planRemaining, planExpiry, hadTrial, slotsOn, isClosed, closedDateOn,
+} from '../../data/store.js'
 import { CLASS_PRICES } from '../../data/prices.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
 import { useBase } from '../Backend.jsx'
@@ -9,7 +11,7 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { celebrate } from '../../components/celebrate.js'
-import { todayKey, addDays, monthKeyOf, weekdayOf } from '../../lib/time.js'
+import { todayKey, addDays, monthKeyOf } from '../../lib/time.js'
 
 const DAYS = 7
 const MAX_WEEKS = 2
@@ -93,9 +95,10 @@ export default function FamilyBook() {
         </button>
         <div className="daystrip__days">
           {days.map((d) => {
-            const count = s.slots.filter((sl) => sl.weekday === weekdayOf(d) && sl.active !== false).length
+            const closed = isClosed(s, d)
+            const count = closed ? 0 : slotsOn(s, d).length
             return (
-              <button key={d} type="button" className={`day ${d === date ? 'is-active' : ''} ${count ? '' : 'day--off'}`} onClick={() => setDate(d)}>
+              <button key={d} type="button" className={`day ${d === date ? 'is-active' : ''} ${count ? '' : 'day--off'} ${closed ? 'day--closed' : ''}`} onClick={() => setDate(d)}>
                 <span className="day__wd">{fmtDate(d, { weekday: 'short' }).replace('.', '')}</span>
                 <span className="day__num">{fmtDate(d, { day: 'numeric' })}</span>
                 <span className="day__dot" aria-hidden="true" />
@@ -111,7 +114,8 @@ export default function FamilyBook() {
       <p className="daylabel">{fmtDate(date)}{date === today ? ` · ${t('common.today')}` : ''}</p>
 
       {occ.length === 0 ? (
-        <Empty icon="sun" title={t('family.book.noSlotsTitle')}>
+        <Empty icon="sun" title={t(isClosed(s, date) ? 'family.book.closedTitle' : 'family.book.noSlotsTitle')}>
+          {closedDateOn(s, date)?.note && <p className="small muted">{closedDateOn(s, date).note}</p>}
           <button type="button" className="btn btn--outline" onClick={() => setDate(addDays(date, 1))}>{t('family.book.nextDay')} <Icon name="chevronRight" size={18} /></button>
         </Empty>
       ) : (

@@ -184,7 +184,8 @@
       "choiceEmpty": "{name} has used all of this month's classes.",
       "biggerPlan": "Change to a bigger plan",
       "bookExtra": "or book an extra class ({price})",
-      "options": "Options"
+      "options": "Options",
+      "closedTitle": "The club is closed this day"
     }
   },
   "plan": {
@@ -470,7 +471,8 @@
     "reauthNeeded": "For security, sign in again with a code and try once more.",
     "hasPlan": "This rider already has a plan this month: confirm the class from the plan.",
     "trialUsed": "This rider has already had their trial class.",
-    "duplicate": "There's already one with that name."
+    "duplicate": "There's already one with that name.",
+    "closed": "The club is closed that day."
   },
   "live": {
     "loading": "Loading…",
@@ -591,7 +593,80 @@
       "5": "Friday",
       "6": "Saturday"
     },
-    "cancelShort": "Cancel date"
+    "cancelShort": "Cancel date",
+    "dayShort": {
+      "0": "Su",
+      "1": "Mo",
+      "2": "Tu",
+      "3": "We",
+      "4": "Th",
+      "5": "Fr",
+      "6": "Sa"
+    },
+    "dayAbbr": {
+      "0": "Sun",
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat"
+    },
+    "days": "Days",
+    "allDays": "Every day",
+    "weekdaysOnly": "Weekdays",
+    "closedDay": "Closed",
+    "times": "Times",
+    "addTime": "Add",
+    "removeTime": "Remove {time}",
+    "from": "From",
+    "until": "Until",
+    "noEnd": "No end date",
+    "preview": "{n} classes a week will be created: {days} at {times}",
+    "previewOne": "1 class a week will be created: {days} at {times}",
+    "previewUntil": ", until {date}",
+    "previewNone": "Choose at least one day and one time.",
+    "and": "and",
+    "createdMany": "{n} classes created",
+    "scopeTitle": "Which classes are you changing?",
+    "scopeOne": "Only this class",
+    "scopeOneHint": "Only {date}",
+    "scopeFollowing": "This and the following",
+    "scopeFollowingHint": "From {date} on",
+    "scopeAll": "The whole series",
+    "scopeAllHint": "Every date of this class",
+    "editingOne": "Changing only {date}",
+    "editingFollowing": "Changing from {date} on",
+    "editingAll": "Changing the whole series",
+    "endSeries": "End the series here",
+    "endTitle": "End this class from {date}?",
+    "endText": "It stops repeating. Anyone booked from that date gets the class back in their plan.",
+    "endConfirm": "End the series",
+    "ended": "The class no longer repeats from {date}",
+    "classSaved": "Class saved",
+    "cancelRange": "Cancel dates",
+    "cancelRangeTitle": "Cancel classes between two dates",
+    "cancelRangePreview": "{n} classes will be cancelled. {m} bookings go back to their plan and families will see it.",
+    "cancelRangeNone": "There are no classes on those dates.",
+    "cancelRangeBtn": "Cancel {n} classes",
+    "cancelRangeDone": "{n} classes cancelled. Families can see it now.",
+    "copyWeek": "Copy week",
+    "copyTitle": "Copy the week of {from} – {to}",
+    "copyNext": "The next week",
+    "copyRange": "Several dates",
+    "copyPreview": "{n} classes will be copied.",
+    "copySkipped": "{k} already repeat there and are skipped.",
+    "copyNone": "All these classes already repeat on those dates.",
+    "copyBtn": "Copy {n} classes",
+    "copied": "{n} classes copied",
+    "closedTitle": "Club closed",
+    "closedDays": "Closed days",
+    "newForDay": "New class this day",
+    "oneOff": "This date only",
+    "untilDate": "until {date}",
+    "fromDate": "from {date}",
+    "addAt": "New class on {day} at {time}",
+    "free": "Free"
   },
   "install": {
     "iphone": "Download for iPhone",
@@ -911,5 +986,21 @@
     "photoSaved": "Photo saved",
     "uploading": "Uploading photo…",
     "done": "Done"
+  },
+  "closed": {
+    "title": "Closed days",
+    "intro": "Nobody can book on those days, and new classes skip them.",
+    "weekdays": "Every week",
+    "dates": "Dates (holidays, events)",
+    "none": "No closed dates.",
+    "add": "Close these dates",
+    "note": "Reason (families will see it)",
+    "notePh": "E.g.: Day of the Dead",
+    "hint": "Classes booked on those dates are cancelled and go back to the plan.",
+    "added": "Dates closed",
+    "addedCancelled": "Dates closed · {n} classes cancelled",
+    "removed": "Date reopened",
+    "remove": "Remove {date}",
+    "saved": "Closed days saved"
   }
 }

@@ -77,15 +77,15 @@ const riders = [
   { id: 'r10', familyId: 'f6', name: 'Andrés', age: 7, level: 'beginner', plan: 4 },
 ]
 
-// Weekly template. weekday: 1 = Monday … 6 = Saturday.
+// Weekly template. weekday: 0 = Sunday … 6 = Saturday. The demo club is closed on Mondays.
 // arena: main | covered | jumping · discipline: basics | dressage | jumping | ponies
 const S = (id, weekday, time, discipline, level, instructorId, arena, capacity) =>
   ({ id, weekday, time, duration: 60, discipline, level, instructorId, arena, capacity })
 const CAP = { beginner: 3, intermediate: 4, advanced: 3 }
 const slots = [
-  S('s1', 1, '16:00', 'basics', 'beginner', 'i3', 'covered', CAP.beginner),
-  S('s2', 1, '17:00', 'dressage', 'intermediate', 'i1', 'main', CAP.intermediate),
-  S('s3', 1, '18:00', 'jumping', 'advanced', 'i2', 'jumping', CAP.advanced),
+  S('s1', 0, '10:00', 'basics', 'beginner', 'i3', 'covered', CAP.beginner),
+  S('s2', 0, '11:00', 'dressage', 'intermediate', 'i1', 'main', CAP.intermediate),
+  S('s3', 0, '12:00', 'jumping', 'advanced', 'i2', 'jumping', CAP.advanced),
   S('s4', 2, '16:00', 'basics', 'beginner', 'i3', 'covered', CAP.beginner),
   S('s5', 2, '17:00', 'jumping', 'intermediate', 'i2', 'jumping', CAP.intermediate),
   S('s6', 2, '18:00', 'dressage', 'advanced', 'i1', 'main', CAP.advanced),
@@ -148,6 +148,8 @@ export function createSeed() {
   const today = todayKey()
   const month = monthKeyOf(today)
   const nextMonth = nextMonthKey(month)
+  // A sample holiday: the next 2 November.
+  const holiday = `${Number(today.slice(0, 4)) + (today > `${today.slice(0, 4)}-11-02` ? 1 : 0)}-11-02`
   const nearMonthEnd = monthEnd(month) <= addDays(today, 7)
   const monthStart = `${month}-01`
   const stamp = (key, time = '10:00') => toInstant(key, time).toISOString()
@@ -296,7 +298,8 @@ export function createSeed() {
     campRegistrations,
     rentals,
     // Bank details for transfers: empty until management fills them in (the app shows placeholders).
-    settings: { bankName: null, accountHolder: null, clabe: null, modulePayroll: true, moduleProfit: true, moduleSales: true },
+    settings: { bankName: null, accountHolder: null, clabe: null, modulePayroll: true, moduleProfit: true, moduleSales: true, closedWeekdays: [1] },
+    closedDates: [{ id: 'cd1', startsOn: holiday, endsOn: holiday, note: 'Día de Muertos' }],
     ...ownerSample(today),
     cancellations: [], // single class dates cancelled by the club
     planChanges: [], // plan history: new / upgrade / downgrade

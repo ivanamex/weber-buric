@@ -73,9 +73,12 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
 - **Cobros:**
   - transfer receipts go to a private `receipts` bucket, with a review step (approve or reject with a note) and a count badge;
   - bank details are edited in *Datos para transferencia*.
-- **Horario:**
-  - weekly classes: create, edit, on/off;
-  - cancel a single date (bookings return to the plan) or reopen it;
+- **Horario** (`admin/ClassesView.jsx`):
+  - *+ Nueva clase* creates many at once: day chips L–D (closed days greyed), several start times, details, *Desde* / *Hasta* or *Sin fecha de fin*, and a live preview ("Se crearán 18 clases por semana: mar–dom a las…"). Each day × time is one `slots` row with `starts_on` / `ends_on`;
+  - *Editar* asks *Solo esta clase* / *Esta y las siguientes* / *Toda la serie* (`edit_class()`): one date becomes a one-off slot (`starts_on = ends_on`) and the weekly one gets a hidden `slot_cancellations` row with `replaced_by`; "following" splits the row at that date (same `series_id`, bookings move); "Terminar la serie aquí" ends it and returns later bookings to their plans. Past dates and one-offs edit as a whole;
+  - cancel one date or a range (`cancel_class_range()`), copy the week on screen to the next week or a range (`copy_week()`, skips classes already there);
+  - phones: week strip + day list; desktop (≥900 px): days × hours grid, an empty cell opens *Nueva clase* on that day and time;
+  - *Días cerrados* in Ajustes: `club_settings.closed_weekdays` (Monday by default) and `closed_dates` (adding a range cancels the booked classes in it). `club_closed()` blocks bookings; `slot_runs()` checks weekday + validity. `queries.js`: `slotsOn`, `isClosed`, `closedDateOn`, `slotRuns`;
   - instructors and horses, with on/off.
 - **Hoy:** Vino / No vino, plus "Todos vinieron".
 - **Plans (family):** a "Plan activo" card tops Inicio and Mi plan (horseshoes, "Se renueva el…", Pagado / Por revisar / Pendiente, Reservar clase / Cambiar plan). A chosen plan is the rider's standing plan (`riders.plan_classes`) and renews monthly. `change_plan()`: upgrade applies now and charges only the difference (`payments.meta.kind = 'upgrade'`; the classes are added when it's approved, via `apply_plan_payment()`); downgrade starts at the next renewal. `plan_changes` keeps the history. Mi plan has "Historial de pagos" (12 months, receipt link); Familias shows plan + payment history per family. After an email-link sign-in in Safari on iPhone, a one-time card offers a password.
@@ -94,7 +97,7 @@ To check a deploy: `curl https://api.github.com/repos/ivanamex/weber-buric/commi
 - **Share the app:** Familias → *Compartir la app* (`admin/ShareApp.jsx`): QR made in the browser with `qrcode-generator` (level H, club logo on green in the centre, `components/QrCode.jsx`), Descargar QR (PNG), Imprimir cartel (A4, ES + EN, print CSS), Copiar enlace, WhatsApp. The landing shows a small QR next to the download buttons on computers only. The link is the landing (`/`).
 - **Install** (`components/Install.jsx`, `lib/install.js`): "Descargar para iPhone / Android" on the landing and once after the first sign-in; the visitor's phone is highlighted. Android opens the native dialog (`beforeinstallprompt`, captured in `main.jsx`) or shows the ⋮ menu guide; iPhone shows a two-step sheet with an arrow to Safari's Share; in-app browsers (WhatsApp, Instagram…) get "Copiar enlace". Hidden when running installed.
 
-**Database updates so far:** `20260927_family_accounts`, `20260928_transfer_receipts`, `20260929_family_block_delete`, `20260930_schedule`, `20261001_plan_changes`, `20261002_single_classes`, `20261003_owner_panel`, `20261004_horse_profile`.
+**Database updates so far:** `20260927_family_accounts`, `20260928_transfer_receipts`, `20260929_family_block_delete`, `20260930_schedule`, `20261001_plan_changes`, `20261002_single_classes`, `20261003_owner_panel`, `20261004_horse_profile`, `20261005_schedule_bulk`.
 
 **Waiting on the club:** bank details (bank, holder, 18-digit CLABE), real prices, schedule, instructors and horses, the owner's email for management, and the logo as a vector file (the PNG is 171×226, so keep it at 64 px tall or less).
 

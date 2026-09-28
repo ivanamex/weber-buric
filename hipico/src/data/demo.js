@@ -1,8 +1,8 @@
 // Demo mode: sample data kept in this browser (localStorage). Same rules as the live database.
 import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS_KINDS, applyPrices, resetPrices } from './prices.js'
-import { weekdayOf, monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, toInstant, todayKey, periodOf } from '../lib/time.js'
-import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS } from './queries.js'
+import { monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, toInstant, todayKey, periodOf, addDays, daysBetween } from '../lib/time.js'
+import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS, slotRuns, isClosed, isOneOff } from './queries.js'
 
 // The demo keeps its data under its own names, apart from the real app. The chosen role is never saved:
 // every visit to /demo starts on the role picker.
@@ -66,6 +66,8 @@ export function activate(setState, inMemory = false) {
     for (const h of state.horses) Object.assign(h, { ...Object.fromEntries(Object.entries(byId(seed.horses, h.id) || {}).filter(([k]) => h[k] == null)) })
     persist(state)
   }
+  // Demo states saved before closed days and bulk classes: start again from the sample data (the club now closes on Mondays).
+  if (!state.settings?.closedWeekdays && !memoryOnly) state = persist(createSeed())
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
   if (!memoryOnly && !storageListener && typeof window !== 'undefined') {
     storageListener = true
@@ -112,8 +114,9 @@ function bookClass({ riderId, slotId, date }) {
   return mutate((s) => {
     const rider = byId(s.riders, riderId)
     const slot = byId(s.slots, slotId)
-    if (!rider || rider.active === false || !slot || slot.weekday !== weekdayOf(date)) return fail('notFound')
+    if (!rider || rider.active === false || !slot || slot.active === false || !slotRuns(slot, date)) return fail('notFound')
     if (hoursUntil(date, slot.time) <= 0) return fail('past')
+    if (isClosed(s, date)) return fail('closed')
     if ((s.cancellations || []).some((c) => c.slotId === slotId && c.date === date)) return fail('classCancelled')
     const active = s.bookings.filter((b) => b.slotId === slotId && b.date === date && isActiveBooking(b))
     if (active.some((b) => b.riderId === riderId)) return fail('already')
@@ -169,8 +172,9 @@ function bookSingleClass({ riderId, slotId, date, kind }) {
   return mutate((s) => {
     const rider = byId(s.riders, riderId)
     const slot = byId(s.slots, slotId)
-    if (!CLASS_KINDS.includes(kind) || !rider || rider.active === false || !slot || slot.active === false || slot.weekday !== weekdayOf(date)) return fail('notFound')
+    if (!CLASS_KINDS.includes(kind) || !rider || rider.active === false || !slot || slot.active === false || !slotRuns(slot, date)) return fail('notFound')
     if (hoursUntil(date, slot.time) <= 0) return fail('past')
+    if (isClosed(s, date)) return fail('closed')
     if ((s.cancellations || []).some((c) => c.slotId === slotId && c.date === date)) return fail('classCancelled')
     const hasPlan = Boolean(getPlan(s, riderId, date))
     if (kind === 'extra' && !hasPlan) return fail('noPlan')
@@ -777,11 +781,11 @@ function saveModules(mods) {
 function cancelClassDate(slotId, date, reason) {
   return mutate((s) => {
     const slot = byId(s.slots, slotId)
-    if (!slot || slot.weekday !== weekdayOf(date)) return fail('notFound')
+    if (!slot || !slotRuns(slot, date)) return fail('notFound')
     if (date < todayKey()) return fail('past')
     s.cancellations ||= []
     const existing = s.cancellations.find((c) => c.slotId === slotId && c.date === date)
-    if (existing) existing.reason = reason || null
+    if (existing) { if (!existing.replacedBy) existing.reason = reason || null }
     else s.cancellations.push({ id: nextId(s, 'sc'), slotId, date, reason: reason || null, createdAt: now() })
     let cancelled = 0
     for (const b of s.bookings.filter((x) => x.slotId === slotId && x.date === date && x.status === 'booked')) {
@@ -795,9 +799,155 @@ function cancelClassDate(slotId, date, reason) {
 
 function reopenClassDate(slotId, date) {
   return mutate((s) => {
-    s.cancellations = (s.cancellations || []).filter((c) => !(c.slotId === slotId && c.date === date))
+    s.cancellations = (s.cancellations || []).filter((c) => !(c.slotId === slotId && c.date === date && !c.replacedBy))
     return { ok: true }
   })
+}
+
+/* ───────── Schedule in bulk: many classes at once, series edits, ranges, closed days ───────── */
+const TIME_RE = /^[0-2]\d:[0-5]\d$/
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+const SLOT_FIELDS = ['time', 'duration', 'discipline', 'level', 'instructorId', 'arena', 'capacity', 'active']
+function slotWith(slot, fields) {
+  const out = { ...slot }
+  for (const k of SLOT_FIELDS) if (fields[k] !== undefined && fields[k] !== null && fields[k] !== '') out[k] = ['duration', 'capacity'].includes(k) ? Number(fields[k]) : fields[k]
+  return out
+}
+const seriesRows = (s, slot) => {
+  const series = slot.seriesId || slot.id
+  return s.slots.filter((x) => x.id === slot.id || x.id === series || x.seriesId === series)
+}
+const moveBookings = (s, fromId, toId, test) => s.bookings.forEach((b) => { if (b.slotId === fromId && test(b.date)) b.slotId = toId })
+
+function createClasses({ weekdays = [], times = [], duration, discipline, level, instructorId, arena, capacity, startsOn, endsOn }) {
+  return mutate((s) => {
+    const days = [...new Set(weekdays.map(Number))].filter((d) => d >= 0 && d <= 6 && !(s.settings?.closedWeekdays ?? [1]).includes(d))
+    const hours = [...new Set(times)].filter((x) => TIME_RE.test(x || ''))
+    if (!days.length || !hours.length || !DISCIPLINES.includes(discipline) || !LEVELS.includes(level) || !byId(s.instructors, instructorId) ||
+      !ARENAS.includes(arena) || !(Number(capacity) > 0) || !DATE_RE.test(startsOn || '') || (endsOn && (!DATE_RE.test(endsOn) || endsOn < startsOn))) return fail('missing')
+    let count = 0
+    for (const weekday of days) {
+      for (const time of hours) {
+        s.slots.push({ id: nextId(s, 's'), weekday, time, duration: Number(duration) || 60, discipline, level, instructorId, arena,
+          capacity: Number(capacity), active: true, startsOn, endsOn: endsOn || null, seriesId: null })
+        count++
+      }
+    }
+    return { ok: true, count }
+  })
+}
+
+function editClass({ slotId, date, scope, fields = {} }) {
+  return mutate((s) => {
+    const v = byId(s.slots, slotId)
+    if (!v || !['one', 'following', 'all'].includes(scope)) return fail('notFound')
+    if (scope !== 'all') {
+      if (!date || !slotRuns(v, date)) return fail('notFound')
+      if (date < todayKey()) return fail('past')
+    }
+    if (isOneOff(v) && scope === 'one') scope = 'all'
+    const series = v.seriesId || v.id
+    const apply = (row) => Object.assign(row, slotWith(row, fields))
+    if (scope === 'all') { seriesRows(s, v).forEach(apply); return { ok: true, id: v.id } }
+    s.cancellations ||= []
+    if (scope === 'one') {
+      if (s.cancellations.some((c) => c.slotId === v.id && c.date === date)) return fail('classCancelled')
+      const n = { ...slotWith(v, fields), id: nextId(s, 's'), startsOn: date, endsOn: date, seriesId: null }
+      s.slots.push(n)
+      s.cancellations.push({ id: nextId(s, 'sc'), slotId: v.id, date, reason: null, replacedBy: n.id, createdAt: now() })
+      moveBookings(s, v.id, n.id, (d) => d === date)
+      return { ok: true, id: n.id }
+    }
+    if (fields.end) {
+      let cancelled = 0
+      for (const seg of seriesRows(s, v).filter((x) => !x.endsOn || x.endsOn >= date)) {
+        for (const b of s.bookings.filter((x) => x.slotId === seg.id && x.date >= date && x.status === 'booked')) {
+          Object.assign(b, { status: 'cancelled', cancelledByClub: true, cancelledAt: now() })
+          releaseBooking(s, b)
+          cancelled++
+        }
+        seg.endsOn = addDays(date, -1)
+      }
+      return { ok: true, cancelled }
+    }
+    seriesRows(s, v).filter((x) => x.id !== v.id && x.startsOn && x.startsOn > date).forEach(apply)
+    if (v.startsOn && v.startsOn >= date) { apply(v); return { ok: true, id: v.id } }
+    const n = { ...slotWith(v, fields), id: nextId(s, 's'), startsOn: date, endsOn: v.endsOn || null, seriesId: series }
+    s.slots.push(n)
+    Object.assign(v, { endsOn: addDays(date, -1), seriesId: series })
+    moveBookings(s, v.id, n.id, (d) => d >= date)
+    s.cancellations.forEach((c) => { if (c.slotId === v.id && c.date >= date) c.slotId = n.id })
+    return { ok: true, id: n.id }
+  })
+}
+
+const eachDay = (from, to, fn) => { for (let d = from; d <= to; d = addDays(d, 1)) fn(d) }
+
+function cancelRangeIn(s, from, to, reason) {
+  let classes = 0
+  let bookings = 0
+  s.cancellations ||= []
+  eachDay(from, to, (d) => {
+    for (const slot of s.slots.filter((x) => x.active !== false && slotRuns(x, d) && !s.cancellations.some((c) => c.slotId === x.id && c.date === d))) {
+      s.cancellations.push({ id: nextId(s, 'sc'), slotId: slot.id, date: d, reason: reason?.trim() || null, createdAt: now() })
+      for (const b of s.bookings.filter((x) => x.slotId === slot.id && x.date === d && x.status === 'booked')) {
+        Object.assign(b, { status: 'cancelled', cancelledByClub: true, cancelledAt: now() })
+        releaseBooking(s, b)
+        bookings++
+      }
+      classes++
+    }
+  })
+  return { classes, bookings }
+}
+
+function cancelClassRange({ from, to, reason }) {
+  return mutate((s) => {
+    if (!DATE_RE.test(from || '') || !DATE_RE.test(to || '') || to < from || daysBetween(from, to) > 366) return fail('missing')
+    if (from < todayKey()) return fail('past')
+    return { ok: true, ...cancelRangeIn(s, from, to, reason) }
+  })
+}
+
+function copyWeek({ week, from, to }) {
+  return mutate((s) => {
+    if (!DATE_RE.test(week || '') || !DATE_RE.test(from || '') || !DATE_RE.test(to || '') || to < from) return fail('missing')
+    let created = 0
+    let skipped = 0
+    const source = []
+    eachDay(week, addDays(week, 6), (d) => {
+      source.push(...s.slots.filter((x) => x.active !== false && slotRuns(x, d) &&
+        !(s.cancellations || []).some((c) => c.slotId === x.id && c.date === d && c.replacedBy)))
+    })
+    for (const sl of source.sort((a, b) => a.time.localeCompare(b.time))) {
+      const taken = s.slots.some((x) => x.active !== false && x.weekday === sl.weekday && x.time === sl.time && x.arena === sl.arena &&
+        (x.startsOn || '0000-00-00') <= to && (x.endsOn || '9999-12-31') >= from)
+      if (taken) { skipped++; continue }
+      s.slots.push({ ...sl, id: nextId(s, 's'), startsOn: from, endsOn: to, seriesId: null })
+      created++
+    }
+    return { ok: true, created, skipped }
+  })
+}
+
+function saveClosedWeekdays(weekdays) {
+  return mutate((s) => {
+    s.settings = { ...s.settings, closedWeekdays: [...new Set(weekdays.map(Number))].filter((d) => d >= 0 && d <= 6).sort() }
+  })
+}
+function addClosedDates({ from, to, note }) {
+  return mutate((s) => {
+    if (!DATE_RE.test(from || '') || !DATE_RE.test(to || '') || to < from || daysBetween(from, to) > 366) return fail('missing')
+    const today = todayKey()
+    const res = to >= today ? cancelRangeIn(s, from < today ? today : from, to, note) : { classes: 0, bookings: 0 }
+    s.closedDates ||= []
+    const id = nextId(s, 'cd')
+    s.closedDates.push({ id, startsOn: from, endsOn: to, note: note?.trim() || null })
+    return { ok: true, id, ...res }
+  })
+}
+function deleteClosedDate(id) {
+  return mutate((s) => { s.closedDates = (s.closedDates || []).filter((c) => c.id !== id) })
 }
 
 function markClassAttended(slotId, date) {
@@ -821,4 +971,5 @@ export const actions = {
   saveHorseCare, addHealth, updateHealth, deleteHealth,
   sellHorse, uploadHorsePhoto, removeHorsePhoto, horsePhotoUrl, saveEmployee, paySalary, saveExpense, deleteExpense, saveCategory, saveModules,
   saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,
+  createClasses, editClass, cancelClassRange, copyWeek, saveClosedWeekdays, addClosedDates, deleteClosedDate,
 }
