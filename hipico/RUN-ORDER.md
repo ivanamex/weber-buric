@@ -4,7 +4,11 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued: the next step goes here. Check in the browser after each step, then "ok".
+1. **STEP-38**: site look: nav/body type (condensed Archivo + Hanken Grotesk), purple out → greens + apricot, frosted glass buttons, each step its own color, no text on videos, whole event cards
+2. **STEP-39**: site rhythm: only 2 videos (hero + Equinoterapia), stills elsewhere, gallery one row near the end, Pensión without overlay, embossed hoofprints walking in a sand band (WebGL)
+3. **STEP-40**: the portal (app) in the new look: no coral, green gradient on Inicio/Resumen, jungle buttons, same fonts; the site's phone mockup follows
+
+One at a time, check in the browser, then "ok".
 
 ## Next
 
