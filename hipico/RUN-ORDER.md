@@ -4,7 +4,9 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued: the next step goes here. Check in the browser after each step, then "ok".
+1. **STEP-35**: buttons in the hero gradient (peach → lilac) with a little jump fence + hop on hover, horseshoe icon redrawn as an upright U, the two big bottom images become a 2-row moving gallery (`public/img/gallery/`)
+
+Check in the browser after each step, then "ok".
 
 ## Next
 
