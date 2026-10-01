@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-33**: lime accent everywhere (site + app), hero video in 3 scenes (photos until the clips exist), the headline word changes with each scene, moving stripe under the hero, fix the hard edge of the blur in the app section
+1. ⏸ **On hold, don't run:** STEP-33 waits for the design direction (A / B / C drafts, 1 Oct). Was: lime accent everywhere (site + app), hero video in 3 scenes (photos until the clips exist), the headline word changes with each scene, moving stripe under the hero, fix the hard edge of the blur in the app section
 
 Check in the browser after each step, then "ok".
 
