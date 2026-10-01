@@ -10,8 +10,8 @@
     "migrate": "MIGRATE=1 node scripts/migrate.mjs"
   },
   "dependencies": {
-    "@fontsource/inter": "^5.3.0",
-    "@fontsource/outfit": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/outfit": "^5.3.0",
     "@supabase/supabase-js": "^2.117.2",
     "nodemailer": "^7.0.13",
     "pg": "^8.23.0",

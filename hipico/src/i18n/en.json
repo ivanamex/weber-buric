@@ -1136,108 +1136,91 @@
     "homeLabel": "Hípico Riviera Maya, home",
     "navLabel": "Club sections",
     "menuOpen": "Open menu",
-    "menuClose": "Close menu",
+    "menuClose": "Close",
     "skip": "Skip to content",
-    "more": "Learn more",
-    "tagNew": "New",
     "tagSoon": "Coming soon",
     "askPrices": "Ask for prices",
-    "priceTbd": "Price to be set",
     "mapTitle": "Map: Hípico Riviera Maya in Paamul",
     "directions": "Get directions",
+    "ctaTrial": "Book a trial lesson",
     "nav": {
-      "home": "Home",
-      "classes": "Lessons",
-      "boarding": "Boarding",
+      "services": "What we do",
       "competitions": "Show jumping",
       "therapy": "Equine therapy",
-      "events": "Events",
-      "sales": "Horses",
-      "contact": "Contact"
+      "boarding": "Boarding",
+      "community": "Community",
+      "app": "The app",
+      "visit": "Visit us"
     },
     "meta": {
-      "home": {
-        "title": "Hípico Riviera Maya · Equestrian club in Paamul, Playa del Carmen",
-        "desc": "Equestrian club in Paamul, Riviera Maya: horse riding lessons in Playa del Carmen for kids and adults, horse boarding, show jumping, camps and parties."
-      },
-      "classes": {
-        "title": "Horse riding lessons in Playa del Carmen · Hípico Riviera Maya",
-        "desc": "Horse riding lessons in Playa del Carmen and Paamul for kids from age 2 and adults: beginner to advanced, trial lesson, monthly plans and Pony Friday."
-      },
-      "boarding": {
-        "title": "Horse boarding in the Riviera Maya · Hípico Riviera Maya",
-        "desc": "Horse boarding in the Riviera Maya: daily care, tailored feeding, vet and farrier, paddocks. See your horse in the club app."
-      },
-      "competitions": {
-        "title": "Show jumping · Hípico Riviera Maya",
-        "desc": "Show jumping training in Paamul, Riviera Maya. Local and out-of-state shows. State Champion 2024."
-      },
-      "therapy": {
-        "title": "Equine therapy in Playa del Carmen · Hípico Riviera Maya",
-        "desc": "Equine therapy in Playa del Carmen (coming soon): therapeutic activities with horses for children from age 3, led by certified professionals. Join the interest list."
-      },
-      "events": {
-        "title": "Summer horse camp and parties · Hípico Riviera Maya",
-        "desc": "Summer horse camp and holiday camps in the Riviera Maya, kids' parties at the club and Pony Friday every month."
-      },
-      "sales": {
-        "title": "Horses for sale · Hípico Riviera Maya",
-        "desc": "Horses for sale in the Riviera Maya: ask about the horses available at Hípico Riviera Maya, Paamul."
-      },
-      "contact": {
-        "title": "Contact and location · Hípico Riviera Maya",
-        "desc": "Hípico Riviera Maya: Carretera Cancún–Chetumal km 273, Paamul, Q. Roo. Phone and WhatsApp +52 984 143 6457."
-      },
-      "download": {
-        "title": "Get the app · Hípico Riviera Maya"
-      }
+      "title": "Hípico Riviera Maya · Horse riding lessons in Playa del Carmen and Paamul",
+      "desc": "Equestrian club in Paamul, Riviera Maya: horse riding lessons in Playa del Carmen from age 2, horse boarding, show jumping, summer horse camp and equine therapy.",
+      "download": "Get the app · Hípico Riviera Maya"
     },
     "wa": {
       "general": "Hi, I'd like information about Hípico Riviera Maya.",
       "trial": "Hi, I'd like to book a trial lesson at Hípico Riviera Maya. Which days and times do you have?",
-      "pony": "Hi, I'd like information about Pony Friday.",
-      "early": "Hi, I'd like information about early stimulation with horses.",
-      "boarding": "Hi, I'd like information about boarding my horse.",
       "competitions": "Hi, I'd like information about show jumping training and competitions.",
-      "therapy": "Hi, I'd like to join the equine therapy interest list.",
-      "camps": "Hi, I'd like information about the next camps.",
+      "boarding": "Hi, I'd like information about boarding my horse.",
+      "early": "Hi, I'd like information about early stimulation with horses.",
+      "camps": "Hi, I'd like information about the next camps and Pony Friday.",
       "parties": "Hi, I'd like information about a kids' party at the club.",
+      "coaching": "Hi, I'd like information about coaching with horses.",
+      "therapy": "Hi, I'd like to join the equine therapy interest list.",
+      "pony": "Hi, I'd like to save a spot at the next Pony Friday.",
       "horses": "Hi, I'd like to ask about the horses available.",
       "horse": "Hi, I'm interested in {name}, the horse for sale."
     },
     "alt": {
-      "jumpBay": "Rider jumping a fence on a bay horse in the club arena",
-      "families": "Club families celebrating with their horses",
-      "jumpGrey": "Grey horse jumping a fence at a show",
-      "rosette": "The club's State Champion 2024 rosette",
-      "rider": "Rider on a buckskin horse",
+      "hero": "A horse with a white blaze looks into the camera",
+      "closeup": "A girl next to her horse's face",
+      "riding": "A girl rides a horse under a red flamboyant tree",
+      "jumpBay": "A rider jumps a fence on a bay horse",
+      "jumpGrey": "A grey horse jumps a fence at a show",
+      "rosette": "State Champion 2024 rosette",
       "paddock": "Horses grazing in the club paddocks",
-      "fence": "Horse by the paddock fence"
+      "fence": "A horse by the paddock fence",
+      "families": "Club families celebrating with their horses"
+    },
+    "hero": {
+      "label": "Welcome",
+      "eyebrow": "Equestrian club · Paamul, Riviera Maya",
+      "title": "A passion for *horses.*",
+      "sub": "Lessons, boarding and show jumping in the middle of the jungle, minutes from Playa del Carmen."
+    },
+    "manifesto": {
+      "label": "The club",
+      "text": "A club in the middle of the Paamul jungle, where you learn to ride from age 2 all the way to competing."
+    },
+    "figures": {
+      "years": "years",
+      "horses": "horses",
+      "hectares": "hectares",
+      "riders": "riders"
     },
     "services": {
+      "title": "Everything to live *horses.*",
       "classes": {
         "title": "Lessons",
-        "text": "Beginner to advanced, by age and level."
+        "text": "Beginner to advanced, by age and level, from age 2.",
+        "trial": "Trial lesson",
+        "plan": "{n} lessons a month"
+      },
+      "competitions": {
+        "title": "Show jumping",
+        "text": "Jumping training and shows."
       },
       "boarding": {
         "title": "Boarding",
-        "text": "Your horse cared for every day, like at home."
-      },
-      "jumping": {
-        "title": "Show jumping",
-        "text": "Training and show jumping competitions."
-      },
-      "therapy": {
-        "title": "Equine therapy",
-        "text": "Therapeutic activities with horses for children."
+        "text": "Your horse cared for every day."
       },
       "early": {
         "title": "Early stimulation",
         "text": "The little ones discover horses through play."
       },
       "camps": {
-        "title": "Camps",
-        "text": "Summer and holidays among horses and nature."
+        "title": "Camps and Pony Friday",
+        "text": "Summer, holidays and one Friday a month with ponies."
       },
       "parties": {
         "title": "Kids' parties",
@@ -1248,311 +1231,120 @@
         "text": "Sessions with horses for people and teams."
       }
     },
-    "home": {
-      "eyebrow": "Equestrian club · Paamul, Riviera Maya",
-      "title": "A passion for horses, excellence in riding.",
-      "sub": "An equestrian club in Paamul, Riviera Maya. Lessons, boarding and show jumping, surrounded by nature.",
-      "ctaTrial": "Book a trial lesson",
-      "countersLabel": "The club in numbers",
-      "counters": {
-        "years": "years",
-        "horses": "horses",
-        "hectares": "hectares",
-        "riders": "riders"
-      },
-      "servicesEyebrow": "What we do",
-      "servicesTitle": "Everything to live horses",
-      "familyEyebrow": "Community",
-      "familyTitle": "A family on horseback",
-      "familyText": "At the club you grow up with horses: the little ones start at age 2 on ponies, riders progress at their own pace and some go on to compete. Parents, kids and instructors share the arena, the paddocks and the celebrations.",
-      "familyPoints": {
-        "a": "From age 2 all the way to competition",
-        "b": "Instructors who know every rider and every horse",
-        "c": "A quiet place, surrounded by jungle"
-      },
-      "familyLink": "See the lessons",
-      "therapyTitle": "A new equine therapy program",
-      "therapyText": "We're preparing therapeutic activities with horses for children, led by certified professionals. Add your name to the interest list.",
-      "therapyLink": "See the proposal",
-      "appEyebrow": "The club app",
-      "appTitle": "The club, on your phone",
-      "appText": "Club families handle everything in the app, no calls or notebooks.",
-      "appPoints": {
-        "confirm": "Confirm your lessons in one tap",
-        "plan": "See your plan and the lessons you have left",
-        "pay": "Pay from your phone and upload your receipt"
-      },
-      "appCta": "Get the app",
-      "voicesEyebrow": "Reviews",
-      "voicesTitle": "What families say",
-      "whereEyebrow": "Location",
-      "whereTitle": "See you in Paamul",
-      "ctaTitle": "Come and meet the horses",
-      "ctaText": "Book a trial lesson and enjoy your first ride around the arena."
-    },
-    "classes": {
-      "eyebrow": "Riding lessons",
-      "title": "Learn to ride, at your own pace.",
-      "sub": "Lessons for kids from age 2 and adults, beginner to advanced, in small groups by age and level.",
-      "levelsEyebrow": "By age and level",
-      "levelsTitle": "A lesson for every rider",
-      "levelsLead": "We suggest a group for your age and experience; you move up a level when your instructor says so.",
-      "levels": {
-        "ponies": {
-          "title": "Ponies",
-          "text": "From age 2: first steps, confidence and play with the pony."
-        },
-        "beginner": {
-          "title": "Beginner",
-          "text": "Position, walk and trot, and caring for the horse before and after riding."
-        },
-        "intermediate": {
-          "title": "Intermediate",
-          "text": "Canter, control and first jumps, with more independence."
-        },
-        "advanced": {
-          "title": "Advanced",
-          "text": "Show jumping, fine technique and getting ready to compete."
-        }
-      },
-      "plansEyebrow": "Monthly plans",
-      "plansTitle": "Lesson plans",
-      "plansLead": "Choose how many lessons you want each month. You confirm each lesson in the app.",
-      "trialTitle": "Trial lesson",
-      "trialText": "Your first lesson, to meet the club, your instructor and your horse.",
-      "trialCta": "Book",
-      "planName": "{n} lessons a month",
-      "planText": "{n} a week",
-      "perMonth": " / month",
-      "perClass": "{price} per lesson",
-      "plansNote": "With your plan, you confirm and cancel lessons in the club app.",
-      "earlyTitle": "Early stimulation with horses",
-      "earlyText": "For the little ones: activities on the ground and on the pony that support balance, coordination and confidence, always accompanied.",
-      "earlyCta": "Ask for information",
-      "ctaTitle": "Your first lesson is waiting",
-      "ctaText": "Message us on WhatsApp and we'll suggest a time."
-    },
-    "pony": {
-      "eyebrow": "Every month",
-      "text": "A morning for the little ones with the club's ponies: riding, brushing and getting to know them up close.",
-      "when": "Last Friday of the month",
-      "next": "the next one is {date}",
-      "ages": "From age 2",
-      "price": "Price to be confirmed",
-      "cta": "Save a spot"
-    },
-    "boarding": {
-      "eyebrow": "Horse boarding",
-      "title": "Your horse, in good hands.",
-      "sub": "Boarding in Paamul with daily care, tailored feeding, vet, farrier and paddocks.",
-      "cta": "Ask about boarding",
-      "careEyebrow": "Full care",
-      "careTitle": "What the care includes",
-      "care": {
-        "daily": {
-          "title": "Daily care",
-          "text": "Checks, grooming and attention every day from the club team."
-        },
-        "feed": {
-          "title": "Feeding",
-          "text": "A ration tailored to your horse, with its supplements."
-        },
-        "vet": {
-          "title": "Vet",
-          "text": "Vaccines, deworming and vet visits kept up to date."
-        },
-        "farrier": {
-          "title": "Farrier",
-          "text": "Shoeing and hoof trimming on schedule."
-        }
-      },
-      "paddocksEyebrow": "Paddocks",
-      "paddocksTitle": "Room to move",
-      "paddocksText": "Horses go out to the paddocks to move, graze and be together, surrounded by the Riviera Maya jungle.",
-      "appEyebrow": "My horse",
-      "appTitle": "See your horse in the app",
-      "appText": "As an owner, you see your horse in the club app, under My horse:",
-      "appPoints": {
-        "a": "Its daily ration and supplements",
-        "b": "Vaccines, farrier and vet, with the next date",
-        "c": "This month's boarding, paid from your phone"
-      },
-      "ctaTitle": "Looking for boarding for your horse?",
-      "ctaText": "Tell us about your horse and we'll share the details."
-    },
     "competitions": {
-      "eyebrow": "Show jumping",
-      "title": "We train to compete.",
-      "sub": "Show jumping training with the club's instructors and local and out-of-state shows.",
-      "cta": "Ask for information",
-      "trainingEyebrow": "Training",
-      "trainingTitle": "From the first jump to the show",
-      "trainingLead": "A step-by-step path, looking after rider and horse.",
+      "title": "We train to *compete.*",
       "training": {
-        "technique": {
-          "title": "Technique",
-          "text": "Position, rhythm and lines in the jumping arena."
-        },
-        "heights": {
-          "title": "Step-by-step heights",
-          "text": "The fences go up when rider and horse are ready."
-        },
-        "shows": {
-          "title": "Shows",
-          "text": "Preparation and support at local and away shows."
-        }
+        "title": "From the first jump to the show",
+        "text": "Technique, rhythm and lines in the jumping arena. The fences go up when rider and horse are ready."
       },
-      "championEyebrow": "Achievements",
-      "championTitle": "State Champion 2024",
-      "championText": "A club achievement at the state show jumping championship: the result of daily work by riders, horses and instructors.",
-      "resultsEyebrow": "Results",
-      "resultsTitle": "Recent results",
-      "resultsEmpty": "Show results will be posted here soon.",
-      "ctaTitle": "Want to compete?",
-      "ctaText": "Message us and we'll tell you how to join the jumping team."
+      "events": {
+        "title": "Shows at home and away",
+        "text": "We prepare and support riders at local and out-of-state shows."
+      },
+      "champion": {
+        "title": "State Champion 2024",
+        "text": "A club achievement at the state show jumping championship, the result of daily work by riders, horses and instructors."
+      },
+      "cta": "I want to compete"
     },
     "therapy": {
-      "eyebrow": "Equine therapy",
-      "title": "The horse as a partner in growth.",
-      "sub": "A new program of therapeutic activities with horses for children, which we're preparing with certified professionals.",
-      "cta": "Join the interest list",
-      "whatEyebrow": "What it is",
-      "whatTitle": "Therapy with horses, led by professionals",
-      "whatText": "Therapeutic activities with horses for children, led by a certified equine therapist together with a health professional (physiotherapist or psychologist). The horse's movement and contact with the animal support the child's development.",
-      "builds": "It builds on the early stimulation the club already offers.",
-      "whoEyebrow": "Who it's for",
-      "whoTitle": "For children from age 3",
-      "whoLead": "It can support:",
-      "supports": {
-        "balance": "Balance and posture",
-        "coordination": "Coordination",
-        "attention": "Attention",
-        "communication": "Communication",
-        "confidence": "Confidence",
-        "emotions": "Emotional regulation"
-      },
-      "alongside": "Equine therapy works alongside medical treatment, never instead of it.",
-      "howEyebrow": "How it works",
-      "howTitle": "Step by step",
+      "title": "The horse as a partner in *growth.*",
+      "what": "A new program of therapeutic activities with horses for children, led by a certified equine therapist together with a health professional (physiotherapist or psychologist). The horse's movement and contact with the animal support the child's development.",
+      "who": "For children from age 3. It can support balance and posture, coordination, attention, communication, confidence and emotional regulation.",
+      "alongside": "It works alongside medical treatment, never instead of it.",
       "steps": {
-        "interview": {
-          "title": "Evaluation interview",
-          "text": "We meet the family and the child, with their doctor's OK."
+        "evaluation": {
+          "title": "Evaluation",
+          "text": "An interview with the family, with the child's doctor's OK."
         },
-        "program": {
-          "title": "A tailored program",
-          "text": "Weekly sessions of 30 to 45 minutes."
-        },
-        "horse": {
-          "title": "A chosen horse",
-          "text": "A calm therapy horse, a leader and side-walkers, and a helmet."
+        "weekly": {
+          "title": "Weekly sessions",
+          "text": "30 to 45 minutes, with a calm therapy horse, a leader, side-walkers and a helmet."
         },
         "review": {
           "title": "Progress review",
-          "text": "Every 8 sessions we review progress together with the family."
+          "text": "Every 8 sessions we review progress together."
         }
       },
-      "formatsEyebrow": "Proposed formats",
-      "formatsTitle": "How you'll be able to join",
-      "formats": {
-        "evaluation": {
-          "title": "Evaluation session",
-          "text": "A first meeting to get to know the child and set the plan."
-        },
-        "monthly": {
-          "title": "Monthly package",
-          "text": "4 sessions a month, one a week."
-        },
-        "groups": {
-          "title": "Small groups",
-          "text": "Early stimulation in small groups."
-        }
-      },
-      "ctaTitle": "Interested for your child?",
-      "ctaText": "Join the interest list and we'll let you know when the program opens.",
+      "cta": "Join the interest list",
       "footnote": "Program in preparation. Sessions will be led by certified professionals."
     },
-    "events": {
-      "eyebrow": "Events and camps",
-      "title": "Days out, among horses.",
-      "sub": "Summer and holiday camps, kids' parties and Pony Friday every month.",
-      "cta": "Ask about camps",
-      "upcomingEyebrow": "Calendar",
-      "upcomingTitle": "Upcoming events",
+    "boarding": {
+      "title": "Boarding and *horses.*",
+      "panel": "Boarding",
+      "care": {
+        "daily": "Care and checks every day",
+        "feed": "Feeding tailored to your horse",
+        "vet": "Vaccines, deworming and vet kept up to date",
+        "farrier": "Farrier on schedule",
+        "app": "See your horse in the app: its ration, its health and this month's boarding"
+      },
+      "cta": "Ask about boarding"
+    },
+    "sales": {
+      "title": "Horses for sale",
+      "empty": "Ask about the horses available: we'll tell you which ones suit your level.",
+      "cta": "Ask about available horses",
+      "age": "{n} years old",
+      "photoAlt": "Photo of the horse {name}",
+      "askAbout": "Ask about {name} on WhatsApp"
+    },
+    "community": {
+      "title": "A family on *horseback.*",
+      "text": "Parents, kids and instructors share the arena, the paddocks and the celebrations.",
+      "rowLabel": "Pony Friday, camps and upcoming events",
+      "pony": {
+        "kicker": "Every month",
+        "text": "Last Friday of the month, 9:00 to 12:30, from age 2. Price to be confirmed.",
+        "next": "Next: {date}",
+        "cta": "Save a spot"
+      },
       "types": {
         "camp": "Camp",
         "birthday": "Party",
         "clinic": "Clinic",
         "show": "Show"
       },
-      "ages": "Ages: {ages}",
-      "price": "From {price}",
-      "campsEyebrow": "Camps",
-      "campsTitle": "Horse camps",
-      "campsLead": "Days full of horses, games and nature, with the club team.",
-      "kinds": {
+      "ages": "Ages {ages}",
+      "price": "from {price}",
+      "campKicker": "Camps",
+      "camps": {
         "summer": {
           "title": "Summer camp",
-          "text": "Summer weeks to ride, care for the horses and learn as a group."
+          "text": "Weeks to ride, care for the horses and learn as a group."
         },
         "holiday": {
           "title": "Holiday camps",
-          "text": "During school holidays, with limited places. Ask about the next dates."
+          "text": "During school holidays, with limited places."
         }
       },
-      "ask": "Ask for dates",
-      "partiesEyebrow": "Kids' parties",
-      "partiesTitle": "A birthday with ponies",
-      "partiesText": "Celebrate at the club: pony rides, games and room for the family and guests.",
-      "partiesCta": "Get a party quote",
-      "ctaTitle": "Want to save a spot?",
-      "ctaText": "Places are limited. Message us and we'll share the dates."
+      "ask": "Ask for dates"
     },
-    "sales": {
-      "eyebrow": "Horses for sale",
-      "title": "Find your partner.",
-      "sub": "Club horses looking for a new owner, known by our instructors.",
-      "age": "{n} years old",
-      "photoAlt": "Photo of the horse {name}",
-      "ask": "Ask on WhatsApp",
-      "emptyTitle": "Ask about the horses available",
-      "emptyText": "Tell us what you're looking for and we'll tell you which horses we have.",
-      "emptyCta": "Ask on WhatsApp",
-      "ctaTitle": "Looking for a horse?",
-      "ctaText": "We'll help you find the right one for your level."
-    },
-    "contact": {
-      "eyebrow": "Contact",
-      "title": "Let's talk horses.",
-      "sub": "Message us on WhatsApp, call us or visit us in Paamul.",
-      "address": "Address",
-      "phone": "Phone",
-      "email": "Email",
-      "formTitle": "Write to us",
-      "name": "Your name",
-      "topic": "I'm interested in",
-      "message": "Message",
-      "send": "Send on WhatsApp",
-      "formNote": "WhatsApp opens with your message ready. We don't store your details.",
-      "topics": {
-        "classes": "Lessons",
-        "trial": "Trial lesson",
-        "boarding": "Boarding",
-        "competitions": "Show jumping",
-        "therapy": "Equine therapy",
-        "events": "Camps and parties",
-        "horses": "Horses for sale",
-        "other": "Other"
+    "app": {
+      "title": "The club, on your *phone.*",
+      "steps": {
+        "confirm": {
+          "title": "Confirm your lessons",
+          "text": "Pick the day and time; your plan counts the lesson for you."
+        },
+        "plan": {
+          "title": "See your plan",
+          "text": "How many lessons you have left and when it renews."
+        },
+        "pay": {
+          "title": "Pay from your phone",
+          "text": "Send a transfer and upload your receipt; the club checks it."
+        }
       },
-      "waHello": "Hi, I'm {name}.",
-      "waTopic": "I'm interested in: {topic}."
+      "cta": "Get the app"
+    },
+    "visit": {
+      "title": "See you in *Paamul.*",
+      "whatsapp": "Message us on WhatsApp"
     },
     "footer": {
-      "mission": "A passion for horses and excellence in riding, as a family and surrounded by nature.",
-      "club": "The club",
-      "contact": "Contact",
-      "scan": "Scan to get the app",
-      "place": "Paamul, Riviera Maya, Quintana Roo"
+      "place": "Paamul, Riviera Maya",
+      "download": "Get the app"
     }
   }
 }

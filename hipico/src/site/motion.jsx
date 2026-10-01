@@ -1,117 +1,109 @@
-// Website motion: letters that rise, sections and photos that reveal, numbers that count up, and the
-// giant outlined word band. Only IntersectionObserver, requestAnimationFrame and CSS; all of it is off
-// with prefers-reduced-motion (everything is simply shown).
-import { useEffect, useRef, useState } from 'react'
+// Website motion: letters that rise, blocks that reveal once (12 px + fade), headlines whose weight grows
+// (Outfit is variable), manifesto words that go from faint to ink with the scroll. Image zooms and the
+// progress line use CSS scroll-driven animations where the browser has them (site.css).
+// prefers-reduced-motion: everything is shown at once, nothing moves.
+import { useEffect, useRef } from 'react'
 
 export const reducedMotion = () => typeof window === 'undefined' || !window.matchMedia
   || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)
 
-/** Reveal [data-reveal] blocks and [data-photo] frames once they scroll into view. Re-runs on each page. */
+/** Mark [data-reveal] and [data-kinetic] blocks .is-in once they scroll into view (also blocks that load later). */
 export function useReveal(root, key) {
   useEffect(() => {
     const el = root.current
     if (!el || reducedMotion()) return undefined
     const io = new IntersectionObserver((entries) => entries.forEach((e) => {
       if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target) }
-    }), { rootMargin: '0px 0px -8% 0px' })
-    const watch = () => el.querySelectorAll('[data-reveal]:not(.is-in), [data-photo]:not(.is-in)').forEach((n) => io.observe(n))
+    }), { rootMargin: '0px 0px -10% 0px' })
+    const watch = () => el.querySelectorAll('[data-reveal]:not(.is-in), [data-kinetic]:not(.is-in)').forEach((n) => io.observe(n))
     watch()
-    const mo = new MutationObserver(watch) // blocks that arrive later (prices, events, horses for sale)
+    const mo = new MutationObserver(watch)
     mo.observe(el, { childList: true, subtree: true })
     return () => { io.disconnect(); mo.disconnect() }
   }, [root, key])
 }
 
-/** A headline that rises letter by letter (~25 ms apart, once). Screen readers get the plain text. */
+/**
+ * A headline that rises letter by letter (~25 ms apart, once). The word between *stars* is filled with the
+ * flamboyán → coral gradient. Screen readers get the plain text.
+ */
 export function Letters({ text, as: Tag = 'h1', className = '' }) {
   let i = 0
+  const plain = text.replace(/\*/g, '')
   const words = text.split(' ')
   return (
-    <Tag className={`letters ${className}`} aria-label={text}>
-      {words.map((w, wi) => (
-        <span key={wi} className="letters__word" aria-hidden="true">
-          {[...w].map((ch, ci) => <span key={ci} className="letters__ch" style={{ '--i': i++ }}>{ch}</span>)}
-          {wi < words.length - 1 && <span className="letters__sp" style={{ '--i': i++ }}> </span>}
-        </span>
-      ))}
+    <Tag className={`letters ${className}`} aria-label={plain} style={{ '--n': [...plain].length }}>
+      {words.map((raw, wi) => {
+        const accent = /^\*.*\*[.,!?]?$/.test(raw)
+        const w = raw.replace(/\*/g, '')
+        const tail = accent ? (w.match(/[.,!?]$/) || [''])[0] : ''
+        const core = tail ? w.slice(0, -1) : w
+        return (
+          <span key={wi} className="letters__word" aria-hidden="true">
+            <span className={accent ? 'gword' : undefined}>
+              {[...core].map((ch, ci) => <span key={ci} className="letters__ch" style={{ '--i': i++ }}>{ch}</span>)}
+            </span>
+            {[...tail].map((ch, ci) => <span key={`t${ci}`} className="letters__ch" style={{ '--i': i++ }}>{ch}</span>)}
+            {wi < words.length - 1 && <span className="letters__sp" style={{ '--i': i++ }}> </span>}
+          </span>
+        )
+      })}
     </Tag>
   )
 }
 
-/** A number that counts up when it comes into view. Without a real figure it shows "—". */
-export function Counter({ value, suffix = '' }) {
-  const ref = useRef(null)
-  const real = typeof value === 'number' && value > 0
-  const [shown, setShown] = useState(real && reducedMotion() ? value : 0)
-  useEffect(() => {
-    if (!real || reducedMotion()) { if (real) setShown(value); return undefined }
-    const el = ref.current
-    let raf = 0
-    const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return
-      io.disconnect()
-      const t0 = performance.now()
-      const tick = (t) => {
-        const p = Math.min(1, (t - t0) / 1400)
-        setShown(Math.round(value * (1 - (1 - p) ** 3)))
-        if (p < 1) raf = requestAnimationFrame(tick)
-      }
-      raf = requestAnimationFrame(tick)
-    })
-    io.observe(el)
-    return () => { io.disconnect(); cancelAnimationFrame(raf) }
-  }, [real, value])
-  return <span ref={ref} className="counter__num">{real ? `${shown.toLocaleString('es-MX')}${suffix}` : '—'}</span>
+/** A section headline: weight 300 → 650 as it comes into view (once). One *word* can carry the gradient. */
+export function Kinetic({ text, as: Tag = 'h2', className = '', id }) {
+  const parts = text.split(/(\*[^*]+\*)/)
+  return (
+    <Tag id={id} className={`kinetic ${className}`} data-kinetic="">
+      {parts.map((p, i) => (p.startsWith('*') ? <span key={i} className="gword">{p.slice(1, -1)}</span> : p))}
+    </Tag>
+  )
 }
 
-/** "HÍPICO · RIVIERA MAYA · PAAMUL ·" in huge outlined letters that slide sideways with the scroll
- *  and fill with coral while they cross the middle of the screen. */
-export function WordBand({ words }) {
-  const band = useRef(null)
-  const track = useRef(null)
+/** A sentence whose words go from faint to full ink while it crosses the screen. */
+export function ScrollWords({ text, className = '' }) {
+  const ref = useRef(null)
   useEffect(() => {
-    if (reducedMotion()) return undefined
-    const el = band.current
-    const tr = track.current
-    const spans = [...tr.querySelectorAll('.wband__word')]
+    const el = ref.current
+    const words = [...el.querySelectorAll('.swords__w')]
+    if (reducedMotion()) { words.forEach((w) => w.classList.add('is-lit')); return undefined }
     let raf = 0
-    let visible = false
     const move = () => {
       raf = 0
       const r = el.getBoundingClientRect()
       const vh = window.innerHeight
-      const vw = window.innerWidth
-      const progress = (vh - r.top) / (vh + r.height) // 0 → 1 while the band crosses the screen
-      tr.style.transform = `translate3d(${(-progress * tr.scrollWidth * 0.33).toFixed(1)}px, 0, 0)`
-      for (const s of spans) {
-        const b = s.getBoundingClientRect()
-        const mid = b.left + b.width / 2
-        s.classList.toggle('is-lit', Math.abs(mid - vw / 2) < Math.max(b.width / 2, vw * 0.12))
-      }
+      const p = Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (r.height + vh * 0.35)))
+      const lit = Math.round(p * words.length)
+      words.forEach((w, i) => w.classList.toggle('is-lit', i < lit))
     }
-    const onScroll = () => { if (visible && !raf) raf = requestAnimationFrame(move) }
-    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) onScroll() })
-    io.observe(el)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-    return () => { io.disconnect(); window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); cancelAnimationFrame(raf) }
-  }, [])
-  const all = [...words, ...words, ...words]
+    const on = () => { if (!raf) raf = requestAnimationFrame(move) }
+    window.addEventListener('scroll', on, { passive: true })
+    window.addEventListener('resize', on)
+    move()
+    return () => { window.removeEventListener('scroll', on); window.removeEventListener('resize', on); cancelAnimationFrame(raf) }
+  }, [text])
   return (
-    <div className="wband" ref={band} aria-hidden="true">
-      <div className="wband__track" ref={track}>
-        {all.map((w, i) => <span key={i} className="wband__word">{w}<span className="wband__dot">·</span></span>)}
-      </div>
-    </div>
+    <p ref={ref} className={`swords ${className}`}>
+      {text.split(' ').map((w, i) => <span key={i} className="swords__w">{w} </span>)}
+    </p>
   )
 }
 
-/** A real club photo in a frame: soft zoom (1.06 → 1) and a slight reveal mask when it comes into view. */
-export function Photo({ src, alt, width, height, eager = false, className = '', position }) {
+/** One of the big portrait photos: 800 px for phones, 1600 px for big screens. */
+export function BigPhoto({ photo, alt, eager = false, className = '', sizes = '100vw' }) {
   return (
-    <figure className={`sphoto ${className}`} data-photo="">
-      <img src={src} alt={alt} width={width} height={height} loading={eager ? 'eager' : 'lazy'} decoding="async"
-        fetchPriority={eager ? 'high' : undefined} style={position ? { objectPosition: position } : undefined} />
-    </figure>
+    <img className={className} src={photo.src} srcSet={`${photo.small} 800w, ${photo.src} 1600w`} sizes={sizes}
+      width={photo.w} height={photo.h} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async"
+      fetchPriority={eager ? 'high' : undefined} style={photo.position ? { objectPosition: photo.position } : undefined} />
+  )
+}
+
+/** A club photo (~1000 px) at medium size. */
+export function ClubPhoto({ photo, alt, className = '', position }) {
+  return (
+    <img className={className} src={photo.src} width={photo.w} height={photo.h} alt={alt} loading="lazy" decoding="async"
+      style={position ? { objectPosition: position } : undefined} />
   )
 }

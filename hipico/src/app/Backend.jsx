@@ -45,12 +45,27 @@ function RequireRole({ role, children }) {
 const TOUR = ['familia', 'familia/reservar', 'familia/plan']
 const TOUR_MS = 4200
 
+// The website's sticky phone opens /vista?control and picks the screen itself (one per statement).
+const CONTROLLED = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('control')
+
 /** The landing's phone preview: moves Inicio → Reservar → Mi plan on its own, scrolling each screen a little. */
 function PreviewTour({ base }) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   useEffect(() => {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined
+    if (!CONTROLLED) return undefined
+    const go = (e) => {
+      if (e.origin !== window.location.origin || typeof e.data?.hipicoScreen !== 'string') return
+      if (!TOUR.includes(e.data.hipicoScreen) && e.data.hipicoScreen !== 'familia/pagos') return
+      navigate(`${base}/${e.data.hipicoScreen}`, { replace: true })
+      window.scrollTo(0, 0)
+    }
+    window.addEventListener('message', go)
+    window.parent?.postMessage({ hipicoReady: true }, window.location.origin)
+    return () => window.removeEventListener('message', go)
+  }, [base, navigate])
+  useEffect(() => {
+    if (CONTROLLED || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined
     const i = TOUR.findIndex((p) => pathname === `${base}/${p}`)
     const scroll = setTimeout(() => window.scrollTo({ top: 240, behavior: 'smooth' }), 1400)
     const next = setTimeout(() => navigate(`${base}/${TOUR[(i + 1) % TOUR.length]}`, { replace: true }), TOUR_MS)
