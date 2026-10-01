@@ -28,15 +28,26 @@ Few colors, huge type, real photos doing the work, motion tied to scrolling. It 
 - Phone only: after the hero, a sticky bottom button **"Agenda una clase muestra"** (WhatsApp) that hides near the contact section.
 
 ## 5. Sections, in order
-1. **Hero:** full-screen `jump-bay.webp` with a dark scrim at the bottom left. Huge headline "Pasión por los caballos." with the rising letters, one line of sub copy, two buttons (Clase muestra · App del club). A jump-pole stripe **slides in across the bottom of the photo like a rail** once the letters land.
-2. **Manifesto:** one big sentence on bone ("Un club en medio de la selva de Paamul, donde se aprende a montar desde los 2 años hasta competir."). The **words go from faint to full ink as you scroll** (scroll-driven reveal).
-3. `01 — QUÉ HACEMOS`: a **bento grid** (asymmetric tiles, no shadows, 20 px radius): Clases (big tile, photo `rider-buckskin`, plans and prices from the app) · Competencias (photo tile) · Pensión (photo `paddock-herd`) · Estimulación temprana · Campamentos y Pony Friday · Fiestas infantiles · Coaching con caballos. The icon tiles are plain bone with an icon, a title and 1 line. Every tile ends in a "→" that opens WhatsApp with a message for that service. Hover: the photo zooms slightly, the arrow slides.
+1. **Hero:** full-screen `horse-blaze.webp` (see section 5b) with a dark scrim at the bottom left. Huge headline "Pasión por los caballos." with the rising letters, one line of sub copy, two buttons (Clase muestra · App del club). A jump-pole stripe **slides in across the bottom of the photo like a rail** once the letters land.
+2. **Manifesto:** full-bleed `girl-horse-closeup.webp` (tall, ~120vh, slow zoom on scroll), then one big sentence on bone ("Un club en medio de la selva de Paamul, donde se aprende a montar desde los 2 años hasta competir."). The **words go from faint to full ink as you scroll** (scroll-driven reveal).
+3. `01 — QUÉ HACEMOS`: a **bento grid** (asymmetric tiles, no shadows, 20 px radius): Clases (big tile, photo `girl-riding-flamboyan`, plans and prices from the app) · Competencias (photo tile) · Pensión (photo `paddock-herd`) · Estimulación temprana · Campamentos y Pony Friday · Fiestas infantiles · Coaching con caballos. The icon tiles are plain bone with an icon, a title and 1 line. Every tile ends in a "→" that opens WhatsApp with a message for that service. Hover: the photo zooms slightly, the arrow slides.
 4. `02 — COMPETENCIAS`: **sticky split.** On desktop `jump-grey.webp` stays pinned on the left while the right side scrolls: show jumping training → events → "Campeón Estatal 2024" with `rosette-campeon.webp` cropped round. Phone: stacked.
 5. `03 — EQUINOTERAPIA`: a calm full-width section on deep green. "Próximamente" pill, the careful wording from STEP-31, the 3 steps as large numbers (1 Evaluación · 2 Sesiones semanales · 3 Revisión de progreso), photo `horse-fence.webp`, and the button "Únete a la lista de interés".
 6. `04 — PENSIÓN Y CABALLOS`: two side-by-side panels. Pensión (care, feeding, vet, farrier, "ves a tu caballo en la app") and Caballos en venta (from the app if the module is on, otherwise "Pregunta por los disponibles").
 7. `05 — COMUNIDAD`: `families-celebrating.webp` full-bleed and tall, with the one real testimonial on top. Pony Friday and the upcoming events from the app as a **horizontal scroll-snap row** of small cards (swipe on phone, scroll with the trackpad on desktop).
-8. `06 — LA APP`: **sticky phone.** The CSS phone mockup stays pinned while 3 statements scroll past (Confirma tus clases · Ve tu plan · Paga desde el celular); the phone screen changes with each one (cross-fade between 3 screens of the demo). Button → `/descargar`.
+8. `06 — LA APP`: **sticky phone.** The CSS phone mockup stays pinned while 3 statements scroll past (Confirma tus clases · Ve tu plan · Paga desde el celular); the phone screen changes with each one (cross-fade between 3 screens of the demo). Behind the phone, `girl-horse-nose.webp` large and softly blurred. Button → `/descargar`.
 9. `07 — VISÍTANOS`: map (lazy iframe, grayscale until hover) + address, phone and email, plus a big WhatsApp button. Then the footer, minimal on deep green: logo, social, © and the galloping horse band (kept).
+
+## 5b. Big photos (Ivana's own, high resolution, in `public/img/club/`)
+Portrait 3:4 photos, 1600 px plus an `-800` version: use `srcset` (800 for phones, 1600 for desktop).
+| File | Use |
+|---|---|
+| `horse-blaze.webp` | **Hero.** Phone: full portrait. Desktop: full-bleed cover, `object-position` on the eye and the white blaze (~60% 35%) |
+| `girl-horse-closeup.webp` | Full-bleed moment before the manifesto, cover, focus on the two faces (~45% 55%) |
+| `girl-riding-flamboyan.webp` | Clases big bento tile (the red flamboyán ties in with the coral) |
+| `girl-horse-nose.webp` | Blurred backdrop behind the sticky phone (06 — La app) |
+- The ~1000 px club photos (`jump-bay`, `jump-grey`, `paddock-herd`, `families-celebrating`…) are used only at medium size (bento tiles, the Competencias split), never full-bleed.
+- **Privacy:** alt text describes the scene only ("Una niña abraza a su caballo"); no names anywhere. The Open Graph / share image uses `horse-blaze.webp` (horse only), never a photo with the child. Keep these four photos in one list in `content.js` so they can be swapped in one place.
 
 ## 6. Motion
 - Use CSS **scroll-driven animations** (`animation-timeline: view()` / `scroll()`) for the reveals, the progress line and the image zooms, with an IntersectionObserver fallback for Safari versions without it.
