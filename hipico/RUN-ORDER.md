@@ -4,7 +4,9 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued: the next step goes here. Check in the browser after each step, then "ok".
+1. **STEP-33**: lime accent everywhere (site + app), hero video in 3 scenes (photos until the clips exist), the headline word changes with each scene, moving stripe under the hero, fix the hard edge of the blur in the app section
+
+Check in the browser after each step, then "ok".
 
 ## Next
 
@@ -30,7 +32,7 @@ STEP-32 the website as one page: glass bar with scroll-spy and jump-pole progres
 
 - Everything on `main`, pushed after every step
 - Supabase: Hípico is in the **"ivanamex's projects"** organization (via Vercel), not "Weber Buric Realty"
-- No traces · sans-serif only · Spanish first · no gold, the accent is soft coral (decided 26 Sep)
+- No traces · sans-serif only · Spanish first · no gold, the accent is lime #C8F25A with dark text (decided 1 Oct, replaces coral)
 - No App Store · families sign up themselves with no approval; the club can block or delete (decided 26 Sep)
 
 ## Later
