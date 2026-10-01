@@ -7,7 +7,7 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge } from '../../components/ui.jsx'
 import { HorsePhoto } from '../../components/HorseCare.jsx'
 import { useSave } from './useSave.js'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { DataTable, exportCsv, useDesktop, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
 import { Sheet } from '../../components/EditKit.jsx'
 import HorseProfile from './HorseProfile.jsx'
@@ -39,7 +39,11 @@ function HorsesDesk() {
   const base = useBase()
   const navigate = useNavigate()
   const q = useDeskSearch(t('horses.search'))
-  const [status, setStatus] = useState('all')
+  const { pathname, search } = useLocation()
+  // The status filter lives in the address, so coming back from a profile keeps it.
+  const [params, setParams] = useSearchParams()
+  const status = params.get('estado') || 'all'
+  const setStatus = (st) => { const next = new URLSearchParams(params); if (st === 'all') next.delete('estado'); else next.set('estado', st); setParams(next, { replace: true }) }
   const [open, setOpen] = useState(null)
   const due = healthDueSoon(s, 14)
   const statuses = ['school', 'boarded', ...(moduleOn(s, 'moduleSales') ? ['for_sale'] : []), 'retired', 'sold']
@@ -73,7 +77,7 @@ function HorsesDesk() {
       {open && (
         <Sheet title={byId(s.horses, open)?.name || ''} onClose={() => setOpen(null)}>
           <HorseProfile id={open} embedded />
-          <Link to={`${base}/direccion/caballos/${open}`} className="link">{t('horses.openFull')}</Link>
+          <Link to={`${base}/direccion/caballos/${open}`} state={{ from: { to: `${pathname}${search}`, label: t('schedule.horses') } }} className="link">{t('horses.openFull')}</Link>
         </Sheet>
       )}
     </>
@@ -87,6 +91,7 @@ export default function HorsesView() {
 }
 
 function HorsesList() {
+  const { pathname, search } = useLocation()
   const { t, fmtMoney } = useI18n()
   const s = useStore()
   const base = useBase()
@@ -109,7 +114,7 @@ function HorsesList() {
                 <li key={h.id} className="list__row list__row--stack">
                   {selling === h.id ? <SellForm horse={h} onDone={() => setSelling(null)} /> : (
                     <div className="row gap">
-                      <Link to={`${base}/direccion/caballos/${h.id}`} className="horse__link grow">
+                      <Link to={`${base}/direccion/caballos/${h.id}`} state={{ from: { to: `${pathname}${search}`, label: t('schedule.horses') } }} className="horse__link grow">
                         <HorsePhoto horse={h} size={44} />
                         <span className="grow">
                           <span className="list__title">{h.name} {h.active === false && st !== 'retired' && st !== 'sold' && <Badge tone="neutral">{t('schedule.off')}</Badge>}</span>

@@ -148,7 +148,7 @@ export default function AdminSummary() {
           <ul className="list card">
             {horseDue.map((x) => (
               <li key={`${x.horse.id}-${x.kind}`} className="list__row">
-                <Link to={`${base}/direccion/caballos/${x.horse.id}`} className="grow"><span className="list__title">{x.horse.name}</span> <span className="small muted">· {t(`horseProfile.kinds.${x.kind}`)}</span></Link>
+                <Link to={`${base}/direccion/caballos/${x.horse.id}`} state={{ from: { to: `${base}/direccion`, label: t('tabs.summary') } }} className="grow"><span className="list__title">{x.horse.name}</span> <span className="small muted">· {t(`horseProfile.kinds.${x.kind}`)}</span></Link>
                 <span className={`small ${x.due < todayKey() ? 'owed__late' : ''}`}>{x.due < todayKey() ? t('horseProfile.overdue', { date: short(x.due) }) : short(x.due)}</span>
               </li>
             ))}

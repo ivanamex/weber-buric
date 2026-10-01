@@ -80,6 +80,8 @@ export default function FamilyPlan() {
       <h1 className="page__title">{t('plan.title')}</h1>
       <RiderPicker />
 
+      <div className="fcols">
+      <div className="fcol">
       <ActivePlanCard riderId={riderId} onChange={() => { setChanging(true); scrollToId('cambiar') }} />
       {upcoming.length > 0 && (
         <>
@@ -146,6 +148,25 @@ export default function FamilyPlan() {
         )}
       </div>
 
+      </div>
+      <div className="fcol">
+        <PendingPayments familyId={familyId} openId={openId} onOpen={openTransfer} />
+      </div>
+      </div>
+      <p className="sample-note">{t('common.samplePrices')}</p>
+    </div>
+  )
+}
+
+/** Pendientes de pago (each with Pagar por transferencia) and the payment history. Mi plan and Pagos. */
+export function PendingPayments({ familyId, openId, onOpen }) {
+  const { t, fmtDate, fmtMoney } = useI18n()
+  const s = useStore()
+  const family = byId(s.families, familyId)
+  const pending = s.payments.filter((p) => p.familyId === familyId && p.status === 'pending')
+  const openTransfer = onOpen
+  return (
+    <>
       <SectionTitle icon="receipt">{t('plan.pendingTitle')}</SectionTitle>
       {pending.length ? (
         <ul className="list card">
@@ -174,7 +195,25 @@ export default function FamilyPlan() {
       )}
       <SectionTitle icon="receipt">{t('history.title')}</SectionTitle>
       <PaymentHistory familyId={familyId} />
-      <p className="sample-note">{t('common.samplePrices')}</p>
+    </>
+  )
+}
+
+/** Pagos (desktop sidebar): what's pending and the history, on its own page. */
+export function FamilyPaymentsPage() {
+  const { t } = useI18n()
+  const s = useStore()
+  const [params, setParams] = useSearchParams()
+  const [openId, setOpenId] = useState(params.get('pagar'))
+  useEffect(() => {
+    if (!params.get('pagar')) return
+    setTimeout(() => document.getElementById(`pay-${params.get('pagar')}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60)
+    setParams({}, { replace: true })
+  }, [])
+  return (
+    <div className="page">
+      <h1 className="page__title">{t('family.payments')}</h1>
+      <div className="fcols fcols--single"><div className="fcol"><PendingPayments familyId={s.session.familyId} openId={openId} onOpen={setOpenId} /></div></div>
     </div>
   )
 }

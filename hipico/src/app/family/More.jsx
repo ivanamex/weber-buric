@@ -11,6 +11,9 @@ import { LangToggle } from '../../components/LangToggle.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { ResetDemoRow } from '../../components/ResetDemoRow.jsx'
 import { MyHorseCard } from '../../components/HorseCare.jsx'
+import { InstallButtons } from '../../components/Install.jsx'
+import { Navigate } from 'react-router-dom'
+import { useBase } from '../Backend.jsx'
 import { todayKey, addDays, hoursUntil } from '../../lib/time.js'
 
 const RENTAL_TIMES = ['07:00', '08:00', '09:00', '10:00', '11:00', '16:00', '17:00']
@@ -20,17 +23,30 @@ const QUOTES = [
   { key: 'earlyStim', icon: 'sprout' },
 ]
 
-export default function FamilyMore() {
+/** Más → Mi caballo (only for a family with a boarded horse). `split`: profile and ración next to the health dates (desktop). */
+export function MyHorseSection({ split = false }) {
+  const { t } = useI18n()
+  const s = useStore()
+  const myHorses = s.horses.filter((h) => h.ownerFamilyId === s.session.familyId && h.status !== 'sold')
+  return myHorses.map((h) => (
+    <section key={h.id} className="myhorse" aria-label={t('myHorse.title')}>
+      {/* On its own page the title is already "Mi caballo"; with several horses, each shows its name. */}
+      {!split ? <SectionTitle icon="horseHead">{t('myHorse.title')}</SectionTitle> : myHorses.length > 1 && <SectionTitle icon="horseHead">{h.name}</SectionTitle>}
+      <MyHorseCard horse={h} split={split} />
+    </section>
+  ))
+}
+
+/** Eventos: camp, quotes (birthdays, coaching, early stimulation) and horse rental. */
+export function EventsSection() {
   const { t, fmtDate, fmtMoney, fmtTime } = useI18n()
   const s = useStore()
   const toast = useToast()
   const familyId = s.session.familyId
   const family = byId(s.families, familyId)
   const riders = familyRiders(s, familyId)
-  const myHorses = s.horses.filter((h) => h.ownerFamilyId === familyId && h.status !== 'sold')
   const camp = s.events.find((e) => e.type === 'camp')
   const campRegs = s.campRegistrations.filter((r) => r.eventId === camp?.id)
-
   const [campRider, setCampRider] = useState(riders[0]?.id)
   const firstRentalDate = addDays(todayKey(), 1)
   const [rental, setRental] = useState({ date: firstRentalDate, time: '08:00', hours: 1, horseId: s.horses.find((h) => h.type === 'school')?.id })
@@ -38,7 +54,6 @@ export default function FamilyMore() {
   const myRentals = s.rentals
     .filter((r) => r.familyId === familyId && hoursUntil(r.date, r.time) > 0)
     .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
-
   const onCamp = async () => {
     const res = await registerCamp({ eventId: camp.id, riderId: campRider })
     const name = byId(s.riders, campRider)?.name
@@ -51,19 +66,8 @@ export default function FamilyMore() {
       ? t('toasts.rentalBooked', { horse: byId(s.horses, rental.horseId).name, date: fmtDate(rental.date, { day: 'numeric', month: 'short' }), time: fmtTime(rental.time) })
       : t(`errors.${res.code}`), res.ok ? 'success' : 'error')
   }
-  const soon = () => toast(t('toasts.soon'), 'info')
-
   return (
-    <div className="page">
-      <h1 className="page__title">{t('more.title')}</h1>
-
-      {myHorses.map((h) => (
-        <section key={h.id} className="myhorse" aria-label={t('myHorse.title')}>
-          <SectionTitle icon="horseHead">{t('myHorse.title')}</SectionTitle>
-          <MyHorseCard horse={h} />
-        </section>
-      ))}
-
+    <>
       <SectionTitle icon="balloons">{t('more.events')}</SectionTitle>
       {camp && (
         <div className="card card--camp">
@@ -164,6 +168,21 @@ export default function FamilyMore() {
         )}
       </form>
 
+    </>
+  )
+}
+
+/** Perfil y jinetes. */
+export function ProfileSection() {
+  const { t } = useI18n()
+  const s = useStore()
+  const toast = useToast()
+  const familyId = s.session.familyId
+  const family = byId(s.families, familyId)
+  const riders = familyRiders(s, familyId)
+  const soon = () => toast(t('toasts.soon'), 'info')
+  return (
+    <>
       <SectionTitle action={<button type="button" className="link" onClick={soon} >{t('more.profile.edit')}</button>} icon="family">{t('more.profile.title')}</SectionTitle>
       <div className="card">
         <div className="row gap">
@@ -195,6 +214,19 @@ export default function FamilyMore() {
         <button type="button" className="btn btn--outline btn--block mt12" onClick={() => toast(t('toasts.askClub'), 'info')}><Icon name="plus" size={18} /> {t('more.profile.addRider')}</button>
       </div>
 
+    </>
+  )
+}
+
+/** Ajustes: language, notifications, password, demo reset. */
+export function SettingsSection() {
+  const { t } = useI18n()
+  const s = useStore()
+  const toast = useToast()
+  const family = byId(s.families, s.session.familyId)
+  const soon = () => toast(t('toasts.soon'), 'info')
+  return (
+    <>
       <SectionTitle>{t('more.settings')}</SectionTitle>
       <div className="card list">
         <div className="list__row">
@@ -208,7 +240,46 @@ export default function FamilyMore() {
         <PasswordRow has={s.hasPassword} email={family.email || s.session.email} />
         <ResetDemoRow />
       </div>
+    </>
+  )
+}
+
+/** Más (phones): everything above on one page. */
+export default function FamilyMore() {
+  const { t } = useI18n()
+  return (
+    <div className="page">
+      <h1 className="page__title">{t('more.title')}</h1>
+      <MyHorseSection />
+      <EventsSection />
+      <ProfileSection />
+      <SettingsSection />
       <p className="sample-note">{t('common.samplePrices')}</p>
+    </div>
+  )
+}
+
+/** One section as its own page (desktop sidebar: Mi caballo, Eventos, Perfil, Ajustes, Instalar app). */
+export function FamilySectionPage({ section }) {
+  const { t } = useI18n()
+  const s = useStore()
+  const base = useBase()
+  if (section === 'caballo' && !s.horses.some((h) => h.ownerFamilyId === s.session.familyId && h.status !== 'sold')) return <Navigate to={`${base}/familia`} replace />
+  const title = { caballo: 'myHorse.title', eventos: 'more.events', perfil: 'more.profile.title', ajustes: 'more.settings', instalar: 'install.pageTitle' }[section]
+  return (
+    <div className="page">
+      <h1 className="page__title">{t(title)}</h1>
+      {section === 'caballo' && <MyHorseSection split />}
+      {section === 'eventos' && <EventsSection />}
+      {section === 'perfil' && <ProfileSection />}
+      {section === 'ajustes' && <SettingsSection />}
+      {section === 'instalar' && (
+        <div className="card">
+          <p className="small muted">{t('install.promptText')}</p>
+          <InstallButtons />
+        </div>
+      )}
+      {section === 'eventos' && <p className="sample-note">{t('common.samplePrices')}</p>}
     </div>
   )
 }

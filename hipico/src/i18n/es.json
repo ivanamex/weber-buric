@@ -194,7 +194,8 @@
       "hasClass": "tiene clase confirmada",
       "nextPeriod": "Se descuenta de tu plan de {month}, que empieza el {date}.",
       "nextPeriodCount": "{month}: {used} de {total} clases"
-    }
+    },
+    "payments": "Pagos"
   },
   "plan": {
     "title": "Mi plan",
@@ -717,7 +718,8 @@
     "illAdd": "Añadir a pantalla de inicio",
     "illInstall": "Instalar app",
     "illNewTab": "Nueva pestaña",
-    "illHistory": "Historial"
+    "illHistory": "Historial",
+    "pageTitle": "Instalar app"
   },
   "history": {
     "title": "Historial de pagos",
@@ -1125,6 +1127,8 @@
     "close": "Cerrar panel",
     "all": "Todos",
     "status": "Estado",
-    "filters": "Filtros"
+    "filters": "Filtros",
+    "crumbAdmin": "Dirección",
+    "back": "Volver"
   }
 }

@@ -69,10 +69,33 @@ export function NextDates({ last, kinds = ['vaccine', 'deworming', 'farrier', 'v
 }
 
 /** What an owner family sees in Más → Mi caballo. */
-export function MyHorseCard({ horse }) {
+export function MyHorseCard({ horse, split = false }) {
   const { t } = useI18n()
   const s = useStore()
   const age = horseAge(horse)
+  if (split) {
+    // Desktop page: profile and ración on the left, the health dates on the right.
+    return (
+      <div className="fcols">
+        <div className="fcol card">
+          <div className="row gap">
+            <HorsePhoto horse={horse} size={88} />
+            <div className="grow">
+              <p className="card__title">{horse.name}</p>
+              <p className="small muted">{[age != null ? t('horses.years', { n: age }) : null, horse.breed, horse.coat].filter(Boolean).join(' · ')}</p>
+            </div>
+          </div>
+          <p className="card__label mt16">{t('horseProfile.ration')}</p>
+          <DailyRation care={careOf(s, horse.id)} />
+        </div>
+        <div className="fcol card">
+          <p className="card__label">{t('myHorse.next')}</p>
+          <NextDates last={lastByKind(s, horse.id)} />
+          <p className="small muted mt8">{t('myHorse.readOnly')}</p>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="card">
       <div className="row gap">

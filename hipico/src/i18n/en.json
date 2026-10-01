@@ -194,7 +194,8 @@
       "hasClass": "has a confirmed class",
       "nextPeriod": "It counts against your {month} plan, which starts on {date}.",
       "nextPeriodCount": "{month}: {used} of {total} classes"
-    }
+    },
+    "payments": "Payments"
   },
   "plan": {
     "title": "My plan",
@@ -717,7 +718,8 @@
     "illAdd": "Add to Home Screen",
     "illInstall": "Install app",
     "illNewTab": "New tab",
-    "illHistory": "History"
+    "illHistory": "History",
+    "pageTitle": "Install app"
   },
   "history": {
     "title": "Payment history",
@@ -1125,6 +1127,8 @@
     "close": "Close panel",
     "all": "All",
     "status": "Status",
-    "filters": "Filters"
+    "filters": "Filters",
+    "crumbAdmin": "Management",
+    "back": "Back"
   }
 }

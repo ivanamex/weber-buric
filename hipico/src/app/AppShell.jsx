@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { familyRiders, login, logout, useStore, byId, moduleOn } from '../data/store.js'
 import { Logo } from '../components/Logo.jsx'
@@ -8,6 +8,7 @@ import { Icon } from '../components/Icon.jsx'
 import { useToast } from '../components/Toast.jsx'
 import { useBase } from './Backend.jsx'
 import { InstallPrompt, PasswordNudge } from '../components/Install.jsx'
+import { useInstallState } from '../lib/install.js'
 import { DeskContext, useDesktop } from '../components/Desk.jsx'
 
 const TABS = {
@@ -50,6 +51,39 @@ function deskTitle(pathname, search) {
 }
 const SIDE_KEY = 'hipico.sidebarSmall'
 
+// Going back (browser or "← back" link) returns to the same scroll position; anything else starts at the top.
+const scrollMemory = {}
+function useScrollMemory() {
+  const location = useLocation()
+  const navType = useNavigationType()
+  useEffect(() => {
+    const key = location.key
+    const save = () => { scrollMemory[key] = window.scrollY }
+    window.addEventListener('scroll', save, { passive: true })
+    return () => window.removeEventListener('scroll', save)
+  }, [location.key])
+  useLayoutEffect(() => {
+    const y = navType === 'POP' ? scrollMemory[location.key] : null
+    if (y != null) requestAnimationFrame(() => window.scrollTo(0, y))
+    else window.scrollTo(0, 0)
+  }, [location.key, navType])
+}
+
+/** "Dirección / Caballos / Relámpago": where you are, each step a link back. */
+function Crumbs({ items }) {
+  if (items.length < 2) return null
+  return (
+    <nav className="crumbs" aria-label="breadcrumb">
+      {items.map((c, i) => (
+        <span key={i} className="crumbs__item">
+          {i > 0 && <span className="crumbs__sep" aria-hidden="true">/</span>}
+          {c.to && i < items.length - 1 ? <Link to={c.to}>{c.label}</Link> : <span aria-current={i === items.length - 1 ? 'page' : undefined}>{c.label}</span>}
+        </span>
+      ))}
+    </nav>
+  )
+}
+
 /** Management on a computer: sidebar (collapsible to icons), top bar with title, search and the page's main action. */
 function DeskShell({ onLogout, toReview, demoBar }) {
   const { t } = useI18n()
@@ -83,11 +117,15 @@ function DeskShell({ onLogout, toReview, demoBar }) {
   const ctx = useMemo(() => ({ desk: true, query, setQuery, setAction, setSearchable }), [query])
   const q = new URLSearchParams(search)
   const items = SIDEBAR.filter((i) => !i.module || moduleOn(s, i.module))
+  const horseId = pathname.match(/\/caballos\/([^/]+)$/)?.[1]
+  const adminCrumbs = [{ label: t('desk.crumbAdmin'), to: `${base}/direccion` }]
+  if (deskTitle(pathname, search) !== 'tabs.summary') adminCrumbs.push({ label: t(deskTitle(pathname, search)), to: horseId ? `${base}/direccion/horario?vista=caballos` : null })
+  if (horseId) adminCrumbs.push({ label: horseId === 'nuevo' ? t('schedule.addHorse') : byId(s.horses, horseId)?.name || '' })
   return (
     <DeskContext.Provider value={ctx}>
       <div className={`desk ${small ? 'is-small' : ''}`}>
         <aside className="desk__side" aria-label={t('app.nav')}>
-          <div className="desk__brand"><Logo light compact /></div>
+          <Link to={`${base}/direccion`} className="desk__brand" title={t('tabs.summary')}><Logo light compact /></Link>
           <nav className="desk__nav">
             {items.map((i) => {
               const active = i.match ? i.match(pathname, q) : undefined
@@ -112,7 +150,10 @@ function DeskShell({ onLogout, toReview, demoBar }) {
         <div className="desk__main">
           {demoBar}
           <header className="desk__top">
-            <h1 className="desk__title">{t(deskTitle(pathname, search))}</h1>
+            <div className="desk__heading">
+              <Crumbs items={adminCrumbs} />
+              <h1 className="desk__title">{t(deskTitle(pathname, search))}</h1>
+            </div>
             {searchable && (
               <label className="search desk__search">
                 <Icon name="search" size={18} />
@@ -135,6 +176,65 @@ function DeskShell({ onLogout, toReview, demoBar }) {
     </DeskContext.Provider>
   )
 }
+// Families on a computer: every section straight in the sidebar (no "Más").
+const FAMILY_SIDEBAR = [
+  { to: 'familia', icon: 'horseHead', label: 'tabs.home', end: true },
+  { to: 'familia/reservar', icon: 'calendar', label: 'tabs.book' },
+  { to: 'familia/plan', icon: 'horseshoe', label: 'tabs.plan' },
+  { to: 'familia/caballo', icon: 'saddle', label: 'myHorse.title', ownsHorse: true },
+  { to: 'familia/pagos', icon: 'receipt', label: 'family.payments' },
+  { to: 'familia/eventos', icon: 'balloons', label: 'more.events' },
+  { to: 'familia/perfil', icon: 'family', label: 'more.profile.title' },
+  { to: 'familia/instalar', icon: 'install', label: 'install.pageTitle', notInstalled: true },
+  { to: 'familia/ajustes', icon: 'plan', label: 'more.settings' },
+]
+const FAMILY_TITLES = { reservar: 'tabs.book', plan: 'tabs.plan', caballo: 'myHorse.title', pagos: 'family.payments', eventos: 'more.events', perfil: 'more.profile.title', instalar: 'install.pageTitle', ajustes: 'more.settings', mas: 'tabs.more' }
+
+function FamilyDeskShell({ onLogout, demoBar, family, outletContext }) {
+  const { t } = useI18n()
+  const s = useStore()
+  const base = useBase()
+  const { pathname } = useLocation()
+  const { standalone } = useInstallState()
+  const ownsHorse = s.horses.some((h) => h.ownerFamilyId === s.session.familyId && h.status !== 'sold')
+  const items = FAMILY_SIDEBAR.filter((i) => (!i.ownsHorse || ownsHorse) && (!i.notInstalled || !standalone))
+  const section = pathname.replace(/\/$/, '').split('/').pop()
+  const crumbs = [{ label: family?.name || '', to: `${base}/familia` }]
+  if (FAMILY_TITLES[section]) crumbs.push({ label: t(FAMILY_TITLES[section]) })
+  return (
+    <div className="fdesk">
+      <div className="apptop">
+        <header className="appbar">
+          <Link to={`${base}/familia`} title={t('tabs.home')}><Logo light compact /></Link>
+          <div className="appbar__right">
+            <LangToggle light />
+            <button type="button" className="iconbtn" onClick={onLogout} aria-label={t('app.logout')} title={t('app.logout')}><Icon name="logout" size={20} /></button>
+          </div>
+        </header>
+        {demoBar}
+      </div>
+      <div className="fdesk__body">
+        <aside className="fdesk__side" aria-label={t('app.nav')}>
+          <nav className="fdesk__nav">
+            {items.map((i) => (
+              <NavLink key={i.to} to={`${base}/${i.to}`} end={i.end} className={({ isActive }) => `fdesk__link ${isActive ? 'is-active' : ''}`}>
+                <Icon name={i.icon} size={20} /> <span>{t(i.label)}</span>
+              </NavLink>
+            ))}
+          </nav>
+          <button type="button" className="fdesk__link fdesk__logout" onClick={onLogout}><Icon name="logout" size={20} /> <span>{t('app.logout')}</span></button>
+        </aside>
+        <main className="fdesk__content">
+          <Crumbs items={crumbs} />
+          {s.mode !== 'preview' && <PasswordNudge />}
+          {s.mode !== 'preview' && <InstallPrompt />}
+          <Outlet context={outletContext} />
+        </main>
+      </div>
+    </div>
+  )
+}
+
 // The demo keeps its own copy, so it never changes what the real app remembers.
 const riderKey = (mode) => (mode === 'demo' ? 'hipico.demo.rider' : 'hipico.rider')
 
@@ -170,6 +270,7 @@ function DemoBar({ role }) {
 }
 
 export default function AppShell({ role }) {
+  useScrollMemory()
   const { t } = useI18n()
   const s = useStore()
   const navigate = useNavigate()
@@ -188,7 +289,6 @@ export default function AppShell({ role }) {
     try { localStorage.setItem(riderKey(s.mode), id) } catch { /* ignore */ }
   }
 
-  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
 
   const onLogout = async () => {
     await logout()
@@ -198,6 +298,10 @@ export default function AppShell({ role }) {
   const family = role === 'family' ? byId(s.families, s.session.familyId) : null
   const toReview = role === 'admin' ? s.payments.filter((p) => p.status === 'pending' && p.receiptStatus === 'review').length : 0
 
+  if (role === 'family' && desk) {
+    return <FamilyDeskShell onLogout={onLogout} family={family} demoBar={s.mode === 'demo' ? <DemoBar role={role} /> : null}
+      outletContext={{ riders, riderId: activeRiderId, setRiderId }} />
+  }
   if (role === 'admin' && desk) {
     return <DeskShell onLogout={onLogout} toReview={toReview} demoBar={s.mode === 'demo' ? <DemoBar role={role} /> : null} />
   }
@@ -206,7 +310,7 @@ export default function AppShell({ role }) {
     <div className={`app app--${role}`}>
       <div className="apptop">
       <header className="appbar">
-        <Logo light compact />
+        <Link to={`${base}/${role === 'admin' ? 'direccion' : 'familia'}`} title={t(role === 'admin' ? 'tabs.summary' : 'tabs.home')}><Logo light compact /></Link>
         <div className="appbar__right">
           <LangToggle light />
           <button type="button" className="iconbtn" onClick={onLogout} aria-label={t('app.logout')} title={t('app.logout')}>

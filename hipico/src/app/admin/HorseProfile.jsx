@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { DateInput } from '../../components/DateInput.jsx'
 import {
@@ -253,6 +253,7 @@ export default function HorseProfile({ id: forcedId, embedded = false } = {}) {
   const base = useBase()
   const navigate = useNavigate()
   const params = useParams()
+  const location = useLocation()
   const id = forcedId || params.id
   const [edit, setEdit] = useState(null) // 'basics' | 'photos' | 'care'
   const [dirty, setDirty] = useState(false)
@@ -260,10 +261,12 @@ export default function HorseProfile({ id: forcedId, embedded = false } = {}) {
   const [allHealth, setAllHealth] = useState(false)
   const [guard, dialog] = useDiscardGuard(dirty)
   const horse = id === 'nuevo' ? null : byId(s.horses, id)
+  // "← Caballos" (or "← Resumen"…): back to the list it came from, same scroll and filters; the horses list otherwise.
   const listUrl = `${base}/direccion/horario?vista=caballos`
+  const from = location.state?.from
   const back = (
-    <a href={listUrl} className="backlink" onClick={(e) => { e.preventDefault(); guard(() => navigate(listUrl)) }}>
-      <Icon name="chevronLeft" size={18} /> {t('schedule.horses')}
+    <a href={from?.to || listUrl} className="backlink" onClick={(e) => { e.preventDefault(); guard(() => (from ? navigate(-1) : navigate(listUrl))) }}>
+      <Icon name="chevronLeft" size={18} /> {from?.label || t('schedule.horses')}
     </a>
   )
   const open = (section) => guard(() => { setDirty(false); setEdit(section) })

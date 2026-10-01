@@ -8,8 +8,8 @@ import LiveLogin from './LiveLogin.jsx'
 import AppShell from './AppShell.jsx'
 import FamilyHome from './family/Home.jsx'
 import FamilyBook from './family/Book.jsx'
-import FamilyPlan from './family/Plan.jsx'
-import FamilyMore from './family/More.jsx'
+import FamilyPlan, { FamilyPaymentsPage } from './family/Plan.jsx'
+import FamilyMore, { FamilySectionPage } from './family/More.jsx'
 import AdminToday from './admin/Today.jsx'
 import AdminPayments from './admin/Payments.jsx'
 import AdminFamilies from './admin/Families.jsx'
@@ -76,6 +76,12 @@ export default function Backend({ mode, base }) {
           <Route path="reservar" element={<FamilyBook />} />
           <Route path="plan" element={<FamilyPlan />} />
           <Route path="mas" element={<FamilyMore />} />
+          <Route path="caballo" element={<FamilySectionPage section="caballo" />} />
+          <Route path="pagos" element={<FamilyPaymentsPage />} />
+          <Route path="eventos" element={<FamilySectionPage section="eventos" />} />
+          <Route path="perfil" element={<FamilySectionPage section="perfil" />} />
+          <Route path="instalar" element={<FamilySectionPage section="instalar" />} />
+          <Route path="ajustes" element={<FamilySectionPage section="ajustes" />} />
         </Route>
         <Route path="direccion" element={<RequireRole role="admin"><AppShell role="admin" /></RequireRole>}>
           <Route index element={<AdminSummary />} />

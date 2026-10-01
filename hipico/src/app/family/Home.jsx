@@ -16,6 +16,7 @@ import { concept } from '../../components/PaymentHistory.jsx'
 import { ActivePlanCard } from './ActivePlan.jsx'
 import { UpcomingList, useCancelBooking } from './Upcoming.jsx'
 import { GreetingMark } from '../../components/GreetingMark.jsx'
+import { useDesktop } from '../../components/Desk.jsx'
 
 function greetingKey() {
   const h = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: TZ }).format(new Date()))
@@ -39,18 +40,20 @@ export default function FamilyHome() {
     (p.status === 'pending' || (p.reviewedAt && Date.now() - new Date(p.reviewedAt).getTime() < 14 * 864e5)))
 
   const dueSoon = familyDueSoon(s, family.id)
+  const desk = useDesktop()
 
   const onCancel = useCancelBooking()
 
-  return (
-    <div className="page">
-      <div className="hello">
-        <p className="hello__eyebrow">{t(`family.greeting.${greetingKey()}`)}</p>
-        <h1>{family.contact.split(' ')[0]} <GreetingMark time={greetingKey()} /></h1>
-      </div>
-      <RiderPicker />
+
+  // Phones: one column in this order. Desktop: plan and payments on the left, classes on the right.
+  const planBlock = (
+    <>
       <ActivePlanCard riderId={riderId} />
 
+    </>
+  )
+  const dueBlock = (
+    <>
       {dueSoon.length > 0 && (
         <section className={`card duecard ${dueSoon.some((p) => p.state !== 'soon') ? 'duecard--now' : ''}`} aria-label={t('familyDue.title')}>
           <p className="card__title"><Icon name="receipt" size={18} /> {t('familyDue.title')}</p>
@@ -70,6 +73,10 @@ export default function FamilyHome() {
         </section>
       )}
 
+    </>
+  )
+  const cancelledBlock = (
+    <>
       {cancelled.map((b) => {
         const reason = (s.cancellations || []).find((c) => c.slotId === b.slotId && c.date === b.date)?.reason
         return (
@@ -83,6 +90,10 @@ export default function FamilyHome() {
         )
       })}
 
+    </>
+  )
+  const nextBlock = (
+    <>
       <SectionTitle icon="calendar">{t('family.home.nextClass')}</SectionTitle>
       {next ? (
         <NextClassCard booking={next} onCancel={onCancel} s={s} rider={rider} />
@@ -91,6 +102,10 @@ export default function FamilyHome() {
           <Link to={`${base}/familia/reservar`} className="btn btn--primary"><Icon name="calendar" size={18} /> {t('family.home.bookNow')}</Link>
         </Empty>
       )}
+    </>
+  )
+  const upcomingBlock = (
+    <>
       {upcoming.length > 1 && (
         <>
           <SectionTitle icon="calendar">{t('family.home.upcoming')}</SectionTitle>
@@ -98,6 +113,10 @@ export default function FamilyHome() {
         </>
       )}
 
+    </>
+  )
+  const receiptsBlock = (
+    <>
       {receipts.length > 0 && (
         <>
           <SectionTitle icon="receipt">{t('receipt.homeTitle')}</SectionTitle>
@@ -120,6 +139,10 @@ export default function FamilyHome() {
         </>
       )}
 
+    </>
+  )
+  const boardingBlock = (
+    <>
       <SectionTitle icon="saddle">{t('family.home.boarding')}</SectionTitle>
       {boarding.length ? boarding.map((b) => (
         <div className="card row gap" key={b.horse.id}>
@@ -137,6 +160,24 @@ export default function FamilyHome() {
       )}
       {boarding.some((b) => b.status !== 'paid') && (
         <Link to={`${base}/familia/plan`} className="btn btn--outline btn--block">{t('boarding.goPay')}</Link>
+      )}
+    </>
+  )
+
+  return (
+    <div className="page">
+      <div className="hello">
+        <p className="hello__eyebrow">{t(`family.greeting.${greetingKey()}`)}</p>
+        <h1>{family.contact.split(' ')[0]} <GreetingMark time={greetingKey()} /></h1>
+      </div>
+      <RiderPicker />
+      {desk ? (
+        <div className="fcols">
+          <div className="fcol">{planBlock}{dueBlock}{receiptsBlock}{boardingBlock}</div>
+          <div className="fcol">{cancelledBlock}{nextBlock}{upcomingBlock}</div>
+        </div>
+      ) : (
+        <>{planBlock}{dueBlock}{cancelledBlock}{nextBlock}{upcomingBlock}{receiptsBlock}{boardingBlock}</>
       )}
     </div>
   )
