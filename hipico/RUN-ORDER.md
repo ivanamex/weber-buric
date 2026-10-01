@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. ⏸ **On hold, don't run:** STEP-33 waits for the design direction (A / B / C drafts, 1 Oct). Was: lime accent everywhere (site + app), hero video in 3 scenes (photos until the clips exist), the headline word changes with each scene, moving stripe under the hero, fix the hard edge of the blur in the app section
+1. **STEP-34** (on branch `design-34`, not main): new site design, A + C mix: open layout, condensed Archivo, mist/peach/lilac gradients, big video frame in the hero (Saltos · Caballos · Niños), "Aprende a montar" path, big "Disfruta" image at the end. Send the preview URL. STEP-33 is replaced by this, don't run it.
 
 Check in the browser after each step, then "ok".
 
@@ -30,9 +30,9 @@ STEP-32 the website as one page: glass bar with scroll-spy and jump-pole progres
 
 ## Rules
 
-- Everything on `main`, pushed after every step
+- Everything on `main`, pushed after every step (exception: STEP-34 on branch `design-34` until Ivana says merge)
 - Supabase: Hípico is in the **"ivanamex's projects"** organization (via Vercel), not "Weber Buric Realty"
-- No traces · sans-serif only · Spanish first · no gold, the accent is lime #C8F25A with dark text (decided 1 Oct, replaces coral)
+- No traces · sans-serif only · Spanish first · no gold; site colors mist / deep green / peach / lilac, no coral or lime (decided 1 Oct, see STEP-34)
 - No App Store · families sign up themselves with no approval; the club can block or delete (decided 26 Sep)
 
 ## Later

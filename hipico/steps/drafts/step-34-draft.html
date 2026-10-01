@@ -1,0 +1,57 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>D</title>
+<style>
+@font-face{font-family:Archivo;src:url(https://cdn.jsdelivr.net/npm/@fontsource-variable/archivo/files/archivo-latin-standard-normal.woff2) format('woff2');font-weight:100 900;font-stretch:62% 125%}
+:root{--deep:#10271F;--jungle:#24503F;--sage:#A9C3AE;--peach:#F6C6A6;--lilac:#C8B9EC;--mist:#F1F4F0}
+*{box-sizing:border-box;margin:0}
+body{font-family:Archivo,sans-serif;color:var(--deep);background:var(--mist)}
+.grain::after{content:"";position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero{position:relative;min-height:100vh;display:grid;grid-template-columns:6fr 5fr;gap:56px;padding:116px 48px 48px;align-items:end;overflow:hidden;
+ background:radial-gradient(38% 45% at 8% 12%,var(--peach) 0%,transparent 70%),radial-gradient(40% 50% at 55% 0%,var(--lilac) 0%,transparent 70%),radial-gradient(50% 60% at 30% 100%,#C9DDCB 0%,transparent 70%),var(--mist)}
+header{position:absolute;inset:0 0 auto;z-index:5;display:flex;align-items:center;gap:40px;padding:20px 48px}
+header img{height:42px}
+nav{display:flex;gap:28px;font-size:15px;font-weight:500;flex:1}
+.cta{background:var(--deep);color:#fff;padding:12px 22px;border-radius:999px;font-weight:600;font-size:15px}
+h1{position:relative;z-index:2;font-stretch:66%;font-weight:800;font-size:clamp(64px,8.2vw,140px);line-height:.86;text-transform:uppercase;color:var(--deep)}
+.hero p{position:relative;z-index:2;max-width:34ch;font-size:20px;line-height:1.45;margin:28px 0 34px;color:#2f4238}
+.b1{background:var(--deep);color:#fff;padding:16px 26px;border-radius:999px;font-weight:650;margin-right:12px}
+.b2{border:1.5px solid var(--deep);padding:15px 26px;border-radius:999px;font-weight:600}
+.video{position:relative;z-index:2;height:calc(100vh - 164px);border-radius:32px;overflow:hidden;box-shadow:0 40px 80px rgba(16,39,31,.22)}
+.video img{width:100%;height:100%;object-fit:cover;object-position:58% 35%}
+.chip{position:absolute;left:18px;bottom:18px;display:flex;gap:8px}
+.chip span{background:rgba(241,244,240,.82);backdrop-filter:blur(10px);padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600}
+.chip span.on{background:var(--deep);color:#fff}
+.course{position:absolute;inset:0;z-index:1;pointer-events:none}
+.sec{padding:120px 48px;display:grid;grid-template-columns:4fr 8fr;gap:56px}
+h2{font-stretch:68%;font-weight:800;font-size:76px;line-height:.88;text-transform:uppercase}
+.lead{font-size:19px;line-height:1.5;margin-top:20px;max-width:34ch;color:#2f4238}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--deep)}
+.step{padding:26px 22px 0 0}
+.n{font-stretch:70%;font-weight:800;font-size:52px;color:var(--jungle)}
+.step h3{font-size:22px;font-weight:650;margin:10px 0 8px}
+.step p{font-size:16px;line-height:1.45;color:#4a5a52}
+.step:nth-child(1) .n{background:linear-gradient(90deg,#E9A27A,#B79BE6);-webkit-background-clip:text;color:transparent}
+.big{position:relative;height:100vh;overflow:hidden}
+.big img{width:100%;height:100%;object-fit:cover;object-position:40% 55%}
+.big h2{position:absolute;left:48px;bottom:48px;color:#fff;font-size:120px;text-shadow:0 10px 40px rgba(0,0,0,.35)}
+</style></head><body>
+<section class="hero grain">
+ <header><img src="../../public/logo-green.png" alt=""><nav><span>Clases</span><span>Competencias</span><span>Equinoterapia</span><span>Pensión</span><span>Visítanos</span></nav><span class="cta">App del club</span></header>
+ <svg class="course" viewBox="0 0 1440 900" preserveAspectRatio="none"><path d="M760 900 C 780 760, 750 600, 800 470 S 820 200, 960 120 S 1240 90, 1440 130" fill="none" stroke="#24503F" stroke-width="2.5" stroke-dasharray="2 9" stroke-linecap="round" opacity=".55"/></svg>
+ <div>
+  <h1>Un club a caballo, en la selva de Paamul</h1>
+  <p>Aprende a montar, disfruta y compite, a 20 minutos de Playa del Carmen. Desde los 2 años.</p>
+  <span class="b1">Agenda una clase muestra</span><span class="b2">Ver clases y precios</span>
+ </div>
+ <div class="video"><img src="../../public/img/club/horse-blaze.webp" alt=""><div class="chip"><span>Saltos</span><span class="on">Caballos</span><span>Niños</span></div></div>
+</section>
+<section class="sec">
+ <div><h2>Aprende a montar</h2><p class="lead">Como un recorrido de salto: un obstáculo a la vez, a tu ritmo.</p></div>
+ <div class="steps">
+  <div class="step"><div class="n">1</div><h3>Clase muestra</h3><p>Conoces al caballo, al instructor y el club.</p></div>
+  <div class="step"><div class="n">2</div><h3>Tu plan</h3><p>2 o 3 clases por semana, de fecha a fecha.</p></div>
+  <div class="step"><div class="n">3</div><h3>Pony Friday</h3><p>El último viernes del mes, desde los 2 años.</p></div>
+  <div class="step"><div class="n">4</div><h3>Tu primer concurso</h3><p>Entrenas salto y compites con el club.</p></div>
+ </div>
+</section>
+<section class="big"><img src="../../public/img/club/girl-horse-closeup.webp" alt=""><h2>Disfruta</h2></section>
+</body></html>
