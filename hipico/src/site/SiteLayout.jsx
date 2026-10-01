@@ -14,7 +14,7 @@ import '@fontsource-variable/archivo/standard.css' // the website's type (the ap
 import './site.css'
 
 const LANG_KEY = 'hipico.lang'
-const HORSE_COLORS = [[36, 80, 63], [140, 115, 205]] // jungle → lilac letters on the light footer
+const HORSE_COLORS = [[36, 80, 63], [110, 150, 118]] // jungle → sage letters on the light footer
 // An English visitor coming back to "/" goes to "/en" (only on the first page they open, never after a click).
 const initialPath = typeof window === 'undefined' ? '' : window.location.pathname
 let redirected = false

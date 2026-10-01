@@ -7,28 +7,53 @@ import { todayKey } from '../lib/time.js'
 import { AppButton } from './SiteLayout.jsx'
 import { BigPhoto, ClubPhoto, Kinetic, Letters, reducedMotion } from './motion.jsx'
 import { sectionId } from './routes.js'
-import { BIG, CONTACT, HERO_SCENES, PHOTOS, TESTIMONIALS, mapDirections, mapEmbed } from './content.js'
+import { BIG, CLIPS, CONTACT, GALLERY_VIDEOS, HERO_SCENES, PHOTOS, TESTIMONIALS, mapDirections, mapEmbed } from './content.js'
 import { planList, useSiteData } from './siteData.js'
 import GALLERY from 'virtual:gallery'
 
 const wa = (text) => ({ href: waLink(text), target: '_blank', rel: 'noopener noreferrer' })
+const RATE = 0.75 // every clip plays in a soft slow motion
+const saveData = () => typeof navigator !== 'undefined' && navigator.connection?.saveData === true
+const stillOnly = () => reducedMotion() || saveData()
 
-/** A numbered section: the eyebrow ("01 — QUÉ HACEMOS") sticks to the left edge on desktop while it scrolls past. */
-function Sec({ k, n, tone = 'light', className = '', bg = null, children }) {
+/** A numbered section (at most one screen tall). `after` is full-width content below the text column. */
+function Sec({ k, n, tone = 'light', className = '', bg = null, after = null, children }) {
   const { t, lang } = useI18n()
   return (
-    <section id={sectionId(k, lang)} className={`sec sec--${tone} ${className}`} data-tone={tone === 'light' || tone === 'mesh' ? 'light' : 'dark'}
-      aria-labelledby={`${k}-title`}>
+    <section id={sectionId(k, lang)} className={`sec sec--${tone} ${className}`} data-tone="light" aria-labelledby={`${k}-title`}>
       {bg}
       <div className="scontainer sec__grid">
         <p className="sec__eyebrow"><span>{n}</span> — {t(`site.nav.${k}`)}</p>
         <div className="sec__body">{children}</div>
       </div>
+      {after}
     </section>
   )
 }
 
-const Arrow = () => <span className="tile__arrow" aria-hidden="true"><SiteIcon name="arrowRight" size={22} /></span>
+/** A muted clip that loops only while it's on screen. Reduced motion or Save-Data: the poster only. */
+function Clip({ clip, className = '', alt = '' }) {
+  const ref = useRef(null)
+  const [still, setStill] = useState(true)
+  useEffect(() => { setStill(stillOnly()) }, [])
+  useEffect(() => {
+    const v = ref.current
+    if (still || !v) return undefined
+    v.playbackRate = RATE
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { v.playbackRate = RATE; v.play().catch(() => {}) } else v.pause()
+    }, { threshold: 0.15 })
+    io.observe(v)
+    return () => { io.disconnect(); v.pause() }
+  }, [still])
+  if (still) return <img className={className} src={clip.poster} alt={alt} width={clip.w} height={clip.h} loading="lazy" decoding="async" />
+  return (
+    <video ref={ref} className={className} muted playsInline loop preload="metadata" poster={clip.poster}
+      width={clip.w} height={clip.h} aria-label={alt || undefined} aria-hidden={alt ? undefined : 'true'}>
+      <source src={clip.video} type="video/mp4" />
+    </video>
+  )
+}
 
 /** Pony Friday is the last Friday of each month: the next one from today. */
 export function nextPonyFriday(today = todayKey()) {
@@ -44,139 +69,140 @@ export function nextPonyFriday(today = todayKey()) {
   return null
 }
 
-const saveData = () => typeof navigator !== 'undefined' && navigator.connection?.saveData === true
-const SCENE_MS = 6500
-
-/** The hero's big frame: three scenes in a loop with cross-fades; the chips show the one playing and jump to it. */
-function HeroScenes() {
-  const { t } = useI18n()
-  const [on, setOn] = useState(1)
-  const [still, setStill] = useState(true)
-  const videos = useRef([])
-  useEffect(() => { setStill(reducedMotion() || saveData()) }, [])
-  const scene = HERO_SCENES[on]
-  // Photos (or videos without their file yet) move on by timer; a playing video moves on when it ends.
-  useEffect(() => {
-    if (still) return undefined
-    const v = scene.video && videos.current[on]
-    if (v) {
-      v.currentTime = 0
-      v.play().catch(() => {})
-      const next = () => setOn((i) => (i + 1) % HERO_SCENES.length)
-      v.addEventListener('ended', next)
-      return () => { v.removeEventListener('ended', next); v.pause() }
-    }
-    const id = setTimeout(() => setOn((i) => (i + 1) % HERO_SCENES.length), SCENE_MS)
-    return () => clearTimeout(id)
-  }, [on, still, scene.video])
-  return (
-    <div className="hframe">
-      {HERO_SCENES.map((sc, i) => (
-        <div key={sc.key} className={`hframe__scene ${i === on ? 'is-on' : ''}`} aria-hidden={i === on ? undefined : 'true'}>
-          {sc.video && !still ? (
-            <video ref={(el) => { videos.current[i] = el }} muted playsInline preload={i === on ? 'auto' : 'none'} poster={sc.photo.src}
-              aria-label={t(`site.hero.scenes.${sc.key}.alt`)}>
-              <source src={sc.video} type="video/mp4" />
-            </video>
-          ) : (
-            <img src={sc.photo.src} srcSet={sc.photo.small ? `${sc.photo.small} 800w, ${sc.photo.src} 1600w` : undefined}
-              sizes="(min-width: 900px) 45vw, 100vw" width={sc.photo.w} height={sc.photo.h} alt={t(`site.hero.scenes.${sc.key}.alt`)}
-              loading={i === 1 ? 'eager' : 'lazy'} fetchPriority={i === 1 ? 'high' : undefined} decoding="async"
-              style={{ objectPosition: sc.photo.position }} />
-          )}
-        </div>
-      ))}
-      <div className="hframe__chips" role="group" aria-label={t('site.hero.scenesLabel')}>
-        {HERO_SCENES.map((sc, i) => (
-          <button key={sc.key} type="button" className={i === on ? 'is-on' : ''} aria-pressed={i === on} onClick={() => setOn(i)}>
-            {t(`site.hero.scenes.${sc.key}.chip`)}
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
+/**
+ * The hero: the three clips full-bleed, one after the other (each as long as its clip at 0.75×, then a 1 s
+ * cross-fade). Only the playing clip and the next one load. The chips follow and jump to a scene.
+ */
 function Hero() {
   const { t, lang } = useI18n()
+  const [on, setOn] = useState(0)
+  const [still, setStill] = useState(true)
+  const [visible, setVisible] = useState(true)
+  const videos = useRef([])
+  const root = useRef(null)
+  useEffect(() => { setStill(stillOnly()) }, [])
+  useEffect(() => {
+    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.05 })
+    io.observe(root.current)
+    return () => io.disconnect()
+  }, [])
+  useEffect(() => {
+    const v = videos.current[on]
+    if (still || !v) return undefined
+    if (!visible) { v.pause(); return undefined }
+    v.playbackRate = RATE
+    v.play().catch(() => {})
+    // Only now fetch the next clip, so the first load stays small.
+    const warm = setTimeout(() => {
+      const n = videos.current[(on + 1) % HERO_SCENES.length]
+      if (n && n.preload !== 'auto') { n.preload = 'auto'; n.load() }
+    }, 1200)
+    // Start the cross-fade 1 s before the clip ends, so the next scene is already there.
+    const tick = () => {
+      if (v.duration && v.currentTime >= v.duration - 1 * RATE) setOn((i) => (i + 1) % HERO_SCENES.length)
+    }
+    const next = () => setOn((i) => (i + 1) % HERO_SCENES.length)
+    v.addEventListener('timeupdate', tick)
+    v.addEventListener('ended', next)
+    return () => { clearTimeout(warm); v.removeEventListener('timeupdate', tick); v.removeEventListener('ended', next) }
+  }, [on, still, visible])
+  // Once the cross-fade is over, the other scenes stop and rewind.
+  useEffect(() => {
+    const id = setTimeout(() => videos.current.forEach((v, i) => {
+      if (v && i !== on) { v.pause(); v.currentTime = 0 }
+    }), 1100)
+    return () => clearTimeout(id)
+  }, [on])
   return (
-    <section className="shero" data-tone="light" aria-label={t('site.hero.label')}>
-      <svg className="shero__course" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M760 900 C 780 760, 750 600, 800 470 S 820 200, 960 120 S 1240 90, 1440 130" />
-      </svg>
-      <div className="shero__inner">
-        <div className="shero__head">
+    <section className="shero" data-tone="dark" aria-label={t('site.hero.label')} ref={root}>
+      <div className="shero__media">
+        {HERO_SCENES.map((sc, i) => (
+          <div key={sc.key} className={`shero__scene ${i === on ? 'is-on' : ''}`} aria-hidden={i === on ? undefined : 'true'}>
+            {still ? (
+              <img src={sc.poster} alt={t(`site.hero.scenes.${sc.key}.alt`)} width="1280" height="700" decoding="async"
+                loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : undefined} />
+            ) : (
+              <video ref={(el) => { videos.current[i] = el }} muted playsInline poster={sc.poster}
+                preload={i === 0 ? 'auto' : 'none'} aria-label={t(`site.hero.scenes.${sc.key}.alt`)}>
+                <source src={sc.video} type="video/mp4" />
+              </video>
+            )}
+          </div>
+        ))}
+      </div>
+      <div className="shero__scrim" aria-hidden="true" />
+      <div className="scontainer shero__inner">
+        <div className="shero__text">
           <Letters text={t('site.hero.title')} className="shero__title" />
           <p className="shero__sub">{t('site.hero.sub')}</p>
+          <div className="shero__ctas">
+            <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.trial'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</span></a>
+            <a className="sbtn sbtn--light sbtn--lg" href={`#${sectionId('services', lang)}`}>{t('site.hero.prices')}</a>
+          </div>
         </div>
-        <HeroScenes />
-        <div className="shero__ctas">
-          <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.trial'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</span></a>
-          <a className="sbtn sbtn--line sbtn--lg" href={`#${sectionId('services', lang)}`}>{t('site.hero.prices')}</a>
+        <div className="shero__chips" role="group" aria-label={t('site.hero.scenesLabel')}>
+          {HERO_SCENES.map((sc, i) => (
+            <button key={sc.key} type="button" className={i === on ? 'is-on' : ''} aria-pressed={i === on} onClick={() => setOn(i)}>
+              {t(`site.hero.scenes.${sc.key}.chip`)}
+            </button>
+          ))}
         </div>
       </div>
     </section>
   )
 }
 
-/** "Aprende a montar": the rider's path, like a jumping course, one fence at a time. */
-function Learn() {
-  const { t } = useI18n()
-  return (
-    <Sec k="learn" n="01">
-      <div className="slearn">
-        <div className="slearn__head">
-          <Kinetic id="learn-title" text={t('site.learn.title')} />
-          <p className="slead">{t('site.learn.lead')}</p>
-        </div>
-        <ol className="slearn__steps">
-          {['trial', 'plan', 'pony', 'show'].map((k, i) => (
-            <li key={k} data-reveal="">
-              <span className="slearn__n">{i + 1}</span>
-              <h3>{t(`site.learn.steps.${k}.title`)}</h3>
-              <p>{t(`site.learn.steps.${k}.text`)}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </Sec>
-  )
-}
-
-// Gallery alt text for the club's own photos; any other file gets its name as a short description.
+// Gallery alt text for known photos; any other file gets its name as a short description.
 const GALLERY_ALT = {
   'jump-bay': 'jumpBay', 'families-celebrating': 'families', 'jump-grey': 'jumpGrey', 'rosette-campeon': 'rosette',
   'rider-buckskin': 'rider', 'paddock-herd': 'paddock', 'horse-fence': 'fence', 'girl-horse-closeup': 'closeup',
-  'girl-horse-nose': 'nose', 'girl-riding-flamboyan': 'riding', 'horse-blaze': 'hero',
+  'girl-horse-nose': 'nose', 'girl-riding-flamboyan': 'riding', 'horse-blaze': 'hero', 'paddock-face': 'paddockFace',
+}
+const ROW_H = 240
+const MIN_SET = 2600 // px: one set of a row is always wider than the widest screen, so the loop never shows a gap
+
+function fillRow(items) {
+  if (!items.length) return []
+  const width = items.reduce((s, g) => s + ROW_H * (g.w / g.h) + 16, 0)
+  return Array.from({ length: Math.max(1, Math.ceil(MIN_SET / width)) }, () => items).flat()
 }
 
 function GalleryRow({ items, dir, alt }) {
+  const set = fillRow(items)
   return (
     <div className={`sgallery__row sgallery__row--${dir}`}>
       <div className="sgallery__track">
-        {[0, 1].map((copy) => items.map((g) => (
-          <figure key={`${copy}-${g.name}`} className="sgallery__item" style={{ '--ratio': g.w / g.h }} aria-hidden={copy ? 'true' : undefined}>
-            <img src={g.src} width={g.w} height={g.h} alt={copy ? '' : alt(g)} loading="lazy" decoding="async" />
-          </figure>
-        )))}
+        {[0, 1].map((copy) => set.map((g, i) => {
+          const hidden = copy || i >= items.length
+          return (
+            <figure key={`${copy}-${i}`} className="sgallery__item" style={{ '--ratio': g.w / g.h }} aria-hidden={hidden ? 'true' : undefined}>
+              {g.video
+                ? <Clip clip={g} alt={hidden ? '' : alt(g)} />
+                : <img src={g.src} width={g.w} height={g.h} alt={hidden ? '' : alt(g)} loading="lazy" decoding="async" />}
+            </figure>
+          )
+        }))}
       </div>
     </div>
   )
 }
 
-/** "Disfruta": the big title, then two rows of photos sliding in opposite directions (pause on hover). */
+/** 01 Disfruta: two rows of photos and clips sliding in opposite directions (pause on hover). */
 function Enjoy() {
   const { t } = useI18n()
   const alt = (g) => (GALLERY_ALT[g.name] ? t(`site.alt.${GALLERY_ALT[g.name]}`) : g.name.replace(/[-_]+/g, ' '))
-  const rows = [GALLERY.filter((_, i) => i % 2 === 0), GALLERY.filter((_, i) => i % 2 === 1)]
+  const one = [...GALLERY.filter((_, i) => i % 2 === 0)]
+  GALLERY_VIDEOS.forEach((v, i) => one.splice(Math.min(one.length, 1 + i * 2), 0, v))
+  const two = GALLERY.filter((_, i) => i % 2 === 1)
   return (
-    <section className="senjoy" data-tone="light" aria-labelledby="enjoy-title">
-      <div className="scontainer"><h2 id="enjoy-title" className="senjoy__word">{t('site.enjoy.word')}</h2></div>
+    <Sec k="enjoy" n="01" className="senjoy" after={(
       <div className="sgallery" aria-label={t('site.enjoy.gallery')} role="group">
-        <GalleryRow items={rows[0]} dir="left" alt={alt} />
-        <GalleryRow items={rows[1].length ? rows[1] : rows[0]} dir="right" alt={alt} />
+        <GalleryRow items={one} dir="left" alt={alt} />
+        <GalleryRow items={two.length ? two : one} dir="right" alt={alt} />
       </div>
-    </section>
+    )}>
+      <Kinetic id="enjoy-title" text={t('site.enjoy.title')} />
+    </Sec>
   )
 }
 
@@ -186,9 +212,26 @@ const SMALL_TILES = [
   { key: 'parties', icon: 'cake' },
   { key: 'coaching', icon: 'compass' },
 ]
+const Arrow = () => <span className="tile__arrow" aria-hidden="true"><SiteIcon name="arrowRight" size={20} /></span>
 
+/** Steps with a line above them that fills left to right as the row comes into view. */
+function StepRow({ id, steps, className = '' }) {
+  return (
+    <ol id={id} className={`ssteps ${className}`} data-reveal="">
+      {steps.map((s, i) => (
+        <li key={s.key}>
+          <span className="ssteps__n">{i + 1}</span>
+          <h3>{s.title}</h3>
+          <p>{s.text}</p>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
+/** 02 Qué hacemos: the bento, then "Aprende a montar" as one compact row of 4 steps. */
 function Services() {
-  const { t, fmtMoney } = useI18n()
+  const { t, lang, fmtMoney } = useI18n()
   const data = useSiteData()
   const plans = planList(data?.prices)
   const trial = data?.prices?.class_trial
@@ -221,81 +264,88 @@ function Services() {
         </a>
         {SMALL_TILES.map((s) => (
           <a key={s.key} className={`tile tile--icon tile--${s.key}`} {...wa(t(`site.wa.${s.key}`))} data-reveal="">
-            <SiteIcon name={s.icon} size={34} className="tile__icon" />
+            <SiteIcon name={s.icon} size={30} className="tile__icon" />
             <h3>{t(`site.services.${s.key}.title`)}</h3>
             <p>{t(`site.services.${s.key}.text`)}</p>
             <Arrow />
           </a>
         ))}
       </div>
+      <div className="slearn">
+        <h3 className="slearn__title">{t('site.learn.title')}</h3>
+        <StepRow id={sectionId('learn', lang)} steps={['trial', 'plan', 'pony', 'show'].map((k) => ({ key: k, title: t(`site.learn.steps.${k}.title`), text: t(`site.learn.steps.${k}.text`) }))} />
+      </div>
     </Sec>
   )
 }
 
+/** 03 Competencias: the hooves clip on the left, the short stories and the championship on the right. */
 function Competitions() {
   const { t } = useI18n()
   return (
     <Sec k="competitions" n="03">
       <Kinetic id="competitions-title" text={t('site.competitions.title')} />
-      <div className="ssticky">
-        <figure className="ssticky__pin"><ClubPhoto photo={PHOTOS.jumpGrey} alt={t('site.alt.jumpGrey')} /></figure>
-        <div className="ssticky__flow">
+      <div className="scomp">
+        <figure className="smedia scomp__media" data-reveal=""><Clip clip={CLIPS.hooves} alt={t('site.alt.hooves')} /></figure>
+        <div className="scomp__stories">
           {['training', 'events'].map((k) => (
             <article key={k} className="sstory" data-reveal="">
-              <SiteIcon name={k === 'training' ? 'jump' : 'trophy'} size={36} />
-              <h3>{t(`site.competitions.${k}.title`)}</h3>
-              <p>{t(`site.competitions.${k}.text`)}</p>
+              <SiteIcon name={k === 'training' ? 'jump' : 'trophy'} size={30} />
+              <div>
+                <h3>{t(`site.competitions.${k}.title`)}</h3>
+                <p>{t(`site.competitions.${k}.text`)}</p>
+              </div>
             </article>
           ))}
           <article className="sstory sstory--champion" data-reveal="">
             <ClubPhoto photo={PHOTOS.rosette} alt={t('site.alt.rosette')} className="sstory__round" position="50% 45%" />
-            <h3>{t('site.competitions.champion.title')}</h3>
-            <p>{t('site.competitions.champion.text')}</p>
-            <a className="sbtn sbtn--deep" {...wa(t('site.wa.competitions'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.competitions.cta')}</span></a>
+            <div>
+              <h3>{t('site.competitions.champion.title')}</h3>
+              <p>{t('site.competitions.champion.text')}</p>
+            </div>
           </article>
+          <a className="sbtn sbtn--deep" {...wa(t('site.wa.competitions'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.competitions.cta')}</span></a>
         </div>
       </div>
     </Sec>
   )
 }
 
+/** 04 Equinoterapia: one glow panel with the grooming clip, the text, the 3 steps and the CTA. */
 function Therapy() {
   const { t } = useI18n()
   return (
     <Sec k="therapy" n="04" tone="mesh">
-      <p className="spill">{t('site.tagSoon')}</p>
-      <Kinetic id="therapy-title" text={t('site.therapy.title')} />
       <div className="stherapy">
-        <div className="stherapy__text" data-reveal="">
+        <figure className="smedia stherapy__media" data-reveal="">
+          <Clip clip={CLIPS.grooming} alt={t('site.alt.grooming')} />
+          <span className="spill">{t('site.tagSoon')}</span>
+        </figure>
+        <div className="stherapy__text">
+          <Kinetic id="therapy-title" text={t('site.therapy.title')} />
           <p className="slead">{t('site.therapy.what')}</p>
           <p className="slead">{t('site.therapy.who')}</p>
           <p className="snote"><SiteIcon name="shield" size={20} /> {t('site.therapy.alongside')}</p>
+          <StepRow className="ssteps--3" steps={['evaluation', 'weekly', 'review'].map((k) => ({ key: k, title: t(`site.therapy.steps.${k}.title`), text: t(`site.therapy.steps.${k}.text`) }))} />
+          <div className="stherapy__cta">
+            <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.therapy'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.therapy.cta')}</span></a>
+            <p className="small">{t('site.therapy.footnote')}</p>
+          </div>
         </div>
-        <figure className="stherapy__photo" data-reveal=""><ClubPhoto photo={PHOTOS.fence} alt={t('site.alt.fence')} /></figure>
-      </div>
-      <ol className="ssteps">
-        {['evaluation', 'weekly', 'review'].map((k, i) => (
-          <li key={k} data-reveal="">
-            <span className="ssteps__n">{i + 1}</span>
-            <h3>{t(`site.therapy.steps.${k}.title`)}</h3>
-            <p>{t(`site.therapy.steps.${k}.text`)}</p>
-          </li>
-        ))}
-      </ol>
-      <div className="stherapy__cta" data-reveal="">
-        <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.therapy'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.therapy.cta')}</span></a>
-        <p className="small">{t('site.therapy.footnote')}</p>
       </div>
     </Sec>
   )
 }
 
+/** 05 Pensión y caballos: the herd clip behind a mist scrim, the two panels on top. */
 function Boarding() {
   const { t, lang } = useI18n()
   const data = useSiteData()
   const horses = data?.sales || []
   return (
-    <Sec k="boarding" n="05">
+    <Sec k="boarding" n="05" className="sboard" bg={(
+      <div className="sboard__bg" aria-hidden="true"><Clip clip={CLIPS.herd} /></div>
+    )}>
       <Kinetic id="boarding-title" text={t('site.boarding.title')} />
       <div className="spanels">
         <article className="spanel" data-reveal="">
@@ -334,6 +384,40 @@ function Boarding() {
   )
 }
 
+const APP_STEPS = [
+  { key: 'confirm', icon: 'calendar' },
+  { key: 'plan', icon: 'horseshoe' },
+  { key: 'pay', icon: 'phone' },
+]
+
+/** 06 La app: one screen on mist. The phone (showing Inicio) on the left, the 3 statements on the right. */
+function TheApp() {
+  const { t } = useI18n()
+  return (
+    <Sec k="app" n="06">
+      <div className="sapp">
+        <div className="sapp__phone"><LivePhone src="/vista?control" /></div>
+        <div className="sapp__text">
+          <Kinetic id="app-title" text={t('site.app.title')} />
+          <ul className="sapp__flow">
+            {APP_STEPS.map((s) => (
+              <li key={s.key} data-reveal="">
+                <span className="sapp__icon"><SiteIcon name={s.icon} size={26} /></span>
+                <div>
+                  <h3>{t(`site.app.steps.${s.key}.title`)}</h3>
+                  <p>{t(`site.app.steps.${s.key}.text`)}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <AppButton className="sbtn--lg">{t('site.app.cta')}</AppButton>
+        </div>
+      </div>
+    </Sec>
+  )
+}
+
+/** 07 Comunidad: the families photo beside Pony Friday, the events and the camps. */
 function Community() {
   const { t, fmtDate, fmtMoney } = useI18n()
   const data = useSiteData()
@@ -342,103 +426,46 @@ function Community() {
   const quote = TESTIMONIALS[0]
   const typeName = (type) => (t(`site.community.types.${type}`) === `site.community.types.${type}` ? t('site.community.types.camp') : t(`site.community.types.${type}`))
   return (
-    <Sec k="community" n="06">
+    <Sec k="community" n="07">
       <Kinetic id="community-title" text={t('site.community.title')} />
-      <figure className="sfamily" data-reveal="">
-        <ClubPhoto photo={PHOTOS.families} alt={t('site.alt.families')} />
-        {quote && (
-          <figcaption className="sfamily__quote">
-            <blockquote>{quote.text}</blockquote>
-            <span>{quote.name}{quote.role ? ` · ${quote.role}` : ''}</span>
-          </figcaption>
-        )}
-      </figure>
-      <p className="slead">{t('site.community.text')}</p>
-      <ul className="srow" aria-label={t('site.community.rowLabel')}>
-        <li className="scardlet scardlet--pony">
-          <span className="scardlet__kicker">{t('site.community.pony.kicker')}</span>
-          <h3>Pony Friday</h3>
-          <p>{t('site.community.pony.text')}</p>
-          {pony && <p className="scardlet__date">{t('site.community.pony.next', { date: fmtDate(pony, { weekday: 'long', day: 'numeric', month: 'long' }) })}</p>}
-          <a className="scardlet__go" {...wa(t('site.wa.pony'))}>{t('site.community.pony.cta')} <SiteIcon name="arrowRight" size={18} /></a>
-        </li>
-        {events.map((e) => (
-          <li key={e.id} className="scardlet">
-            <span className="scardlet__kicker">{typeName(e.type)}</span>
-            <h3>{fmtDate(e.startDate, { day: 'numeric', month: 'short' })} – {fmtDate(e.endDate, { day: 'numeric', month: 'short', year: 'numeric' })}</h3>
-            <p>{[e.ages && t('site.community.ages', { ages: e.ages }), e.price > 0 && t('site.community.price', { price: fmtMoney(e.price) })].filter(Boolean).join(' · ')}</p>
-            <a className="scardlet__go" {...wa(t('site.wa.camps'))}>{t('site.community.ask')} <SiteIcon name="arrowRight" size={18} /></a>
-          </li>
-        ))}
-        {['summer', 'holiday'].map((k) => (
-          <li key={k} className="scardlet">
-            <span className="scardlet__kicker">{t('site.community.campKicker')}</span>
-            <h3>{t(`site.community.camps.${k}.title`)}</h3>
-            <p>{t(`site.community.camps.${k}.text`)}</p>
-            <a className="scardlet__go" {...wa(t('site.wa.camps'))}>{t('site.community.ask')} <SiteIcon name="arrowRight" size={18} /></a>
-          </li>
-        ))}
-      </ul>
-    </Sec>
-  )
-}
-
-const APP_STEPS = [
-  { key: 'confirm', screen: 'familia/reservar', icon: 'calendar' },
-  { key: 'plan', screen: 'familia/plan', icon: 'horseshoe' },
-  { key: 'pay', screen: 'familia/pagos', icon: 'phone' },
-]
-
-/** The phone stays pinned while three statements scroll past; its screen changes with each one (desktop). */
-function TheApp() {
-  const { t } = useI18n()
-  const frame = useRef(null)
-  const flow = useRef(null)
-  const [step, setStep] = useState(0)
-  const [fade, setFade] = useState(false)
-  const [wide, setWide] = useState(null)
-  useEffect(() => { setWide(Boolean(window.matchMedia?.('(min-width: 900px)').matches) && !reducedMotion()) }, [])
-  useEffect(() => {
-    if (!wide) return undefined
-    const items = [...flow.current.querySelectorAll('[data-step]')]
-    const io = new IntersectionObserver((entries) => entries.forEach((e) => {
-      if (e.isIntersecting) setStep(Number(e.target.dataset.step))
-    }), { rootMargin: '-45% 0px -45% 0px' })
-    items.forEach((i) => io.observe(i))
-    return () => io.disconnect()
-  }, [wide])
-  useEffect(() => {
-    if (!wide) return undefined
-    const send = () => frame.current?.contentWindow?.postMessage({ hipicoScreen: APP_STEPS[step].screen }, window.location.origin)
-    setFade(true)
-    const a = setTimeout(send, 220)
-    const b = setTimeout(() => setFade(false), 520)
-    const ready = (e) => { if (e.origin === window.location.origin && e.data?.hipicoReady) send() }
-    window.addEventListener('message', ready)
-    return () => { clearTimeout(a); clearTimeout(b); window.removeEventListener('message', ready) }
-  }, [step, wide])
-  return (
-    <Sec k="app" n="07" tone="dark" className="sapp" bg={(
-      <div className="sapp__bg" aria-hidden="true">
-        <BigPhoto photo={BIG.nose} alt="" className="sapp__photo" sizes="60vw" />
-        <span className="sapp__glow" />
-      </div>
-    )}>
-      <Kinetic id="app-title" text={t('site.app.title')} />
-      <div className="sapp__grid">
-        <div className={`sapp__phone ${fade ? 'is-fading' : ''}`}>
-          {wide !== null && <LivePhone src={wide ? '/vista?control' : '/vista'} frameRef={frame} />}
-        </div>
-        <ol className="sapp__flow" ref={flow}>
-          {APP_STEPS.map((s, i) => (
-            <li key={s.key} data-step={i} className={wide && step === i ? 'is-active' : ''} data-reveal="">
-              <SiteIcon name={s.icon} size={32} />
-              <h3>{t(`site.app.steps.${s.key}.title`)}</h3>
-              <p>{t(`site.app.steps.${s.key}.text`)}</p>
+      <div className="scommunity">
+        <figure className="sfamily" data-reveal="">
+          <ClubPhoto photo={PHOTOS.families} alt={t('site.alt.families')} />
+          {quote && (
+            <figcaption className="sfamily__quote">
+              <blockquote>{quote.text}</blockquote>
+              <span>{quote.name}{quote.role ? ` · ${quote.role}` : ''}</span>
+            </figcaption>
+          )}
+        </figure>
+        <div className="scommunity__side">
+          <p className="slead">{t('site.community.text')}</p>
+          <ul className="srow" aria-label={t('site.community.rowLabel')}>
+            <li className="scardlet scardlet--pony">
+              <span className="scardlet__kicker">{t('site.community.pony.kicker')}</span>
+              <h3>Pony Friday</h3>
+              <p>{t('site.community.pony.text')}</p>
+              {pony && <p className="scardlet__date">{t('site.community.pony.next', { date: fmtDate(pony, { weekday: 'long', day: 'numeric', month: 'long' }) })}</p>}
+              <a className="scardlet__go" {...wa(t('site.wa.pony'))}>{t('site.community.pony.cta')} <SiteIcon name="arrowRight" size={18} /></a>
             </li>
-          ))}
-          <li className="sapp__cta"><AppButton className="sbtn--lg">{t('site.app.cta')}</AppButton></li>
-        </ol>
+            {events.map((e) => (
+              <li key={e.id} className="scardlet">
+                <span className="scardlet__kicker">{typeName(e.type)}</span>
+                <h3>{fmtDate(e.startDate, { day: 'numeric', month: 'short' })} – {fmtDate(e.endDate, { day: 'numeric', month: 'short', year: 'numeric' })}</h3>
+                <p>{[e.ages && t('site.community.ages', { ages: e.ages }), e.price > 0 && t('site.community.price', { price: fmtMoney(e.price) })].filter(Boolean).join(' · ')}</p>
+                <a className="scardlet__go" {...wa(t('site.wa.camps'))}>{t('site.community.ask')} <SiteIcon name="arrowRight" size={18} /></a>
+              </li>
+            ))}
+            {['summer', 'holiday'].map((k) => (
+              <li key={k} className="scardlet">
+                <span className="scardlet__kicker">{t('site.community.campKicker')}</span>
+                <h3>{t(`site.community.camps.${k}.title`)}</h3>
+                <p>{t(`site.community.camps.${k}.text`)}</p>
+                <a className="scardlet__go" {...wa(t('site.wa.camps'))}>{t('site.community.ask')} <SiteIcon name="arrowRight" size={18} /></a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </Sec>
   )
@@ -472,14 +499,13 @@ export default function OnePage() {
   return (
     <>
       <Hero />
-      <Learn />
+      <Enjoy />
       <Services />
       <Competitions />
       <Therapy />
       <Boarding />
-      <Community />
       <TheApp />
-      <Enjoy />
+      <Community />
       <Visit />
     </>
   )

@@ -20,12 +20,24 @@ export const BIG = {
   riding: { src: '/img/club/girl-riding-flamboyan.webp', small: '/img/club/girl-riding-flamboyan-800.webp', w: 1600, h: 2133, position: '50% 40%' },
   nose: { src: '/img/club/girl-horse-nose.webp', small: '/img/club/girl-horse-nose-800.webp', w: 1600, h: 2133, position: '50% 50%' },
 }
-// The hero's three scenes, in a loop. Each video: muted, ≤ 2 MB, in public/video/. Until a file is there, `video` stays
-// null and the scene shows its photo with a slow zoom (also the poster, and what reduced motion / Save-Data get).
+// The hero's three scenes, in a loop: muted clips (≤ 2 MB, no sound) with a poster of the same name.
+// Reduced motion and Save-Data get the poster only.
 export const HERO_SCENES = [
-  { key: 'jumps', video: null /* '/video/hero-1-jump.mp4' */, photo: { src: '/img/club/jump-bay.webp', w: 1010, h: 671, position: '62% 40%' } },
-  { key: 'horses', video: null /* '/video/hero-2-face.mp4' */, photo: { src: '/img/club/horse-blaze.webp', small: '/img/club/horse-blaze-800.webp', w: 1600, h: 2133, position: '58% 35%' } },
-  { key: 'kids', video: null /* '/video/hero-3-kids.mp4' */, photo: { src: '/img/club/girl-riding-flamboyan.webp', small: '/img/club/girl-riding-flamboyan-800.webp', w: 1600, h: 2133, position: '50% 40%' } },
+  { key: 'jumps', video: '/video/hero-1-jump.mp4', poster: '/video/hero-1-jump.webp' },
+  { key: 'horses', video: '/video/hero-2-face.mp4', poster: '/video/hero-2-face.webp' },
+  { key: 'kids', video: '/video/hero-3-kids.mp4', poster: '/video/hero-3-kids.webp' },
+]
+
+// Clips used inside sections (all 1280 px wide, muted, looping while on screen).
+export const CLIPS = {
+  hooves: { video: '/video/hooves-sand.mp4', poster: '/video/hooves-sand.webp', w: 1280, h: 700 },
+  grooming: { video: '/video/grooming.mp4', poster: '/video/grooming.webp', w: 1280, h: 700 },
+  herd: { video: '/video/paddock-herd.mp4', poster: '/video/paddock-herd.webp', w: 1280, h: 720 },
+}
+
+// Moving tiles in the Disfruta gallery (row 1), next to the photos from public/img/gallery/.
+export const GALLERY_VIDEOS = [
+  { name: 'paddock-face', video: '/video/paddock-face.mp4', poster: '/video/paddock-face.webp', w: 1280, h: 720 },
 ]
 
 export const SHARE_IMAGE = '/img/club/og-horse-blaze.jpg'

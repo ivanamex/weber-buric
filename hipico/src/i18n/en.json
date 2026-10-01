@@ -1151,7 +1151,7 @@
       "community": "Community",
       "app": "The app",
       "visit": "Visit us",
-      "learn": "Learn"
+      "enjoy": "Enjoy"
     },
     "meta": {
       "title": "Hípico Riviera Maya · Horse riding lessons in Playa del Carmen and Paamul",
@@ -1183,7 +1183,10 @@
       "fence": "A horse by the paddock fence",
       "families": "Club families celebrating with their horses",
       "nose": "A girl brings her face close to her horse's nose",
-      "rider": "A rider on a buckskin horse"
+      "rider": "A rider on a buckskin horse",
+      "hooves": "Horse hooves on the sand at sunset",
+      "grooming": "Hands brushing a horse",
+      "paddockFace": "A horse looks out in the paddock"
     },
     "hero": {
       "label": "Welcome",
@@ -1378,7 +1381,8 @@
     },
     "enjoy": {
       "word": "Enjoy",
-      "gallery": "Club photos"
+      "gallery": "Club photos",
+      "title": "Enjoy the club"
     }
   }
 }
