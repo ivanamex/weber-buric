@@ -5,6 +5,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 ## Now
 
 1. **STEP-30**: desktop family view full width (2 columns), no "Más" on desktop (everything in the sidebar), logo = home + "← back" links and breadcrumbs for both roles
+2. **STEP-31**: the club website at `/` (ES/EN, 8 pages, real photos, animated letters, icon set, Equinoterapia proposal); the download page moves to `/descargar` (QR and poster follow)
 
 Check in the browser after each step, then "ok".
 
