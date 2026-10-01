@@ -5,6 +5,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 ## Now
 
 1. **STEP-36**: videos live: hero = sunset jump → horse face → girl on the pony (slow motion, cross-fades); herd behind Pensión, hooves in Competencias, grooming in Equinoterapia, a moving tile in the gallery
+2. **STEP-37** (right after 36, agreed as a pair): focus pass: hero = full-bleed video, photos/videos moved up, every section ≤ 1 screen, no pinned scroll, La app one screen on mist, all step numbers the same color; page from 16 screens to ≤ 10
 
 Check in the browser after each step, then "ok".
 
