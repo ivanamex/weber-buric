@@ -4,7 +4,9 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued: the next step goes here. Check in the browser after each step, then "ok".
+1. **STEP-32**: the website as one page, 2026 style: sticky glass bar with scroll-spy + jump-pole progress line, sticky numbered eyebrows, huge type, bento services, sticky split (Competencias) and sticky phone (App), fewer colors; old pages redirect to their section
+
+Check in the browser after each step, then "ok".
 
 ## Next
 
