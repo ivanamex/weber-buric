@@ -117,7 +117,7 @@ function InAppSheet({ app, platform, onClose }) {
   const { t } = useI18n()
   const toast = useToast()
   const browser = platform === 'ios' ? 'Safari' : 'Chrome'
-  const url = typeof window === 'undefined' ? '' : window.location.origin + '/'
+  const url = typeof window === 'undefined' ? '' : window.location.origin + '/descargar'
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(url)

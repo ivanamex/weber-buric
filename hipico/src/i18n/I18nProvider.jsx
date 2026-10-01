@@ -3,6 +3,7 @@ import es from './es.json'
 import en from './en.json'
 import { CURRENCY } from '../data/prices.js'
 import { displayDate, TZ } from '../lib/time.js'
+import { siteLangOf } from '../site/routes.js'
 
 const DICTS = { es, en }
 const LANG_KEY = 'hipico.lang'
@@ -10,6 +11,8 @@ const LOCALES = { es: 'es-MX', en: 'en-US' }
 const I18nContext = createContext(null)
 
 const readLang = () => {
+  const fromSite = typeof window === 'undefined' ? null : siteLangOf(window.location.pathname) // a website page's address sets its language
+  if (fromSite) return fromSite
   try { const l = localStorage.getItem(LANG_KEY); if (l === 'es' || l === 'en') return l } catch { /* ignore */ }
   return 'es'
 }

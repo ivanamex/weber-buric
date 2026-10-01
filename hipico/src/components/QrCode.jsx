@@ -7,8 +7,8 @@ const GREEN = '#2E5339'
 const LOGO_SHARE = 0.22 // logo box width ÷ QR width (well inside what level H recovers)
 const QUIET = 4 // blank modules around the code, as the standard asks
 
-/** The link families open: the club's page, with the download buttons. */
-export const appLink = () => (typeof window === 'undefined' ? '' : `${window.location.origin}/`)
+/** The link families open: the download page (printed posters point here, so it stays this address). */
+export const appLink = () => (typeof window === 'undefined' ? '' : `${window.location.origin}/descargar`)
 
 function matrix(value) {
   const qr = qrcode(0, 'H')

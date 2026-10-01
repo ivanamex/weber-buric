@@ -1130,5 +1130,429 @@
     "filters": "Filtros",
     "crumbAdmin": "Dirección",
     "back": "Volver"
+  },
+  "site": {
+    "appButton": "App del club",
+    "homeLabel": "Hípico Riviera Maya, inicio",
+    "navLabel": "Secciones del club",
+    "menuOpen": "Abrir menú",
+    "menuClose": "Cerrar menú",
+    "skip": "Ir al contenido",
+    "more": "Ver más",
+    "tagNew": "Nuevo",
+    "tagSoon": "Próximamente",
+    "askPrices": "Consulta precios",
+    "priceTbd": "Precio por definir",
+    "mapTitle": "Mapa: Hípico Riviera Maya en Paamul",
+    "directions": "Cómo llegar",
+    "nav": {
+      "home": "Inicio",
+      "classes": "Clases",
+      "boarding": "Pensión",
+      "competitions": "Competencias",
+      "therapy": "Equinoterapia",
+      "events": "Eventos",
+      "sales": "Caballos",
+      "contact": "Contacto"
+    },
+    "meta": {
+      "home": {
+        "title": "Hípico Riviera Maya · Club ecuestre en Paamul, Playa del Carmen",
+        "desc": "Club ecuestre en Paamul, Riviera Maya: clases de equitación en Playa del Carmen para niños y adultos, pensión de caballos, competencias de salto, campamentos y fiestas."
+      },
+      "classes": {
+        "title": "Clases de equitación en Playa del Carmen · Hípico Riviera Maya",
+        "desc": "Clases de equitación en Playa del Carmen y Paamul para niños desde 2 años y adultos: principiante a avanzado, clase muestra, planes mensuales y Pony Friday."
+      },
+      "boarding": {
+        "title": "Pensión de caballos en la Riviera Maya · Hípico Riviera Maya",
+        "desc": "Pensión de caballos en la Riviera Maya: cuidado diario, alimentación a la medida, veterinario y herrador, potreros. Ve a tu caballo en la app del club."
+      },
+      "competitions": {
+        "title": "Competencias de salto · Hípico Riviera Maya",
+        "desc": "Entrenamiento de salto de obstáculos en Paamul, Riviera Maya. Concursos locales y fuera del estado. Campeón Estatal 2024."
+      },
+      "therapy": {
+        "title": "Equinoterapia en Playa del Carmen · Hípico Riviera Maya",
+        "desc": "Equinoterapia en Playa del Carmen (próximamente): actividades terapéuticas con caballos para niños desde 3 años, con profesionales certificados. Únete a la lista de interés."
+      },
+      "events": {
+        "title": "Campamento de verano con caballos y fiestas · Hípico Riviera Maya",
+        "desc": "Campamento de verano con caballos y campamentos de vacaciones en la Riviera Maya, fiestas infantiles en el club y Pony Friday cada mes."
+      },
+      "sales": {
+        "title": "Caballos en venta · Hípico Riviera Maya",
+        "desc": "Caballos en venta en la Riviera Maya: pregunta por los caballos disponibles en Hípico Riviera Maya, Paamul."
+      },
+      "contact": {
+        "title": "Contacto y ubicación · Hípico Riviera Maya",
+        "desc": "Hípico Riviera Maya: Carretera Cancún–Chetumal km 273, Paamul, Q. Roo. Teléfono y WhatsApp +52 984 143 6457."
+      },
+      "download": {
+        "title": "Descarga la app · Hípico Riviera Maya"
+      }
+    },
+    "wa": {
+      "general": "Hola, quiero información sobre Hípico Riviera Maya.",
+      "trial": "Hola, quiero agendar una clase muestra en Hípico Riviera Maya. ¿Qué días y horarios tienen?",
+      "pony": "Hola, quiero información sobre el Pony Friday.",
+      "early": "Hola, quiero información sobre estimulación temprana con caballos.",
+      "boarding": "Hola, quiero información sobre la pensión para mi caballo.",
+      "competitions": "Hola, quiero información sobre el entrenamiento de salto y las competencias.",
+      "therapy": "Hola, quiero unirme a la lista de interés de equinoterapia.",
+      "camps": "Hola, quiero información sobre los próximos campamentos.",
+      "parties": "Hola, quiero información para una fiesta infantil en el club.",
+      "horses": "Hola, quiero preguntar por los caballos disponibles.",
+      "horse": "Hola, me interesa el caballo {name} que está en venta."
+    },
+    "alt": {
+      "jumpBay": "Jinete saltando un obstáculo con un caballo bayo en la pista del club",
+      "families": "Familias del club celebrando junto a sus caballos",
+      "jumpGrey": "Caballo tordo saltando un obstáculo en competencia",
+      "rosette": "Roseta de Campeón Estatal 2024 del club",
+      "rider": "Jinete montando un caballo bayo",
+      "paddock": "Caballos pastando en los potreros del club",
+      "fence": "Caballo junto a la cerca del potrero"
+    },
+    "services": {
+      "classes": {
+        "title": "Clases",
+        "text": "De principiante a avanzado, por edad y nivel."
+      },
+      "boarding": {
+        "title": "Pensión",
+        "text": "Tu caballo cuidado todos los días, como en casa."
+      },
+      "jumping": {
+        "title": "Competencias de salto",
+        "text": "Entrenamiento y concursos de salto de obstáculos."
+      },
+      "therapy": {
+        "title": "Equinoterapia",
+        "text": "Actividades terapéuticas con caballos para niños."
+      },
+      "early": {
+        "title": "Estimulación temprana",
+        "text": "Los más pequeños descubren el caballo jugando."
+      },
+      "camps": {
+        "title": "Campamentos",
+        "text": "Verano y vacaciones entre caballos y naturaleza."
+      },
+      "parties": {
+        "title": "Fiestas infantiles",
+        "text": "Un cumpleaños inolvidable con ponis."
+      },
+      "coaching": {
+        "title": "Coaching con caballos",
+        "text": "Sesiones con caballos para personas y equipos."
+      }
+    },
+    "home": {
+      "eyebrow": "Club ecuestre · Paamul, Riviera Maya",
+      "title": "Pasión por los caballos, excelencia en la equitación.",
+      "sub": "Club ecuestre en Paamul, Riviera Maya. Clases, pensión y competencias, rodeados de naturaleza.",
+      "ctaTrial": "Agenda una clase muestra",
+      "countersLabel": "El club en números",
+      "counters": {
+        "years": "años",
+        "horses": "caballos",
+        "hectares": "hectáreas",
+        "riders": "jinetes"
+      },
+      "servicesEyebrow": "Lo que hacemos",
+      "servicesTitle": "Todo para vivir los caballos",
+      "familyEyebrow": "Comunidad",
+      "familyTitle": "Una familia a caballo",
+      "familyText": "En el club se crece junto a los caballos: los más pequeños empiezan desde los 2 años con ponis, los jinetes avanzan a su ritmo y algunos llegan a competir. Padres, hijos e instructores comparten la pista, los potreros y las celebraciones.",
+      "familyPoints": {
+        "a": "Desde los 2 años hasta la competencia",
+        "b": "Instructores que conocen a cada jinete y a cada caballo",
+        "c": "Un lugar tranquilo, rodeado de selva"
+      },
+      "familyLink": "Conoce las clases",
+      "therapyTitle": "Un programa nuevo de equinoterapia",
+      "therapyText": "Estamos preparando actividades terapéuticas con caballos para niños, guiadas por profesionales certificados. Suma tu nombre a la lista de interés.",
+      "therapyLink": "Ver la propuesta",
+      "appEyebrow": "La app del club",
+      "appTitle": "El club, en tu celular",
+      "appText": "Las familias del club manejan todo desde la app, sin llamadas ni libretas.",
+      "appPoints": {
+        "confirm": "Confirma tus clases en un toque",
+        "plan": "Ve tu plan y las clases que te quedan",
+        "pay": "Paga desde el celular y sube tu comprobante"
+      },
+      "appCta": "Descargar la app",
+      "voicesEyebrow": "Opiniones",
+      "voicesTitle": "Lo que dicen las familias",
+      "whereEyebrow": "Ubicación",
+      "whereTitle": "Te esperamos en Paamul",
+      "ctaTitle": "Ven a conocer a los caballos",
+      "ctaText": "Agenda una clase muestra y vive tu primera vuelta a la pista."
+    },
+    "classes": {
+      "eyebrow": "Clases de equitación",
+      "title": "Aprende a montar, a tu ritmo.",
+      "sub": "Clases para niños desde 2 años y adultos, de principiante a avanzado, en grupos pequeños por edad y nivel.",
+      "levelsEyebrow": "Por edad y nivel",
+      "levelsTitle": "Una clase para cada jinete",
+      "levelsLead": "Te recomendamos el grupo según tu edad y tu experiencia; subes de nivel cuando tu instructor lo indica.",
+      "levels": {
+        "ponies": {
+          "title": "Ponis",
+          "text": "Desde los 2 años: primeros pasos, confianza y juego con el poni."
+        },
+        "beginner": {
+          "title": "Principiante",
+          "text": "Postura, paso y trote, y el cuidado del caballo antes y después de montar."
+        },
+        "intermediate": {
+          "title": "Intermedio",
+          "text": "Galope, control y primeros saltos, con más independencia."
+        },
+        "advanced": {
+          "title": "Avanzado",
+          "text": "Salto de obstáculos, técnica fina y preparación para competir."
+        }
+      },
+      "plansEyebrow": "Planes mensuales",
+      "plansTitle": "Planes de clases",
+      "plansLead": "Elige cuántas clases quieres al mes. Confirmas cada clase desde la app.",
+      "trialTitle": "Clase muestra",
+      "trialText": "Tu primera clase, para conocer el club, al instructor y a tu caballo.",
+      "trialCta": "Agendar",
+      "planName": "{n} clases al mes",
+      "planText": "{n} por semana",
+      "perMonth": " / mes",
+      "perClass": "{price} por clase",
+      "plansNote": "Con tu plan, confirmas y cancelas clases desde la app del club.",
+      "earlyTitle": "Estimulación temprana con caballos",
+      "earlyText": "Para los más pequeños: actividades en el piso y sobre el poni que apoyan el equilibrio, la coordinación y la confianza, siempre acompañados.",
+      "earlyCta": "Pedir información",
+      "ctaTitle": "Tu primera clase te espera",
+      "ctaText": "Escríbenos por WhatsApp y te proponemos un horario."
+    },
+    "pony": {
+      "eyebrow": "Cada mes",
+      "text": "Una mañana para los más pequeños con los ponis del club: montar, cepillar y conocerlos de cerca.",
+      "when": "Último viernes del mes",
+      "next": "el próximo es el {date}",
+      "ages": "Desde los 2 años",
+      "price": "Precio por confirmar",
+      "cta": "Apartar lugar"
+    },
+    "boarding": {
+      "eyebrow": "Pensión de caballos",
+      "title": "Tu caballo, en buenas manos.",
+      "sub": "Pensión en Paamul con cuidado diario, alimentación a la medida, veterinario, herrador y potreros.",
+      "cta": "Preguntar por la pensión",
+      "careEyebrow": "Cuidado completo",
+      "careTitle": "Lo que incluye el cuidado",
+      "care": {
+        "daily": {
+          "title": "Cuidado diario",
+          "text": "Revisión, limpieza y atención todos los días por el equipo del club."
+        },
+        "feed": {
+          "title": "Alimentación",
+          "text": "Una ración a la medida de tu caballo, con sus suplementos."
+        },
+        "vet": {
+          "title": "Veterinario",
+          "text": "Vacunas, desparasitación y visitas del veterinario al día."
+        },
+        "farrier": {
+          "title": "Herrador",
+          "text": "Herrado y recorte de cascos en su fecha."
+        }
+      },
+      "paddocksEyebrow": "Potreros",
+      "paddocksTitle": "Espacio para moverse",
+      "paddocksText": "Los caballos salen a los potreros para moverse, pastar y convivir, rodeados de la selva de la Riviera Maya.",
+      "appEyebrow": "Mi caballo",
+      "appTitle": "Ve a tu caballo en la app",
+      "appText": "Como dueño, ves a tu caballo en la app del club, en Mi caballo:",
+      "appPoints": {
+        "a": "Su ración diaria y sus suplementos",
+        "b": "Vacunas, herrador y veterinario, con la próxima fecha",
+        "c": "La pensión del mes y el pago desde el celular"
+      },
+      "ctaTitle": "¿Buscas pensión para tu caballo?",
+      "ctaText": "Cuéntanos de tu caballo y te damos los detalles."
+    },
+    "competitions": {
+      "eyebrow": "Salto de obstáculos",
+      "title": "Entrenamos para competir.",
+      "sub": "Entrenamiento de salto con instructores del club y participación en concursos locales y fuera del estado.",
+      "cta": "Pedir información",
+      "trainingEyebrow": "Entrenamiento",
+      "trainingTitle": "Del primer salto al concurso",
+      "trainingLead": "Un camino paso a paso, cuidando al jinete y al caballo.",
+      "training": {
+        "technique": {
+          "title": "Técnica",
+          "text": "Posición, ritmo y trayectoria en la pista de salto."
+        },
+        "heights": {
+          "title": "Alturas progresivas",
+          "text": "Se sube la altura cuando jinete y caballo están listos."
+        },
+        "shows": {
+          "title": "Concursos",
+          "text": "Preparación y acompañamiento en concursos locales y fuera."
+        }
+      },
+      "championEyebrow": "Logros",
+      "championTitle": "Campeón Estatal 2024",
+      "championText": "Un logro del club en el campeonato estatal de salto: fruto del trabajo diario de jinetes, caballos e instructores.",
+      "resultsEyebrow": "Resultados",
+      "resultsTitle": "Resultados recientes",
+      "resultsEmpty": "Pronto publicaremos aquí los resultados de los concursos.",
+      "ctaTitle": "¿Quieres competir?",
+      "ctaText": "Escríbenos y te contamos cómo entrar al equipo de salto."
+    },
+    "therapy": {
+      "eyebrow": "Equinoterapia",
+      "title": "El caballo como compañero de desarrollo.",
+      "sub": "Un programa nuevo de actividades terapéuticas con caballos para niños, que estamos preparando con profesionales certificados.",
+      "cta": "Únete a la lista de interés",
+      "whatEyebrow": "Qué es",
+      "whatTitle": "Terapia con caballos, guiada por profesionales",
+      "whatText": "Son actividades terapéuticas con caballos para niños, guiadas por un terapeuta ecuestre certificado junto con un profesional de la salud (fisioterapeuta o psicólogo). El movimiento del caballo y el contacto con el animal apoyan el desarrollo del niño.",
+      "builds": "Se suma a la estimulación temprana que el club ya ofrece.",
+      "whoEyebrow": "Para quién",
+      "whoTitle": "Para niños desde 3 años",
+      "whoLead": "Puede apoyar:",
+      "supports": {
+        "balance": "El equilibrio y la postura",
+        "coordination": "La coordinación",
+        "attention": "La atención",
+        "communication": "La comunicación",
+        "confidence": "La confianza",
+        "emotions": "La regulación emocional"
+      },
+      "alongside": "La equinoterapia acompaña el tratamiento médico, nunca lo sustituye.",
+      "howEyebrow": "Cómo funciona",
+      "howTitle": "Paso a paso",
+      "steps": {
+        "interview": {
+          "title": "Entrevista de evaluación",
+          "text": "Conocemos a la familia y al niño, con el visto bueno de su médico."
+        },
+        "program": {
+          "title": "Un programa a su medida",
+          "text": "Sesiones semanales de 30 a 45 minutos."
+        },
+        "horse": {
+          "title": "Un caballo elegido",
+          "text": "Un caballo de terapia tranquilo, un guía y acompañantes a los lados, y casco."
+        },
+        "review": {
+          "title": "Revisión del avance",
+          "text": "Cada 8 sesiones revisamos juntos el avance con la familia."
+        }
+      },
+      "formatsEyebrow": "Formatos propuestos",
+      "formatsTitle": "Cómo podrás participar",
+      "formats": {
+        "evaluation": {
+          "title": "Sesión de evaluación",
+          "text": "Un primer encuentro para conocer al niño y definir el plan."
+        },
+        "monthly": {
+          "title": "Paquete mensual",
+          "text": "4 sesiones al mes, una por semana."
+        },
+        "groups": {
+          "title": "Grupos pequeños",
+          "text": "Estimulación temprana en grupos pequeños."
+        }
+      },
+      "ctaTitle": "¿Te interesa para tu hijo o hija?",
+      "ctaText": "Únete a la lista de interés y te avisamos cuando abra el programa.",
+      "footnote": "Programa en preparación. Las sesiones serán dirigidas por profesionales certificados."
+    },
+    "events": {
+      "eyebrow": "Eventos y campamentos",
+      "title": "Días de campo, entre caballos.",
+      "sub": "Campamentos de verano y de vacaciones, fiestas infantiles y Pony Friday cada mes.",
+      "cta": "Preguntar por los campamentos",
+      "upcomingEyebrow": "Agenda",
+      "upcomingTitle": "Próximos eventos",
+      "types": {
+        "camp": "Campamento",
+        "birthday": "Fiesta",
+        "clinic": "Clínica",
+        "show": "Concurso"
+      },
+      "ages": "Edades: {ages} años",
+      "price": "Desde {price}",
+      "campsEyebrow": "Campamentos",
+      "campsTitle": "Campamentos con caballos",
+      "campsLead": "Días llenos de caballos, juegos y naturaleza, con el equipo del club.",
+      "kinds": {
+        "summer": {
+          "title": "Campamento de verano",
+          "text": "Semanas de verano para montar, cuidar a los caballos y aprender en grupo."
+        },
+        "holiday": {
+          "title": "Campamentos de vacaciones",
+          "text": "En temporadas de vacaciones, con cupo limitado. Pregunta por las próximas fechas."
+        }
+      },
+      "ask": "Pedir fechas",
+      "partiesEyebrow": "Fiestas infantiles",
+      "partiesTitle": "Un cumpleaños con ponis",
+      "partiesText": "Celebra en el club: paseos en poni, juegos y un espacio para la familia y los invitados.",
+      "partiesCta": "Cotizar mi fiesta",
+      "ctaTitle": "¿Quieres apartar lugar?",
+      "ctaText": "Los cupos son limitados. Escríbenos y te damos las fechas."
+    },
+    "sales": {
+      "eyebrow": "Caballos en venta",
+      "title": "Encuentra a tu compañero.",
+      "sub": "Caballos del club que buscan nuevo dueño, conocidos por nuestros instructores.",
+      "age": "{n} años",
+      "photoAlt": "Foto del caballo {name}",
+      "ask": "Preguntar por WhatsApp",
+      "emptyTitle": "Pregunta por los caballos disponibles",
+      "emptyText": "Cuéntanos qué buscas y te decimos qué caballos tenemos.",
+      "emptyCta": "Preguntar por WhatsApp",
+      "ctaTitle": "¿Buscas un caballo?",
+      "ctaText": "Te ayudamos a encontrar el adecuado para tu nivel."
+    },
+    "contact": {
+      "eyebrow": "Contacto",
+      "title": "Hablemos de caballos.",
+      "sub": "Escríbenos por WhatsApp, llámanos o visítanos en Paamul.",
+      "address": "Dirección",
+      "phone": "Teléfono",
+      "email": "Correo",
+      "formTitle": "Escríbenos",
+      "name": "Tu nombre",
+      "topic": "Me interesa",
+      "message": "Mensaje",
+      "send": "Enviar por WhatsApp",
+      "formNote": "Se abre WhatsApp con tu mensaje listo. No guardamos tus datos.",
+      "topics": {
+        "classes": "Clases",
+        "trial": "Clase muestra",
+        "boarding": "Pensión",
+        "competitions": "Competencias",
+        "therapy": "Equinoterapia",
+        "events": "Campamentos y fiestas",
+        "horses": "Caballos en venta",
+        "other": "Otro"
+      },
+      "waHello": "Hola, soy {name}.",
+      "waTopic": "Me interesa: {topic}."
+    },
+    "footer": {
+      "mission": "Pasión por los caballos y excelencia en la equitación, en familia y rodeados de naturaleza.",
+      "club": "El club",
+      "contact": "Contacto",
+      "scan": "Escanea para bajar la app",
+      "place": "Paamul, Riviera Maya, Quintana Roo"
+    }
   }
 }
