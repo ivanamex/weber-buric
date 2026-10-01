@@ -86,7 +86,8 @@ function rasterise(pose, cols) {
   return { cells, rows }
 }
 
-const mix = (h) => SAGE.map((v, i) => Math.round(v + (CORAL[i] - v) * h)).join(',')
+const mixer = (from, to) => (h) => from.map((v, i) => Math.round(v + (to[i] - v) * h)).join(',')
+const mix = mixer(SAGE, CORAL)
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 const fontReady = () => (document.fonts?.load ? document.fonts.load('600 12px Outfit').catch(() => {}) : Promise.resolve())
 
@@ -100,20 +101,22 @@ function setupCanvas(canvas, w, h) {
   return ctx
 }
 
-function paint(ctx, cells, cw, ch, ox, oy, alpha) {
+function paint(ctx, cells, cw, ch, ox, oy, alpha, tint = mix) {
   ctx.font = `600 ${Math.round(ch * 0.82)}px Outfit, Inter, sans-serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   for (const cell of cells) {
     const h = cell.heat
-    ctx.fillStyle = `rgba(${mix(h)},${Math.min(1, (cell.a > 0.6 ? alpha : alpha * 0.55) + h * 0.5)})`
+    ctx.fillStyle = `rgba(${tint(h)},${Math.min(1, (cell.a > 0.6 ? alpha : alpha * 0.55) + h * 0.5)})`
     ctx.fillText(cell.ch, ox + cell.c * cw + cw / 2, oy + cell.r * ch + ch / 2)
   }
 }
 
 /** The closing band's horse: gallops across in about 12 s, three frames for the legs. Still with reduced motion. */
-export function RunningHorse() {
+/** colors: [from, to] as [r, g, b]; the app's sage → coral by default. */
+export function RunningHorse({ colors }) {
   const ref = useRef(null)
+  const tint = colors ? mixer(colors[0], colors[1]) : mix
   useEffect(() => {
     const canvas = ref.current
     let frames = []
@@ -144,7 +147,7 @@ export function RunningHorse() {
       const x = still ? (w - hw) / 2 : ((t % LAP) / LAP) * (w + hw) - hw
       const y = h - f.rows * chH - 12
       ctx.clearRect(0, 0, w, h)
-      paint(ctx, f.cells, cw, chH, x, y, 0.62)
+      paint(ctx, f.cells, cw, chH, x, y, 0.62, tint)
     }
     const loop = (t) => {
       if (!alive || !visible) { raf = 0; return }

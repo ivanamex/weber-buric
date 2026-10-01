@@ -20,6 +20,14 @@ export const BIG = {
   riding: { src: '/img/club/girl-riding-flamboyan.webp', small: '/img/club/girl-riding-flamboyan-800.webp', w: 1600, h: 2133, position: '50% 40%' },
   nose: { src: '/img/club/girl-horse-nose.webp', small: '/img/club/girl-horse-nose-800.webp', w: 1600, h: 2133, position: '50% 50%' },
 }
+// The hero's three scenes, in a loop. Each video: muted, ≤ 2 MB, in public/video/. Until a file is there, `video` stays
+// null and the scene shows its photo with a slow zoom (also the poster, and what reduced motion / Save-Data get).
+export const HERO_SCENES = [
+  { key: 'jumps', video: null /* '/video/hero-1-jump.mp4' */, photo: { src: '/img/club/jump-bay.webp', w: 1010, h: 671, position: '62% 40%' } },
+  { key: 'horses', video: null /* '/video/hero-2-face.mp4' */, photo: { src: '/img/club/horse-blaze.webp', small: '/img/club/horse-blaze-800.webp', w: 1600, h: 2133, position: '58% 35%' } },
+  { key: 'kids', video: null /* '/video/hero-3-kids.mp4' */, photo: { src: '/img/club/girl-riding-flamboyan.webp', small: '/img/club/girl-riding-flamboyan-800.webp', w: 1600, h: 2133, position: '50% 40%' } },
+]
+
 export const SHARE_IMAGE = '/img/club/og-horse-blaze.jpg'
 
 // The club photos (~1000 px): only at medium size (bento tiles, the Competencias split), never full-bleed.

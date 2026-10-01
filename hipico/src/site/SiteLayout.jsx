@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { Logo } from '../components/Logo.jsx'
+import { BrandLogo, Logo } from '../components/Logo.jsx'
 import { RunningHorse } from '../components/TextHorse.jsx'
 import { SiteIcon } from '../components/site/Icons.jsx'
 import { waLink } from '../components/ui.jsx'
@@ -10,9 +10,11 @@ import { isStandalone } from '../lib/install.js'
 import { SECTIONS, homePath, sectionId, translateHash } from './routes.js'
 import { CONTACT, SHARE_IMAGE } from './content.js'
 import { reducedMotion, useReveal } from './motion.jsx'
+import '@fontsource-variable/archivo/standard.css' // the website's type (the app keeps Outfit + Inter)
 import './site.css'
 
 const LANG_KEY = 'hipico.lang'
+const HORSE_COLORS = [[36, 80, 63], [140, 115, 205]] // jungle → lilac letters on the light footer
 // An English visitor coming back to "/" goes to "/en" (only on the first page they open, never after a click).
 const initialPath = typeof window === 'undefined' ? '' : window.location.pathname
 let redirected = false
@@ -34,7 +36,7 @@ export function AppButton({ className = '', children }) {
   const { t } = useI18n()
   const [to, setTo] = useState('/descargar')
   useEffect(() => { setTo(hasApp() ? '/app' : '/descargar') }, [])
-  return <Link to={to} className={`sbtn sbtn--accent ${className}`}>{children || t('site.appButton')}</Link>
+  return <Link to={to} className={`sbtn sbtn--deep ${className}`}>{children || t('site.appButton')}</Link>
 }
 
 /* ───────── <head>: title, description, languages, share image, structured data ───────── */
@@ -173,7 +175,7 @@ function SiteBar({ scroll, progress }) {
     <>
       <header className={`sbar ${scroll.dark ? 'is-dark' : ''}`}>
         <div className="sbar__inner">
-          <a href={`${homePath(lang)}#top`} className="sbar__logo" aria-label={t('site.homeLabel')}><Logo light={scroll.dark} compact /></a>
+          <a href={`${homePath(lang)}#top`} className="sbar__logo" aria-label={t('site.homeLabel')}><BrandLogo variant={scroll.dark ? 'white' : 'green'} height={40} /></a>
           <nav className="sbar__nav" ref={nav} aria-label={t('site.navLabel')}>
             {SECTIONS.map((s) => (
               <a key={s.key} data-key={s.key} href={`#${s[lang]}`} className={scroll.active === s.key ? 'is-active' : ''}
@@ -219,10 +221,10 @@ function SiteBar({ scroll, progress }) {
 function SiteFooter() {
   const { t, lang } = useI18n()
   return (
-    <footer className="sfooter" data-tone="dark">
-      <div className="sgallop" aria-hidden="true"><RunningHorse /></div>
+    <footer className="sfooter" data-tone="light">
+      <div className="sgallop" aria-hidden="true"><RunningHorse colors={HORSE_COLORS} /></div>
       <div className="scontainer sfooter__row">
-        <a href={`${homePath(lang)}#top`} aria-label={t('site.homeLabel')}><Logo light /></a>
+        <a href={`${homePath(lang)}#top`} aria-label={t('site.homeLabel')}><Logo /></a>
         <div className="sfooter__social">
           <a href={waLink(t('site.wa.general'))} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><SiteIcon name="whatsapp" /></a>
           <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><SiteIcon name="instagram" /></a>
@@ -266,7 +268,7 @@ export default function SiteLayout({ lang }) {
       <a href="#main" className="skip">{t('site.skip')}</a>
       <SiteBar scroll={scroll} progress={progress} />
       <main id="main">{current === lang ? <Outlet /> : null}</main>
-      <a className={`smobilecta sbtn sbtn--accent ${scroll.heroGone && !scroll.nearEnd ? 'is-on' : ''}`} href={waLink(t('site.wa.trial'))}
+      <a className={`smobilecta sbtn sbtn--deep ${scroll.heroGone && !scroll.nearEnd ? 'is-on' : ''}`} href={waLink(t('site.wa.trial'))}
         target="_blank" rel="noopener noreferrer" aria-hidden={scroll.heroGone && !scroll.nearEnd ? undefined : 'true'}
         tabIndex={scroll.heroGone && !scroll.nearEnd ? undefined : -1}>
         <SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}

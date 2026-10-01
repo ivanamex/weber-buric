@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-34** (on branch `design-34`, not main): new site design, A + C mix: open layout, condensed Archivo, mist/peach/lilac gradients, big video frame in the hero (Saltos · Caballos · Niños), "Aprende a montar" path, big "Disfruta" image at the end. Send the preview URL. STEP-33 is replaced by this, don't run it.
+1. **STEP-34** (on branch `design-34`, not main): new site design, A + C mix: open layout, condensed Archivo, mist/peach/lilac gradients, big video frame in the hero (Saltos · Caballos · Niños), "Aprende a montar" path, big "Disfruta" image at the end. Send the preview URL. STEP-33 is replaced by this, don't run it. **Built on `design-34`, waiting for Ivana's "merge".**
 
 Check in the browser after each step, then "ok".
 

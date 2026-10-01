@@ -1150,7 +1150,8 @@
       "boarding": "Boarding",
       "community": "Community",
       "app": "The app",
-      "visit": "Visit us"
+      "visit": "Visit us",
+      "learn": "Learn"
     },
     "meta": {
       "title": "Hípico Riviera Maya · Horse riding lessons in Playa del Carmen and Paamul",
@@ -1180,26 +1181,32 @@
       "rosette": "State Champion 2024 rosette",
       "paddock": "Horses grazing in the club paddocks",
       "fence": "A horse by the paddock fence",
-      "families": "Club families celebrating with their horses"
+      "families": "Club families celebrating with their horses",
+      "nose": "A girl brings her face close to her horse's nose"
     },
     "hero": {
       "label": "Welcome",
-      "eyebrow": "Equestrian club · Paamul, Riviera Maya",
-      "title": "A passion for *horses.*",
-      "sub": "Lessons, boarding and show jumping in the middle of the jungle, minutes from Playa del Carmen."
-    },
-    "manifesto": {
-      "label": "The club",
-      "text": "A club in the middle of the Paamul jungle, where you learn to ride from age 2 all the way to competing."
-    },
-    "figures": {
-      "years": "years",
-      "horses": "horses",
-      "hectares": "hectares",
-      "riders": "riders"
+      "title": "A riding club in the Paamul jungle",
+      "sub": "Learn to ride, enjoy and compete, 20 minutes from Playa del Carmen. From age 2.",
+      "prices": "See lessons and prices",
+      "scenesLabel": "Club scenes",
+      "scenes": {
+        "jumps": {
+          "chip": "Jumping",
+          "alt": "A rider jumps a fence on a bay horse"
+        },
+        "horses": {
+          "chip": "Horses",
+          "alt": "A horse with a white blaze looks into the camera"
+        },
+        "kids": {
+          "chip": "Kids",
+          "alt": "A girl rides a horse under a red flamboyant tree"
+        }
+      }
     },
     "services": {
-      "title": "Everything to live *horses.*",
+      "title": "Everything to live horses.",
       "classes": {
         "title": "Lessons",
         "text": "Beginner to advanced, by age and level, from age 2.",
@@ -1232,7 +1239,7 @@
       }
     },
     "competitions": {
-      "title": "We train to *compete.*",
+      "title": "We train to compete.",
       "training": {
         "title": "From the first jump to the show",
         "text": "Technique, rhythm and lines in the jumping arena. The fences go up when rider and horse are ready."
@@ -1248,7 +1255,7 @@
       "cta": "I want to compete"
     },
     "therapy": {
-      "title": "The horse as a partner in *growth.*",
+      "title": "The horse as a partner in growth.",
       "what": "A new program of therapeutic activities with horses for children, led by a certified equine therapist together with a health professional (physiotherapist or psychologist). The horse's movement and contact with the animal support the child's development.",
       "who": "For children from age 3. It can support balance and posture, coordination, attention, communication, confidence and emotional regulation.",
       "alongside": "It works alongside medical treatment, never instead of it.",
@@ -1270,7 +1277,7 @@
       "footnote": "Program in preparation. Sessions will be led by certified professionals."
     },
     "boarding": {
-      "title": "Boarding and *horses.*",
+      "title": "Boarding and horses.",
       "panel": "Boarding",
       "care": {
         "daily": "Care and checks every day",
@@ -1290,7 +1297,7 @@
       "askAbout": "Ask about {name} on WhatsApp"
     },
     "community": {
-      "title": "A family on *horseback.*",
+      "title": "A family on horseback.",
       "text": "Parents, kids and instructors share the arena, the paddocks and the celebrations.",
       "rowLabel": "Pony Friday, camps and upcoming events",
       "pony": {
@@ -1321,7 +1328,7 @@
       "ask": "Ask for dates"
     },
     "app": {
-      "title": "The club, on your *phone.*",
+      "title": "The club, on your phone.",
       "steps": {
         "confirm": {
           "title": "Confirm your lessons",
@@ -1339,12 +1346,37 @@
       "cta": "Get the app"
     },
     "visit": {
-      "title": "See you in *Paamul.*",
+      "title": "See you in Paamul.",
       "whatsapp": "Message us on WhatsApp"
     },
     "footer": {
       "place": "Paamul, Riviera Maya",
       "download": "Get the app"
+    },
+    "learn": {
+      "title": "Learn to ride",
+      "lead": "Like a jumping course: one fence at a time, at your own pace.",
+      "steps": {
+        "trial": {
+          "title": "Trial lesson",
+          "text": "Meet the horse, the instructor and the club."
+        },
+        "plan": {
+          "title": "Your plan",
+          "text": "1, 2 or 3 lessons a week, date to date."
+        },
+        "pony": {
+          "title": "Pony Friday",
+          "text": "The last Friday of the month, from age 2."
+        },
+        "show": {
+          "title": "Your first show",
+          "text": "Train jumping and compete with the club."
+        }
+      }
+    },
+    "enjoy": {
+      "word": "Enjoy"
     }
   }
 }

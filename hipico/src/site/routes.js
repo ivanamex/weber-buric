@@ -1,12 +1,13 @@
 // The club website is one page (/ in Spanish, /en in English) with numbered sections.
 export const SECTIONS = [
-  { key: 'services', n: '01', es: 'que-hacemos', en: 'what-we-do' },
-  { key: 'competitions', n: '02', es: 'competencias', en: 'show-jumping' },
-  { key: 'therapy', n: '03', es: 'equinoterapia', en: 'equine-therapy' },
-  { key: 'boarding', n: '04', es: 'pension', en: 'boarding' },
-  { key: 'community', n: '05', es: 'comunidad', en: 'community' },
-  { key: 'app', n: '06', es: 'app', en: 'app' },
-  { key: 'visit', n: '07', es: 'visitanos', en: 'visit' },
+  { key: 'learn', n: '01', es: 'aprende', en: 'learn' },
+  { key: 'services', n: '02', es: 'que-hacemos', en: 'what-we-do' },
+  { key: 'competitions', n: '03', es: 'competencias', en: 'show-jumping' },
+  { key: 'therapy', n: '04', es: 'equinoterapia', en: 'equine-therapy' },
+  { key: 'boarding', n: '05', es: 'pension', en: 'boarding' },
+  { key: 'community', n: '06', es: 'comunidad', en: 'community' },
+  { key: 'app', n: '07', es: 'app', en: 'app' },
+  { key: 'visit', n: '08', es: 'visitanos', en: 'visit' },
 ]
 // Places inside a section that old links point to.
 export const ANCHORS = { sales: { es: 'caballos', en: 'horses-for-sale' } }

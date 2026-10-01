@@ -1150,7 +1150,8 @@
       "boarding": "Pensión",
       "community": "Comunidad",
       "app": "La app",
-      "visit": "Visítanos"
+      "visit": "Visítanos",
+      "learn": "Aprende"
     },
     "meta": {
       "title": "Hípico Riviera Maya · Clases de equitación en Playa del Carmen y Paamul",
@@ -1180,26 +1181,32 @@
       "rosette": "Roseta de Campeón Estatal 2024",
       "paddock": "Caballos pastando en los potreros del club",
       "fence": "Un caballo junto a la cerca del potrero",
-      "families": "Familias del club celebrando junto a sus caballos"
+      "families": "Familias del club celebrando junto a sus caballos",
+      "nose": "Una niña acerca la cara a la nariz de su caballo"
     },
     "hero": {
       "label": "Bienvenida",
-      "eyebrow": "Club ecuestre · Paamul, Riviera Maya",
-      "title": "Pasión por los *caballos.*",
-      "sub": "Clases, pensión y competencias en medio de la selva, a minutos de Playa del Carmen."
-    },
-    "manifesto": {
-      "label": "El club",
-      "text": "Un club en medio de la selva de Paamul, donde se aprende a montar desde los 2 años hasta competir."
-    },
-    "figures": {
-      "years": "años",
-      "horses": "caballos",
-      "hectares": "hectáreas",
-      "riders": "jinetes"
+      "title": "Un club a caballo, en la selva de Paamul",
+      "sub": "Aprende a montar, disfruta y compite, a 20 minutos de Playa del Carmen. Desde los 2 años.",
+      "prices": "Ver clases y precios",
+      "scenesLabel": "Escenas del club",
+      "scenes": {
+        "jumps": {
+          "chip": "Saltos",
+          "alt": "Un jinete salta un obstáculo con un caballo bayo"
+        },
+        "horses": {
+          "chip": "Caballos",
+          "alt": "Un caballo con una mancha blanca en la cara mira de cerca"
+        },
+        "kids": {
+          "chip": "Niños",
+          "alt": "Una niña monta a caballo bajo un flamboyán rojo"
+        }
+      }
     },
     "services": {
-      "title": "Todo para vivir los *caballos.*",
+      "title": "Todo para vivir los caballos.",
       "classes": {
         "title": "Clases",
         "text": "De principiante a avanzado, por edad y nivel, desde los 2 años.",
@@ -1232,7 +1239,7 @@
       }
     },
     "competitions": {
-      "title": "Entrenamos para *competir.*",
+      "title": "Entrenamos para competir.",
       "training": {
         "title": "Del primer salto al concurso",
         "text": "Técnica, ritmo y trayectoria en la pista de salto. La altura sube cuando jinete y caballo están listos."
@@ -1248,7 +1255,7 @@
       "cta": "Quiero competir"
     },
     "therapy": {
-      "title": "El caballo como compañero de *desarrollo.*",
+      "title": "El caballo como compañero de desarrollo.",
       "what": "Un programa nuevo de actividades terapéuticas con caballos para niños, guiado por un terapeuta ecuestre certificado junto con un profesional de la salud (fisioterapeuta o psicólogo). El movimiento del caballo y el contacto con el animal apoyan el desarrollo del niño.",
       "who": "Para niños desde los 3 años. Puede apoyar el equilibrio y la postura, la coordinación, la atención, la comunicación, la confianza y la regulación emocional.",
       "alongside": "Acompaña el tratamiento médico, nunca lo sustituye.",
@@ -1270,7 +1277,7 @@
       "footnote": "Programa en preparación. Las sesiones serán dirigidas por profesionales certificados."
     },
     "boarding": {
-      "title": "Pensión y *caballos.*",
+      "title": "Pensión y caballos.",
       "panel": "Pensión",
       "care": {
         "daily": "Cuidado y revisión todos los días",
@@ -1290,7 +1297,7 @@
       "askAbout": "Preguntar por {name} en WhatsApp"
     },
     "community": {
-      "title": "Una familia a *caballo.*",
+      "title": "Una familia a caballo.",
       "text": "Padres, hijos e instructores comparten la pista, los potreros y las celebraciones.",
       "rowLabel": "Pony Friday, campamentos y próximos eventos",
       "pony": {
@@ -1321,7 +1328,7 @@
       "ask": "Pedir fechas"
     },
     "app": {
-      "title": "El club, en tu *celular.*",
+      "title": "El club, en tu celular.",
       "steps": {
         "confirm": {
           "title": "Confirma tus clases",
@@ -1339,12 +1346,37 @@
       "cta": "Descargar la app"
     },
     "visit": {
-      "title": "Te esperamos en *Paamul.*",
+      "title": "Te esperamos en Paamul.",
       "whatsapp": "Escríbenos por WhatsApp"
     },
     "footer": {
       "place": "Paamul, Riviera Maya",
       "download": "Descargar la app"
+    },
+    "learn": {
+      "title": "Aprende a montar",
+      "lead": "Como un recorrido de salto: un obstáculo a la vez, a tu ritmo.",
+      "steps": {
+        "trial": {
+          "title": "Clase muestra",
+          "text": "Conoces al caballo, al instructor y el club."
+        },
+        "plan": {
+          "title": "Tu plan",
+          "text": "1, 2 o 3 clases por semana, de fecha a fecha."
+        },
+        "pony": {
+          "title": "Pony Friday",
+          "text": "El último viernes del mes, desde los 2 años."
+        },
+        "show": {
+          "title": "Tu primer concurso",
+          "text": "Entrenas salto y compites con el club."
+        }
+      }
+    },
+    "enjoy": {
+      "word": "Disfruta"
     }
   }
 }

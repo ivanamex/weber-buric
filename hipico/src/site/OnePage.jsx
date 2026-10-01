@@ -5,9 +5,9 @@ import { LivePhone } from '../components/LivePhone.jsx'
 import { waLink } from '../components/ui.jsx'
 import { todayKey } from '../lib/time.js'
 import { AppButton } from './SiteLayout.jsx'
-import { BigPhoto, ClubPhoto, Kinetic, Letters, ScrollWords, reducedMotion } from './motion.jsx'
+import { BigPhoto, ClubPhoto, Kinetic, Letters, reducedMotion } from './motion.jsx'
 import { sectionId } from './routes.js'
-import { BIG, CONTACT, FIGURES, PHOTOS, TESTIMONIALS, mapDirections, mapEmbed } from './content.js'
+import { BIG, CONTACT, HERO_SCENES, PHOTOS, TESTIMONIALS, mapDirections, mapEmbed } from './content.js'
 import { planList, useSiteData } from './siteData.js'
 
 const wa = (text) => ({ href: waLink(text), target: '_blank', rel: 'noopener noreferrer' })
@@ -43,45 +43,114 @@ export function nextPonyFriday(today = todayKey()) {
   return null
 }
 
-function Hero() {
+const saveData = () => typeof navigator !== 'undefined' && navigator.connection?.saveData === true
+const SCENE_MS = 6500
+
+/** The hero's big frame: three scenes in a loop with cross-fades; the chips show the one playing and jump to it. */
+function HeroScenes() {
   const { t } = useI18n()
+  const [on, setOn] = useState(1)
+  const [still, setStill] = useState(true)
+  const videos = useRef([])
+  useEffect(() => { setStill(reducedMotion() || saveData()) }, [])
+  const scene = HERO_SCENES[on]
+  // Photos (or videos without their file yet) move on by timer; a playing video moves on when it ends.
+  useEffect(() => {
+    if (still) return undefined
+    const v = scene.video && videos.current[on]
+    if (v) {
+      v.currentTime = 0
+      v.play().catch(() => {})
+      const next = () => setOn((i) => (i + 1) % HERO_SCENES.length)
+      v.addEventListener('ended', next)
+      return () => { v.removeEventListener('ended', next); v.pause() }
+    }
+    const id = setTimeout(() => setOn((i) => (i + 1) % HERO_SCENES.length), SCENE_MS)
+    return () => clearTimeout(id)
+  }, [on, still, scene.video])
   return (
-    <section className="shero" data-tone="dark" aria-label={t('site.hero.label')}>
-      <BigPhoto photo={BIG.hero} alt={t('site.alt.hero')} eager className="shero__img" />
-      <div className="shero__scrim" aria-hidden="true" />
-      <div className="scontainer shero__inner">
-        <p className="seyebrow">{t('site.hero.eyebrow')}</p>
-        <Letters text={t('site.hero.title')} className="shero__title" />
-        <p className="shero__sub">{t('site.hero.sub')}</p>
+    <div className="hframe">
+      {HERO_SCENES.map((sc, i) => (
+        <div key={sc.key} className={`hframe__scene ${i === on ? 'is-on' : ''}`} aria-hidden={i === on ? undefined : 'true'}>
+          {sc.video && !still ? (
+            <video ref={(el) => { videos.current[i] = el }} muted playsInline preload={i === on ? 'auto' : 'none'} poster={sc.photo.src}
+              aria-label={t(`site.hero.scenes.${sc.key}.alt`)}>
+              <source src={sc.video} type="video/mp4" />
+            </video>
+          ) : (
+            <img src={sc.photo.src} srcSet={sc.photo.small ? `${sc.photo.small} 800w, ${sc.photo.src} 1600w` : undefined}
+              sizes="(min-width: 900px) 45vw, 100vw" width={sc.photo.w} height={sc.photo.h} alt={t(`site.hero.scenes.${sc.key}.alt`)}
+              loading={i === 1 ? 'eager' : 'lazy'} fetchPriority={i === 1 ? 'high' : undefined} decoding="async"
+              style={{ objectPosition: sc.photo.position }} />
+          )}
+        </div>
+      ))}
+      <div className="hframe__chips" role="group" aria-label={t('site.hero.scenesLabel')}>
+        {HERO_SCENES.map((sc, i) => (
+          <button key={sc.key} type="button" className={i === on ? 'is-on' : ''} aria-pressed={i === on} onClick={() => setOn(i)}>
+            {t(`site.hero.scenes.${sc.key}.chip`)}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function Hero() {
+  const { t, lang } = useI18n()
+  return (
+    <section className="shero" data-tone="light" aria-label={t('site.hero.label')}>
+      <svg className="shero__course" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M760 900 C 780 760, 750 600, 800 470 S 820 200, 960 120 S 1240 90, 1440 130" />
+      </svg>
+      <div className="shero__inner">
+        <div className="shero__head">
+          <Letters text={t('site.hero.title')} className="shero__title" />
+          <p className="shero__sub">{t('site.hero.sub')}</p>
+        </div>
+        <HeroScenes />
         <div className="shero__ctas">
-          <a className="sbtn sbtn--accent sbtn--lg" {...wa(t('site.wa.trial'))}><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</a>
-          <AppButton className="sbtn--glass sbtn--lg" />
+          <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.trial'))}><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</a>
+          <a className="sbtn sbtn--line sbtn--lg" href={`#${sectionId('services', lang)}`}>{t('site.hero.prices')}</a>
         </div>
       </div>
-      <span className="shero__rail" aria-hidden="true" />
     </section>
   )
 }
 
-function Manifesto() {
+/** "Aprende a montar": the rider's path, like a jumping course, one fence at a time. */
+function Learn() {
   const { t } = useI18n()
-  const figures = Object.entries(FIGURES).filter(([, v]) => typeof v === 'number' && v > 0)
   return (
-    <>
-      <figure className="smoment" aria-hidden="false">
-        <BigPhoto photo={BIG.closeup} alt={t('site.alt.closeup')} className="smoment__img" />
-      </figure>
-      <section className="smanifesto" data-tone="light" aria-label={t('site.manifesto.label')}>
-        <div className="scontainer">
-          <ScrollWords text={t('site.manifesto.text')} />
-          {figures.length > 0 && (
-            <dl className="sfigures">
-              {figures.map(([k, v]) => <div key={k}><dt>{t(`site.figures.${k}`)}</dt><dd>{v.toLocaleString('es-MX')}</dd></div>)}
-            </dl>
-          )}
+    <Sec k="learn" n="01">
+      <div className="slearn">
+        <div className="slearn__head">
+          <Kinetic id="learn-title" text={t('site.learn.title')} />
+          <p className="slead">{t('site.learn.lead')}</p>
         </div>
-      </section>
-    </>
+        <ol className="slearn__steps">
+          {['trial', 'plan', 'pony', 'show'].map((k, i) => (
+            <li key={k} data-reveal="">
+              <span className="slearn__n">{i + 1}</span>
+              <h3>{t(`site.learn.steps.${k}.title`)}</h3>
+              <p>{t(`site.learn.steps.${k}.text`)}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </Sec>
+  )
+}
+
+/** Big imagery before Visítanos: two portrait photos side by side on a computer, one full screen on a phone. */
+function Enjoy() {
+  const { t } = useI18n()
+  return (
+    <section className="senjoy" data-tone="dark" aria-label={t('site.enjoy.word')}>
+      <BigPhoto photo={BIG.closeup} alt={t('site.alt.closeup')} className="senjoy__a" sizes="(min-width: 900px) 50vw, 100vw" />
+      <BigPhoto photo={BIG.nose} alt={t('site.alt.nose')} className="senjoy__b" sizes="50vw" />
+      <p className="senjoy__word" aria-hidden="true">{t('site.enjoy.word')}</p>
+    </section>
   )
 }
 
@@ -98,7 +167,7 @@ function Services() {
   const plans = planList(data?.prices)
   const trial = data?.prices?.class_trial
   return (
-    <Sec k="services" n="01">
+    <Sec k="services" n="02">
       <Kinetic id="services-title" text={t('site.services.title')} />
       <div className="bento">
         <a className="tile tile--photo tile--classes" {...wa(t('site.wa.trial'))} data-reveal="">
@@ -140,7 +209,7 @@ function Services() {
 function Competitions() {
   const { t } = useI18n()
   return (
-    <Sec k="competitions" n="02">
+    <Sec k="competitions" n="03">
       <Kinetic id="competitions-title" text={t('site.competitions.title')} />
       <div className="ssticky">
         <figure className="ssticky__pin"><ClubPhoto photo={PHOTOS.jumpGrey} alt={t('site.alt.jumpGrey')} /></figure>
@@ -156,7 +225,7 @@ function Competitions() {
             <ClubPhoto photo={PHOTOS.rosette} alt={t('site.alt.rosette')} className="sstory__round" position="50% 45%" />
             <h3>{t('site.competitions.champion.title')}</h3>
             <p>{t('site.competitions.champion.text')}</p>
-            <a className="sbtn sbtn--accent" {...wa(t('site.wa.competitions'))}><SiteIcon name="whatsapp" size={20} /> {t('site.competitions.cta')}</a>
+            <a className="sbtn sbtn--deep" {...wa(t('site.wa.competitions'))}><SiteIcon name="whatsapp" size={20} /> {t('site.competitions.cta')}</a>
           </article>
         </div>
       </div>
@@ -167,7 +236,7 @@ function Competitions() {
 function Therapy() {
   const { t } = useI18n()
   return (
-    <Sec k="therapy" n="03" tone="mesh">
+    <Sec k="therapy" n="04" tone="mesh">
       <p className="spill">{t('site.tagSoon')}</p>
       <Kinetic id="therapy-title" text={t('site.therapy.title')} />
       <div className="stherapy">
@@ -188,7 +257,7 @@ function Therapy() {
         ))}
       </ol>
       <div className="stherapy__cta" data-reveal="">
-        <a className="sbtn sbtn--accent sbtn--lg" {...wa(t('site.wa.therapy'))}><SiteIcon name="whatsapp" size={20} /> {t('site.therapy.cta')}</a>
+        <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.therapy'))}><SiteIcon name="whatsapp" size={20} /> {t('site.therapy.cta')}</a>
         <p className="small">{t('site.therapy.footnote')}</p>
       </div>
     </Sec>
@@ -200,7 +269,7 @@ function Boarding() {
   const data = useSiteData()
   const horses = data?.sales || []
   return (
-    <Sec k="boarding" n="04">
+    <Sec k="boarding" n="05">
       <Kinetic id="boarding-title" text={t('site.boarding.title')} />
       <div className="spanels">
         <article className="spanel" data-reveal="">
@@ -210,7 +279,7 @@ function Boarding() {
               <li key={k}><SiteIcon name={{ daily: 'heart', feed: 'hay', vet: 'shield', farrier: 'horseshoe', app: 'phone' }[k]} size={22} /><span>{t(`site.boarding.care.${k}`)}</span></li>
             ))}
           </ul>
-          <a className="sbtn sbtn--primary" {...wa(t('site.wa.boarding'))}><SiteIcon name="whatsapp" size={20} /> {t('site.boarding.cta')}</a>
+          <a className="sbtn sbtn--deep" {...wa(t('site.wa.boarding'))}><SiteIcon name="whatsapp" size={20} /> {t('site.boarding.cta')}</a>
         </article>
         <article className="spanel" id={sectionId('sales', lang)} data-reveal="">
           <h3>{t('site.sales.title')}</h3>
@@ -232,7 +301,7 @@ function Boarding() {
           ) : (
             <p className="slead">{t('site.sales.empty')}</p>
           )}
-          <a className="sbtn sbtn--primary" {...wa(t('site.wa.horses'))}><SiteIcon name="whatsapp" size={20} /> {t('site.sales.cta')}</a>
+          <a className="sbtn sbtn--deep" {...wa(t('site.wa.horses'))}><SiteIcon name="whatsapp" size={20} /> {t('site.sales.cta')}</a>
         </article>
       </div>
     </Sec>
@@ -247,7 +316,7 @@ function Community() {
   const quote = TESTIMONIALS[0]
   const typeName = (type) => (t(`site.community.types.${type}`) === `site.community.types.${type}` ? t('site.community.types.camp') : t(`site.community.types.${type}`))
   return (
-    <Sec k="community" n="05">
+    <Sec k="community" n="06">
       <Kinetic id="community-title" text={t('site.community.title')} />
       <figure className="sfamily" data-reveal="">
         <ClubPhoto photo={PHOTOS.families} alt={t('site.alt.families')} />
@@ -323,7 +392,7 @@ function TheApp() {
     return () => { clearTimeout(a); clearTimeout(b); window.removeEventListener('message', ready) }
   }, [step, wide])
   return (
-    <Sec k="app" n="06" tone="dark" className="sapp" bg={(
+    <Sec k="app" n="07" tone="dark" className="sapp" bg={(
       <div className="sapp__bg" aria-hidden="true">
         <BigPhoto photo={BIG.nose} alt="" className="sapp__photo" sizes="60vw" />
         <span className="sapp__glow" />
@@ -352,7 +421,7 @@ function TheApp() {
 function Visit() {
   const { t } = useI18n()
   return (
-    <Sec k="visit" n="07">
+    <Sec k="visit" n="08">
       <Kinetic id="visit-title" text={t('site.visit.title')} />
       <div className="svisit">
         <div className="svisit__map" data-reveal="">
@@ -365,7 +434,7 @@ function Visit() {
             <li><SiteIcon name="mail" size={22} /><a className="break" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></li>
             <li><SiteIcon name="instagram" size={22} /><a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer">{CONTACT.instagramHandle}</a></li>
           </ul>
-          <a className="sbtn sbtn--accent sbtn--xl" {...wa(t('site.wa.general'))}><SiteIcon name="whatsapp" size={24} /> {t('site.visit.whatsapp')}</a>
+          <a className="sbtn sbtn--deep sbtn--xl" {...wa(t('site.wa.general'))}><SiteIcon name="whatsapp" size={24} /> {t('site.visit.whatsapp')}</a>
           <a className="slinkarrow" href={mapDirections} target="_blank" rel="noopener noreferrer"><SiteIcon name="map" size={20} /> {t('site.directions')}</a>
         </div>
       </div>
@@ -377,13 +446,14 @@ export default function OnePage() {
   return (
     <>
       <Hero />
-      <Manifesto />
+      <Learn />
       <Services />
       <Competitions />
       <Therapy />
       <Boarding />
       <Community />
       <TheApp />
+      <Enjoy />
       <Visit />
     </>
   )
