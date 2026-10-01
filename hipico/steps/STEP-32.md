@@ -10,12 +10,23 @@ Few colors, huge type, real photos doing the work, motion tied to scrolling. It 
 - Galleries and lightboxes, accordions and anything that collapses, the outlined word band, card drop shadows, the navy.
 - The counters, unless there are real numbers. Hide the block; don't show "—".
 
-## 2. Palette (fewer colors)
-- Base: bone `#F4F1EA`. Text: ink `#141A15`. Dark sections: deep green `#1E3A2A`.
-- Coral `#E6735A` **only** for the main button and the jump-pole stripes. Nothing else is coral.
-- White text on photos. No gradients except a dark scrim under text on photos.
+## 2. Color: the "Paamul" gradient (decided 1 Oct, no navy anywhere)
+The colors come from Ivana's photos: jungle, arena sand and the red flamboyán trees. This is the site's signature; it's made for this club, not taken from a template.
+- Tokens: jungle `#0F2A1D` · moss `#3E6B3F` · sand `#E9D6B4` · bone `#F4F1EA` (base) · flamboyán `#EE5A3C` · coral `#E6735A` (buttons) · ink `#141A15` (text).
+- **One gradient system, used in 4 places only:**
+  1. **03 — Equinoterapia** background: a soft mesh of sand → moss (calm, light).
+  2. **06 — La app** background: deep jungle with a slow flamboyán glow rising behind the phone.
+  3. **Footer:** a "sunset" from jungle at the top to a flamboyán + coral glow at the bottom edge.
+  4. **One word per headline** filled with the flamboyán → coral gradient (`background-clip: text`), e.g. "Pasión por los **caballos**." Never a whole sentence.
+- **Mesh, not linear:** 3–4 radial blobs layered (`radial-gradient` stacks), drifting very slowly (40–60 s loop, transform only; static with reduced motion).
+- **Grain on every gradient:** a light noise layer (an SVG `feTurbulence` used as a background image, ~6–8% opacity, `mix-blend-mode: overlay`), so gradients look printed rather than digital. No grain on photos or text.
+- Glass bar: bone at 70% with blur; over the dark sections it switches to jungle at 60% with bone text.
+- Coral stays for the main buttons; the jump-pole stripes use flamboyán / bone / moss.
+- **Never:** navy, purple-to-blue "SaaS" gradients, rainbow, gradients on buttons or cards, gold.
+- Check the contrast of text on every gradient (AA 4.5:1); put body text only on the calm parts.
 
 ## 3. Type
+- **Kinetic type:** Outfit is a variable font. Section headlines go from weight 300 to 650 as they scroll into view (scroll-driven, `font-variation-settings`), once.
 - Headlines in Outfit, **very large** (`clamp(48px, 9vw, 152px)`), weight 600, tracking −0.04em, line-height 0.92.
 - Body in Inter 17–18 px, max ~60 characters per line.
 - **Eyebrows:** every section starts with a small label, uppercase Inter 12 px, letter-spaced, with its number: `01 — CLASES`. On desktop the eyebrow **sticks** to the left edge while its section scrolls past (`position: sticky`).
