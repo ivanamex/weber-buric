@@ -1,6 +1,6 @@
 # STEP-36: the first videos go live
 
-Ivana's first clips are already in the repo, cut, cleaned and compressed (no sound, 1280×720, under 1 MB each), each with a `.webp` poster of the same name:
+Ivana's first clips are already in the repo, cut, cleaned and compressed (no sound, 1280 px wide, 0.4–1.8 MB each), each with a `.webp` poster of the same name:
 
 | File | Length | Use |
 |---|---|---|
@@ -28,4 +28,4 @@ Ivana's first clips are already in the repo, cut, cleaned and compressed (no sou
 `muted playsinline loop preload="metadata"`, poster always set; play only while on screen (IntersectionObserver: pause off-screen); reduced motion or Save-Data → poster only; never autoplay with sound. Total video on first load under 2 MB (the hero loads scene 1 first, the next one while it plays).
 
 ## Check
-Desktop 1440 + iPhone: the hero plays the jump, fades to the horse face, then the Niños photo, in a loop, and the chips follow; Pensión shows the herd moving behind or beside the text; the gallery has one moving tile; reduced motion → only posters; no clip shows text or a logo.
+Desktop 1440 + iPhone: the hero plays the jump, fades to the horse face, then the girl on the pony, in a loop, and the chips follow; Pensión shows the herd moving behind or beside the text; the gallery has one moving tile; reduced motion → only posters; no clip shows text or a logo.
