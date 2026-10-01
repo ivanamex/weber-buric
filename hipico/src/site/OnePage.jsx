@@ -9,6 +9,7 @@ import { BigPhoto, ClubPhoto, Kinetic, Letters, reducedMotion } from './motion.j
 import { sectionId } from './routes.js'
 import { BIG, CONTACT, HERO_SCENES, PHOTOS, TESTIMONIALS, mapDirections, mapEmbed } from './content.js'
 import { planList, useSiteData } from './siteData.js'
+import GALLERY from 'virtual:gallery'
 
 const wa = (text) => ({ href: waLink(text), target: '_blank', rel: 'noopener noreferrer' })
 
@@ -110,7 +111,7 @@ function Hero() {
         </div>
         <HeroScenes />
         <div className="shero__ctas">
-          <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.trial'))}><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</a>
+          <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.trial'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</span></a>
           <a className="sbtn sbtn--line sbtn--lg" href={`#${sectionId('services', lang)}`}>{t('site.hero.prices')}</a>
         </div>
       </div>
@@ -142,14 +143,39 @@ function Learn() {
   )
 }
 
-/** Big imagery before Visítanos: two portrait photos side by side on a computer, one full screen on a phone. */
+// Gallery alt text for the club's own photos; any other file gets its name as a short description.
+const GALLERY_ALT = {
+  'jump-bay': 'jumpBay', 'families-celebrating': 'families', 'jump-grey': 'jumpGrey', 'rosette-campeon': 'rosette',
+  'rider-buckskin': 'rider', 'paddock-herd': 'paddock', 'horse-fence': 'fence', 'girl-horse-closeup': 'closeup',
+  'girl-horse-nose': 'nose', 'girl-riding-flamboyan': 'riding', 'horse-blaze': 'hero',
+}
+
+function GalleryRow({ items, dir, alt }) {
+  return (
+    <div className={`sgallery__row sgallery__row--${dir}`}>
+      <div className="sgallery__track">
+        {[0, 1].map((copy) => items.map((g) => (
+          <figure key={`${copy}-${g.name}`} className="sgallery__item" style={{ '--ratio': g.w / g.h }} aria-hidden={copy ? 'true' : undefined}>
+            <img src={g.src} width={g.w} height={g.h} alt={copy ? '' : alt(g)} loading="lazy" decoding="async" />
+          </figure>
+        )))}
+      </div>
+    </div>
+  )
+}
+
+/** "Disfruta": the big title, then two rows of photos sliding in opposite directions (pause on hover). */
 function Enjoy() {
   const { t } = useI18n()
+  const alt = (g) => (GALLERY_ALT[g.name] ? t(`site.alt.${GALLERY_ALT[g.name]}`) : g.name.replace(/[-_]+/g, ' '))
+  const rows = [GALLERY.filter((_, i) => i % 2 === 0), GALLERY.filter((_, i) => i % 2 === 1)]
   return (
-    <section className="senjoy" data-tone="dark" aria-label={t('site.enjoy.word')}>
-      <BigPhoto photo={BIG.closeup} alt={t('site.alt.closeup')} className="senjoy__a" sizes="(min-width: 900px) 50vw, 100vw" />
-      <BigPhoto photo={BIG.nose} alt={t('site.alt.nose')} className="senjoy__b" sizes="50vw" />
-      <p className="senjoy__word" aria-hidden="true">{t('site.enjoy.word')}</p>
+    <section className="senjoy" data-tone="light" aria-labelledby="enjoy-title">
+      <div className="scontainer"><h2 id="enjoy-title" className="senjoy__word">{t('site.enjoy.word')}</h2></div>
+      <div className="sgallery" aria-label={t('site.enjoy.gallery')} role="group">
+        <GalleryRow items={rows[0]} dir="left" alt={alt} />
+        <GalleryRow items={rows[1].length ? rows[1] : rows[0]} dir="right" alt={alt} />
+      </div>
     </section>
   )
 }
@@ -225,7 +251,7 @@ function Competitions() {
             <ClubPhoto photo={PHOTOS.rosette} alt={t('site.alt.rosette')} className="sstory__round" position="50% 45%" />
             <h3>{t('site.competitions.champion.title')}</h3>
             <p>{t('site.competitions.champion.text')}</p>
-            <a className="sbtn sbtn--deep" {...wa(t('site.wa.competitions'))}><SiteIcon name="whatsapp" size={20} /> {t('site.competitions.cta')}</a>
+            <a className="sbtn sbtn--deep" {...wa(t('site.wa.competitions'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.competitions.cta')}</span></a>
           </article>
         </div>
       </div>
@@ -257,7 +283,7 @@ function Therapy() {
         ))}
       </ol>
       <div className="stherapy__cta" data-reveal="">
-        <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.therapy'))}><SiteIcon name="whatsapp" size={20} /> {t('site.therapy.cta')}</a>
+        <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.therapy'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.therapy.cta')}</span></a>
         <p className="small">{t('site.therapy.footnote')}</p>
       </div>
     </Sec>
@@ -279,7 +305,7 @@ function Boarding() {
               <li key={k}><SiteIcon name={{ daily: 'heart', feed: 'hay', vet: 'shield', farrier: 'horseshoe', app: 'phone' }[k]} size={22} /><span>{t(`site.boarding.care.${k}`)}</span></li>
             ))}
           </ul>
-          <a className="sbtn sbtn--deep" {...wa(t('site.wa.boarding'))}><SiteIcon name="whatsapp" size={20} /> {t('site.boarding.cta')}</a>
+          <a className="sbtn sbtn--deep" {...wa(t('site.wa.boarding'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.boarding.cta')}</span></a>
         </article>
         <article className="spanel" id={sectionId('sales', lang)} data-reveal="">
           <h3>{t('site.sales.title')}</h3>
@@ -301,7 +327,7 @@ function Boarding() {
           ) : (
             <p className="slead">{t('site.sales.empty')}</p>
           )}
-          <a className="sbtn sbtn--deep" {...wa(t('site.wa.horses'))}><SiteIcon name="whatsapp" size={20} /> {t('site.sales.cta')}</a>
+          <a className="sbtn sbtn--deep" {...wa(t('site.wa.horses'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.sales.cta')}</span></a>
         </article>
       </div>
     </Sec>
@@ -434,7 +460,7 @@ function Visit() {
             <li><SiteIcon name="mail" size={22} /><a className="break" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></li>
             <li><SiteIcon name="instagram" size={22} /><a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer">{CONTACT.instagramHandle}</a></li>
           </ul>
-          <a className="sbtn sbtn--deep sbtn--xl" {...wa(t('site.wa.general'))}><SiteIcon name="whatsapp" size={24} /> {t('site.visit.whatsapp')}</a>
+          <a className="sbtn sbtn--deep sbtn--xl" {...wa(t('site.wa.general'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={24} /> {t('site.visit.whatsapp')}</span></a>
           <a className="slinkarrow" href={mapDirections} target="_blank" rel="noopener noreferrer"><SiteIcon name="map" size={20} /> {t('site.directions')}</a>
         </div>
       </div>

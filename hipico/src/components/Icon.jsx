@@ -1,4 +1,9 @@
 // Minimal original stroke icon set (24×24).
+
+/** The horseshoe: an upright U open at the top, even band, flared tips, 3 nail holes a side (filled, even-odd). */
+export const HORSESHOE_D = 'M3.4 3.2H8.6L8 11A4 4 0 0 0 16 11L15.4 3.2H20.6L20 11A8 8 0 0 1 4 11ZM5.20 5.2a0.8 0.8 0 1 0 1.6 0a0.8 0.8 0 1 0 -1.6 0M5.25 8.4a0.8 0.8 0 1 0 1.6 0a0.8 0.8 0 1 0 -1.6 0M5.90 13.4a0.8 0.8 0 1 0 1.6 0a0.8 0.8 0 1 0 -1.6 0M17.20 5.2a0.8 0.8 0 1 0 1.6 0a0.8 0.8 0 1 0 -1.6 0M17.15 8.4a0.8 0.8 0 1 0 1.6 0a0.8 0.8 0 1 0 -1.6 0M16.50 13.4a0.8 0.8 0 1 0 1.6 0a0.8 0.8 0 1 0 -1.6 0'
+const shoe = <path d={HORSESHOE_D} fill="currentColor" stroke="none" fillRule="evenodd" />
+
 const P = {
   home: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V20h14V9.5" /><path d="M10 20v-6h4v6" /></>,
   calendar: <><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></>,
@@ -11,7 +16,7 @@ const P = {
   clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3.5 2" /></>,
   user: <><circle cx="12" cy="8" r="4" /><path d="M4.5 20.5c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5" /></>,
   users: <><circle cx="9" cy="8.5" r="3.5" /><path d="M2.5 20c.9-3.3 3.3-5 6.5-5s5.6 1.7 6.5 5" /><path d="M15.5 5.2a3.5 3.5 0 0 1 0 6.6M17.5 15.2c2 .6 3.3 2.2 4 4.8" /></>,
-  shoe: <path d="M8.2 5.2A8 8 0 1 0 15.8 5.2" strokeWidth="3" />,
+  shoe,
   barn: <><path d="M3 20V10l9-6 9 6v10z" /><path d="M8.5 20v-7h7v7M8.5 13l7 7M15.5 13l-7 7" /></>,
   tent: <><path d="M12 4 3 20h18z" /><path d="M12 4v16M9 20l3-6 3 6" /></>,
   cake: <><path d="M4 20.5h16V13a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z" /><path d="M4 15.5c2.7 1.6 5.3 1.6 8 0s5.3-1.6 8 0M12 11V7.5M12 4.5v.01" /></>,
@@ -41,7 +46,7 @@ const P = {
   sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" /></>,
   // Club pictograms (original drawings)
   horseHead: <><path d="M6 21c0-6 1-11 4-15l.5-3 2 2.5c2.5 1.5 5.5 4.5 7 8 .7 1.6-.5 3.1-2 2.5-1.4-.6-2.8-.9-4-.4-1 .9-1.2 3.4-.5 5.4" /><path d="M9 8.5c-1.2 1-1.6 2.3-1.6 3.6M8.2 12.6c-.9 1-1.1 2.3-1 3.6" /><circle cx="14" cy="9.4" r=".7" fill="currentColor" stroke="none" /><circle cx="18.3" cy="13.9" r=".5" fill="currentColor" stroke="none" /></>,
-  horseshoe: <><path d="M7.4 4.2a7.6 7.6 0 1 0 9.2 0" /><path d="M9.6 6.6a4.7 4.7 0 1 0 4.8 0" /><path d="M7.4 4.2 9.6 6.6M16.6 4.2l-2.2 2.4" /><g fill="currentColor" stroke="none"><circle cx="6.3" cy="10" r=".6" /><circle cx="7.2" cy="14.8" r=".6" /><circle cx="17.7" cy="10" r=".6" /><circle cx="16.8" cy="14.8" r=".6" /></g></>,
+  horseshoe: shoe,
   helmet: <><path d="M4 16c0-5.6 3.6-9.6 8.3-9.6 4.4 0 7.6 3.4 7.7 7.6l2.2 1.6c.3.3.1.6-.3.6H4z" /><path d="M5 12.6h14.4" /><path d="M6.5 16.4c0 2.4 1.7 4.1 4.1 4.1" /><circle cx="12.3" cy="6.4" r=".75" fill="currentColor" stroke="none" /></>,
   saddle: <><path d="M3 5.5c.9 3.4 3.6 5 7.8 4.8 3.3-.2 5.4-1.4 6.9-3.5.6-.9 1.7-1.2 2.6-.7" /><path d="M8.3 10.2 7.6 16c-.1 1.1.7 2 1.8 2h3.3c1 0 1.8-.8 1.9-1.8l.4-6.6" /><path d="M11.2 18v1.3M9.4 21.2h3.6M9.8 21.2l1.4-1.9 1.4 1.9" /></>,
   receipt: <><path d="M6 3h12v18l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3z" /><path d="M9 8h6M9 11.5h6M9 15h3.5" /></>,

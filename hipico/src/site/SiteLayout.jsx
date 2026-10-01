@@ -36,7 +36,7 @@ export function AppButton({ className = '', children }) {
   const { t } = useI18n()
   const [to, setTo] = useState('/descargar')
   useEffect(() => { setTo(hasApp() ? '/app' : '/descargar') }, [])
-  return <Link to={to} className={`sbtn sbtn--deep ${className}`}>{children || t('site.appButton')}</Link>
+  return <Link to={to} className={`sbtn sbtn--deep ${className}`}><span className="sbtn__in">{children || t('site.appButton')}</span></Link>
 }
 
 /* ───────── <head>: title, description, languages, share image, structured data ───────── */
@@ -270,9 +270,7 @@ export default function SiteLayout({ lang }) {
       <main id="main">{current === lang ? <Outlet /> : null}</main>
       <a className={`smobilecta sbtn sbtn--deep ${scroll.heroGone && !scroll.nearEnd ? 'is-on' : ''}`} href={waLink(t('site.wa.trial'))}
         target="_blank" rel="noopener noreferrer" aria-hidden={scroll.heroGone && !scroll.nearEnd ? undefined : 'true'}
-        tabIndex={scroll.heroGone && !scroll.nearEnd ? undefined : -1}>
-        <SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}
-      </a>
+        tabIndex={scroll.heroGone && !scroll.nearEnd ? undefined : -1}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</span></a>
       <SiteFooter />
     </div>
   )

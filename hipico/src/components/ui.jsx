@@ -1,4 +1,4 @@
-import { Icon } from './Icon.jsx'
+import { HORSESHOE_D, Icon } from './Icon.jsx'
 
 /** Empty state: a pictogram, one line and (optionally) one action. */
 export function Empty({ icon = 'info', title, children }) {
@@ -17,7 +17,7 @@ export function Horseshoes({ used, total, label }) {
     <div className="shoes" role="img" aria-label={label}>
       {Array.from({ length: total }, (_, i) => (
         <svg key={i} className={`shoe ${i < used ? 'is-used' : ''}`} viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M7.6 5.2A7.4 7.4 0 1 0 16.4 5.2" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" />
+          <path d={HORSESHOE_D} fill="currentColor" fillRule="evenodd" />
         </svg>
       ))}
     </div>

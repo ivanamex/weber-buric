@@ -1,7 +1,9 @@
+import { HORSESHOE_D } from '../Icon.jsx'
+
 // The website's pictograms: line drawings on a 24×24 grid, same stroke as the app's icons.
 const P = {
   helmet: <><path d="M4 16c0-5.6 3.6-9.6 8.3-9.6 4.4 0 7.6 3.4 7.7 7.6l2.2 1.6c.3.3.1.6-.3.6H4z" /><path d="M5 12.6h14.4" /><path d="M6.5 16.4c0 2.4 1.7 4.1 4.1 4.1" /><circle cx="12.3" cy="6.4" r=".75" fill="currentColor" stroke="none" /></>,
-  horseshoe: <><path d="M7.4 4.2a7.6 7.6 0 1 0 9.2 0" /><path d="M9.6 6.6a4.7 4.7 0 1 0 4.8 0" /><path d="M7.4 4.2 9.6 6.6M16.6 4.2l-2.2 2.4" /><g fill="currentColor" stroke="none"><circle cx="6.3" cy="10" r=".6" /><circle cx="7.2" cy="14.8" r=".6" /><circle cx="17.7" cy="10" r=".6" /><circle cx="16.8" cy="14.8" r=".6" /></g></>,
+  horseshoe: <path d={HORSESHOE_D} fill="currentColor" stroke="none" fillRule="evenodd" />,
   saddle: <><path d="M3 5.5c.9 3.4 3.6 5 7.8 4.8 3.3-.2 5.4-1.4 6.9-3.5.6-.9 1.7-1.2 2.6-.7" /><path d="M8.3 10.2 7.6 16c-.1 1.1.7 2 1.8 2h3.3c1 0 1.8-.8 1.9-1.8l.4-6.6" /><path d="M11.2 18v1.3M9.4 21.2h3.6M9.8 21.2l1.4-1.9 1.4 1.9" /></>,
   rosette: <><circle cx="12" cy="9" r="5.8" /><circle cx="12" cy="9" r="2.6" /><path d="M9 13.9 7.6 21.2l2.6-1.3 1.8 1.6M15 13.9l1.4 7.3-2.6-1.3-1.8 1.6" /></>,
   jump: <><path d="M4.5 20.5V5M19.5 20.5V5M2.5 20.5h4M17.5 20.5h4" /><path d="M4.5 9.5h15M4.5 14h15" /><path d="M9.5 8.5v2M14.5 8.5v2M9.5 13v2M14.5 13v2" /></>,

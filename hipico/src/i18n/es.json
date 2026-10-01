@@ -1182,7 +1182,8 @@
       "paddock": "Caballos pastando en los potreros del club",
       "fence": "Un caballo junto a la cerca del potrero",
       "families": "Familias del club celebrando junto a sus caballos",
-      "nose": "Una niña acerca la cara a la nariz de su caballo"
+      "nose": "Una niña acerca la cara a la nariz de su caballo",
+      "rider": "Un jinete monta un caballo bayo claro"
     },
     "hero": {
       "label": "Bienvenida",
@@ -1376,7 +1377,8 @@
       }
     },
     "enjoy": {
-      "word": "Disfruta"
+      "word": "Disfruta",
+      "gallery": "Fotos del club"
     }
   }
 }

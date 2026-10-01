@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import gallery from './scripts/gallery-plugin.mjs'
 
 // Supabase keys: only these public names are read. The Vercel ↔ Supabase integration sets the
 // NEXT_PUBLIC_* ones automatically; VITE_* can be set by hand. Secret keys are never bundled.
@@ -27,6 +28,7 @@ export default defineConfig(({ mode }) => {
   },
   plugins: [
     react(),
+    gallery(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon-32.png', 'favicon-64.png', 'icons/apple-touch-icon.png', 'logo-white.png', 'logo-green.png'],

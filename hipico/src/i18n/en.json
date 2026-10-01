@@ -1182,7 +1182,8 @@
       "paddock": "Horses grazing in the club paddocks",
       "fence": "A horse by the paddock fence",
       "families": "Club families celebrating with their horses",
-      "nose": "A girl brings her face close to her horse's nose"
+      "nose": "A girl brings her face close to her horse's nose",
+      "rider": "A rider on a buckskin horse"
     },
     "hero": {
       "label": "Welcome",
@@ -1376,7 +1377,8 @@
       }
     },
     "enjoy": {
-      "word": "Enjoy"
+      "word": "Enjoy",
+      "gallery": "Club photos"
     }
   }
 }
