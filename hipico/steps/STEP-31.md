@@ -73,4 +73,4 @@ Logo, 1-line mission, the links, contact, social, "App del club" button, small Q
 `/`, every page, `/en`, and `/descargar` on a phone (360 / 390 px) and a laptop (1280 / 1440 px); the poster QR and "Compartir la app" now open `/descargar`; "App del club" goes to `/app` when signed in; reduced motion on → no animation; `/app`, `/demo` and `/vista` unchanged.
 
 ## Open (ask Mara, not blocking)
-Higher-resolution originals of the photos · OK to show the kids in the group photo on the public site · real numbers for the counters · instructors (names, photos, 1 line each) · Pony Friday and camp prices · approval of the Equinoterapia program and who would run it.
+Higher-resolution originals of the photos (all 7 are already on her Wix site, so they're cleared for use; if Claude Code can reach the full-size files on the Wix site, use those instead) · real numbers for the counters · instructors (names, photos, 1 line each) · Pony Friday and camp prices · approval of the Equinoterapia program and who would run it.
