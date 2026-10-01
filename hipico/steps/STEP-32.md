@@ -26,6 +26,7 @@ The colors come from Ivana's photos: jungle, arena sand and the red flamboyán t
 - Check the contrast of text on every gradient (AA 4.5:1); put body text only on the calm parts.
 
 ## 3. Type
+- **Fix first: Outfit and Inter are never loaded** (`styles.css` names them, but no font file or link exists, so everything falls back to the system font, in the app too). Add `@fontsource-variable/outfit` and `@fontsource-variable/inter` (self-hosted, full weight range), import them in `main.jsx`, `font-display: swap`. This fixes the app as well.
 - **Kinetic type:** Outfit is a variable font. Section headlines go from weight 300 to 650 as they scroll into view (scroll-driven, `font-variation-settings`), once.
 - Headlines in Outfit, **very large** (`clamp(48px, 9vw, 152px)`), weight 600, tracking −0.04em, line-height 0.92.
 - Body in Inter 17–18 px, max ~60 characters per line.
