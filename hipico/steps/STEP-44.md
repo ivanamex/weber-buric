@@ -20,3 +20,8 @@ The cold comes from the mint-grey base, green everywhere and all-caps condensed 
 
 ## Check
 1440 + 390 px screenshots: the page reads warm (sand base, apricot light, sentence-case titles), the gallery is a big masonry grid with working filters, hover-play on clips and the lightbox.
+
+## Palette references from Ivana (2 Oct, decide before building)
+`steps/drafts/palette-serene-sage.png` and `steps/drafts/palette-olive-garden.jpg`: warm, earthy sage/olive palettes. **Don't build this step until Ivana picks the palette.**
+- Serene Sage: parchment `#F1EAD8` · sand `#D5C7AD` · sage `#8A8E75` · light sage `#BEC5A4` · bark `#68604D`
+- Olive Garden (approx.): parchment `#F1ECE1` · sand `#D8CDBC` · olive `#C3CBB2` · sage `#959A82` · bark `#6F6857` · olivewood `#33352A`
