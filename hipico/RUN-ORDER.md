@@ -4,10 +4,9 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued: the next step comes from the list below.
-2. **STEP-49**: logic fixes from the audit (4 blockers: receipts not reachable, editing a family changes its plans, beginners on advanced horses, wrong money in the seed; 11 major; minor wording)
-3. **STEP-50**: the app: Día/Semana/Mes calendar toggle in Clases and Horario, more color with meaning (levels, riders, status), horse photos in classes and Mi caballo
-4. After 50: the presentation guide for Mara (how to show the app and the panel)
+1. **STEP-49**: logic fixes from the audit (4 blockers: receipts not reachable, editing a family changes its plans, beginners on advanced horses, wrong money in the seed; 11 major; minor wording)
+2. **STEP-50**: the app: Día/Semana/Mes calendar toggle in Clases and Horario, more color with meaning (levels, riders, status), horse photos in classes and Mi caballo
+3. After 50: the presentation guide for Mara (how to show the app and the panel)
 
 One at a time, check in the browser, then "ok".
 
