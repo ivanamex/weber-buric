@@ -56,6 +56,14 @@ export const GALLERY_TAGS = {
   rider: 'clases', paddock: 'caballos', fence: 'caballos', hero: 'caballos', closeup: 'comunidad', riding: 'clases', nose: 'caballos',
 }
 
+// The four service cards in Qué hacemos (and their lightboxes).
+export const SERVICE_PHOTOS = {
+  classes: { src: '/img/club/girl-riding-flamboyan-800.webp', w: 800, h: 1067, alt: 'riding', position: '50% 40%' },
+  competitions: { src: '/img/gallery/jump-sunset.webp', w: 2000, h: 1091, alt: 'jumpSunset', position: '30% 50%' },
+  boarding: { src: '/img/club/paddock-herd.webp', w: 1002, h: 668, alt: 'paddock', position: '50% 50%' },
+  early: { src: '/img/gallery/grooming-hands.webp', w: 2000, h: 1091, alt: 'grooming', position: '60% 50%' },
+}
+
 export const SHARE_IMAGE = '/img/club/og-horse-blaze.jpg'
 
 // The club photos (~1000 px): only at medium size (bento tiles, the Competencias split), never full-bleed.

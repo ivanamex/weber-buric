@@ -1,7 +1,7 @@
 // Small booking celebration: horseshoes and confetti burst from a point, under a second.
 // Skipped entirely when the visitor prefers reduced motion.
 const SHOE = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7.6 5.2A7.4 7.4 0 1 0 16.4 5.2" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg>'
-const COLORS = ['#F2B48C', '#24503F', '#A9C3AE', '#4E7A5A']
+const COLORS = ['#BEC5A4', '#5E6650', '#D5C7AD', '#8A8E75']
 
 export function celebrate(x, y) {
   if (typeof window === 'undefined' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return

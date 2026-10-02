@@ -3,8 +3,8 @@ import { useEffect, useRef } from 'react'
 // A horse drawn with letters. The silhouette is built from simple shapes in a 200 × 120 box (facing right),
 // rasterised into a grid, and every filled cell gets a letter of the club's name.
 const TEXT = 'HÍPICO•RIVIERA•MAYA•'
-const SAGE = [110, 150, 118]
-const APRICOT = [242, 180, 140]
+const SAGE = [138, 142, 117]
+const LIGHT_SAGE = [190, 197, 164]
 const CHAR_RATIO = 1.45 // cell height ÷ width
 
 // Gallop poses: leg angles in degrees from straight down (+ = forward). [upper, lower] for each leg.
@@ -87,7 +87,7 @@ function rasterise(pose, cols) {
 }
 
 const mixer = (from, to) => (h) => from.map((v, i) => Math.round(v + (to[i] - v) * h)).join(',')
-const mix = mixer(SAGE, APRICOT)
+const mix = mixer(SAGE, LIGHT_SAGE)
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 const fontReady = () => (document.fonts?.load ? document.fonts.load('600 12px "Archivo Variable"').catch(() => {}) : Promise.resolve())
 
@@ -113,7 +113,7 @@ function paint(ctx, cells, cw, ch, ox, oy, alpha, tint = mix) {
 }
 
 /** The closing band's horse: gallops across in about 12 s, three frames for the legs. Still with reduced motion. */
-/** colors: [from, to] as [r, g, b]; the app's sage → apricot by default. */
+/** colors: [from, to] as [r, g, b]; the app's sage → light sage by default. */
 export function RunningHorse({ colors }) {
   const ref = useRef(null)
   const tint = colors ? mixer(colors[0], colors[1]) : mix

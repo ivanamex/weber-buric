@@ -1148,7 +1148,7 @@
       "competitions": "Show jumping",
       "therapy": "Equine therapy",
       "boarding": "Boarding",
-      "community": "Community",
+      "community": "Families",
       "app": "The app",
       "visit": "Visit us",
       "enjoy": "Gallery"
@@ -1170,7 +1170,8 @@
       "therapy": "Hi, I'd like to join the equine therapy interest list.",
       "pony": "Hi, I'd like to save a spot at the next Pony Friday.",
       "horses": "Hi, I'd like to ask about the horses available.",
-      "horse": "Hi, I'm interested in {name}, the horse for sale."
+      "horse": "Hi, I'm interested in {name}, the horse for sale.",
+      "classes": "Hi, I'd like information about riding lessons."
     },
     "alt": {
       "hero": "A horse with a white blaze looks into the camera",
@@ -1196,7 +1197,7 @@
     "hero": {
       "label": "Welcome",
       "title": "A riding club in the Paamul jungle",
-      "sub": "Learn to ride, enjoy and compete, 20 minutes from Playa del Carmen. From age 2.",
+      "sub": "Riding lessons from age 2, boarding and show jumping, 15 minutes from Playa del Carmen.",
       "prices": "See lessons and prices",
       "scenesLabel": "Club scenes",
       "scenes": {
@@ -1215,12 +1216,13 @@
       }
     },
     "services": {
-      "title": "What we do at the club.",
+      "title": "What we do",
       "classes": {
         "title": "Lessons",
         "text": "Beginner to advanced, by age and level, from age 2.",
         "trial": "Trial lesson",
-        "plan": "{n} lessons a month"
+        "plan": "{n} lessons a month",
+        "card": "Beginner to advanced, from age 2. Monthly plans, every day or made to measure."
       },
       "competitions": {
         "title": "Show jumping",
@@ -1243,12 +1245,14 @@
         "text": "An unforgettable birthday with ponies."
       },
       "coaching": {
-        "title": "Coaching with horses",
+        "title": "Personal growth with horses",
         "text": "Sessions with horses for people and teams."
-      }
+      },
+      "lead": "A club in the Paamul jungle where you learn to ride from age 2 all the way to competing. Tap a service to see everything it includes.",
+      "open": "See everything about {name}"
     },
     "competitions": {
-      "title": "We train to compete.",
+      "title": "We train to compete",
       "training": {
         "title": "From the first jump to the show",
         "text": "Technique, rhythm and lines in the jumping arena. The fences go up when rider and horse are ready."
@@ -1262,10 +1266,12 @@
         "text": "A club achievement at the state show jumping championship, the result of daily work by riders, horses and instructors."
       },
       "cta": "I want to compete",
-      "lead": "Technique, rhythm and confidence: from the first jump to the state championship."
+      "lead": "Technique, rhythm and confidence: from the first jump to the state championship.",
+      "more": "See the training",
+      "video": "Video"
     },
     "therapy": {
-      "title": "Growing up alongside horses.",
+      "title": "Growing up alongside horses",
       "what": "A new program of therapeutic activities with horses for children, led by a certified equine therapist together with a health professional (physiotherapist or psychologist). The horse's movement and contact with the animal support the child's development.",
       "who": "For children from age 3. It can support balance and posture, coordination, attention, communication, confidence and emotional regulation.",
       "alongside": "It works alongside medical treatment, never instead of it.",
@@ -1284,10 +1290,11 @@
         }
       },
       "cta": "Join the interest list",
-      "footnote": "Program in preparation. Sessions will be led by certified professionals."
+      "footnote": "Program in preparation. Sessions will be led by certified professionals.",
+      "lead": "Equine therapy for children from age 3, with a certified equine therapist and a health professional."
     },
     "boarding": {
-      "title": "Boarding and horses for sale.",
+      "title": "Boarding and horses for sale",
       "panel": "Boarding",
       "care": {
         "daily": "Care and checks every day",
@@ -1308,7 +1315,7 @@
       "looking": "Looking for a horse? Ask which ones are available"
     },
     "community": {
-      "title": "A family on horseback.",
+      "title": "Families who ride together",
       "text": "Parents, kids and instructors share the arena, the paddocks and the celebrations.",
       "rowLabel": "Pony Friday, camps and upcoming events",
       "pony": {
@@ -1341,7 +1348,7 @@
       "fewer": "See fewer"
     },
     "app": {
-      "title": "The club, on your phone.",
+      "title": "The club, on your phone",
       "steps": {
         "confirm": {
           "title": "Confirm your lessons",
@@ -1359,7 +1366,7 @@
       "cta": "Get the app"
     },
     "visit": {
-      "title": "See you in Paamul.",
+      "title": "See you in Paamul",
       "whatsapp": "Message us on WhatsApp"
     },
     "footer": {
@@ -1411,6 +1418,84 @@
         "comunidad": "Community"
       },
       "more": "See more photos ({n})"
+    },
+    "rail": {
+      "services": "The club",
+      "competitions": "Jumping",
+      "therapy": "Therapy",
+      "boarding": "Boarding",
+      "community": "Families",
+      "app": "The app"
+    },
+    "boxes": {
+      "camps": {
+        "text": "Summer and holidays: ride, care for the horses and learn together.",
+        "go": "Ask for dates",
+        "next": "Next: {date}",
+        "title": "Camps"
+      },
+      "pony": {
+        "text": "The last Friday of the month, from age 2.",
+        "go": "Next: {date}"
+      },
+      "parties": {
+        "text": "An unforgettable birthday with ponies.",
+        "go": "Ask for details",
+        "title": "Kids' parties"
+      },
+      "coaching": {
+        "text": "Workshops for individuals and teams.",
+        "go": "Learn more"
+      }
+    },
+    "sheet": {
+      "close": "Close",
+      "ask": "Ask us",
+      "from": "from {price}",
+      "write": "Message us",
+      "classes": {
+        "title": "Lessons",
+        "text": "Beginner to advanced, by age and level, from age 2. Choose your plan and confirm your lessons in the app.",
+        "trial": "Trial lesson",
+        "trialNote": "To get to know the club",
+        "plans": "{list} lessons a month",
+        "plansNote": "Plans run date to date",
+        "daily": "Every day",
+        "dailyNote": "For those who ride daily",
+        "custom": "Made to measure",
+        "customNote": "Days, times and level your way"
+      },
+      "competitions": {
+        "title": "Show jumping",
+        "text": "Jumping training for every level, with competing as the goal.",
+        "items": [
+          "Technique, rhythm and courses in the jumping arena",
+          "Preparation for shows in the state and beyond",
+          "The club goes with you to every show",
+          "State Champion 2024"
+        ]
+      },
+      "boarding": {
+        "title": "Boarding",
+        "text": "Your horse, cared for every day at the club.",
+        "monthly": "Monthly boarding",
+        "monthlyNote": "Per horse, each month"
+      },
+      "early": {
+        "title": "Early stimulation",
+        "text": "For the youngest, from age 2: short sessions and games with ponies to get to know horses with confidence.",
+        "items": [
+          "From age 2",
+          "Short sessions, at their own pace",
+          "Games with ponies and horse care",
+          "Always with an instructor beside them"
+        ],
+        "cta": "Ask for information"
+      }
+    },
+    "families": {
+      "drag": "← drag the strip →",
+      "label": "Photos and videos of the club"
     }
   }
 }

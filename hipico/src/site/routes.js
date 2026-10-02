@@ -4,13 +4,12 @@ export const SECTIONS = [
   { key: 'competitions', n: '02', es: 'competencias', en: 'show-jumping' },
   { key: 'therapy', n: '03', es: 'equinoterapia', en: 'equine-therapy' },
   { key: 'boarding', n: '04', es: 'pension', en: 'boarding' },
-  { key: 'app', n: '05', es: 'app', en: 'app' },
-  { key: 'community', n: '06', es: 'comunidad', en: 'community' },
-  { key: 'enjoy', n: '07', es: 'galeria', en: 'gallery' },
-  { key: 'visit', n: '08', es: 'visitanos', en: 'visit' },
+  { key: 'community', n: '05', es: 'familias', en: 'families' },
+  { key: 'app', n: '06', es: 'app', en: 'app' },
+  { key: 'visit', n: '07', es: 'visitanos', en: 'visit' },
 ]
 // Places inside a section that old links point to.
-export const ANCHORS = { sales: { es: 'caballos', en: 'horses-for-sale' }, learn: { es: 'aprende', en: 'learn' } }
+export const ANCHORS = { sales: { es: 'caballos', en: 'horses-for-sale' } }
 
 export const sectionId = (key, lang) => (SECTIONS.find((s) => s.key === key) || ANCHORS[key])?.[lang] || ''
 export const homePath = (lang) => (lang === 'en' ? '/en' : '/')

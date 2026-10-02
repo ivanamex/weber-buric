@@ -1148,7 +1148,7 @@
       "competitions": "Competencias",
       "therapy": "Equinoterapia",
       "boarding": "Pensión",
-      "community": "Comunidad",
+      "community": "Familias",
       "app": "La app",
       "visit": "Visítanos",
       "enjoy": "Galería"
@@ -1170,7 +1170,8 @@
       "therapy": "Hola, quiero unirme a la lista de interés de equinoterapia.",
       "pony": "Hola, quiero apartar lugar en el próximo Pony Friday.",
       "horses": "Hola, quiero preguntar por los caballos disponibles.",
-      "horse": "Hola, me interesa el caballo {name} que está en venta."
+      "horse": "Hola, me interesa el caballo {name} que está en venta.",
+      "classes": "Hola, quiero información sobre las clases de equitación."
     },
     "alt": {
       "hero": "Un caballo alazán con cordón blanco mira de cerca",
@@ -1196,7 +1197,7 @@
     "hero": {
       "label": "Bienvenida",
       "title": "Club hípico en la selva de Paamul",
-      "sub": "Clases de equitación desde los 2 años, pensión y salto, a 20 minutos de Playa del Carmen.",
+      "sub": "Clases de equitación desde los 2 años, pensión y salto, a 15 minutos de Playa del Carmen.",
       "prices": "Ver clases y precios",
       "scenesLabel": "Escenas del club",
       "scenes": {
@@ -1215,12 +1216,13 @@
       }
     },
     "services": {
-      "title": "Lo que hacemos en el club.",
+      "title": "Qué hacemos",
       "classes": {
         "title": "Clases",
         "text": "De principiante a avanzado, por edad y nivel, desde los 2 años.",
         "trial": "Clase muestra",
-        "plan": "{n} clases al mes"
+        "plan": "{n} clases al mes",
+        "card": "De principiante a avanzado, desde los 2 años. Planes al mes, todos los días o a tu medida."
       },
       "competitions": {
         "title": "Competencias",
@@ -1245,10 +1247,12 @@
       "coaching": {
         "title": "Desarrollo personal con caballos",
         "text": "Talleres con caballos para personas y equipos de trabajo."
-      }
+      },
+      "lead": "Un club en la selva de Paamul donde se aprende a montar desde los 2 años hasta competir. Toca un servicio para ver todo lo que incluye.",
+      "open": "Ver todo sobre {name}"
     },
     "competitions": {
-      "title": "Entrenamos para competir.",
+      "title": "Entrenamos para competir",
       "training": {
         "title": "Del primer salto al concurso",
         "text": "Técnica, ritmo y recorrido en la pista de salto. La altura sube cuando jinete y caballo están listos."
@@ -1262,10 +1266,12 @@
         "text": "Un logro del club en el campeonato estatal de salto, fruto del trabajo diario de jinetes, caballos e instructores."
       },
       "cta": "Quiero competir",
-      "lead": "Técnica, ritmo y confianza: del primer salto al campeonato estatal."
+      "lead": "Técnica, ritmo y confianza: del primer salto al campeonato estatal.",
+      "more": "Ver entrenamientos",
+      "video": "Video"
     },
     "therapy": {
-      "title": "Crecer junto al caballo.",
+      "title": "Crecer junto al caballo",
       "what": "Un programa nuevo de actividades terapéuticas con caballos para niños, guiado por un equinoterapeuta certificado junto con un profesional de la salud (fisioterapeuta o psicólogo). El movimiento del caballo y el contacto con él apoyan el desarrollo del niño.",
       "who": "Para niños desde los 3 años. Puede apoyar el equilibrio y la postura, la coordinación, la atención, la comunicación, la confianza y la regulación emocional.",
       "alongside": "Acompaña el tratamiento médico, nunca lo sustituye.",
@@ -1284,10 +1290,11 @@
         }
       },
       "cta": "Únete a la lista de interés",
-      "footnote": "Programa en preparación. Las sesiones serán dirigidas por profesionales certificados."
+      "footnote": "Programa en preparación. Las sesiones serán dirigidas por profesionales certificados.",
+      "lead": "Equinoterapia para niños desde los 3 años, con un equinoterapeuta certificado y un profesional de la salud."
     },
     "boarding": {
-      "title": "Pensión y venta de caballos.",
+      "title": "Pensión y venta de caballos",
       "panel": "Pensión",
       "care": {
         "daily": "Cuidado y revisión todos los días",
@@ -1308,7 +1315,7 @@
       "looking": "¿Buscas caballo? Pregunta por los disponibles"
     },
     "community": {
-      "title": "Familias que montan juntas.",
+      "title": "Familias que montan juntas",
       "text": "Padres, hijos e instructores comparten la pista, los potreros y las celebraciones.",
       "rowLabel": "Pony Friday, campamentos y próximos eventos",
       "pony": {
@@ -1341,7 +1348,7 @@
       "fewer": "Ver menos"
     },
     "app": {
-      "title": "El club, en tu celular.",
+      "title": "El club, en tu celular",
       "steps": {
         "confirm": {
           "title": "Confirma tus clases",
@@ -1359,7 +1366,7 @@
       "cta": "Descargar la app"
     },
     "visit": {
-      "title": "Te esperamos en Paamul.",
+      "title": "Te esperamos en Paamul",
       "whatsapp": "Escríbenos por WhatsApp"
     },
     "footer": {
@@ -1411,6 +1418,84 @@
         "comunidad": "Comunidad"
       },
       "more": "Ver más fotos ({n})"
+    },
+    "rail": {
+      "services": "El club",
+      "competitions": "Salto",
+      "therapy": "Terapia",
+      "boarding": "Pensión",
+      "community": "Familias",
+      "app": "La app"
+    },
+    "boxes": {
+      "camps": {
+        "text": "Verano y vacaciones: montar, cuidar y aprender en grupo.",
+        "go": "Pedir fechas",
+        "next": "Próximo: {date}",
+        "title": "Campamentos"
+      },
+      "pony": {
+        "text": "El último viernes del mes, desde los 2 años.",
+        "go": "Próximo: {date}"
+      },
+      "parties": {
+        "text": "Un cumpleaños inolvidable con ponis.",
+        "go": "Pedir informes",
+        "title": "Fiestas infantiles"
+      },
+      "coaching": {
+        "text": "Talleres para personas y equipos.",
+        "go": "Más información"
+      }
+    },
+    "sheet": {
+      "close": "Cerrar",
+      "ask": "Consulta",
+      "from": "desde {price}",
+      "write": "Escríbenos",
+      "classes": {
+        "title": "Clases",
+        "text": "De principiante a avanzado, por edad y nivel, desde los 2 años. Eliges tu plan y confirmas tus clases desde la app.",
+        "trial": "Clase muestra",
+        "trialNote": "Para conocer el club",
+        "plans": "{list} clases al mes",
+        "plansNote": "El plan corre de fecha a fecha",
+        "daily": "Todos los días",
+        "dailyNote": "Para quien monta a diario",
+        "custom": "A tu medida",
+        "customNote": "Días, horarios y nivel a tu manera"
+      },
+      "competitions": {
+        "title": "Competencias",
+        "text": "Entrenamiento de salto para cada nivel, con la meta de competir.",
+        "items": [
+          "Técnica, ritmo y recorridos en la pista de salto",
+          "Preparación para concursos en el estado y fuera de él",
+          "El club te acompaña en cada concurso",
+          "Campeón Estatal 2024"
+        ]
+      },
+      "boarding": {
+        "title": "Pensión",
+        "text": "Tu caballo, cuidado todos los días en el club.",
+        "monthly": "Pensión mensual",
+        "monthlyNote": "Por caballo, cada mes"
+      },
+      "early": {
+        "title": "Estimulación temprana",
+        "text": "Para los más pequeños, desde los 2 años: sesiones cortas y juegos con ponis para conocer a los caballos con confianza.",
+        "items": [
+          "Desde los 2 años",
+          "Sesiones cortas, a su ritmo",
+          "Juegos con ponis y cuidado del caballo",
+          "Siempre con un instructor a su lado"
+        ],
+        "cta": "Pedir información"
+      }
+    },
+    "families": {
+      "drag": "← arrastra la tira →",
+      "label": "Fotos y videos del club"
     }
   }
 }

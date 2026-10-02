@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { SiteIcon } from '../components/site/Icons.jsx'
@@ -14,13 +14,9 @@ const GALLERY_ALT = {
   'jump-sunset': 'jumpSunset', 'grooming-hands': 'grooming', 'hooves-sand-sunset': 'hooves',
   'kid-pony-flamboyan': 'kidPony', 'horse-rope-jungle': 'horseJungle',
 }
-const FIRST = 12 // shown before "Ver más fotos"
-const GAP = 12
-const UNIT = 4 // grid row unit (px): each tile spans as many rows as its height needs
-
 const prefixTag = (name) => GALLERY_FILTERS.find((f) => name.startsWith(`${f}-`))
 
-/** Every photo in public/img/gallery/, the club photos and the clips, each with a tag; the warm sunset jump first. */
+/** Every photo in public/img/gallery/, the club photos and the clips; the families photo first. */
 function buildItems() {
   const seen = new Set()
   const photos = []
@@ -35,7 +31,7 @@ function buildItems() {
     if (p) Object.assign(p, { video: c.video, tag: p.tag || c.tag })
     else clips.push(c)
   })
-  const lead = photos.findIndex((g) => g.name === 'jump-sunset')
+  const lead = photos.findIndex((g) => g.name === 'families')
   if (lead > 0) photos.unshift(photos.splice(lead, 1)[0])
   // the other clips: one after every two photos
   const out = []
@@ -48,76 +44,111 @@ function buildItems() {
 }
 const ITEMS = buildItems()
 
-/** Galería: filters, a masonry grid (3 columns on a computer, 2 on tablets and phones), the lightbox. */
-export function Gallery() {
+/** A clip in the strip: muted, looping, playing only while on screen (reduced motion: the poster). */
+function StripClip({ g }) {
+  const ref = useRef(null)
+  const [still, setStill] = useState(true)
+  useEffect(() => { setStill(reducedMotion()) }, [])
+  useEffect(() => {
+    const v = ref.current
+    if (still || !v) return undefined
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause() }, { threshold: 0.3 })
+    io.observe(v)
+    return () => { io.disconnect(); v.pause() }
+  }, [still])
+  if (still) return <img src={g.src} width={g.w} height={g.h} alt="" loading="lazy" decoding="async" draggable="false" />
+  return <video ref={ref} src={g.video} poster={g.src} muted loop playsInline preload="none" aria-hidden="true" />
+}
+
+/**
+ * "Familias que montan juntas": a dark film strip with sprocket holes. Drag it with the mouse (momentum, then it
+ * settles on the nearest photo), swipe it on phones, scroll it sideways on a trackpad, or use the arrows.
+ * A photo opens the lightbox; clips play muted in the strip and with controls in the lightbox.
+ */
+export function FilmStrip() {
   const { t } = useI18n()
-  const [filter, setFilter] = useState('all')
-  const [all, setAll] = useState(false)
+  const row = useRef(null)
+  const drag = useRef(null)
+  const glide = useRef(0)
   const [open, setOpen] = useState(null)
-  const [width, setWidth] = useState(0)
-  const grid = useRef(null)
   const alt = useCallback((g) => {
     const key = g.alt || GALLERY_ALT[g.name]
     if (key) return t(`site.alt.${key}`)
     const tag = prefixTag(g.name)
     return (tag ? g.name.slice(tag.length + 1) : g.name).replace(/[-_]+/g, ' ')
   }, [t])
-  useLayoutEffect(() => {
-    const el = grid.current
-    if (!el) return undefined
-    const ro = new ResizeObserver(() => setWidth(el.clientWidth))
-    ro.observe(el)
-    setWidth(el.clientWidth)
-    return () => ro.disconnect()
-  }, [])
-  const filters = ['all', ...GALLERY_FILTERS.filter((f) => ITEMS.some((g) => g.tag === f))]
-  const list = useMemo(() => (filter === 'all' ? ITEMS : ITEMS.filter((g) => g.tag === filter)), [filter])
-  const shown = all ? list : list.slice(0, FIRST)
-  const cols = width >= 1000 ? 3 : 2
-  const colW = width ? (width - GAP * (cols - 1)) / cols : 0
+  const settle = () => {
+    const el = row.current
+    if (!el) return
+    const pad = parseFloat(getComputedStyle(el).scrollPaddingLeft) || 0
+    let best = 0
+    let dist = Infinity
+    for (const c of el.children) {
+      const d = Math.abs(c.offsetLeft - pad - el.scrollLeft)
+      if (d < dist) { dist = d; best = c.offsetLeft - pad }
+    }
+    el.scrollTo({ left: best, behavior: 'smooth' })
+    setTimeout(() => el.classList.remove('is-drag'), 450)
+  }
+  const onPointerDown = (e) => {
+    if (e.pointerType === 'touch' || e.button !== 0) return
+    cancelAnimationFrame(glide.current)
+    const el = row.current
+    drag.current = { x: e.clientX, left: el.scrollLeft, moved: 0, lastX: e.clientX, lastT: performance.now(), v: 0 }
+    el.classList.add('is-drag')
+  }
+  const onPointerMove = (e) => {
+    const d = drag.current
+    if (!d) return
+    const el = row.current
+    const dx = e.clientX - d.x
+    if (Math.abs(dx) > 4 && !el.hasPointerCapture?.(e.pointerId)) el.setPointerCapture?.(e.pointerId)
+    el.scrollLeft = d.left - dx
+    d.moved = Math.max(d.moved, Math.abs(dx))
+    const now = performance.now()
+    if (now > d.lastT) { d.v = (e.clientX - d.lastX) / (now - d.lastT); d.lastX = e.clientX; d.lastT = now }
+  }
+  const onPointerUp = () => {
+    const d = drag.current
+    if (!d) return
+    drag.current = { moved: d.moved, done: true }
+    const el = row.current
+    let v = -d.v * 16 // px per frame
+    const step = () => {
+      if (Math.abs(v) < 0.6) { settle(); return }
+      el.scrollLeft += v
+      v *= 0.92
+      glide.current = requestAnimationFrame(step)
+    }
+    step()
+  }
+  const onClickCapture = (e) => {
+    if (drag.current?.done && drag.current.moved > 6) { e.preventDefault(); e.stopPropagation() }
+    drag.current = null
+  }
+  const by = (dir) => {
+    const el = row.current
+    el.scrollBy({ left: dir * Math.max(280, el.clientWidth * 0.6), behavior: 'smooth' })
+  }
   return (
-    <div className="sgal">
-      <div className="sgal__filters" role="group" aria-label={t('site.gallery.filterLabel')}>
-        {filters.map((f) => (
-          <button key={f} type="button" className={filter === f ? 'is-on' : ''} aria-pressed={filter === f}
-            onClick={() => { setFilter(f); setAll(false) }}>{t(`site.gallery.filters.${f}`)}</button>
+    <div className="sfilm">
+      <ul className="sfilm__row" ref={row} aria-label={t('site.families.label')}
+        onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
+        onClickCapture={onClickCapture} onDragStart={(e) => e.preventDefault()}>
+        {ITEMS.map((g, i) => (
+          <li key={g.src} style={{ '--ratio': g.w / g.h }}>
+            <button type="button" className="sfilm__item" aria-label={t('site.gallery.open', { name: alt(g) })}
+              onClick={(e) => setOpen({ i, from: e.currentTarget })}>
+              {g.video ? <StripClip g={g} /> : <img src={g.src} width={g.w} height={g.h} alt="" loading={i < 3 ? 'eager' : 'lazy'} decoding="async" draggable="false" />}
+              {g.video && <span className="sfilm__play" aria-hidden="true"><SiteIcon name="play" size={16} /></span>}
+            </button>
+          </li>
         ))}
-      </div>
-      <ul className="sgal__grid" ref={grid} style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }} aria-label={t('site.gallery.label')}>
-        {colW > 0 && shown.map((g, i) => {
-          const span = i === 0 && cols > 1 ? 2 : 1
-          const w = colW * span + GAP * (span - 1)
-          const h = Math.round(w * g.h / g.w)
-          return (
-            <li key={g.src} style={{ gridColumn: `span ${span}`, gridRowEnd: `span ${Math.ceil((h + GAP) / UNIT)}`, height: h }}>
-              <Tile g={g} label={t('site.gallery.open', { name: alt(g) })} eager={i < 3}
-                onOpen={(e) => setOpen({ i: list.indexOf(g), from: e.currentTarget })} />
-            </li>
-          )
-        })}
       </ul>
-      {!all && list.length > FIRST && (
-        <div className="sgal__more">
-          <button type="button" className="sbtn sbtn--line" onClick={() => setAll(true)}>{t('site.gallery.more', { n: list.length - FIRST })}</button>
-        </div>
-      )}
-      {open != null && <Lightbox items={list} start={open.i} alt={alt} onClose={() => { const f = open.from; setOpen(null); f?.focus?.() }} />}
+      <button type="button" className="sfilm__arrow sfilm__arrow--prev" aria-label={t('site.gallery.prev')} onClick={() => by(-1)}><SiteIcon name="arrowRight" size={22} /></button>
+      <button type="button" className="sfilm__arrow sfilm__arrow--next" aria-label={t('site.gallery.next')} onClick={() => by(1)}><SiteIcon name="arrowRight" size={22} /></button>
+      {open != null && <Lightbox items={ITEMS} start={open.i} alt={alt} onClose={() => { const f = open.from; setOpen(null); f?.focus?.() }} />}
     </div>
-  )
-}
-
-/** A tile: the photo (or the clip's poster with a play mark). On a computer a clip plays muted while hovered. */
-function Tile({ g, label, eager, onOpen }) {
-  const [play, setPlay] = useState(false)
-  const canHover = () => typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches && !reducedMotion()
-  return (
-    <button type="button" className="sgal__item" aria-label={label} onClick={onOpen}
-      onMouseEnter={g.video ? () => { if (canHover()) setPlay(true) } : undefined}
-      onMouseLeave={g.video ? () => setPlay(false) : undefined}>
-      <img src={g.src} width={g.w} height={g.h} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" />
-      {play && <video className="sgal__clip" src={g.video} poster={g.src} muted autoPlay loop playsInline aria-hidden="true" />}
-      {g.video && <span className="sgal__play" aria-hidden="true"><SiteIcon name="play" size={18} /></span>}
-    </button>
   )
 }
 

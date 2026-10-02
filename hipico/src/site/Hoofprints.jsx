@@ -69,7 +69,7 @@ function litSprite(hm) {
       const depth = h(x, y)
       const i = (y * SPRITE + x) * 4
       if (shade < 0) { img.data[i] = 255; img.data[i + 1] = 255; img.data[i + 2] = 255; img.data[i + 3] = Math.min(255, -shade * 255) }
-      else { img.data[i] = 16; img.data[i + 1] = 39; img.data[i + 2] = 31; img.data[i + 3] = Math.min(255, shade * 255 + depth * 40) }
+      else { img.data[i] = 62; img.data[i + 1] = 56; img.data[i + 2] = 44; img.data[i + 3] = Math.min(255, shade * 255 + depth * 40) }
     }
   }
   g.putImageData(img, 0, 0)
@@ -86,7 +86,7 @@ void main() { float e = 1. / ${SPRITE}.;
   float dy = texture2D(hm, uv + vec2(0., e)).r - texture2D(hm, uv - vec2(0., e)).r;
   float c = cos(frot), s = sin(frot); vec2 g = vec2(dx * c - dy * s, dx * s + dy * c);
   float shade = (g.x + g.y) * 2.2; float depth = texture2D(hm, uv).r;
-  vec4 col = shade < 0. ? vec4(1., 1., 1., -shade) : vec4(.06, .15, .12, shade + depth * .16);
+  vec4 col = shade < 0. ? vec4(1., 1., 1., -shade) : vec4(.24, .22, .17, shade + depth * .16);
   gl_FragColor = vec4(col.rgb * col.a, col.a) * alpha; }`
 
 function webglRenderer(canvas, hm) {
@@ -261,4 +261,93 @@ export function Hoofprints({ band }) {
     }
   }, [band])
   return <div ref={ref} className="ssand__prints" aria-hidden="true" />
+}
+
+/**
+ * The same prints as the page's background: a fixed canvas behind all the content. On a computer a print is
+ * pressed wherever the mouse moves over the page and fades after a few seconds; phones get a few still
+ * prints down the sides. Prints keep their place on the page while it scrolls. Off with reduced motion.
+ */
+export function PageHoofprints() {
+  const ref = useRef(null)
+  useEffect(() => {
+    const box = ref.current
+    if (!box || reducedMotion()) return undefined
+    const hm = heightMap()
+    let canvas = document.createElement('canvas')
+    let r = webglRenderer(canvas, hm)
+    if (r) canvas.dataset.mode = 'webgl'
+    else { canvas = document.createElement('canvas'); r = canvasRenderer(canvas, hm); canvas.dataset.mode = '2d' }
+    box.appendChild(canvas)
+    let w = 0
+    let h = 0
+    let dpr = 1
+    const prints = [] // page coordinates
+    const size = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2)
+      w = window.innerWidth
+      h = window.innerHeight
+      canvas.width = Math.round(w * dpr)
+      canvas.height = Math.round(h * dpr)
+    }
+    size()
+    const fine = window.matchMedia?.('(hover: hover) and (pointer: fine)').matches
+    let raf = 0
+    const draw = () => {
+      raf = 0
+      const now = performance.now()
+      for (let i = prints.length - 1; i >= 0; i--) {
+        const p = prints[i]
+        if (p.still) continue
+        p.alpha = fade(now - p.born)
+        if (p.alpha <= 0) prints.splice(i, 1)
+      }
+      const top = window.scrollY
+      r.draw(prints.filter((p) => p.y > top - 60 && p.y < top + h + 60).map((p) => ({ ...p, y: p.y - top })), w, h, dpr)
+      if (prints.some((p) => !p.still)) raf = requestAnimationFrame(draw)
+    }
+    const wake = () => { if (!raf) raf = requestAnimationFrame(draw) }
+    const onScroll = () => wake()
+    const onResize = () => { size(); wake() }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onResize)
+    let last = null
+    let left = false
+    const move = (e) => {
+      const x = e.pageX
+      const y = e.pageY
+      if (!last) { last = { x, y }; return }
+      const d = Math.hypot(x - last.x, y - last.y)
+      if (d < STRIDE * 0.8) return
+      const rot = Math.atan2(y - last.y, x - last.x) + Math.PI / 2
+      const nx = -(y - last.y) / d
+      const ny = (x - last.x) / d
+      left = !left
+      prints.push({ x: x + nx * (left ? -SIDE : SIDE), y: y + ny * (left ? -SIDE : SIDE), rot, alpha: 1, born: performance.now() })
+      if (prints.length > 90) prints.splice(prints.findIndex((p) => !p.still), 1)
+      last = { x, y }
+      wake()
+    }
+    const out = () => { last = null }
+    if (fine) {
+      window.addEventListener('pointermove', move, { passive: true })
+      document.addEventListener('pointerleave', out)
+    } else {
+      // a few still trails down the margins of the page
+      const H = document.documentElement.scrollHeight
+      for (let k = 0; k < 8; k++) {
+        const x0 = k % 2 ? w - 22 : 22
+        const y0 = H * (0.12 + k * 0.105)
+        for (let i = 0; i < 3; i++) prints.push({ x: x0 + (i % 2 ? SIDE : -SIDE), y: y0 + i * STRIDE * 0.8, rot: Math.PI, alpha: 0.8, born: 0, still: true })
+      }
+      wake()
+    }
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onResize)
+      window.removeEventListener('pointermove', move); document.removeEventListener('pointerleave', out)
+      canvas.remove()
+    }
+  }, [])
+  return <div ref={ref} className="spage__prints" aria-hidden="true" />
 }
