@@ -77,6 +77,50 @@ export function nextPonyFriday(today = todayKey()) {
 }
 
 /**
+ * The hero's bottom edge: the sides go straight down, then the edge curves to its lowest point in the
+ * middle, like the toe of a horseshoe facing up (the approved drawing: viewBox 1440 × 980,
+ * M0 0 H1440 V660 C1440 860 1110 960 720 960 S0 860 0 660 Z), scaled to the hero's real size and mirrored
+ * exactly around the centre. Phones get a deeper curve.
+ */
+function heroCurve(w, h) {
+  const phone = w < 700
+  const y0 = h * (phone ? 0.64 : 660 / 980) // where both sides start to curve
+  const yb = h * (phone ? 0.985 : 960 / 980) // the lowest point, in the middle
+  const cy = y0 + (yb - y0) * (2 / 3)
+  const cx = w * (330 / 1440)
+  const r = (n) => Math.round(n * 10) / 10
+  const curve = `M${r(w)} ${r(y0)} C${r(w)} ${r(cy)} ${r(w - cx)} ${r(yb)} ${r(w / 2)} ${r(yb)} C${r(cx)} ${r(yb)} 0 ${r(cy)} 0 ${r(y0)}`
+  return { phone, y0, curve, clip: `M0 0 H${r(w)} V${r(y0)} ${curve.slice(curve.indexOf('C'))} Z` }
+}
+
+/** The iron band along the curve only, with nail holes placed symmetrically from the centre out. */
+function HeroBand({ size }) {
+  const path = useRef(null)
+  const [holes, setHoles] = useState([])
+  const { phone, curve } = heroCurve(size.w, size.h)
+  useEffect(() => {
+    const el = path.current
+    if (!el) return
+    const len = el.getTotalLength()
+    const gap = phone ? 64 : 110
+    const end = phone ? 36 : 60 // none at the very ends
+    const out = []
+    for (let d = 0; len / 2 + d <= len - end; d += gap) {
+      out.push(len / 2 + d)
+      if (d) out.push(len / 2 - d)
+    }
+    setHoles(out.map((l) => el.getPointAtLength(l)).map((pt) => [Math.round(pt.x * 10) / 10, Math.round(pt.y * 10) / 10]))
+  }, [curve, phone])
+  return (
+    <svg className="shero__band" width={size.w} height={size.h} viewBox={`0 0 ${size.w} ${size.h}`} aria-hidden="true" focusable="false">
+      <path d={curve} fill="none" stroke="#3A3A2E" strokeWidth={phone ? 19 : 30} />
+      <path ref={path} d={curve} fill="none" stroke="#68604D" strokeWidth={phone ? 14 : 22} />
+      {holes.map(([x, y]) => <circle key={`${x}-${y}`} cx={x} cy={y} r={phone ? 2.5 : 3.5} fill="#F1EAD8" />)}
+    </svg>
+  )
+}
+
+/**
  * The hero: the three clips full-bleed, one after the other (each as long as its clip at 0.75×, then a 1 s
  * cross-fade). Only the playing clip and the next one load. The chips follow and jump to a scene.
  */
@@ -87,7 +131,17 @@ function Hero() {
   const [visible, setVisible] = useState(true)
   const videos = useRef([])
   const root = useRef(null)
+  const [size, setSize] = useState(null)
   useEffect(() => { setStill(stillOnly()) }, [])
+  useEffect(() => {
+    const el = root.current
+    const measure = () => setSize((p) => (p && p.w === el.clientWidth && p.h === el.clientHeight ? p : { w: el.clientWidth, h: el.clientHeight }))
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    measure()
+    return () => ro.disconnect()
+  }, [])
+  const shape = size && heroCurve(size.w, size.h)
   useEffect(() => {
     const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.05 })
     io.observe(root.current)
@@ -121,7 +175,8 @@ function Hero() {
     return () => clearTimeout(id)
   }, [on])
   return (
-    <section className="shero" data-tone="dark" aria-label={t('site.hero.label')} ref={root}>
+    <section className="shero" data-tone="dark" data-dark-end={shape ? Math.round(shape.y0) : undefined} aria-label={t('site.hero.label')} ref={root}
+      style={shape ? { '--hero-clip': `path('${shape.clip}')`, '--curve-pad': `${Math.round(size.h - shape.y0 + (shape.phone ? 24 : 32))}px` } : undefined}>
       <div className="shero__media">
         {HERO_SCENES.map((sc, i) => (
           <div key={sc.key} className={`shero__scene ${i === on ? 'is-on' : ''}`} aria-hidden={i === on ? undefined : 'true'}>
@@ -136,8 +191,9 @@ function Hero() {
             )}
           </div>
         ))}
+        <div className="shero__scrim" aria-hidden="true" />
       </div>
-      <div className="shero__scrim" aria-hidden="true" />
+      {size && <HeroBand size={size} />}
       <div className="scontainer shero__inner">
         <div className="shero__text">
           <Letters text={t('site.hero.title')} className="shero__title" />
