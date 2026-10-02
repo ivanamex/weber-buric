@@ -159,7 +159,7 @@ export default function FamilyPlan() {
 }
 
 /** Pendientes de pago (each with Pagar por transferencia) and the payment history. Mi plan and Pagos. */
-export function PendingPayments({ familyId, openId, onOpen }) {
+export function PendingPayments({ familyId, openId, onOpen, history = true }) {
   const { t, fmtDate, fmtMoney } = useI18n()
   const s = useStore()
   const family = byId(s.families, familyId)
@@ -193,8 +193,12 @@ export function PendingPayments({ familyId, openId, onOpen }) {
       ) : (
         <p className="muted small">{t('plan.noPending')}</p>
       )}
-      <SectionTitle icon="receipt">{t('history.title')}</SectionTitle>
-      <PaymentHistory familyId={familyId} />
+      {history && (
+        <>
+          <SectionTitle icon="receipt">{t('history.title')}</SectionTitle>
+          <PaymentHistory familyId={familyId} />
+        </>
+      )}
     </>
   )
 }
@@ -213,7 +217,13 @@ export function FamilyPaymentsPage() {
   return (
     <div className="page">
       <h1 className="page__title">{t('family.payments')}</h1>
-      <div className="fcols fcols--single"><div className="fcol"><PendingPayments familyId={s.session.familyId} openId={openId} onOpen={setOpenId} /></div></div>
+      <div className="fcols">
+        <div className="fcol"><PendingPayments familyId={s.session.familyId} openId={openId} onOpen={setOpenId} history={false} /></div>
+        <div className="fcol">
+          <SectionTitle icon="receipt">{t('history.title')}</SectionTitle>
+          <PaymentHistory familyId={s.session.familyId} />
+        </div>
+      </div>
     </div>
   )
 }

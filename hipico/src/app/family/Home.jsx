@@ -45,7 +45,6 @@ export default function FamilyHome() {
   const onCancel = useCancelBooking()
 
 
-  // Phones: one column in this order. Desktop: plan and payments on the left, classes on the right.
   const planBlock = (
     <>
       <ActivePlanCard riderId={riderId} />
@@ -164,23 +163,27 @@ export default function FamilyHome() {
     </>
   )
 
+  const head = (
+    <section className="homehead">
+      <div className="hello">
+        <p className="hello__eyebrow">{t(`family.greeting.${greetingKey()}`)}</p>
+        <h1>{family.contact.split(' ')[0]} <GreetingMark time={greetingKey()} /></h1>
+      </div>
+      <RiderPicker />
+      {planBlock}
+    </section>
+  )
+
+  // Desktop: the green card on the left (7), next class and payments due stacked on the right (5).
   return (
     <div className="page">
-      <section className="homehead">
-        <div className="hello">
-          <p className="hello__eyebrow">{t(`family.greeting.${greetingKey()}`)}</p>
-          <h1>{family.contact.split(' ')[0]} <GreetingMark time={greetingKey()} /></h1>
-        </div>
-        <RiderPicker />
-        {planBlock}
-      </section>
       {desk ? (
-        <div className="fcols">
-          <div className="fcol">{dueBlock}{receiptsBlock}{boardingBlock}</div>
-          <div className="fcol">{cancelledBlock}{nextBlock}{upcomingBlock}</div>
+        <div className="fcols fcols--home">
+          <div className="fcol">{head}{upcomingBlock}{receiptsBlock}</div>
+          <div className="fcol">{cancelledBlock}{nextBlock}{dueBlock}{boardingBlock}</div>
         </div>
       ) : (
-        <>{dueBlock}{cancelledBlock}{nextBlock}{upcomingBlock}{receiptsBlock}{boardingBlock}</>
+        <>{head}{dueBlock}{cancelledBlock}{nextBlock}{upcomingBlock}{receiptsBlock}{boardingBlock}</>
       )}
     </div>
   )
