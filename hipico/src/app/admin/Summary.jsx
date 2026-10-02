@@ -38,12 +38,11 @@ export default function AdminSummary() {
 
   return (
     <div className="page">
-      <h1 className="page__title">{t('summary.title')}</h1>
-      <p className="daylabel">{fmtDate(todayKey())}</p>
-
-      <div className="sumgrid">
-      <section className="sumblock sumblock--wide">
-      <SectionTitle icon="family">{t('summary.active')}</SectionTitle>
+      <section className="homehead">
+        <div>
+          <h1 className="page__title">{t('summary.title')}</h1>
+          <p className="daylabel">{fmtDate(todayKey())}</p>
+        </div>
       <div className="stats stats--4">
         <div className="stat"><strong>{counts.families}</strong><span>{t('summary.families')}</span></div>
         <div className="stat"><strong>{counts.riders}</strong><span>{t('summary.riders')}</span></div>
@@ -53,8 +52,9 @@ export default function AdminSummary() {
         </div>
         <div className="stat"><strong>{counts.boarded}</strong><span>{t('summary.boarded')}</span></div>
       </div>
-
       </section>
+
+      <div className="sumgrid">
       <section className="sumblock sumblock--money">
       <SectionTitle icon="receipt">{t('summary.money')}</SectionTitle>
       <div className="card">

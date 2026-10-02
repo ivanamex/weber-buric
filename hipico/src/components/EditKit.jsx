@@ -51,7 +51,7 @@ export function useDiscardGuard(dirty) {
   return [guard, dialog]
 }
 
-/** The one obvious Guardar (coral, white text, full width on phones) with Cancelar as a text link, and any error right above it. */
+/** The one obvious Guardar (jungle, white text, full width on phones) with Cancelar as a text link, and any error right above it. */
 export function SaveBar({ busy, dirty = false, onCancel, label, error, disabled = false }) {
   const { t } = useI18n()
   const [guard, dialog] = useDiscardGuard(dirty)

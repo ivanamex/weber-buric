@@ -166,18 +166,21 @@ export default function FamilyHome() {
 
   return (
     <div className="page">
-      <div className="hello">
-        <p className="hello__eyebrow">{t(`family.greeting.${greetingKey()}`)}</p>
-        <h1>{family.contact.split(' ')[0]} <GreetingMark time={greetingKey()} /></h1>
-      </div>
-      <RiderPicker />
+      <section className="homehead">
+        <div className="hello">
+          <p className="hello__eyebrow">{t(`family.greeting.${greetingKey()}`)}</p>
+          <h1>{family.contact.split(' ')[0]} <GreetingMark time={greetingKey()} /></h1>
+        </div>
+        <RiderPicker />
+        {planBlock}
+      </section>
       {desk ? (
         <div className="fcols">
-          <div className="fcol">{planBlock}{dueBlock}{receiptsBlock}{boardingBlock}</div>
+          <div className="fcol">{dueBlock}{receiptsBlock}{boardingBlock}</div>
           <div className="fcol">{cancelledBlock}{nextBlock}{upcomingBlock}</div>
         </div>
       ) : (
-        <>{planBlock}{dueBlock}{cancelledBlock}{nextBlock}{upcomingBlock}{receiptsBlock}{boardingBlock}</>
+        <>{dueBlock}{cancelledBlock}{nextBlock}{upcomingBlock}{receiptsBlock}{boardingBlock}</>
       )}
     </div>
   )

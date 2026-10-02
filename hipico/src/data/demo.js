@@ -563,7 +563,7 @@ const SAMPLE_RECEIPT = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns
 <text x="24" y="210" font-size="13" fill="#6E675C">Concepto</text><text x="24" y="232" font-size="16">Anticipo campamento · Ximena</text>
 <text x="24" y="280" font-size="13" fill="#6E675C">Beneficiario</text><text x="24" y="302" font-size="16">Hípico Riviera Maya</text>
 <text x="24" y="350" font-size="13" fill="#6E675C">Estado</text><text x="24" y="372" font-size="16" fill="#7C9070" font-weight="600">Liquidada</text></g>
-<text x="180" y="480" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#C2553D">Comprobante de ejemplo · demo</text></svg>`)}`
+<text x="180" y="480" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#4E7A5A">Comprobante de ejemplo · demo</text></svg>`)}`
 
 export const RECEIPT_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'application/pdf']
 export const RECEIPT_MAX_BYTES = 10 * 1024 * 1024

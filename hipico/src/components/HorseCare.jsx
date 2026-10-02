@@ -37,7 +37,7 @@ export function DailyRation({ care }) {
   )
 }
 
-/** Next vaccine, deworming, farrier and vet dates. Coral when due within 14 days or overdue. With `onPick`, each tile opens its form. */
+/** Next vaccine, deworming, farrier and vet dates. Highlighted when due within 14 days or overdue. With `onPick`, each tile opens its form. */
 export function NextDates({ last, kinds = ['vaccine', 'deworming', 'farrier', 'vet'], onPick }) {
   const { t, fmtDate } = useI18n()
   const today = todayKey()

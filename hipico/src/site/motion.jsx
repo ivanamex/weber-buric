@@ -1,5 +1,5 @@
 // Website motion: letters that rise, blocks that reveal once (12 px + fade), headlines whose weight grows
-// (Outfit is variable), manifesto words that go from faint to ink with the scroll. Image zooms and the
+// (Archivo is variable), manifesto words that go from faint to ink with the scroll. Image zooms and the
 // progress line use CSS scroll-driven animations where the browser has them (site.css).
 // prefers-reduced-motion: everything is shown at once, nothing moves.
 import { useEffect, useRef } from 'react'
@@ -25,7 +25,7 @@ export function useReveal(root, key) {
 
 /**
  * A headline that rises letter by letter (~25 ms apart, once). The word between *stars* is filled with the
- * flamboyán → coral gradient. Screen readers get the plain text.
+ * accent gradient. Screen readers get the plain text.
  */
 export function Letters({ text, as: Tag = 'h1', className = '' }) {
   let i = 0

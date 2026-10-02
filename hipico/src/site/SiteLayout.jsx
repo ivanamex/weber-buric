@@ -10,8 +10,6 @@ import { isStandalone } from '../lib/install.js'
 import { SECTIONS, homePath, sectionId, translateHash } from './routes.js'
 import { CONTACT, SHARE_IMAGE } from './content.js'
 import { reducedMotion, useReveal } from './motion.jsx'
-import '@fontsource-variable/archivo/standard.css' // the website's headlines and UI (the app keeps Outfit + Inter)
-import '@fontsource-variable/hanken-grotesk/wght.css' // the website's body text
 import './site.css'
 
 const LANG_KEY = 'hipico.lang'
