@@ -326,12 +326,12 @@ function Therapy() {
           <p className="slead">{t('site.therapy.what')}</p>
           <p className="slead">{t('site.therapy.who')}</p>
           <p className="snote"><SiteIcon name="shield" size={20} /> {t('site.therapy.alongside')}</p>
-          <StepRow className="ssteps--3" steps={['evaluation', 'weekly', 'review'].map((k) => ({ key: k, title: t(`site.therapy.steps.${k}.title`), text: t(`site.therapy.steps.${k}.text`) }))} />
-          <div className="stherapy__cta">
-            <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.therapy'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.therapy.cta')}</span></a>
-            <p className="small">{t('site.therapy.footnote')}</p>
-          </div>
         </div>
+      </div>
+      <StepRow className="ssteps--3" steps={['evaluation', 'weekly', 'review'].map((k) => ({ key: k, title: t(`site.therapy.steps.${k}.title`), text: t(`site.therapy.steps.${k}.text`) }))} />
+      <div className="stherapy__cta">
+        <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.therapy'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.therapy.cta')}</span></a>
+        <p className="small">{t('site.therapy.footnote')}</p>
       </div>
     </Sec>
   )
@@ -343,9 +343,7 @@ function Boarding() {
   const data = useSiteData()
   const horses = data?.sales || []
   return (
-    <Sec k="boarding" n="05" className="sboard" bg={(
-      <div className="sboard__bg" aria-hidden="true"><Clip clip={CLIPS.herd} /></div>
-    )}>
+    <Sec k="boarding" n="05">
       <Kinetic id="boarding-title" text={t('site.boarding.title')} />
       <div className="spanels">
         <article className="spanel" data-reveal="">
@@ -417,14 +415,32 @@ function TheApp() {
   )
 }
 
-/** 07 Comunidad: the families photo beside Pony Friday, the events and the camps. */
+/** 07 Comunidad: the families photo, then whole event cards (3 on a computer, "Ver todos" for the rest; a swipe row with dots on phones). */
 function Community() {
   const { t, fmtDate, fmtMoney } = useI18n()
   const data = useSiteData()
   const events = data?.events || []
   const pony = nextPonyFriday()
   const quote = TESTIMONIALS[0]
+  const [all, setAll] = useState(false)
+  const [dot, setDot] = useState(0)
+  const row = useRef(null)
   const typeName = (type) => (t(`site.community.types.${type}`) === `site.community.types.${type}` ? t('site.community.types.camp') : t(`site.community.types.${type}`))
+  const cards = [
+    { key: 'pony', pony: true, kicker: t('site.community.pony.kicker'), title: 'Pony Friday', text: t('site.community.pony.text'),
+      date: pony && t('site.community.pony.next', { date: fmtDate(pony, { weekday: 'long', day: 'numeric', month: 'long' }) }), go: t('site.community.pony.cta'), wa: t('site.wa.pony') },
+    ...events.map((e) => ({ key: e.id, kicker: typeName(e.type),
+      title: `${fmtDate(e.startDate, { day: 'numeric', month: 'short' })} – ${fmtDate(e.endDate, { day: 'numeric', month: 'short', year: 'numeric' })}`,
+      text: [e.ages && t('site.community.ages', { ages: e.ages }), e.price > 0 && t('site.community.price', { price: fmtMoney(e.price) })].filter(Boolean).join(' · '),
+      go: t('site.community.ask'), wa: t('site.wa.camps') })),
+    ...['summer', 'holiday'].map((k) => ({ key: k, kicker: t('site.community.campKicker'), title: t(`site.community.camps.${k}.title`),
+      text: t(`site.community.camps.${k}.text`), go: t('site.community.ask'), wa: t('site.wa.camps') })),
+  ]
+  const onScroll = () => {
+    const el = row.current
+    const first = el?.firstElementChild
+    if (first) setDot(Math.round(el.scrollLeft / (first.getBoundingClientRect().width + 14)))
+  }
   return (
     <Sec k="community" n="07">
       <Kinetic id="community-title" text={t('site.community.title')} />
@@ -438,34 +454,26 @@ function Community() {
             </figcaption>
           )}
         </figure>
-        <div className="scommunity__side">
-          <p className="slead">{t('site.community.text')}</p>
-          <ul className="srow" aria-label={t('site.community.rowLabel')}>
-            <li className="scardlet scardlet--pony">
-              <span className="scardlet__kicker">{t('site.community.pony.kicker')}</span>
-              <h3>Pony Friday</h3>
-              <p>{t('site.community.pony.text')}</p>
-              {pony && <p className="scardlet__date">{t('site.community.pony.next', { date: fmtDate(pony, { weekday: 'long', day: 'numeric', month: 'long' }) })}</p>}
-              <a className="scardlet__go" {...wa(t('site.wa.pony'))}>{t('site.community.pony.cta')} <SiteIcon name="arrowRight" size={18} /></a>
-            </li>
-            {events.map((e) => (
-              <li key={e.id} className="scardlet">
-                <span className="scardlet__kicker">{typeName(e.type)}</span>
-                <h3>{fmtDate(e.startDate, { day: 'numeric', month: 'short' })} – {fmtDate(e.endDate, { day: 'numeric', month: 'short', year: 'numeric' })}</h3>
-                <p>{[e.ages && t('site.community.ages', { ages: e.ages }), e.price > 0 && t('site.community.price', { price: fmtMoney(e.price) })].filter(Boolean).join(' · ')}</p>
-                <a className="scardlet__go" {...wa(t('site.wa.camps'))}>{t('site.community.ask')} <SiteIcon name="arrowRight" size={18} /></a>
-              </li>
-            ))}
-            {['summer', 'holiday'].map((k) => (
-              <li key={k} className="scardlet">
-                <span className="scardlet__kicker">{t('site.community.campKicker')}</span>
-                <h3>{t(`site.community.camps.${k}.title`)}</h3>
-                <p>{t(`site.community.camps.${k}.text`)}</p>
-                <a className="scardlet__go" {...wa(t('site.wa.camps'))}>{t('site.community.ask')} <SiteIcon name="arrowRight" size={18} /></a>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <p className="slead scommunity__text">{t('site.community.text')}</p>
+      </div>
+      <ul className={`sevents ${all ? 'is-all' : ''}`} ref={row} onScroll={onScroll} aria-label={t('site.community.rowLabel')}>
+        {cards.map((c) => (
+          <li key={c.key} className={`scardlet ${c.pony ? 'scardlet--pony' : ''}`}>
+            <span className="scardlet__kicker">{c.kicker}</span>
+            <h3>{c.title}</h3>
+            {c.text && <p>{c.text}</p>}
+            {c.date && <p className="scardlet__date">{c.date}</p>}
+            <a className="scardlet__go" {...wa(c.wa)}>{c.go} <SiteIcon name="arrowRight" size={18} /></a>
+          </li>
+        ))}
+      </ul>
+      <div className="sevents__foot">
+        <span className="sevents__dots" aria-hidden="true">{cards.map((c, i) => <i key={c.key} className={i === dot ? 'is-on' : ''} />)}</span>
+        {cards.length > 3 && (
+          <button type="button" className="slinkarrow sevents__all" aria-expanded={all} onClick={() => setAll((v) => !v)}>
+            {all ? t('site.community.fewer') : t('site.community.all', { n: cards.length })}
+          </button>
+        )}
       </div>
     </Sec>
   )

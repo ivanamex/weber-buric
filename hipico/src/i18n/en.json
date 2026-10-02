@@ -1329,7 +1329,9 @@
           "text": "During school holidays, with limited places."
         }
       },
-      "ask": "Ask for dates"
+      "ask": "Ask for dates",
+      "all": "See all ({n})",
+      "fewer": "See fewer"
     },
     "app": {
       "title": "The club, on your phone.",

@@ -1329,7 +1329,9 @@
           "text": "En temporada de vacaciones, con cupo limitado."
         }
       },
-      "ask": "Pedir fechas"
+      "ask": "Pedir fechas",
+      "all": "Ver todos ({n})",
+      "fewer": "Ver menos"
     },
     "app": {
       "title": "El club, en tu celular.",
