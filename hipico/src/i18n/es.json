@@ -1186,7 +1186,8 @@
       "rider": "Un jinete monta un caballo bayo claro",
       "hooves": "Cascos de caballo sobre la arena al atardecer",
       "grooming": "Unas manos cepillan a un caballo",
-      "paddockFace": "Un caballo se asoma en el potrero"
+      "paddockFace": "Un caballo se asoma en el potrero",
+      "jumpSunset": "Un caballo salta un obstáculo al atardecer"
     },
     "hero": {
       "label": "Bienvenida",

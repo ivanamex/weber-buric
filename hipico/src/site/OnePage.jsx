@@ -7,7 +7,8 @@ import { todayKey } from '../lib/time.js'
 import { AppButton } from './SiteLayout.jsx'
 import { BigPhoto, ClubPhoto, Kinetic, Letters, reducedMotion } from './motion.jsx'
 import { sectionId } from './routes.js'
-import { BIG, CLIPS, CONTACT, GALLERY_VIDEOS, HERO_SCENES, PHOTOS, TESTIMONIALS, mapDirections, mapEmbed } from './content.js'
+import { BIG, CLIPS, CONTACT, HERO_SCENES, PHOTOS, STILLS, TESTIMONIALS, mapDirections, mapEmbed } from './content.js'
+import { Hoofprints } from './Hoofprints.jsx'
 import { planList, useSiteData } from './siteData.js'
 import GALLERY from 'virtual:gallery'
 
@@ -158,8 +159,8 @@ const GALLERY_ALT = {
   'rider-buckskin': 'rider', 'paddock-herd': 'paddock', 'horse-fence': 'fence', 'girl-horse-closeup': 'closeup',
   'girl-horse-nose': 'nose', 'girl-riding-flamboyan': 'riding', 'horse-blaze': 'hero', 'paddock-face': 'paddockFace',
 }
-const ROW_H = 240
-const MIN_SET = 2600 // px: one set of a row is always wider than the widest screen, so the loop never shows a gap
+const ROW_H = 260
+const MIN_SET = 2600 // px: one set is always wider than the widest screen, so the loop never shows a gap
 
 function fillRow(items) {
   if (!items.length) return []
@@ -167,38 +168,26 @@ function fillRow(items) {
   return Array.from({ length: Math.max(1, Math.ceil(MIN_SET / width)) }, () => items).flat()
 }
 
-function GalleryRow({ items, dir, alt }) {
-  const set = fillRow(items)
-  return (
-    <div className={`sgallery__row sgallery__row--${dir}`}>
-      <div className="sgallery__track">
-        {[0, 1].map((copy) => set.map((g, i) => {
-          const hidden = copy || i >= items.length
-          return (
-            <figure key={`${copy}-${i}`} className="sgallery__item" style={{ '--ratio': g.w / g.h }} aria-hidden={hidden ? 'true' : undefined}>
-              {g.video
-                ? <Clip clip={g} alt={hidden ? '' : alt(g)} />
-                : <img src={g.src} width={g.w} height={g.h} alt={hidden ? '' : alt(g)} loading="lazy" decoding="async" />}
-            </figure>
-          )
-        }))}
-      </div>
-    </div>
-  )
-}
-
-/** 01 Disfruta: two rows of photos and clips sliding in opposite directions (pause on hover). */
+/** 07 Disfruta: one row of photos sliding slowly (pause on hover), just before Visítanos. */
 function Enjoy() {
   const { t } = useI18n()
   const alt = (g) => (GALLERY_ALT[g.name] ? t(`site.alt.${GALLERY_ALT[g.name]}`) : g.name.replace(/[-_]+/g, ' '))
-  const one = [...GALLERY.filter((_, i) => i % 2 === 0)]
-  GALLERY_VIDEOS.forEach((v, i) => one.splice(Math.min(one.length, 1 + i * 2), 0, v))
-  const two = GALLERY.filter((_, i) => i % 2 === 1)
+  const set = fillRow(GALLERY)
   return (
-    <Sec k="enjoy" n="01" className="senjoy" after={(
+    <Sec k="enjoy" n="07" className="senjoy" after={(
       <div className="sgallery" aria-label={t('site.enjoy.gallery')} role="group">
-        <GalleryRow items={one} dir="left" alt={alt} />
-        <GalleryRow items={two.length ? two : one} dir="right" alt={alt} />
+        <div className="sgallery__row sgallery__row--left">
+          <div className="sgallery__track">
+            {[0, 1].map((copy) => set.map((g, i) => {
+              const hidden = copy || i >= GALLERY.length
+              return (
+                <figure key={`${copy}-${i}`} className="sgallery__item" style={{ '--ratio': g.w / g.h }} aria-hidden={hidden ? 'true' : undefined}>
+                  <img src={g.src} width={g.w} height={g.h} alt={hidden ? '' : alt(g)} loading="lazy" decoding="async" />
+                </figure>
+              )
+            }))}
+          </div>
+        </div>
       </div>
     )}>
       <Kinetic id="enjoy-title" text={t('site.enjoy.title')} />
@@ -232,11 +221,12 @@ function StepRow({ id, steps, className = '' }) {
 /** 02 Qué hacemos: the bento, then "Aprende a montar" as one compact row of 4 steps. */
 function Services() {
   const { t, lang, fmtMoney } = useI18n()
+  const sand = useRef(null)
   const data = useSiteData()
   const plans = planList(data?.prices)
   const trial = data?.prices?.class_trial
   return (
-    <Sec k="services" n="02">
+    <Sec k="services" n="01">
       <Kinetic id="services-title" text={t('site.services.title')} />
       <div className="bento">
         <a className="tile tile--photo tile--classes" {...wa(t('site.wa.trial'))} data-reveal="">
@@ -271,7 +261,8 @@ function Services() {
           </a>
         ))}
       </div>
-      <div className="slearn">
+      <div className="slearn ssand" ref={sand}>
+        <Hoofprints band={sand} />
         <h3 className="slearn__title">{t('site.learn.title')}</h3>
         <StepRow id={sectionId('learn', lang)} steps={['trial', 'plan', 'pony', 'show'].map((k) => ({ key: k, title: t(`site.learn.steps.${k}.title`), text: t(`site.learn.steps.${k}.text`) }))} />
       </div>
@@ -283,10 +274,10 @@ function Services() {
 function Competitions() {
   const { t } = useI18n()
   return (
-    <Sec k="competitions" n="03">
+    <Sec k="competitions" n="02">
       <Kinetic id="competitions-title" text={t('site.competitions.title')} />
       <div className="scomp">
-        <figure className="smedia scomp__media" data-reveal=""><Clip clip={CLIPS.hooves} alt={t('site.alt.hooves')} /></figure>
+        <figure className="smedia scomp__media" data-reveal=""><ClubPhoto photo={STILLS.jumpSunset} alt={t('site.alt.jumpSunset')} position="55% 45%" /></figure>
         <div className="scomp__stories">
           {['training', 'events'].map((k) => (
             <article key={k} className="sstory" data-reveal="">
@@ -315,7 +306,7 @@ function Competitions() {
 function Therapy() {
   const { t } = useI18n()
   return (
-    <Sec k="therapy" n="04" tone="mesh">
+    <Sec k="therapy" n="03" tone="mesh">
       <div className="stherapy">
         <figure className="smedia stherapy__media" data-reveal="">
           <Clip clip={CLIPS.grooming} alt={t('site.alt.grooming')} />
@@ -343,8 +334,10 @@ function Boarding() {
   const data = useSiteData()
   const horses = data?.sales || []
   return (
-    <Sec k="boarding" n="05">
+    <Sec k="boarding" n="04">
       <Kinetic id="boarding-title" text={t('site.boarding.title')} />
+      <div className="sboard">
+      <figure className="smedia sboard__photo" data-reveal=""><ClubPhoto photo={STILLS.herd} alt={t('site.alt.paddock')} position="50% 50%" /></figure>
       <div className="spanels">
         <article className="spanel" data-reveal="">
           <h3>{t('site.boarding.panel')}</h3>
@@ -378,6 +371,7 @@ function Boarding() {
           <a className="sbtn sbtn--deep" {...wa(t('site.wa.horses'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.sales.cta')}</span></a>
         </article>
       </div>
+      </div>
     </Sec>
   )
 }
@@ -392,7 +386,7 @@ const APP_STEPS = [
 function TheApp() {
   const { t } = useI18n()
   return (
-    <Sec k="app" n="06">
+    <Sec k="app" n="05">
       <div className="sapp">
         <div className="sapp__phone"><LivePhone src="/vista?control" /></div>
         <div className="sapp__text">
@@ -442,7 +436,7 @@ function Community() {
     if (first) setDot(Math.round(el.scrollLeft / (first.getBoundingClientRect().width + 14)))
   }
   return (
-    <Sec k="community" n="07">
+    <Sec k="community" n="06">
       <Kinetic id="community-title" text={t('site.community.title')} />
       <div className="scommunity">
         <figure className="sfamily" data-reveal="">
@@ -507,13 +501,13 @@ export default function OnePage() {
   return (
     <>
       <Hero />
-      <Enjoy />
       <Services />
       <Competitions />
       <Therapy />
       <Boarding />
       <TheApp />
       <Community />
+      <Enjoy />
       <Visit />
     </>
   )

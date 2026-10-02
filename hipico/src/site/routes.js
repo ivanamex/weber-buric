@@ -1,12 +1,12 @@
 // The club website is one page (/ in Spanish, /en in English) with numbered sections.
 export const SECTIONS = [
-  { key: 'enjoy', n: '01', es: 'disfruta', en: 'enjoy' },
-  { key: 'services', n: '02', es: 'que-hacemos', en: 'what-we-do' },
-  { key: 'competitions', n: '03', es: 'competencias', en: 'show-jumping' },
-  { key: 'therapy', n: '04', es: 'equinoterapia', en: 'equine-therapy' },
-  { key: 'boarding', n: '05', es: 'pension', en: 'boarding' },
-  { key: 'app', n: '06', es: 'app', en: 'app' },
-  { key: 'community', n: '07', es: 'comunidad', en: 'community' },
+  { key: 'services', n: '01', es: 'que-hacemos', en: 'what-we-do' },
+  { key: 'competitions', n: '02', es: 'competencias', en: 'show-jumping' },
+  { key: 'therapy', n: '03', es: 'equinoterapia', en: 'equine-therapy' },
+  { key: 'boarding', n: '04', es: 'pension', en: 'boarding' },
+  { key: 'app', n: '05', es: 'app', en: 'app' },
+  { key: 'community', n: '06', es: 'comunidad', en: 'community' },
+  { key: 'enjoy', n: '07', es: 'disfruta', en: 'enjoy' },
   { key: 'visit', n: '08', es: 'visitanos', en: 'visit' },
 ]
 // Places inside a section that old links point to.

@@ -28,17 +28,16 @@ export const HERO_SCENES = [
   { key: 'kids', video: '/video/hero-3-kids.mp4', poster: '/video/hero-3-kids.webp' },
 ]
 
-// Clips used inside sections (all 1280 px wide, muted, looping while on screen).
+// The only clip outside the hero (the page keeps two videos in all: the hero and this one).
 export const CLIPS = {
-  hooves: { video: '/video/hooves-sand.mp4', poster: '/video/hooves-sand.webp', w: 1280, h: 700 },
   grooming: { video: '/video/grooming.mp4', poster: '/video/grooming.webp', w: 1280, h: 700 },
-  herd: { video: '/video/paddock-herd.mp4', poster: '/video/paddock-herd.webp', w: 1280, h: 720 },
 }
 
-// Moving tiles in the Disfruta gallery (row 1), next to the photos from public/img/gallery/.
-export const GALLERY_VIDEOS = [
-  { name: 'paddock-face', video: '/video/paddock-face.mp4', poster: '/video/paddock-face.webp', w: 1280, h: 720 },
-]
+// Stills that replaced clips: Competencias and Pensión.
+export const STILLS = {
+  jumpSunset: { src: '/img/gallery/jump-sunset.webp', w: 2000, h: 1091 },
+  herd: { src: '/video/paddock-herd.webp', w: 1280, h: 720 },
+}
 
 export const SHARE_IMAGE = '/img/club/og-horse-blaze.jpg'
 

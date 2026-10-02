@@ -232,13 +232,13 @@
 /* ───────── 01 Disfruta: two rows of photos and clips sliding in opposite directions ───────── */
 .senjoy { overflow: clip; }
 .senjoy .kinetic { margin-bottom: 0; }
-.sgallery { --row-h: 160px; display: grid; gap: 16px; margin-top: 28px; }
-@media (min-width: 900px) { .sgallery { --row-h: 240px; margin-top: 36px; } }
+.sgallery { --row-h: 180px; display: grid; gap: 16px; margin-top: 28px; }
+@media (min-width: 900px) { .sgallery { --row-h: 260px; margin-top: 32px; } }
 .sgallery__row { overflow: hidden; }
 .sgallery__track { display: flex; width: max-content; }
 .sgallery__item { margin: 0 16px 0 0; height: var(--row-h); width: calc(var(--row-h) * var(--ratio)); border-radius: 20px; overflow: hidden; flex-shrink: 0; background: #DCE5DD; }
 .sgallery__item img, .sgallery__item video { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
-.has-motion .sgallery__row--left .sgallery__track { animation: slideLeft 60s linear infinite; }
+.has-motion .sgallery__row--left .sgallery__track { animation: slideLeft 80s linear infinite; }
 .has-motion .sgallery__row--right .sgallery__track { animation: slideRight 60s linear infinite; }
 @keyframes slideLeft { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes slideRight { from { transform: translateX(-50%); } to { transform: translateX(0); } }
@@ -256,7 +256,7 @@
 .tile--competitions { grid-area: co; } .tile--boarding { grid-area: bo; }
 .tile--early { grid-area: ea; } .tile--camps { grid-area: ca; } .tile--parties { grid-area: pa; } .tile--coaching { grid-area: ch; }
 @media (min-width: 1000px) {
-  .bento { gap: 14px; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: 134px 134px 112px; grid-template-areas: "cl cl co bo" "cl cl co ea" "ca pa ch ch"; }
+  .bento { gap: 14px; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: 128px 128px 108px; grid-template-areas: "cl cl co bo" "cl cl co ea" "ca pa ch ch"; }
   .tile--classes { min-height: 0; }
 }
 .tile { position: relative; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; padding: 18px 18px 18px; border-radius: 24px; overflow: hidden; isolation: isolate; color: var(--deep); background: var(--card); border: 1px solid var(--line); }
@@ -276,6 +276,16 @@
 .tile__prices li { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0; border-top: 1px solid rgba(255,255,255,.22); font-size: .9rem; }
 .tile__prices strong { font-weight: 700; }
 .slearn { margin-top: 18px; display: grid; gap: 12px; }
+/* arena sand under the steps, with the hoofprint layer between the sand and the tiles */
+.ssand { position: relative; isolation: isolate; padding: 12px 14px; border-radius: 24px; background: var(--sand); overflow: hidden; }
+.ssand::before { content: ''; position: absolute; inset: 0; z-index: -2; opacity: .35; mix-blend-mode: multiply; pointer-events: none; background-image: var(--grain); background-size: 140px; }
+.ssand__prints { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.ssand__prints canvas { display: block; width: 100%; height: 100%; }
+.ssand .ssteps li { box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 6px 16px rgba(80,60,30,.12); }
+.ssand .ssteps li { background: rgba(169,195,174,.82); }
+.ssand .ssteps li:nth-child(2) { background: rgba(220,235,223,.82); }
+.ssand .ssteps li:nth-child(3) { background: rgba(244,236,221,.82); }
+.ssand .ssteps li:nth-child(4) { background: rgba(242,180,140,.85); }
 @media (min-width: 1000px) { .slearn { grid-template-columns: 170px minmax(0, 1fr); gap: 24px; align-items: start; } .slearn__title { padding-top: 16px; } }
 .slearn__title { font-stretch: 72%; font-weight: 800; text-transform: uppercase; font-size: var(--card-title); line-height: 1; scroll-margin-top: calc(var(--bar-h) + 16px); }
 
@@ -313,6 +323,12 @@
 @media (min-width: 900px) { .stherapy { grid-template-columns: minmax(0, .95fr) minmax(0, 1fr); gap: 36px; align-items: center; } }
 
 /* ───────── 05 Pensión y caballos: the herd clip behind a mist scrim ───────── */
+.sboard { display: grid; gap: 24px; }
+.sboard__photo { aspect-ratio: 4 / 5; max-height: 70svh; }
+@media (min-width: 900px) { .sboard { grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 56px; align-items: center; } .sboard__photo { max-height: none; } }
+.sboard .spanels { grid-template-columns: 1fr !important; gap: 22px !important; }
+.sboard .spanel + .spanel { border-left: 0 !important; padding-left: 0 !important; border-top: 1px solid var(--line) !important; padding-top: 22px !important; }
+.sboard .slist li { padding: 8px 0; }
 .spanels { display: grid; gap: 16px; }
 @media (min-width: 900px) { .spanels { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; } }
 .spanel { display: grid; gap: 16px; align-content: start; justify-items: start; scroll-margin-top: calc(var(--bar-h) + 16px); }
