@@ -12,6 +12,22 @@ export function concept(t, p) {
   return t(`services.${p.service}`)
 }
 
+/** The charge as a sentence for a reminder: "el pago del plan de 8 clases de Regina". */
+export function paymentSentence(t, s, p) {
+  const m = p.meta || {}
+  const name = (m.riderId && s.riders.find((r) => r.id === m.riderId)?.name) || ''
+  const of = name ? t('wa.of', { name }) : ''
+  if (p.service === 'plan' && m.kind === 'upgrade') return t('wa.upgrade', { from: m.fromClasses, to: m.classes, of })
+  if (p.service === 'plan') return m.classes ? t('wa.plan', { n: m.classes, of }) : t('wa.other', { what: t('services.plan').toLowerCase(), of })
+  if (p.service === 'boarding') {
+    const horse = s.horses.find((h) => h.id === m.horseId)?.name
+    return horse ? t('wa.boarding', { horse }) : t('wa.other', { what: t('services.boarding').toLowerCase(), of: '' })
+  }
+  if (p.service === 'class') return t('wa.class', { kind: t(`classKind.${m.kind || 'single'}`).toLowerCase(), of })
+  if (p.service === 'camp') return t('wa.camp', { of })
+  return t('wa.other', { what: t(`services.${p.service}`).toLowerCase(), of })
+}
+
 function statusOf(p) {
   if (p.status === 'paid') return ['success', 'history.paid']
   if (p.receiptStatus === 'review') return ['accent', 'receipt.status.review']

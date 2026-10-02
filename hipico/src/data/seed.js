@@ -3,6 +3,7 @@ import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR } from './prices.js'
 import {
   todayKey, addDays, weekdayOf, monthKeyOf, monthEnd, nextMonthKey, hoursUntil, toInstant,
 } from '../lib/time.js'
+import { horseOrder } from './queries.js'
 
 export const DEMO_FAMILY_ID = 'f1'
 
@@ -118,17 +119,24 @@ function rng(seed) {
 /** Owner's panel sample: staff, a few expenses, one horse for sale. */
 function ownerSample(today) {
   const d = (n) => addDays(today, n)
+  // Salaries go out on the 15th and on the month's last day.
+  const month = monthKeyOf(today)
+  const lastMonthEnd = addDays(`${month}-01`, -1)
+  const day = Number(today.slice(8, 10))
+  const nextHalf = day <= 15 ? `${month}-15` : monthEnd(month)
+  const lastHalf = day > 15 ? `${month}-15` : lastMonthEnd
   return {
     employees: [
-      { id: 'e1', name: 'Mariana López', role: 'instructor', salary: 9000, frequency: 'quincenal', nextPayDate: d(3), active: true, workingDays: 'L–V' },
-      { id: 'e2', name: 'Diego Ramírez', role: 'instructor', salary: 8500, frequency: 'quincenal', nextPayDate: d(3), active: true, workingDays: 'Ma–S' },
-      { id: 'e3', name: 'Pedro Canul', role: 'groom', salary: 7200, frequency: 'mensual', nextPayDate: d(9), active: true, workingDays: 'L–S' },
-      { id: 'e4', name: 'Rosa Pech', role: 'office', salary: 6800, frequency: 'mensual', nextPayDate: d(20), active: true, workingDays: 'L–V' },
+      { id: 'e1', name: 'Mariana López', role: 'instructor', salary: 9000, frequency: 'quincenal', nextPayDate: nextHalf, active: true, workingDays: 'L–V' },
+      { id: 'e2', name: 'Diego Ramírez', role: 'instructor', salary: 8500, frequency: 'quincenal', nextPayDate: nextHalf, active: true, workingDays: 'Ma–S' },
+      { id: 'e3', name: 'Pedro Canul', role: 'groom', salary: 7200, frequency: 'mensual', nextPayDate: monthEnd(month), active: true, workingDays: 'L–S' },
+      { id: 'e4', name: 'Rosa Pech', role: 'office', salary: 6800, frequency: 'mensual', nextPayDate: monthEnd(month), active: true, workingDays: 'L–V' },
     ],
     salaryPayments: [
-      { id: 'sp1', employeeId: 'e1', paidOn: d(-12), amount: 9000, method: 'transfer' },
-      { id: 'sp2', employeeId: 'e2', paidOn: d(-12), amount: 8500, method: 'transfer' },
-      { id: 'sp3', employeeId: 'e3', paidOn: d(-21), amount: 7200, method: 'cash' },
+      { id: 'sp1', employeeId: 'e1', paidOn: lastHalf, amount: 9000, method: 'transfer' },
+      { id: 'sp2', employeeId: 'e2', paidOn: lastHalf, amount: 8500, method: 'transfer' },
+      { id: 'sp3', employeeId: 'e3', paidOn: lastMonthEnd, amount: 7200, method: 'cash' },
+      { id: 'sp4', employeeId: 'e4', paidOn: lastMonthEnd, amount: 6800, method: 'transfer' },
     ],
     expenseCategories: ['Alimento', 'Veterinario', 'Herrero', 'Renta', 'Servicios', 'Otros'].map((name, i) => ({ id: `ec${i + 1}`, name, active: true })),
     expenses: [
@@ -148,18 +156,31 @@ export function createSeed() {
   const today = todayKey()
   const month = monthKeyOf(today)
   const nextMonth = nextMonthKey(month)
-  // A sample holiday: the next 2 November.
-  const holiday = `${Number(today.slice(0, 4)) + (today > `${today.slice(0, 4)}-11-02` ? 1 : 0)}-11-02`
+  // A sample holiday: the next 2 November (1 November when the 2nd is a Monday, the day the club already closes).
+  const nov2 = `${Number(today.slice(0, 4)) + (today > `${today.slice(0, 4)}-11-02` ? 1 : 0)}-11-02`
+  const holiday = weekdayOf(nov2) === 1 ? addDays(nov2, -1) : nov2
   const nearMonthEnd = monthEnd(month) <= addDays(today, 7)
   const monthStart = `${month}-01`
-  const stamp = (key, time = '10:00') => toInstant(key, time).toISOString()
+  const prevMonth = (m) => monthKeyOf(addDays(`${m}-01`, -1))
+  const pastMonths = [prevMonth(prevMonth(month)), prevMonth(month)]
+  // Nothing is ever dated after now.
+  const stamp = (key, time = '10:00') => new Date(Math.min(toInstant(key, time).getTime(), Date.now())).toISOString()
+  const notAfterToday = (key) => (key > today ? today : key)
   let n = 0
   const id = (p) => `${p}${++n}`
 
-  // Plans: every rider has a plan for the current month (and next month when it's close).
+  // Plans: every rider has a plan for the current month (and next month when it's close), and paid ones in the last two months.
   const plans = []
   const payments = []
   for (const r of riders) {
+    for (const m of pastMonths) {
+      plans.push({ id: id('pl'), riderId: r.id, month: m, total: r.plan, used: 0, paid: true })
+      const paidOn = addDays(`${m}-01`, Math.floor(rand() * 4))
+      payments.push({
+        id: id('pay'), familyId: r.familyId, service: 'plan', amount: planPrice(r.plan), status: 'paid',
+        method: rand() < 0.5 ? 'cash' : 'transfer', createdAt: stamp(`${m}-01`), paidAt: stamp(paidOn), meta: { riderId: r.id, month: m, classes: r.plan },
+      })
+    }
     // Demo family renews next month themselves (shows the "pay at the club" flow).
     const months = nearMonthEnd && r.familyId !== DEMO_FAMILY_ID ? [month, nextMonth] : [month]
     for (const m of months) {
@@ -168,12 +189,17 @@ export function createSeed() {
       payments.push({
         id: id('pay'), familyId: r.familyId, service: 'plan', amount: planPrice(r.plan),
         status: pending ? 'pending' : 'paid', method: pending ? null : (rand() < 0.5 ? 'cash' : 'transfer'),
-        createdAt: stamp(m === month ? monthStart : today), paidAt: pending ? null : stamp(m === month ? addDays(monthStart, 1) : today),
+        createdAt: stamp(m === month ? monthStart : today), paidAt: pending ? null : stamp(m === month ? notAfterToday(addDays(monthStart, 1)) : today),
         meta: { riderId: r.id, month: m, classes: r.plan },
       })
     }
   }
   const planFor = (riderId, m) => plans.find((p) => p.riderId === riderId && p.month === m)
+
+  // A paid rental this month, for the income report (its horse is busy for those hours).
+  const rentals = [{ id: id('rt'), familyId: 'f5', date: addDays(today, -6), time: '09:00', hours: 2, horseId: 'h2', createdAt: stamp(addDays(today, -8)) }]
+  const onRide = (horseId, date, time) => rentals.some((x) => x.horseId === horseId && x.date === date && time >= x.time &&
+    Number(time.slice(0, 2)) < Number(x.time.slice(0, 2)) + x.hours)
 
   // Bookings across a window of -14 … +8 days.
   const bookings = []
@@ -187,8 +213,9 @@ export function createSeed() {
     const k = `${date}|${slot.time}`
     occupied[k] ||= new Set()
     let horseId = rider.horseId
+    // Same order as the app: a school horse at the rider's level first, then the nearest level.
     if (!horseId || occupied[k].has(horseId)) {
-      horseId = horses.find((h) => h.type === 'school' && !occupied[k].has(h.id))?.id
+      horseId = horseOrder(horses, rider.level).find((h) => !occupied[k].has(h.id) && !onRide(h.id, date, slot.time))?.id
     }
     if (!horseId) return false
     occupied[k].add(horseId)
@@ -231,23 +258,24 @@ export function createSeed() {
   for (let d = -14; d <= 8; d++) {
     const date = addDays(today, d)
     for (const slot of slots.filter((s) => s.weekday === weekdayOf(date))) {
-      const isPast = hoursUntil(date, slot.time) < 0
+      const started = hoursUntil(date, slot.time) < 0
       const isToday = date === today
       for (const r of others.filter((o) => o.level === slot.level)) {
         const p = isToday ? 0.75 : 0.4
         if (rand() > p) continue
-        const status = isPast && !isToday ? (rand() < 0.1 ? 'noshow' : 'attended') : 'booked'
+        const status = started ? (rand() < 0.1 ? 'noshow' : 'attended') : 'booked'
         book(r, slot, date, status)
       }
     }
   }
 
   // Boarding (pensión): Martínez & Ortega paid this month; Hernández pending.
-  const boardingPay = (familyId, horseId, status) => payments.push({
+  const boardingPay = (familyId, horseId, status, m = month) => payments.push({
     id: id('pay'), familyId, service: 'boarding', amount: BOARDING_MONTHLY, status,
-    method: status === 'paid' ? 'transfer' : null, createdAt: stamp(monthStart),
-    paidAt: status === 'paid' ? stamp(addDays(monthStart, 2)) : null, meta: { horseId, month },
+    method: status === 'paid' ? 'transfer' : null, createdAt: stamp(`${m}-01`),
+    paidAt: status === 'paid' ? stamp(notAfterToday(addDays(`${m}-01`, 2))) : null, meta: { horseId, month: m },
   })
+  for (const m of pastMonths) for (const [f, h] of [['f1', 'h6'], ['f2', 'h7'], ['f3', 'h8']]) boardingPay(f, h, 'paid', m)
   boardingPay('f1', 'h6', 'pending')
   boardingPay('f2', 'h7', 'paid')
   boardingPay('f3', 'h8', 'paid')
@@ -271,19 +299,22 @@ export function createSeed() {
     campRegistrations.push({ id: id('cr'), eventId: 'e1', riderId, paymentId: pay.id, createdAt: pay.createdAt })
   }
 
-  // A paid rental and a paid birthday party this month, for the income report.
-  const rentals = [{ id: id('rt'), familyId: 'f5', date: addDays(today, -6), time: '09:00', hours: 2, horseId: 'h2', createdAt: stamp(addDays(today, -8)) }]
   payments.push({
     id: id('pay'), familyId: 'f5', service: 'rental', amount: RENTAL_PER_HOUR * 2, status: 'paid', method: 'cash',
     createdAt: stamp(addDays(today, -8)), paidAt: stamp(addDays(today, -6)), meta: { rentalId: rentals[0].id },
   })
   payments.push({
     id: id('pay'), familyId: 'f4', service: 'events', amount: 8500, status: 'paid', method: 'transfer',
-    createdAt: stamp(monthStart), paidAt: stamp(addDays(monthStart, 3)), meta: { kind: 'birthday' },
+    createdAt: stamp(monthStart), paidAt: stamp(notAfterToday(addDays(monthStart, 3))), meta: { kind: 'birthday' },
+  })
+  // Last month's party, so the month before shows more than plans and pensiones.
+  payments.push({
+    id: id('pay'), familyId: 'f2', service: 'events', amount: 8500, status: 'paid', method: 'cash',
+    createdAt: stamp(`${pastMonths[1]}-10`), paidAt: stamp(`${pastMonths[1]}-12`), meta: { kind: 'birthday' },
   })
 
   return {
-    version: 1,
+    version: 2,
     seededAt: new Date().toISOString(),
     session: null,
     instructors,
@@ -297,8 +328,8 @@ export function createSeed() {
     events,
     campRegistrations,
     rentals,
-    // Bank details for transfers: empty until management fills them in (the app shows placeholders).
-    settings: { bankName: null, accountHolder: null, clabe: null, modulePayroll: true, moduleProfit: true, moduleSales: true, closedWeekdays: [1], remindersOn: true, boardingDueDay: 1, reminderNote: null },
+    // Sample bank details for transfers (the real club fills in its own in Cobros).
+    settings: { bankName: 'BBVA México', accountHolder: 'Hípico Riviera Maya S.A. de C.V.', clabe: '012180001234567895', modulePayroll: true, moduleProfit: true, moduleSales: true, closedWeekdays: [1], remindersOn: true, boardingDueDay: 1, reminderNote: null },
     closedDates: [{ id: 'cd1', startsOn: holiday, endsOn: holiday, note: 'Día de Muertos' }],
     ...ownerSample(today),
     cancellations: [], // single class dates cancelled by the club

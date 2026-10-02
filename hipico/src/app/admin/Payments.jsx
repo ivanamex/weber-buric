@@ -19,6 +19,8 @@ export default function AdminPayments() {
   const s = useStore()
   // Receipts waiting for review first.
   const pending = pendingPayments(s).sort((a, b) => (b.receiptStatus === 'review') - (a.receiptStatus === 'review'))
+  // Every receipt waiting, whatever its due date (a camp deposit for July too), so each can be approved.
+  const toReview = pending.filter((p) => p.receiptStatus === 'review')
   const [viewing, setViewing] = useState(null)
   const desk = useDesktop()
   const pendingTotal = pending.reduce((sum, p) => sum + p.amount, 0)
@@ -37,6 +39,25 @@ export default function AdminPayments() {
   return (
     <div className="page">
       <h1 className="page__title">{t('admin.payments.title')}</h1>
+
+      {toReview.length > 0 && (
+        <section className="reviewblock" aria-label={t('admin.payments.reviewTitle')}>
+          <SectionTitle icon="receipt">{t('admin.payments.reviewTitle')} <Badge tone="alert">{toReview.length}</Badge></SectionTitle>
+          <ul className="card list">
+            {toReview.map((p) => (
+              <li key={p.id} className="list__row">
+                <Icon name={SERVICE_ICON[p.service] || 'receipt'} size={18} />
+                <div className="grow">
+                  <p className="list__title">{byId(s.families, p.familyId)?.name}</p>
+                  <p className="small muted">{describe(p)}{p.receiptUploadedAt ? ` · ${t('admin.payments.sentOn', { date: fmtInstant(p.receiptUploadedAt) })}` : ''}</p>
+                </div>
+                <strong>{fmtMoney(p.amount)}</strong>
+                <button type="button" className="btn btn--sm btn--primary" onClick={() => setViewing(p)}>{t('admin.payments.reviewBtn')}</button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <div className="card card--green total">
         <p className="card__label">{t('admin.payments.collected', { month: monthName })}</p>

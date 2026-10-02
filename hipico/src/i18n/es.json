@@ -164,7 +164,10 @@
       "monthlyPlan": "Plan mensual",
       "seePlan": "Ver plan",
       "boarding": "Pensión",
-      "upcoming": "Próximas clases"
+      "upcoming": "Próximas clases",
+      "cancelAsk": "¿Cancelar esta clase?",
+      "cancelYes": "Sí, cancelar",
+      "cancelNo": "No"
     },
     "book": {
       "title": "Clases",
@@ -193,7 +196,8 @@
       "errFull": "No quedan lugares en esta clase.",
       "hasClass": "tiene clase confirmada",
       "nextPeriod": "Se descuenta de tu plan de {month}, que empieza el {date}.",
-      "nextPeriodCount": "{month}: {used} de {total} clases"
+      "nextPeriodCount": "{month}: {used} de {total} clases",
+      "planLine_one": "{name}: 1 clase disponible hasta el {date}"
     },
     "payments": "Pagos"
   },
@@ -243,7 +247,8 @@
     "changeTo": "Cambiar a {n} clases",
     "likedIt": "¿Te gustó? Elige tu plan",
     "likedItText": "Con un plan, {name} tiene sus clases de cada mes y cada una sale más barata.",
-    "nextPeriodCount": "{month} (desde el {date}): {used} de {total} clases"
+    "nextPeriodCount": "{month} (desde el {date}): {used} de {total} clases",
+    "remaining_one": "Te queda 1"
   },
   "boarding": {
     "title": "Pensión de caballos",
@@ -273,7 +278,8 @@
       "register": "Inscribir con anticipo",
       "registered": "{name} inscrito(a)",
       "depositPaid": "Anticipo pagado",
-      "depositPending": "Anticipo pendiente"
+      "depositPending": "Anticipo pendiente",
+      "spots_one": "1 lugar disponible"
     },
     "quotes": {
       "quote": "Cotizar",
@@ -307,7 +313,8 @@
       "edit": "Editar",
       "riders": "Jinetes",
       "age": "{n} años",
-      "addRider": "Agregar jinete"
+      "addRider": "Agregar jinete",
+      "age_one": "1 año"
     },
     "settings": "Ajustes",
     "notifications": "Notificaciones",
@@ -339,7 +346,8 @@
       "emptyTitle": "Sin clases confirmadas este día",
       "rule": "“Vino” y “No vino” cuentan la clase como usada.",
       "allCame": "Todos vinieron",
-      "seeSchedule": "Ver horario"
+      "seeSchedule": "Ver horario",
+      "planOk_one": "Plan al corriente · queda 1"
     },
     "payments": {
       "title": "Cobros",
@@ -350,7 +358,11 @@
       "markPaid": "Marcar pagado",
       "emptyTitle": "Todo cobrado: no hay pagos pendientes",
       "recent": "Cobros recientes",
-      "noneRecent": "Aún no hay cobros este mes."
+      "noneRecent": "Aún no hay cobros este mes.",
+      "reviewTitle": "Por revisar",
+      "sentOn": "enviado el {date}",
+      "reviewBtn": "Revisar",
+      "pendingSum_one": "1 pendiente · {amount} por cobrar"
     },
     "reports": {
       "title": "Reportes",
@@ -363,7 +375,17 @@
       "occupancyTitle": "Ocupación de clases",
       "week": "Semana {from} – {to}",
       "seats": "{taken} de {seats} lugares",
-      "export": "Exportar a Excel"
+      "export": "Pagos del mes",
+      "csvDate": "Fecha",
+      "csvFamily": "Familia",
+      "csvConcept": "Concepto",
+      "csvAmount": "Monto (MXN)",
+      "csvStatus": "Estado",
+      "csvState": {
+        "paid": "Pagado",
+        "pending": "Pendiente"
+      },
+      "csvMethod": "Forma de pago"
     },
     "families": {
       "title": "Familias",
@@ -406,7 +428,7 @@
       "delete": "Eliminar",
       "deleteTitle": "¿Eliminar a {name}?",
       "deleteText": "Pierde el acceso y deja de aparecer en las listas. Su historial de pagos y asistencia se conserva para Reportes.",
-      "assignHint": "Al asignar o cambiar un plan aquí queda activo desde esa fecha, sin generar cobro (el club ya lo cobró).",
+      "assignHint": "Al asignar o cambiar un plan aquí queda activo desde la fecha de inicio de cada jinete, sin generar cobro. Si ya hay un cobro pendiente, sigue pendiente.",
       "plansCol": "Planes",
       "owedCol": "Por cobrar",
       "activeState": "Activa",
@@ -417,7 +439,11 @@
       "colContact": "Contacto",
       "colPhone": "Teléfono",
       "colEmail": "Correo",
-      "ridersPlans": "Jinetes (plan)"
+      "ridersPlans": "Jinetes (plan)",
+      "planStartOf": "Inicio del plan de {name}",
+      "blockTitle": "¿Bloquear a {name}?",
+      "blockText": "No podrá entrar ni reservar hasta que la desbloquees. Sus clases y pagos se conservan.",
+      "count_one": "1 familia · {riders} jinetes"
     }
   },
   "toasts": {
@@ -451,7 +477,10 @@
     "singleBooked": "{kind} reservada para {name}. Paga {amount} por transferencia o en el club.",
     "pricesSaved": "Precios guardados",
     "demoReset": "Demo reiniciada: datos de ejemplo de nuevo.",
-    "bookedNext": "Clase confirmada · {name} · {date}, {time} · te quedan {n} en tu plan de {month}"
+    "bookedNext": "Clase confirmada · {name} · {date}, {time} · te quedan {n} en tu plan de {month}",
+    "booked_one": "Clase confirmada · {name} · {date}, {time} · te queda 1",
+    "bookedNext_one": "Clase confirmada · {name} · {date}, {time} · te queda 1 en tu plan de {month}",
+    "allCame_one": "Asistencia registrada para 1 jinete"
   },
   "errors": {
     "notFound": "No se encontró el registro.",
@@ -494,7 +523,8 @@
     "hasPlan": "Este jinete ya tiene plan este mes: confirma la clase desde su plan.",
     "trialUsed": "Este jinete ya tomó su clase muestra.",
     "duplicate": "Ya existe una con ese nombre.",
-    "closed": "El club está cerrado ese día."
+    "closed": "El club está cerrado ese día.",
+    "overlap": "Ya tiene otra clase a esa hora."
   },
   "live": {
     "loading": "Cargando…",
@@ -689,7 +719,25 @@
     "fromDate": "desde {date}",
     "addAt": "Nueva clase el {day} a las {time}",
     "free": "Libre",
-    "dragHint": "Haz clic en una hora, o arrastra hacia abajo para una clase más larga"
+    "dragHint": "Haz clic en una hora, o arrastra hacia abajo para una clase más larga",
+    "movedTitle": "Cambio de horario",
+    "movedText": "Ahora es a las {time} (antes {before}).",
+    "minutes": "{n} min",
+    "clashTitle": "Ojo: se cruza con otras clases",
+    "clashInstructor": "{day} {time}: {who} ya da {class} a las {other}",
+    "clashArena": "{day} {time}: la pista {who} ya tiene {class} a las {other}",
+    "clashSelf": "{day}: {a} y {b} se enciman",
+    "clashMore": "y {n} más",
+    "cancelHint_one": "1 clase confirmada se cancelará y regresará a su plan.",
+    "classesCount_one": "1 clase",
+    "preview_one": "Se creará 1 clase por semana: {days} a las {times}",
+    "createdMany_one": "1 clase creada",
+    "cancelRangePreview_one": "Se cancelará 1 clase. {m} reservas regresan a su plan y las familias lo verán.",
+    "cancelRangeBtn_one": "Cancelar 1 clase",
+    "cancelRangeDone_one": "1 clase cancelada. Las familias ya lo ven.",
+    "copyPreview_one": "Se copiará 1 clase.",
+    "copyBtn_one": "Copiar 1 clase",
+    "copied_one": "1 clase copiada"
   },
   "install": {
     "iphone": "Descargar para iPhone",
@@ -802,7 +850,7 @@
     "nobodyOwes": "Nadie tiene pagos atrasados.",
     "daysLate": "{n} días de atraso",
     "remind": "Recordar a {name} por WhatsApp",
-    "waReminder": "Hola {contact}, te escribimos del Hípico Riviera Maya. Te recordamos amablemente el pago de {what}: {amount}. Puedes pagar por transferencia desde la app o en el club. ¡Gracias!",
+    "waReminder": "Hola {contact}, te escribimos del Hípico Riviera Maya. Te recordamos amablemente {what}: {amount}. Puedes pagar por transferencia desde la app o en el club. ¡Gracias!",
     "showAll": "Ver los {n}",
     "showLess": "Ver menos",
     "renewing": "Por renovar (7 días)",
@@ -814,7 +862,8 @@
     "open": "Abrir",
     "more": "Más",
     "horsesDue": "Caballos: próximos pendientes",
-    "ridersN": "{n}/{cap} jinetes"
+    "ridersN": "{n}/{cap} jinetes",
+    "daysLate_one": "1 día de atraso"
   },
   "payroll": {
     "title": "Nómina",
@@ -935,7 +984,8 @@
     "search": "Buscar caballo, raza o dueño",
     "ownerOrPrice": "Dueño / precio",
     "pending": "Pendientes (14 días)",
-    "openFull": "Abrir la ficha completa"
+    "openFull": "Abrir la ficha completa",
+    "years_one": "1 año"
   },
   "myHorse": {
     "title": "Mi caballo",
@@ -993,7 +1043,8 @@
     "ownerView": "Ver como lo ve el dueño",
     "ownerViewTitle": "Así lo ve {name}",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "rationsDay_one": "1 ración al día"
   },
   "demoBar": {
     "label": "Barra de la demo",
@@ -1031,7 +1082,16 @@
     "addedCancelled": "Fechas cerradas · {n} clases canceladas",
     "removed": "Fecha reabierta",
     "remove": "Quitar {date}",
-    "saved": "Días cerrados guardados"
+    "saved": "Días cerrados guardados",
+    "confirmTitle": "Confirmar días cerrados",
+    "confirmText": "Se cancelarán {n} clases de {m} familias.",
+    "confirmText_one": "Se cancelará 1 clase de {m} familia.",
+    "confirmHint": "Regresan a su plan y las familias lo verán en la app.",
+    "confirmNone": "No hay clases reservadas en esas fechas.",
+    "confirmSave": "Guardar y cancelar",
+    "savedCancelled": "Días cerrados guardados · {n} clases canceladas",
+    "savedCancelled_one": "Días cerrados guardados · 1 clase cancelada",
+    "addedCancelled_one": "Fechas cerradas · 1 clase cancelada"
   },
   "collect": {
     "title": "Por cobrar",
@@ -1092,7 +1152,10 @@
       "pending": "Por cobrar",
       "paid": "Pagados (60 días)"
     },
-    "tableTotal": "{n} pagos · {amount}"
+    "tableTotal": "{n} pagos · {amount}",
+    "dueOverdue_one": "Venció el {date} · 1 día",
+    "count_one": "1 pago",
+    "tableTotal_one": "1 pago · {amount}"
   },
   "reminders": {
     "title": "Recordatorios de pago",
@@ -1497,5 +1560,14 @@
       "drag": "← arrastra la tira →",
       "label": "Fotos y videos del club"
     }
+  },
+  "wa": {
+    "of": " de {name}",
+    "plan": "el pago del plan de {n} clases{of}",
+    "upgrade": "la diferencia del cambio de plan de {from} a {to} clases{of}",
+    "boarding": "el pago de la pensión de {horse}",
+    "class": "el pago de la {kind}{of}",
+    "camp": "el anticipo del campamento{of}",
+    "other": "el pago de {what}{of}"
   }
 }

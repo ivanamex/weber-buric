@@ -1,8 +1,8 @@
 // Demo mode: sample data kept in this browser (localStorage). Same rules as the live database.
 import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS_KINDS, applyPrices, resetPrices } from './prices.js'
-import { monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, toInstant, todayKey, periodOf, addDays, daysBetween } from '../lib/time.js'
-import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS, slotRuns, isClosed, isOneOff } from './queries.js'
+import { monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, todayKey, periodOf, addDays, daysBetween, weekdayOf } from '../lib/time.js'
+import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS, slotRuns, isClosed, isOneOff, pickHorse, horseBusy, riderBusy, slotMinutes, closedWeekdays } from './queries.js'
 
 // The demo keeps its data under its own names, apart from the real app. The chosen role is never saved:
 // every visit to /demo starts on the role picker.
@@ -68,6 +68,8 @@ export function activate(setState, inMemory = false) {
   }
   // Demo states saved before closed days and bulk classes: start again from the sample data (the club now closes on Mondays).
   if (!state.settings?.closedWeekdays && !memoryOnly) state = persist(createSeed())
+  // Demo states from before the sample data was corrected (dates, horses by level, bank details): start again once.
+  if ((state.version || 1) < 2 && !memoryOnly) state = persist({ ...createSeed(), session: state.session })
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
   if (!memoryOnly && !storageListener && typeof window !== 'undefined') {
     storageListener = true
@@ -120,6 +122,7 @@ function bookClass({ riderId, slotId, date }) {
     if ((s.cancellations || []).some((c) => c.slotId === slotId && c.date === date)) return fail('classCancelled')
     const active = s.bookings.filter((b) => b.slotId === slotId && b.date === date && isActiveBooking(b))
     if (active.some((b) => b.riderId === riderId)) return fail('already')
+    if (riderBusy(s, riderId, date, slot.time, slotMinutes(slot), slotId)) return fail('overlap')
     if (active.length >= slot.capacity) return fail('full')
     if (rider.level !== slot.level) return fail('level')
     const month = monthKeyOf(date)
@@ -155,18 +158,6 @@ function openPeriod(s, rider, date) {
   return plan
 }
 
-/** Horse: the rider's own boarded horse if free, else the first free school horse at that time. */
-function pickHorse(s, rider, slot, date) {
-  const busy = new Set(
-    s.bookings
-      .filter((b) => b.date === date && isActiveBooking(b) && byId(s.slots, b.slotId)?.time === slot.time)
-      .map((b) => b.horseId),
-  )
-  const own = rider.horseId && byId(s.horses, rider.horseId)
-  if (own && own.active !== false && !busy.has(own.id)) return own.id
-  return s.horses.find((h) => h.type === 'school' && h.active !== false && !busy.has(h.id))?.id || null
-}
-
 /** Same rules as book_single_class(): trial (one per rider, no plan), single (no plan), extra (plan that month). */
 function bookSingleClass({ riderId, slotId, date, kind }) {
   return mutate((s) => {
@@ -182,6 +173,7 @@ function bookSingleClass({ riderId, slotId, date, kind }) {
     if (kind === 'trial' && s.bookings.some((b) => b.riderId === riderId && b.kind === 'trial' && isActiveBooking(b))) return fail('trialUsed')
     const active = s.bookings.filter((b) => b.slotId === slotId && b.date === date && isActiveBooking(b))
     if (active.some((b) => b.riderId === riderId)) return fail('already')
+    if (riderBusy(s, riderId, date, slot.time, slotMinutes(slot), slotId)) return fail('overlap')
     if (active.length >= slot.capacity) return fail('full')
     if (rider.level !== slot.level) return fail('level')
     const horseId = pickHorse(s, rider, slot, date)
@@ -319,7 +311,8 @@ function changePlan({ riderId, classes }) {
       rider.planStart ||= planStart(plan)
       return { ok: true, kind: 'upgrade', payment, effective: today }
     }
-    // Downgrade: from the next renewal date.
+    // Downgrade: from the next renewal date, never while an upgrade is still unpaid.
+    if (planPayments(month).some((p) => p.meta?.kind === 'upgrade')) return fail('pendingExists')
     const effective = planRenewal(plan)
     rider.planClasses = classes
     rider.planStart ||= planStart(plan)
@@ -401,17 +394,7 @@ function bookRental({ familyId, date, time, hours, horseId }) {
   return mutate((s) => {
     if (!date || !time || !horseId) return fail('missing')
     if (hoursUntil(date, time) <= 0) return fail('past')
-    const start = toInstant(date, time).getTime()
-    const end = start + hours * 36e5
-    const overlaps = (aStart, aEnd) => aStart < end && start < aEnd
-    const rentalClash = s.rentals.some((r) => r.horseId === horseId && r.status !== 'cancelled' &&
-      overlaps(toInstant(r.date, r.time).getTime(), toInstant(r.date, r.time).getTime() + r.hours * 36e5))
-    const classClash = s.bookings.some((b) => {
-      if (b.horseId !== horseId || b.date !== date || !isActiveBooking(b)) return false
-      const t = toInstant(b.date, byId(s.slots, b.slotId).time).getTime()
-      return overlaps(t, t + 36e5)
-    })
-    if (rentalClash || classClash) return fail('horseBusy')
+    if (horseBusy(s, horseId, date, time, hours * 60)) return fail('horseBusy')
     const rental = { id: nextId(s, 'rt'), familyId, date, time, hours, horseId, createdAt: now() }
     s.rentals.push(rental)
     s.payments.push({
@@ -461,7 +444,8 @@ function createFamily(p) {
   return mutate((s) => createFamilyIn(s, p))
 }
 
-/** Assign a plan the club already collected (no payment): its period runs date to date from the start date. */
+/** Same as admin_set_plan(): the period runs date to date from the start date. It updates the plan that period
+ *  overlaps (never a second one) and only counts as paid when no charge for it is pending. */
 function setPlanIn(s, riderId, classes, start) {
   const rider = byId(s.riders, riderId)
   if (!rider) return fail('notFound')
@@ -475,23 +459,30 @@ function setPlanIn(s, riderId, classes, start) {
   const anchor = start || rider.planStart || today
   const { startsOn, endsOn } = periodOf(anchor, anchor > today ? anchor : today)
   const month = monthKeyOf(startsOn)
-  const plan = getPlan(s, riderId, month)
+  const overlapping = s.plans.filter((p) => p.riderId === riderId && planStart(p) <= endsOn && planEnd(p) >= startsOn)
+    .sort((a, b) => (planStart(b) <= today && planEnd(b) >= today) - (planStart(a) <= today && planEnd(a) >= today) || planStart(b).localeCompare(planStart(a)))
+  const plan = overlapping[0] || null
   if (plan && classes < plan.used) return fail('belowUsed')
+  const charges = (m) => s.payments.filter((p) => p.service === 'plan' && p.status === 'pending' && p.meta?.riderId === riderId && p.meta?.month === m && p.meta?.kind !== 'upgrade')
+  const pending = [...charges(month), ...(plan ? charges(plan.month) : [])]
   rider.planClasses = classes
   rider.planStart = anchor
-  if (plan) Object.assign(plan, { total: classes, paid: true, startsOn, endsOn })
-  else {
-    s.plans = s.plans.filter((p) => !(p.riderId === riderId && !p.used && !p.paid && planStart(p) <= endsOn && planEnd(p) >= startsOn))
-    s.plans.push({ id: nextId(s, 'pl'), riderId, month, startsOn, endsOn, total: classes, used: 0, paid: true })
+  // Other unused, unpaid periods inside the new one go away; an earlier one now ends the day before.
+  s.plans = s.plans.filter((p) => p === plan || !(overlapping.includes(p) && !p.used && !p.paid))
+  for (const p of s.plans) {
+    if (p !== plan && overlapping.includes(p) && planStart(p) < startsOn) Object.assign(p, { startsOn: planStart(p), endsOn: addDays(startsOn, -1) })
   }
+  const free = !s.plans.some((p) => p !== plan && p.riderId === riderId && p.month === month)
+  if (plan) Object.assign(plan, { total: classes, paid: plan.paid || !pending.length, startsOn, endsOn, month: free ? month : plan.month })
+  else s.plans.push({ id: nextId(s, 'pl'), riderId, month, startsOn, endsOn, total: classes, used: 0, paid: !pending.length })
+  // A pending charge follows the new plan (not while its receipt is being reviewed).
+  for (const p of pending) if (p.receiptStatus !== 'review') Object.assign(p, { amount: planPrice(classes), meta: { ...p.meta, classes, month: plan && !free ? plan.month : month, start: startsOn } })
   return { ok: true }
 }
 
 /** Save management edits: family fields, rider changes (new riders have no id) and plan changes. */
-function saveFamily({ familyId, fields, riders = [], planStart }) {
+function saveFamily({ familyId, fields, riders = [] }) {
   return mutate((s) => {
-    // The start date goes with the plans being changed; if no plan changes, it moves every current plan.
-    const startOnly = !riders.some((r) => r.id && (Number(r.planClasses) || null) !== (byId(s.riders, r.id)?.planClasses || null))
     const family = byId(s.families, familyId)
     if (!family) return fail('notFound')
     const email = (fields.email ?? family.email).trim().toLowerCase()
@@ -512,9 +503,12 @@ function saveFamily({ familyId, fields, riders = [], planStart }) {
       } else {
         Object.assign(rider, { name: r.name.trim(), level: r.level, age: Number(r.age) || null, active: r.active !== false })
       }
-      const planChanged = (Number(r.planClasses) || null) !== (rider.planClasses || null)
-      if (planChanged || (startOnly && r.planClasses && planStart !== rider.planStart)) {
-        const res = setPlanIn(s, rider.id, Number(r.planClasses) || null, planStart)
+      // Only a plan or a start date that actually changed is assigned again.
+      const classes = Number(r.planClasses) || null
+      const planChanged = classes !== (rider.planClasses || null)
+      const startChanged = Boolean(classes && r.planStart && r.planStart !== rider.planStart)
+      if (planChanged || startChanged) {
+        const res = setPlanIn(s, rider.id, classes, r.planStart || null)
         if (!res.ok) return res
       }
     }
@@ -527,6 +521,13 @@ function deleteFamily(familyId) {
     const family = byId(s.families, familyId)
     if (!family) return fail('notFound')
     family.deletedAt = now()
+    const riderIds = new Set(s.riders.filter((r) => r.familyId === familyId).map((r) => r.id))
+    for (const b of s.bookings.filter((x) => riderIds.has(x.riderId) && x.status === 'booked' && x.date >= todayKey())) {
+      const slot = byId(s.slots, b.slotId)
+      if (slot && hoursUntil(b.date, slot.time) <= 0) continue
+      Object.assign(b, { status: 'cancelled', cancelledAt: now() })
+      releaseBooking(s, b)
+    }
     return { ok: true }
   })
 }
@@ -606,7 +607,7 @@ function saveSettings(fields) {
   return mutate((s) => {
     const clabe = (fields.clabe || '').replace(/\s/g, '')
     if (clabe && !/^\d{18}$/.test(clabe)) return fail('badClabe')
-    s.settings = { bankName: fields.bankName?.trim() || null, accountHolder: fields.accountHolder?.trim() || null, clabe: clabe || null }
+    s.settings = { ...s.settings, bankName: fields.bankName?.trim() || null, accountHolder: fields.accountHolder?.trim() || null, clabe: clabe || null }
     return { ok: true }
   })
 }
@@ -847,8 +848,19 @@ function editClass({ slotId, date, scope, fields = {} }) {
     }
     if (isOneOff(v) && scope === 'one') scope = 'all'
     const series = v.seriesId || v.id
-    const apply = (row) => Object.assign(row, slotWith(row, fields))
-    if (scope === 'all') { seriesRows(s, v).forEach(apply); return { ok: true, id: v.id } }
+    const today = todayKey()
+    // Families booked from today on see "Cambio de horario" when the time changes.
+    const markMoved = (fromTime, slotIdNow, test) => {
+      for (const b of s.bookings) {
+        if (b.slotId === slotIdNow && b.status === 'booked' && b.date >= today && test(b.date)) b.movedFrom ||= fromTime
+      }
+    }
+    const apply = (row, test = () => true) => {
+      const before = row.time
+      Object.assign(row, slotWith(row, fields))
+      if (row.time !== before) markMoved(before, row.id, test)
+    }
+    if (scope === 'all') { seriesRows(s, v).forEach((row) => apply(row)); return { ok: true, id: v.id } }
     s.cancellations ||= []
     if (scope === 'one') {
       if (s.cancellations.some((c) => c.slotId === v.id && c.date === date)) return fail('classCancelled')
@@ -856,6 +868,7 @@ function editClass({ slotId, date, scope, fields = {} }) {
       s.slots.push(n)
       s.cancellations.push({ id: nextId(s, 'sc'), slotId: v.id, date, reason: null, replacedBy: n.id, createdAt: now() })
       moveBookings(s, v.id, n.id, (d) => d === date)
+      if (n.time !== v.time) markMoved(v.time, n.id, (d) => d === date)
       return { ok: true, id: n.id }
     }
     if (fields.end) {
@@ -870,12 +883,13 @@ function editClass({ slotId, date, scope, fields = {} }) {
       }
       return { ok: true, cancelled }
     }
-    seriesRows(s, v).filter((x) => x.id !== v.id && x.startsOn && x.startsOn > date).forEach(apply)
+    seriesRows(s, v).filter((x) => x.id !== v.id && x.startsOn && x.startsOn > date).forEach((row) => apply(row))
     if (v.startsOn && v.startsOn >= date) { apply(v); return { ok: true, id: v.id } }
     const n = { ...slotWith(v, fields), id: nextId(s, 's'), startsOn: date, endsOn: v.endsOn || null, seriesId: series }
     s.slots.push(n)
     Object.assign(v, { endsOn: addDays(date, -1), seriesId: series })
     moveBookings(s, v.id, n.id, (d) => d >= date)
+    if (n.time !== v.time) markMoved(v.time, n.id, (d) => d >= date)
     s.cancellations.forEach((c) => { if (c.slotId === v.id && c.date >= date) c.slotId = n.id })
     return { ok: true, id: n.id }
   })
@@ -940,7 +954,24 @@ function saveReminderSettings({ remindersOn, boardingDueDay, reminderNote }) {
 function saveClosedWeekdays(weekdays) {
   return mutate((s) => {
     s.settings = { ...s.settings, closedWeekdays: [...new Set(weekdays.map(Number))].filter((d) => d >= 0 && d <= 6).sort() }
+    return { ok: true, ...cancelClosedWeekdays(s) }
   })
+}
+/** Same as set_closed_weekdays(): booked classes from now on, on a closed weekday, are cancelled by the club. */
+function cancelClosedWeekdays(s) {
+  const closed = closedWeekdays(s)
+  const today = todayKey()
+  let bookings = 0
+  const classes = new Set()
+  for (const b of s.bookings.filter((x) => x.status === 'booked' && x.date >= today && closed.includes(weekdayOf(x.date)))) {
+    const slot = byId(s.slots, b.slotId)
+    if (!slot || hoursUntil(b.date, slot.time) <= 0) continue
+    Object.assign(b, { status: 'cancelled', cancelledByClub: true, cancelledAt: now() })
+    releaseBooking(s, b)
+    classes.add(`${b.slotId}|${b.date}`)
+    bookings++
+  }
+  return { classes: classes.size, bookings }
 }
 function addClosedDates({ from, to, note }) {
   return mutate((s) => {
@@ -960,7 +991,7 @@ function deleteClosedDate(id) {
 function markClassAttended(slotId, date) {
   return mutate((s) => {
     let marked = 0
-    for (const b of s.bookings.filter((x) => x.slotId === slotId && x.date === date && ['booked', 'noshow'].includes(x.status))) {
+    for (const b of s.bookings.filter((x) => x.slotId === slotId && x.date === date && x.status === 'booked')) {
       b.status = 'attended'
       marked++
     }

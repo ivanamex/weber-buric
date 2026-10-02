@@ -29,6 +29,47 @@ export function familyRiders(s, familyId, { includeInactive = false } = {}) {
 }
 export const isActiveFamily = (f) => f.active !== false // false = blocked by the club
 export const isDeletedFamily = (f) => Boolean(f.deletedAt)
+/** The family if it still takes part (not blocked, not deleted). */
+export const liveFamily = (s, id) => { const f = byId(s.families, id); return f && f.active !== false && !f.deletedAt ? f : null }
+const riderLive = (s, riderId) => { const r = byId(s.riders, riderId); return Boolean(r && r.active !== false && liveFamily(s, r.familyId)) }
+
+// ── Times that overlap: classes by their length, rides by their hours ──
+const toMin = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5))
+export const overlaps = (t1, m1, t2, m2) => toMin(t1) < toMin(t2) + m2 && toMin(t2) < toMin(t1) + m1
+export const slotMinutes = (slot) => Number(slot?.duration) || 60
+/** Is the horse in a class or out on a ride at that time? */
+export function horseBusy(s, horseId, date, time, minutes) {
+  const inClass = s.bookings.some((b) => {
+    if (b.horseId !== horseId || b.date !== date || !isActiveBooking(b)) return false
+    const sl = byId(s.slots, b.slotId)
+    return sl && overlaps(sl.time, slotMinutes(sl), time, minutes)
+  })
+  return inClass || (s.rentals || []).some((r) => r.horseId === horseId && r.date === date && r.status !== 'cancelled' && overlaps(r.time, r.hours * 60, time, minutes))
+}
+/** Does the rider already have a class that overlaps this time (any other class)? */
+export function riderBusy(s, riderId, date, time, minutes, exceptSlotId = null) {
+  return s.bookings.some((b) => {
+    if (b.riderId !== riderId || b.date !== date || !isActiveBooking(b) || b.slotId === exceptSlotId) return false
+    const sl = byId(s.slots, b.slotId)
+    return sl && overlaps(sl.time, slotMinutes(sl), time, minutes)
+  })
+}
+const LEVEL_RANK = { beginner: 0, intermediate: 1, advanced: 2, competition: 3 }
+/** School horses for a rider's level: same level first, then the nearest (the gentler one on a tie), then by name. Same order as pick_horse(). */
+export function horseOrder(horses, level) {
+  const want = LEVEL_RANK[level] ?? 0
+  const rank = (h) => LEVEL_RANK[h.level] ?? 99
+  return horses
+    .filter((h) => horseStatus(h) === 'school' && h.active !== false)
+    .sort((a, b) => Math.abs(rank(a) - want) - Math.abs(rank(b) - want) || rank(a) - rank(b) || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
+}
+/** The rider's own horse if free, else a free school horse for their level. Never one for sale or retired. */
+export function pickHorse(s, rider, slot, date) {
+  const minutes = slotMinutes(slot)
+  const own = rider.horseId && byId(s.horses, rider.horseId)
+  if (own && own.active !== false && !['for_sale', 'retired', 'sold'].includes(horseStatus(own)) && !horseBusy(s, own.id, date, slot.time, minutes)) return own.id
+  return horseOrder(s.horses, rider.level).find((h) => !horseBusy(s, h.id, date, slot.time, minutes))?.id || null
+}
 
 // ── Club calendar: closed days, classes valid for a date range, one-date edits ──
 export const DEFAULT_CLOSED_WEEKDAYS = [1] // Monday
@@ -113,12 +154,12 @@ export const monthCollected = (s) => paidThisMonth(s).reduce((sum, p) => sum + p
 export const recentPaid = (s, limit = 5) =>
   paidThisMonth(s).sort((a, b) => b.paidAt.localeCompare(a.paidAt)).slice(0, limit)
 
-/** Occupancy for the current Mon–Sat week. */
+/** Occupancy for the current week, Monday to Sunday; closed days don't count. */
 export function weekOccupancy(s, anchor = todayKey()) {
   const start = weekStart(anchor)
   let seats = 0, taken = 0
   const byLevel = Object.fromEntries(LEVELS.map((l) => [l, { seats: 0, taken: 0 }]))
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 7; i++) {
     for (const o of occurrencesFor(s, addDays(start, i))) {
       seats += o.slot.capacity
       taken += o.taken
@@ -128,13 +169,13 @@ export function weekOccupancy(s, anchor = todayKey()) {
   }
   const pct = (t, c) => (c ? Math.round((t / c) * 100) : 0)
   return {
-    start, seats, taken, pct: pct(taken, seats),
+    start, end: addDays(start, 6), seats, taken, pct: pct(taken, seats),
     byLevel: Object.fromEntries(LEVELS.map((l) => [l, pct(byLevel[l].taken, byLevel[l].seats)])),
   }
 }
 export const activePlansCount = (s) => {
   const today = todayKey()
-  return s.plans.filter((p) => planStart(p) <= today && planEnd(p) >= today).length
+  return s.plans.filter((p) => planStart(p) <= today && planEnd(p) >= today && riderLive(s, p.riderId)).length
 }
 
 
@@ -149,6 +190,50 @@ export function clubCancelledBookings(s, riderIds) {
     .filter((b) => riderIds.includes(b.riderId) && b.cancelledByClub && b.date >= today)
     .map((b) => ({ ...b, slot: byId(s.slots, b.slotId) }))
     .filter((b) => b.slot)
+    .sort((a, b) => (a.date + a.slot.time).localeCompare(b.date + b.slot.time))
+}
+
+/** New weekly classes that overlap others (same instructor or same arena), for the warning in "Nueva clase". */
+export function classClashes(s, { weekdays = [], times = [], duration, instructorId, arena, startsOn, endsOn }) {
+  const minutes = Number(duration) || 60
+  const out = []
+  const from = startsOn || '0000-00-00'
+  const to = endsOn || '9999-12-31'
+  for (const weekday of weekdays) {
+    const sorted = [...times].sort()
+    sorted.forEach((time, i) => {
+      for (const x of s.slots) {
+        if (x.active === false || x.weekday !== weekday || (x.startsOn || '0000-00-00') > to || (x.endsOn || '9999-12-31') < from) continue
+        if (!overlaps(x.time, slotMinutes(x), time, minutes)) continue
+        const instructor = x.instructorId === instructorId
+        if (instructor || x.arena === arena) out.push({ weekday, time, slot: x, instructor, arena: x.arena === arena })
+      }
+      // Two of the new times that run into each other (same instructor and arena).
+      const next = sorted[i + 1]
+      if (next && overlaps(time, minutes, next, minutes)) out.push({ weekday, time, other: next })
+    })
+  }
+  return out
+}
+
+/** What closing some days would cancel: booked classes from now on and the families they belong to. */
+export function closingImpact(s, isClosing) {
+  const booked = s.bookings.filter((b) => {
+    if (b.status !== 'booked' || !isClosing(b.date)) return false
+    const sl = byId(s.slots, b.slotId)
+    return sl && hoursUntil(b.date, sl.time) > 0
+  })
+  const families = new Set(booked.map((b) => byId(s.riders, b.riderId)?.familyId).filter(Boolean))
+  return { classes: booked.length, families: families.size }
+}
+
+/** Upcoming classes whose time the club changed (the family sees "Cambio de horario"). */
+export function movedBookings(s, riderIds) {
+  const today = todayKey()
+  return s.bookings
+    .filter((b) => riderIds.includes(b.riderId) && b.status === 'booked' && b.movedFrom && b.date >= today)
+    .map((b) => ({ ...b, slot: byId(s.slots, b.slotId) }))
+    .filter((b) => b.slot && b.slot.time !== b.movedFrom)
     .sort((a, b) => (a.date + a.slot.time).localeCompare(b.date + b.slot.time))
 }
 
@@ -234,8 +319,8 @@ export function moneySummary(s) {
   const monthCharges = s.payments.filter((p) => monthKeyOf(dateKeyFromIso(p.createdAt)) === month)
   return {
     today: sum(all.filter((p) => p.day === today)),
-    month: sum(all.filter((p) => monthKeyOf(p.day) === month)),
-    last30: sum(all.filter((p) => p.day >= from30)),
+    month: sum(all.filter((p) => monthKeyOf(p.day) === month && p.day <= today)),
+    last30: sum(all.filter((p) => p.day >= from30 && p.day <= today)),
     expected: sum(monthCharges),
     expectedPaid: sum(monthCharges.filter((p) => p.status === 'paid')),
     daily,
@@ -246,7 +331,7 @@ export function moneySummary(s) {
 export function overdue(s) {
   const today = todayKey()
   return s.payments
-    .filter((p) => p.status === 'pending' && (p.service === 'plan' || p.service === 'boarding'))
+    .filter((p) => p.status === 'pending' && (p.service === 'plan' || p.service === 'boarding') && liveFamily(s, p.familyId))
     .map((p) => ({ payment: p, due: dueOf(s, p) }))
     .filter((x) => x.due < today)
     .map((x) => ({ ...x, days: daysBetween(x.due, today), family: s.families.find((f) => f.id === x.payment.familyId) }))
@@ -258,7 +343,7 @@ export function renewingSoon(s, days = 7) {
   const today = todayKey()
   const until = addDays(today, days)
   return s.riders
-    .filter((r) => r.active !== false && r.planClasses)
+    .filter((r) => r.active !== false && r.planClasses && liveFamily(s, r.familyId))
     .map((r) => ({ rider: r, plan: getPlan(s, r.id, today) }))
     .filter((x) => x.plan && planEnd(x.plan) >= today && planEnd(x.plan) < until)
     .map((x) => ({ ...x, renews: addDays(planEnd(x.plan), 1), family: s.families.find((f) => f.id === x.rider.familyId) }))
@@ -271,7 +356,7 @@ export function activeCounts(s) {
   const families = s.families.filter((f) => f.active !== false && !f.deletedAt)
   const famIds = new Set(families.map((f) => f.id))
   const riders = s.riders.filter((r) => r.active !== false && famIds.has(r.familyId))
-  const plans = s.plans.filter((p) => planStart(p) <= today && planEnd(p) >= today)
+  const plans = s.plans.filter((p) => planStart(p) <= today && planEnd(p) >= today && riderLive(s, p.riderId))
   const byType = {}
   for (const p of plans) byType[p.total] = (byType[p.total] || 0) + 1
   return {
@@ -336,7 +421,6 @@ export function dueState(due, today = todayKey()) {
   return 'later'
 }
 
-const liveFamily = (s, id) => { const f = byId(s.families, id); return f && f.active !== false && !f.deletedAt ? f : null }
 
 /**
  * Charges that don't exist yet but will: the next periods of standing plans that continue, and each month's pensión.
@@ -424,19 +508,28 @@ export function familyDueSoon(s, familyId, today = todayKey()) {
     .sort((a, b) => a.due.localeCompare(b.due))
 }
 
-/** Reminders sent for a charge. Live: the daily job's log. Demo: the same schedule worked out from the dates. */
+/** Reminders sent for a charge. Live: the daily job's log. Demo: the same rules as reminders_due(), day by day. */
 export function remindersFor(s, p, today = todayKey()) {
   if (s.mode !== 'demo') return (s.paymentReminders || []).filter((r) => r.paymentId === p.id).sort((a, b) => a.sentOn.localeCompare(b.sentOn))
+  if (s.settings?.remindersOn === false || !liveFamily(s, p.familyId)) return []
   const due = p.due || dueOf(s, p)
   const created = dateKeyFromIso(p.createdAt)
-  // Same rules as the daily job: nothing before the charge existed, nor on the day a family books something.
-  const first = ['plan', 'boarding'].includes(p.service) && p.meta?.kind !== 'upgrade' ? created : addDays(created, 1)
+  // Nothing on the day a family books a class, a ride or an upgrade; a plan or a pensión can go out the day it's created.
+  const sameDay = ['plan', 'boarding'].includes(p.service) && p.meta?.kind !== 'upgrade'
+  const min = (a, b) => (a < b ? a : b)
+  let last = today
+  if (p.status === 'paid') last = p.paidAt ? min(last, addDays(dateKeyFromIso(p.paidAt), -1)) : addDays(created, -1)
+  // Not while a transfer receipt waits for review.
+  if (p.receiptStatus === 'review' && p.receiptUploadedAt) last = min(last, addDays(dateKeyFromIso(p.receiptUploadedAt), -1))
+  const first = sameDay ? created : addDays(created, 1)
   const out = []
-  const push = (kind, day) => { if (day <= today) out.push({ kind, sentOn: day < first ? first : day, emailStatus: 'sent' }) }
-  if (first > today) return out
-  push('before', addDays(due, -DUE_SOON_DAYS))
-  push('due', due)
-  push('after', addDays(due, 3))
-  for (let d = addDays(due, 10); d <= today; d = addDays(d, 7)) push('weekly', d)
+  const sent = (kind) => out.some((r) => r.kind === kind)
+  for (let d = first > addDays(due, -DUE_SOON_DAYS) ? first : addDays(due, -DUE_SOON_DAYS); d <= last; d = addDays(d, 1)) {
+    let kind = null
+    if (due > d) kind = sent('before') ? null : 'before'
+    else if (due === d) kind = sent('due') ? null : 'due'
+    else if (due <= addDays(d, -3)) kind = !sent('after') ? 'after' : out.some((r) => r.sentOn > addDays(d, -7)) ? null : 'weekly'
+    if (kind) out.push({ kind, sentOn: d, emailStatus: 'sent' })
+  }
   return out
 }

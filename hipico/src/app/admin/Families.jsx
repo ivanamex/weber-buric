@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { DateInput } from '../../components/DateInput.jsx'
 import {
-  useStore, familyRiders, getPlan, createFamily, saveFamily, setFamilyActive, deleteFamily, isActiveFamily, isDeletedFamily, LEVELS,
+  useStore, familyRiders, getPlan, createFamily, saveFamily, setFamilyActive, deleteFamily, isActiveFamily, isDeletedFamily, LEVELS, planStart,
 } from '../../data/store.js'
 import { PLANS } from '../../data/prices.js'
 import { todayKey } from '../../lib/time.js'
@@ -45,11 +45,12 @@ function RidersEditor({ idPrefix, riders, setRiders, withPlan }) {
   return (
     <div className="riders-editor">
       {riders.map((r, i) => (
-        <div key={r.id || `n${i}`} className={`rider-row ${r.active === false ? 'is-removed' : ''}`}>
+        <div key={r.id || `n${i}`} className="rider-item">
+        <div className={`rider-row ${r.active === false ? 'is-removed' : ''}`}>
           <input id={`${idPrefix}-name-${i}`} className="input" placeholder={t('admin.families.riderName')} aria-label={t('admin.families.riderName')}
             value={r.name} onChange={(e) => update(i, { name: e.target.value })} disabled={r.active === false} />
           <LevelSelect id={`${idPrefix}-level-${i}`} value={r.level} onChange={(level) => update(i, { level })} />
-          {withPlan && <PlanSelect id={`${idPrefix}-plan-${i}`} value={r.planClasses} onChange={(v) => update(i, { planClasses: v })} />}
+          {withPlan && <PlanSelect id={`${idPrefix}-plan-${i}`} value={r.planClasses} onChange={(v) => update(i, { planClasses: v, planStart: r.planStart || todayKey() })} />}
           {r.id ? (
             <button type="button" className="iconbtn" title={t(r.active === false ? 'admin.families.restoreRider' : 'admin.families.removeRider')}
               aria-label={t(r.active === false ? 'admin.families.restoreRider' : 'admin.families.removeRider')}
@@ -61,6 +62,14 @@ function RidersEditor({ idPrefix, riders, setRiders, withPlan }) {
               <Icon name="x" size={18} />
             </button>
           )}
+        </div>
+        {/* Each rider keeps their own start date; it only changes when it's edited here. */}
+        {withPlan && r.planClasses && r.active !== false && (
+          <label className="rider-start" htmlFor={`${idPrefix}-start-${i}`}>
+            <span>{t('admin.families.planStartOf', { name: r.name || t('admin.families.riderName') })}</span>
+            <DateInput id={`${idPrefix}-start-${i}`} value={r.planStart || ''} onChange={(e) => update(i, { planStart: e.target.value })} required />
+          </label>
+        )}
         </div>
       ))}
       <button type="button" className="link" onClick={() => setRiders([...riders, { ...NEW_RIDER, planClasses: '' }])}>
@@ -126,17 +135,19 @@ function FamilyEditor({ family, onDone }) {
   const s = useStore()
   const [fields, setFields, fieldsDirty] = useFormState({ name: family.name, contact: family.contact, email: family.email, phone: family.phone || '' })
   const [riders, setRiders, ridersDirty] = useFormState(() => familyRiders(s, family.id, { includeInactive: true })
-    .map((r) => ({ id: r.id, name: r.name, level: r.level, age: r.age, active: r.active !== false, planClasses: r.planClasses || '' })))
-  const [planStart, setPlanStart] = useState(todayKey())
+    .map((r) => {
+      const plan = getPlan(s, r.id)
+      return { id: r.id, name: r.name, level: r.level, age: r.age, active: r.active !== false, planClasses: r.planClasses || '', planStart: r.planStart || (plan ? planStart(plan) : '') }
+    }))
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
-  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [confirm, setConfirm] = useState(null) // 'block' | 'delete'
 
   const onSave = async (e) => {
     e.preventDefault()
     setBusy(true)
     setError(null)
-    const res = await saveFamily({ familyId: family.id, fields, planStart, riders: riders.filter((r) => r.id || r.name.trim()) })
+    const res = await saveFamily({ familyId: family.id, fields, riders: riders.filter((r) => r.id || r.name.trim()) })
     setBusy(false)
     if (!res.ok) return setError(t(`errors.${res.code}`))
     toast(t('toasts.familySaved', { name: fields.contact.trim() }))
@@ -172,23 +183,20 @@ function FamilyEditor({ family, onDone }) {
       <div className="field"><span>{t('admin.families.ridersAndPlans')}</span>
         <RidersEditor idPrefix={`ef-rider-${id}`} riders={riders} setRiders={setRiders} withPlan />
       </div>
-      <label className="field" htmlFor={`ef-start-${id}`}><span>{t('admin.families.planStart')}</span>
-        <DateInput id={`ef-start-${id}`} value={planStart} onChange={(e) => setPlanStart(e.target.value)} required />
-      </label>
       <p className="small muted mt8">{t('admin.families.assignHint')}</p>
       <SaveBar busy={busy} dirty={fieldsDirty || ridersDirty} error={error} onCancel={onDone} />
-      {confirmDelete ? (
-        <div className="danger-zone">
-          <p className="small"><strong>{t('admin.families.deleteTitle', { name: family.name })}</strong><br />{t('admin.families.deleteText')}</p>
+      {confirm ? (
+        <div className="danger-zone" role="alertdialog" aria-label={t(`admin.families.${confirm}Title`, { name: family.name })}>
+          <p className="small"><strong>{t(`admin.families.${confirm}Title`, { name: family.name })}</strong><br />{t(`admin.families.${confirm}Text`)}</p>
           <div className="row gap-sm end">
-            <button type="button" className="btn btn--sm" onClick={() => setConfirmDelete(false)}>{t('common.cancel')}</button>
-            <button type="button" className="btn btn--sm btn--dangerSolid" onClick={onDelete}>{t('admin.families.delete')}</button>
+            <button type="button" className="btn btn--sm" onClick={() => setConfirm(null)}>{t('common.cancel')}</button>
+            <button type="button" className="btn btn--sm btn--dangerSolid" onClick={confirm === 'block' ? onBlock : onDelete}>{t(`admin.families.${confirm}`)}</button>
           </div>
         </div>
       ) : (
         <div className="row gap-sm mt16 wrap danger-actions">
-          <button type="button" className="btn btn--sm btn--danger" onClick={onBlock}><Icon name="clock" size={15} /> {t('admin.families.block')}</button>
-          <button type="button" className="btn btn--sm btn--danger" onClick={() => setConfirmDelete(true)}><Icon name="x" size={15} /> {t('admin.families.delete')}</button>
+          <button type="button" className="btn btn--sm btn--danger" onClick={() => setConfirm('block')}><Icon name="clock" size={15} /> {t('admin.families.block')}</button>
+          <button type="button" className="btn btn--sm btn--danger" onClick={() => setConfirm('delete')}><Icon name="x" size={15} /> {t('admin.families.delete')}</button>
         </div>
       )}
     </form>

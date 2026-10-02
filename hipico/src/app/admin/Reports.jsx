@@ -1,17 +1,19 @@
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, incomeByService, monthCollected, weekOccupancy, activePlansCount, pendingPayments, LEVELS, SERVICES,
+  useStore, byId, incomeByService, monthCollected, weekOccupancy, activePlansCount, pendingPayments, LEVELS, SERVICES,
 } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { SectionTitle } from '../../components/ui.jsx'
-import { useToast } from '../../components/Toast.jsx'
 import { ResetDemoRow } from '../../components/ResetDemoRow.jsx'
-import { currentMonthKey, addDays } from '../../lib/time.js'
+import { exportCsv } from '../../components/Desk.jsx'
+import { concept } from '../../components/PaymentHistory.jsx'
+import { currentMonthKey, todayKey, TZ } from '../../lib/time.js'
+
+const clubDay = (iso) => new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(iso))
 
 export default function AdminReports() {
   const { t, fmtMoney, fmtDate } = useI18n()
   const s = useStore()
-  const toast = useToast()
   const income = incomeByService(s)
   const max = Math.max(...Object.values(income), 1)
   const total = monthCollected(s)
@@ -19,6 +21,21 @@ export default function AdminReports() {
   const pending = pendingPayments(s).reduce((sum, p) => sum + p.amount, 0)
   const boarded = s.horses.filter((h) => h.type === 'boarded').length
   const monthName = fmtDate(`${currentMonthKey()}-01`, { month: 'long', year: 'numeric' })
+  // The month's payments, one row each (opens in Excel).
+  const onExport = () => {
+    const month = currentMonthKey()
+    const rows = s.payments.filter((p) => clubDay(p.paidAt || p.createdAt).startsWith(month))
+      .sort((a, b) => (a.paidAt || a.createdAt).localeCompare(b.paidAt || b.createdAt))
+    const columns = [
+      { label: t('admin.reports.csvDate'), value: (p) => clubDay(p.paidAt || p.createdAt) },
+      { label: t('admin.reports.csvFamily'), value: (p) => byId(s.families, p.familyId)?.name || '' },
+      { label: t('admin.reports.csvConcept'), value: (p) => [concept(t, p), byId(s.riders, p.meta?.riderId)?.name, byId(s.horses, p.meta?.horseId)?.name].filter(Boolean).join(' · ') },
+      { label: t('admin.reports.csvAmount'), value: (p) => p.amount },
+      { label: t('admin.reports.csvStatus'), value: (p) => t(`admin.reports.csvState.${p.status}`) },
+      { label: t('admin.reports.csvMethod'), value: (p) => (p.method ? t(`methods.${p.method}`) : '') },
+    ]
+    exportCsv(`reportes-${month}-${todayKey()}.csv`, columns, rows)
+  }
 
 
   return (
@@ -50,7 +67,7 @@ export default function AdminReports() {
       <SectionTitle>{t('admin.reports.occupancyTitle')}</SectionTitle>
       <div className="card">
         <div className="row between">
-          <p className="card__label">{t('admin.reports.week', { from: fmtDate(occ.start, { day: 'numeric', month: 'short' }), to: fmtDate(addDays(occ.start, 5), { day: 'numeric', month: 'short' }) })}</p>
+          <p className="card__label">{t('admin.reports.week', { from: fmtDate(occ.start, { day: 'numeric', month: 'short' }), to: fmtDate(occ.end, { day: 'numeric', month: 'short' }) })}</p>
           <span className="small muted">{t('admin.reports.seats', { taken: occ.taken, seats: occ.seats })}</span>
         </div>
         <div className="donutrow">
@@ -70,7 +87,7 @@ export default function AdminReports() {
       <div className="card list">
         <div className="list__row">
           <span className="grow">{t('admin.reports.export')}</span>
-          <button type="button" className="link" onClick={() => toast(t('toasts.soon'), 'info')}>{t('common.soon')}</button>
+          <button type="button" className="link" onClick={onExport}><Icon name="download" size={15} /> {t('desk.export')}</button>
         </div>
         <ResetDemoRow />
       </div>

@@ -575,6 +575,16 @@ p.center { display: block; }
   .riders-editor .rider-row:not(:has(select + select)) { grid-template-columns: 1fr 40px; }
 }
 .riders-editor .link, .login__panel .field .link { justify-self: start; }
+.rider-item { display: grid; gap: 4px; }
+.rider-start { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-left: 2px; }
+.rider-start > span { font-size: 13px; color: var(--muted); }
+.rider-start .dateinput { flex: 0 1 190px; }
+.cancelask { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.cancelask__q { font-size: 13px; font-weight: 600; }
+.nextclass .cancelask__q { color: inherit; }
+.reviewblock .list__row .btn { flex: none; }
+.bulkform__clash > span { display: grid; gap: 2px; }
+.bulkform__clashline { display: block; }
 .family-editor { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
 .card--inactive { opacity: .8; background: #F7F2E6; }
 .login__panel .rider-row { margin-bottom: 6px; }

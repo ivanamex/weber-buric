@@ -278,7 +278,7 @@ const familyPayload = (p) => ({
 const createFamily = (p) => call('admin_create_family', { p: familyPayload(p) })
 const selfSignup = (p) => call('self_signup', { p: familyPayload(p) })
 
-async function saveFamily({ familyId, fields, riders = [], planStart }) {
+async function saveFamily({ familyId, fields, riders = [] }) {
   try {
     const email = (fields.email || '').trim().toLowerCase()
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !fields.contact?.trim()) return { ok: false, code: 'missing' }
@@ -287,8 +287,6 @@ async function saveFamily({ familyId, fields, riders = [], planStart }) {
     }).eq('id', familyId)
     if (error) return { ok: false, code: error.code === '23505' ? 'emailExists' : 'network' }
     const current = getRiders()
-    // The start date goes with the plans being changed; if no plan changes, it moves every current plan.
-    const startOnly = !riders.some((r) => r.id && (Number(r.planClasses) || null) !== (current.find((x) => x.id === r.id)?.planClasses || null))
     for (const r of riders) {
       if (!r.name?.trim() || !r.level) return { ok: false, code: 'missing' }
       let id = r.id
@@ -301,10 +299,12 @@ async function saveFamily({ familyId, fields, riders = [], planStart }) {
         if (res.error) return { ok: false, code: 'network' }
         id = res.data.id
       }
+      // Only a plan or a start date that actually changed is assigned again (each rider has their own date).
       const prev = current.find((x) => x.id === id)
       const after = Number(r.planClasses) || null
-      if ((prev?.planClasses || null) !== after || (startOnly && after && planStart && planStart !== prev?.planStart)) {
-        const res = await rpcOnly('admin_set_plan', { p_rider: id, p_classes: after, p_start: planStart || null })
+      const startChanged = Boolean(after && r.planStart && r.planStart !== prev?.planStart)
+      if ((prev?.planClasses || null) !== after || startChanged) {
+        const res = await rpcOnly('admin_set_plan', { p_rider: id, p_classes: after, p_start: r.planStart || null })
         if (!res.ok) { await refresh(); return res }
       }
     }
@@ -316,12 +316,8 @@ async function saveFamily({ familyId, fields, riders = [], planStart }) {
   }
 }
 
-async function deleteFamily(familyId) {
-  const { error } = await sb.from('families').update({ deleted_at: new Date().toISOString() }).eq('id', familyId)
-  if (error) return { ok: false, code: 'network' }
-  await refresh()
-  return { ok: true }
-}
+// Deleting frees the family's places: its classes from now on are cancelled and go back to the plans.
+const deleteFamily = (familyId) => call('admin_delete_family', { p_family: familyId })
 
 async function setFamilyActive(familyId, active) {
   const { error } = await sb.from('families').update({ active, deactivated_at: active ? null : new Date().toISOString() }).eq('id', familyId)
@@ -464,12 +460,8 @@ async function saveReminderSettings({ remindersOn, boardingDueDay, reminderNote 
   await refresh()
   return { ok: true }
 }
-async function saveClosedWeekdays(weekdays) {
-  const res = await sb.from('club_settings').update({ closed_weekdays: [...new Set(weekdays.map(Number))].sort() }).eq('id', 1)
-  if (res.error) { console.error('[hipico] settings save failed', res.error); return { ok: false, code: 'network' } }
-  await refresh()
-  return { ok: true }
-}
+// Closing a weekday cancels the classes already booked on it, as closed dates do.
+const saveClosedWeekdays = (weekdays) => call('set_closed_weekdays', { p_days: [...new Set(weekdays.map(Number))].sort() })
 async function deleteClosedDate(id) {
   const res = await sb.from('closed_dates').delete().eq('id', id)
   if (res.error) return { ok: false, code: 'network' }

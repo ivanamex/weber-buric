@@ -4,7 +4,7 @@ import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { DateInput } from '../../components/DateInput.jsx'
 import {
   useStore, byId, isActiveBooking, LEVELS, cancelClassDate, reopenClassDate, createClasses, editClass, cancelClassRange, copyWeek,
-  slotsOn, isClosed, closedDateOn, closedWeekdays, isOneOff,
+  slotsOn, isClosed, closedDateOn, closedWeekdays, isOneOff, classClashes,
 } from '../../data/store.js'
 import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
@@ -120,6 +120,14 @@ function BulkForm({ preset, onDone }) {
   const preview = n === 0 ? t('schedule.previewNone')
     : t(n === 1 ? 'schedule.previewOne' : 'schedule.preview', { n, days: daysLabel(t, f.weekdays), times: listJoin(t, f.times.map(fmtTime)) })
       + (!f.noEnd && f.endsOn ? t('schedule.previewUntil', { date: fmtDate(f.endsOn, { day: 'numeric', month: 'short' }) }) : '')
+  // Same instructor or same arena at an overlapping time: a warning, the club decides.
+  const clashes = n ? classClashes(s, { ...f, endsOn: f.noEnd ? null : f.endsOn }) : []
+  const clashLine = (c) => {
+    const day = t(`schedule.weekdays.${c.weekday}`)
+    if (c.other) return t('schedule.clashSelf', { day, a: fmtTime(c.time), b: fmtTime(c.other) })
+    const who = c.instructor ? byId(s.instructors, c.slot.instructorId)?.name : t(`arenas.${c.slot.arena}`)
+    return t(c.instructor ? 'schedule.clashInstructor' : 'schedule.clashArena', { day, time: fmtTime(c.time), who, other: fmtTime(c.slot.time), class: t(`disciplines.${c.slot.discipline}`) })
+  }
   const onSubmit = (e) => {
     e.preventDefault()
     if (n === 0) return
@@ -171,6 +179,15 @@ function BulkForm({ preset, onDone }) {
       </div>
       <label className="check"><input type="checkbox" checked={f.noEnd} onChange={(e) => set({ noEnd: e.target.checked, endsOn: e.target.checked ? '' : addDays(f.startsOn, 90) })} /> <span>{t('schedule.noEnd')}</span></label>
       <p className={`bulkform__preview ${n ? '' : 'is-empty'}`} aria-live="polite"><Icon name="calendar" size={18} /> {preview}</p>
+      {clashes.length > 0 && (
+        <div className="notice notice--alert bulkform__clash" role="status">
+          <Icon name="alert" size={18} />
+          <span><strong>{t('schedule.clashTitle')}</strong>
+            {clashes.slice(0, 3).map((c, i) => <span key={i} className="small bulkform__clashline">{clashLine(c)}</span>)}
+            {clashes.length > 3 && <span className="small bulkform__clashline">{t('schedule.clashMore', { n: clashes.length - 3 })}</span>}
+          </span>
+        </div>
+      )}
       <SaveBar busy={busy} dirty={dirty} error={error} onCancel={() => onDone(null)} disabled={n === 0} />
     </form>
   )

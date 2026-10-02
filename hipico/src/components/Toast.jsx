@@ -12,7 +12,8 @@ export function ToastProvider({ children }) {
   // { sticky: true } keeps the message until it's closed (errors the family has to read).
   const toast = useCallback((message, type = 'success', { sticky = false } = {}) => {
     const id = ++idRef.current
-    setToasts((ts) => [...ts.slice(-1), { id, message, type, sticky }])
+    // One message at a time: a new one replaces the last (no stacks at sign-in).
+    setToasts([{ id, message, type, sticky }])
     if (!sticky) setTimeout(() => close(id), 2800)
   }, [close])
   return (

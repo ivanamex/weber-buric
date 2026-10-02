@@ -7,7 +7,7 @@ import {
 import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
 import { SectionTitle } from '../../components/ui.jsx'
-import { concept } from '../../components/PaymentHistory.jsx'
+import { concept, paymentSentence } from '../../components/PaymentHistory.jsx'
 import { todayKey } from '../../lib/time.js'
 import IncomeChart from './IncomeChart.jsx'
 
@@ -94,7 +94,7 @@ export default function AdminSummary() {
         <ul className="list card">
           {owedShown.map(({ payment: p, days, family }) => {
             const rider = p.meta?.riderId ? byId(s.riders, p.meta.riderId)?.name : p.meta?.horseId ? byId(s.horses, p.meta.horseId)?.name : ''
-            const text = t('summary.waReminder', { contact: family?.contact?.split(' ')[0] || '', what: `${concept(t, p)}${rider ? ` (${rider})` : ''}`, amount: fmtMoney(p.amount) })
+            const text = t('summary.waReminder', { contact: family?.contact?.split(' ')[0] || '', what: paymentSentence(t, s, p), amount: fmtMoney(p.amount) })
             return (
               <li key={p.id} className="list__row owed">
                 <div className="grow">

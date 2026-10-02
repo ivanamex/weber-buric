@@ -5,7 +5,7 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, SectionTitle, Segmented } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { ReceiptBadge } from '../../components/Transfer.jsx'
-import { concept } from '../../components/PaymentHistory.jsx'
+import { concept, paymentSentence } from '../../components/PaymentHistory.jsx'
 import { daysBetween, todayKey } from '../../lib/time.js'
 import { familyWaLink } from './Summary.jsx'
 import { DataTable, exportCsv, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
@@ -74,7 +74,7 @@ function PayRow({ item, onView }) {
     setOpen(false)
     toast(res.ok ? t('toasts.paid', { amount: fmtMoney(item.amount), method: t(`methods.${method}`) }) : t('errors.notFound'), res.ok ? 'success' : 'error')
   }
-  const waText = t('summary.waReminder', { contact: family?.contact?.split(' ')[0] || '', what: describe(item), amount: fmtMoney(item.amount) })
+  const waText = t('summary.waReminder', { contact: family?.contact?.split(' ')[0] || '', what: paymentSentence(t, s, item), amount: fmtMoney(item.amount) })
   return (
     <li className={`card pay ${item.projected ? 'pay--expected' : ''}`}>
       <div className="row gap">

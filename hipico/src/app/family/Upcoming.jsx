@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { useStore, byId, canCancel, cancelBooking, CANCEL_WINDOW_HOURS } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
@@ -14,11 +15,25 @@ export function useCancelBooking() {
   }
 }
 
+/** Cancelar asks once before cancelling ("¿Cancelar esta clase?  Sí, cancelar · No"). */
+export function CancelClassButton({ booking, className = 'link link--danger', label }) {
+  const { t } = useI18n()
+  const onCancel = useCancelBooking()
+  const [asking, setAsking] = useState(false)
+  if (!asking) return <button type="button" className={className} onClick={() => setAsking(true)}>{label || t('common.cancel')}</button>
+  return (
+    <span className="cancelask" role="group" aria-label={t('family.home.cancelAsk')}>
+      <span className="cancelask__q">{t('family.home.cancelAsk')}</span>
+      <button type="button" className="btn btn--sm btn--dangerSolid" onClick={() => { setAsking(false); onCancel(booking) }}>{t('family.home.cancelYes')}</button>
+      <button type="button" className="btn btn--sm" onClick={() => setAsking(false)}>{t('family.home.cancelNo')}</button>
+    </span>
+  )
+}
+
 /** "Próximas clases": date, time, class, instructor and horse, each with Cancelar. */
 export function UpcomingList({ bookings, showRider = false }) {
   const { t, fmtDate, fmtTime } = useI18n()
   const s = useStore()
-  const onCancel = useCancelBooking()
   return (
     <ul className="list card upcoming">
       {bookings.map((b) => {
@@ -40,7 +55,7 @@ export function UpcomingList({ bookings, showRider = false }) {
               </p>
             </div>
             {canCancel(b, slot)
-              ? <button type="button" className="link link--danger" onClick={() => onCancel(b)}>{t('common.cancel')}</button>
+              ? <CancelClassButton booking={b} />
               : <span className="small muted upcoming__locked" title={t('family.home.cancelClosed', { hours: CANCEL_WINDOW_HOURS })}><Icon name="clock" size={14} /></span>}
           </li>
         )

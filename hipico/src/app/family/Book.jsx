@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
   useStore, byId, occurrencesFor, bookClass, bookSingleClass, getPlan, planRemaining, planExpiry, hadTrial, slotsOn, isClosed, closedDateOn,
-  planEnd, planRenewal, planStart,
+  planEnd, planRenewal, planStart, slotMinutes,
 } from '../../data/store.js'
 import { CLASS_PRICES } from '../../data/prices.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
@@ -98,6 +98,12 @@ export default function FamilyBook() {
             <span>{t('family.book.planLine', { name: rider.name, n: planRemaining(plan), date: fmtDate(planExpiry(plan), { day: 'numeric', month: 'short' }) })}</span>
             <span className="muted small">· {t(`levels.${rider.level}`)}</span>
           </>
+        ) : inNext && standing ? (
+          // After the renewal the class comes out of the next period: only that line, never "Sin plan".
+          <>
+            <Icon name="calendar" size={18} />
+            <span>{t('family.book.nextPeriod', { month: periodMonth, date: fmtDate(planRenewal(current), { day: 'numeric', month: 'short' }) })}</span>
+          </>
         ) : (
           <>
             <Icon name="alert" size={18} />
@@ -131,7 +137,7 @@ export default function FamilyBook() {
       </div>
 
       <p className="daylabel">{fmtDate(date)}{date === today ? ` · ${t('common.today')}` : ''}</p>
-      {inNext && occ.length > 0 && (
+      {inNext && plan && occ.length > 0 && (
         <p className="notice notice--info nextperiod" role="note">
           <Icon name="calendar" size={18} />
           <span>{t('family.book.nextPeriod', { month: periodMonth, date: fmtDate(planRenewal(current), { day: 'numeric', month: 'short' }) })}
@@ -158,7 +164,7 @@ export default function FamilyBook() {
               <li key={o.slot.id} className={`slot slot--${state}`}>
                 <div className="slot__time">
                   <strong>{fmtTime(o.slot.time)}</strong>
-                  <span>60 min</span>
+                  <span>{t('schedule.minutes', { n: slotMinutes(o.slot) })}</span>
                 </div>
                 <div className="slot__body">
                   <p className="slot__title">{t(`disciplines.${o.slot.discipline}`)} <Badge tone="neutral">{t(`levels.${o.slot.level}`)}</Badge></p>

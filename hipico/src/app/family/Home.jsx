@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, upcomingBookings, canCancel, cancelBooking,
-  boardingStatus, CANCEL_WINDOW_HOURS, clubCancelledBookings, familyDueSoon,
+  useStore, byId, upcomingBookings, canCancel,
+  boardingStatus, CANCEL_WINDOW_HOURS, clubCancelledBookings, familyDueSoon, movedBookings,
 } from '../../data/store.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
 import { useBase } from '../Backend.jsx'
@@ -14,7 +14,7 @@ import { BOARDING_MONTHLY } from '../../data/prices.js'
 import { ReceiptBadge } from '../../components/Transfer.jsx'
 import { concept } from '../../components/PaymentHistory.jsx'
 import { ActivePlanCard } from './ActivePlan.jsx'
-import { UpcomingList, useCancelBooking } from './Upcoming.jsx'
+import { UpcomingList, CancelClassButton } from './Upcoming.jsx'
 import { GreetingMark } from '../../components/GreetingMark.jsx'
 import { useDesktop } from '../../components/Desk.jsx'
 
@@ -33,6 +33,7 @@ export default function FamilyHome() {
   const family = byId(s.families, s.session.familyId)
   const upcoming = upcomingBookings(s, [riderId])
   const cancelled = clubCancelledBookings(s, riders.map((r) => r.id))
+  const moved = movedBookings(s, riders.map((r) => r.id))
   const next = upcoming[0]
   const boarding = boardingStatus(s, family.id)
   // Transfer receipts: waiting, rejected, or approved in the last two weeks.
@@ -42,7 +43,6 @@ export default function FamilyHome() {
   const dueSoon = familyDueSoon(s, family.id)
   const desk = useDesktop()
 
-  const onCancel = useCancelBooking()
 
 
   const planBlock = (
@@ -88,14 +88,22 @@ export default function FamilyHome() {
           </div>
         )
       })}
-
+      {moved.map((b) => (
+        <div key={`m${b.id}`} className="notice notice--info" role="status">
+          <Icon name="clock" size={18} />
+          <span>
+            <strong>{t('schedule.movedTitle')}</strong> · {byId(s.riders, b.riderId)?.name} · {fmtDate(b.date, { weekday: 'short', day: 'numeric', month: 'short' })}
+            <br /><span className="small">{t('schedule.movedText', { time: fmtTime(b.slot.time), before: fmtTime(b.movedFrom) })}</span>
+          </span>
+        </div>
+      ))}
     </>
   )
   const nextBlock = (
     <>
       <SectionTitle icon="calendar">{t('family.home.nextClass')}</SectionTitle>
       {next ? (
-        <NextClassCard booking={next} onCancel={onCancel} s={s} rider={rider} />
+        <NextClassCard booking={next} s={s} rider={rider} />
       ) : (
         <Empty icon="horseHead" title={t('family.home.noClassTitle', { name: rider.name })}>
           <Link to={`${base}/familia/reservar`} className="btn btn--primary"><Icon name="calendar" size={18} /> {t('family.home.bookNow')}</Link>
@@ -190,7 +198,7 @@ export default function FamilyHome() {
 
 }
 
-function NextClassCard({ booking, onCancel, s, rider }) {
+function NextClassCard({ booking, s, rider }) {
   const { t, fmtDate, fmtTime } = useI18n()
   const slot = booking.slot
   const instructor = byId(s.instructors, slot.instructorId)
@@ -211,9 +219,7 @@ function NextClassCard({ booking, onCancel, s, rider }) {
         <li><Icon name="home" size={16} /> {t(`arenas.${slot.arena}`)}</li>
       </ul>
       {cancellable ? (
-        <button type="button" className="btn btn--ghost-light btn--sm" onClick={() => onCancel(booking)}>
-          {t('family.home.cancel')}
-        </button>
+        <CancelClassButton booking={booking} className="btn btn--ghost-light btn--sm" label={t('family.home.cancel')} />
       ) : (
         <p className="small nextclass__note"><Icon name="info" size={14} /> {t('family.home.cancelClosed', { hours: CANCEL_WINDOW_HOURS })}</p>
       )}

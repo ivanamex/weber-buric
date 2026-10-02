@@ -32,7 +32,7 @@ export default function AdminToday() {
 
   const onAll = async (o) => {
     const res = await markClassAttended(o.slot.id, date)
-    toast(res.ok ? t('toasts.allCame', { n: o.bookings.length }) : t(`errors.${res.code}`), res.ok ? 'success' : 'error')
+    toast(res.ok ? t('toasts.allCame', { n: res.marked ?? o.bookings.length }) : t(`errors.${res.code}`), res.ok ? 'success' : 'error')
   }
 
   return (

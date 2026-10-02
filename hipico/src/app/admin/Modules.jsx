@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { DateInput } from '../../components/DateInput.jsx'
-import { useStore, saveModules, closedWeekdays, saveClosedWeekdays, addClosedDates, deleteClosedDate, saveReminderSettings } from '../../data/store.js'
+import { useStore, saveModules, closedWeekdays, saveClosedWeekdays, addClosedDates, deleteClosedDate, saveReminderSettings, closingImpact } from '../../data/store.js'
+import { weekdayOf } from '../../lib/time.js'
 import { Icon } from '../../components/Icon.jsx'
 import { SectionTitle } from '../../components/ui.jsx'
 import { SaveBar, useFormState } from '../../components/EditKit.jsx'
@@ -44,14 +45,42 @@ function ReminderSettings() {
   )
 }
 
+/** Asks before closing days that have classes booked: "Se cancelarán N clases de M familias". */
+function CloseConfirm({ impact, busy, onConfirm, onBack, label }) {
+  const { t } = useI18n()
+  return (
+    <div className="danger-zone" role="alertdialog" aria-label={t('closed.confirmTitle')}>
+      <p className="small"><strong>{impact.classes ? t('closed.confirmText', { n: impact.classes, m: impact.families }) : t('closed.confirmNone')}</strong>
+        {impact.classes > 0 && <><br />{t('closed.confirmHint')}</>}</p>
+      <div className="row gap-sm end">
+        <button type="button" className="btn btn--sm" onClick={onBack}>{t('common.cancel')}</button>
+        <button type="button" className="btn btn--sm btn--dangerSolid" disabled={busy} onClick={onConfirm}>{label}</button>
+      </div>
+    </div>
+  )
+}
+
 function ClosedWeekdays() {
   const { t } = useI18n()
   const s = useStore()
+  const toast = useToast()
   const [run, busy, error] = useSave()
   const [days, setDays, dirty] = useFormState(() => [...closedWeekdays(s)].sort())
-  const toggle = (d) => setDays(days.includes(d) ? days.filter((x) => x !== d) : [...days, d].sort())
+  const [asking, setAsking] = useState(null)
+  const toggle = (d) => { setAsking(null); setDays(days.includes(d) ? days.filter((x) => x !== d) : [...days, d].sort()) }
+  // Closing a weekday cancels the classes already booked on it (they return to the plans), as closed dates do.
+  const save = () => run(() => saveClosedWeekdays(days), null, (res) => {
+    setAsking(null)
+    toast(res.bookings ? t('closed.savedCancelled', { n: res.bookings }) : t('closed.saved'))
+  }, { inline: true })
+  const onSubmit = (e) => {
+    e.preventDefault()
+    const impact = closingImpact(s, (d) => days.includes(weekdayOf(d)))
+    if (impact.classes) setAsking(impact)
+    else save()
+  }
   return (
-    <form className="inline-form" onSubmit={(e) => { e.preventDefault(); run(() => saveClosedWeekdays(days), t('closed.saved'), null, { inline: true }) }}>
+    <form className="inline-form" onSubmit={onSubmit}>
       <div className="field"><span>{t('closed.weekdays')}</span>
         <div className="daychips daychips--closed" role="group" aria-label={t('closed.weekdays')}>
           {WEEK.map((d) => (
@@ -60,7 +89,8 @@ function ClosedWeekdays() {
           ))}
         </div>
       </div>
-      {dirty && <SaveBar busy={busy} dirty={dirty} error={error} />}
+      {asking ? <CloseConfirm impact={asking} busy={busy} onConfirm={save} onBack={() => setAsking(null)} label={t('closed.confirmSave')} />
+        : dirty && <SaveBar busy={busy} dirty={dirty} error={error} />}
     </form>
   )
 }
@@ -71,16 +101,23 @@ function ClosedDates() {
   const toast = useToast()
   const [run, busy, error] = useSave()
   const today = todayKey()
-  const [f, setF, dirty] = useFormState({ from: today, to: today, note: '' })
+  // Empty until management picks the dates; closing always asks first.
+  const [f, setF, dirty] = useFormState({ from: '', to: '', note: '' })
   const [key, setKey] = useState(0)
+  const [asking, setAsking] = useState(null)
   const list = (s.closedDates || []).filter((c) => c.endsOn >= today).sort((a, b) => a.startsOn.localeCompare(b.startsOn))
   const range = (c) => (c.startsOn === c.endsOn ? fmtDate(c.startsOn, { weekday: 'short', day: 'numeric', month: 'short' })
     : `${fmtDate(c.startsOn, { day: 'numeric', month: 'short' })} – ${fmtDate(c.endsOn, { day: 'numeric', month: 'short' })}`)
   const onAdd = (e) => {
     e.preventDefault()
+    if (!f.from || !f.to) return
+    setAsking(closingImpact(s, (d) => d >= f.from && d <= f.to))
+  }
+  const confirm = () => {
     run(() => addClosedDates(f), null, (res) => {
       toast(res.classes ? t('closed.addedCancelled', { n: res.classes }) : t('closed.added'))
-      setF({ from: today, to: today, note: '' })
+      setF({ from: '', to: '', note: '' })
+      setAsking(null)
       setKey(key + 1)
     }, { inline: true })
   }
@@ -104,17 +141,18 @@ function ClosedDates() {
       <form key={key} className="inline-form mt12" onSubmit={onAdd}>
         <div className="grid2">
           <label className="field" htmlFor="cd-from"><span>{t('schedule.from')}</span>
-            <DateInput id="cd-from" min={today} required value={f.from} onChange={(e) => setF({ ...f, from: e.target.value, to: e.target.value > f.to ? e.target.value : f.to })} />
+            <DateInput id="cd-from" min={today} required value={f.from} onChange={(e) => { setAsking(null); setF({ ...f, from: e.target.value, to: !f.to || e.target.value > f.to ? e.target.value : f.to }) }} />
           </label>
           <label className="field" htmlFor="cd-to"><span>{t('schedule.until')}</span>
-            <DateInput id="cd-to" min={f.from} required value={f.to} onChange={(e) => setF({ ...f, to: e.target.value })} />
+            <DateInput id="cd-to" min={f.from || today} required value={f.to} onChange={(e) => { setAsking(null); setF({ ...f, to: e.target.value }) }} />
           </label>
         </div>
         <label className="field" htmlFor="cd-note"><span>{t('closed.note')}</span>
           <input id="cd-note" className="input" maxLength={120} placeholder={t('closed.notePh')} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
         </label>
         <p className="small muted">{t('closed.hint')}</p>
-        <SaveBar busy={busy} dirty={dirty && Boolean(f.note)} error={error} label={t('closed.add')} />
+        {asking ? <CloseConfirm impact={asking} busy={busy} onConfirm={confirm} onBack={() => setAsking(null)} label={t('closed.add')} />
+          : <SaveBar busy={busy} dirty={dirty && Boolean(f.note) && Boolean(f.from && f.to)} error={error} label={t('closed.add')} />}
       </form>
     </>
   )
