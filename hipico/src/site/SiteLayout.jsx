@@ -110,9 +110,7 @@ function useScrollState(lang) {
       }
       const dark = [...document.querySelectorAll('[data-tone="dark"]')].some((el) => {
         const r = el.getBoundingClientRect()
-        // the hero ends in a curve: below the point where its sides start curving, the bar is over the page
-        const bottom = el.dataset.darkEnd ? r.top + Number(el.dataset.darkEnd) : r.bottom
-        return r.top <= 28 && bottom > 28
+        return r.top <= 28 && r.bottom > 28
       })
       const hero = document.querySelector('.shero')
       const visit = document.getElementById(sectionId('visit', lang))

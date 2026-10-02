@@ -162,20 +162,18 @@
 .glow::after { content: ''; position: absolute; inset: 0; z-index: -1; opacity: .18; mix-blend-mode: overlay; pointer-events: none; background-image: var(--grain); }
 
 /* ───────── Hero: the three clips full-bleed, text bottom-left in white, chips bottom-right ───────── */
-.shero { position: relative; isolation: isolate; height: 100svh; min-height: 560px; color: #fff; }
-/* the video fills the width; only the bottom is cut as a horseshoe curve (the page shows below it) */
-.shero__media { position: absolute; inset: 0; z-index: -2; overflow: hidden; background: var(--deep); clip-path: var(--hero-clip, none); }
-.shero__band { position: absolute; left: 0; top: 0; z-index: 0; overflow: visible; pointer-events: none; display: block; }
+.shero { position: relative; isolation: isolate; overflow: hidden; height: 100svh; min-height: 560px; background: var(--deep); color: #fff; }
+.shero__media { position: absolute; inset: 0; z-index: -2; }
 .shero__scene { position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease; }
 .shero__scene.is-on { opacity: 1; }
 .shero__scene img, .shero__scene video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.shero__scrim { position: absolute; inset: 0; pointer-events: none; background:
+.shero__scrim { position: absolute; inset: 0; z-index: -1; pointer-events: none; background:
   radial-gradient(45% 55% at 100% 0%, rgba(242,180,140,.28) 0%, rgba(242,180,140,0) 70%),
   radial-gradient(40% 50% at 0% 100%, rgba(242,180,140,.18) 0%, rgba(242,180,140,0) 70%),
-  radial-gradient(85% 70% at 0% 72%, rgba(16,39,31,.88) 0%, rgba(16,39,31,.62) 40%, rgba(16,39,31,0) 72%),
+  radial-gradient(85% 70% at 0% 100%, rgba(16,39,31,.88) 0%, rgba(16,39,31,.62) 40%, rgba(16,39,31,0) 72%),
   linear-gradient(90deg, rgba(16,39,31,.5) 0%, rgba(16,39,31,.25) 40%, rgba(16,39,31,0) 60%),
   linear-gradient(180deg, rgba(16,39,31,.42) 0%, rgba(16,39,31,0) 22%); }
-.shero__inner { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; gap: 22px; padding-top: calc(var(--bar-h) + 24px); padding-bottom: var(--curve-pad, calc(36% + 24px)); }
+.shero__inner { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; gap: 22px; padding-top: calc(var(--bar-h) + 24px); padding-bottom: 32px; }
 .shero__text { display: grid; gap: 18px; max-width: 780px; }
 .shero__title { font-size: clamp(48px, 7vw, 116px); color: #fff; text-shadow: 0 6px 30px rgba(0,0,0,.25); }
 .shero__sub { max-width: 36ch; font-size: clamp(1.05rem, 1.5vw, 1.22rem); line-height: 1.45; color: rgba(255,255,255,.92); }
@@ -186,7 +184,7 @@
 .shero__chips button { border: 0; padding: 8px 14px; border-radius: 999px; font-size: .86rem; font-weight: 600; color: var(--deep); background: rgba(238,243,238,.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: background .3s, color .3s; }
 .shero__chips button.is-on { background: var(--deep); color: #fff; }
 @media (min-width: 900px) {
-  .shero__inner { flex-direction: row; align-items: flex-end; justify-content: space-between; padding-bottom: var(--curve-pad, calc(33% + 32px)); }
+  .shero__inner { flex-direction: row; align-items: flex-end; justify-content: space-between; padding-bottom: 48px; }
   .shero__chips { flex-shrink: 0; }
 }
 
@@ -425,8 +423,8 @@
 .site .logo__name { color: var(--deep); font-family: var(--site-font); font-stretch: var(--ui-stretch); }
 .site .logo__sub { color: var(--jungle); font-family: var(--site-font); font-stretch: var(--ui-stretch); }
 
-/* phones: the text sits above the curve, so the shade sits behind it and fades out over the curve */
+/* phones: the text covers more of the clip, so the scrim rises higher */
 @media (max-width: 899px) {
-  .shero__scrim { background: linear-gradient(180deg, rgba(16,39,31,.5) 0%, rgba(16,39,31,.72) 18%, rgba(16,39,31,.72) 58%, rgba(16,39,31,.2) 76%, rgba(16,39,31,0) 90%); }
+  .shero__scrim { background: linear-gradient(0deg, rgba(16,39,31,.92) 0%, rgba(16,39,31,.78) 38%, rgba(16,39,31,.25) 62%, rgba(16,39,31,0) 78%), linear-gradient(180deg, rgba(16,39,31,.45) 0%, rgba(16,39,31,0) 20%); }
 }
 @media (max-width: 599px) { .sgal__play { width: 30px; height: 30px; right: 8px; bottom: 8px; } .sgal__play .sicon { width: 14px; height: 14px; } .sgal__item { border-radius: 14px; } }
