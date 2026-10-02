@@ -6,7 +6,7 @@ export const SECTIONS = [
   { key: 'boarding', n: '04', es: 'pension', en: 'boarding' },
   { key: 'app', n: '05', es: 'app', en: 'app' },
   { key: 'community', n: '06', es: 'comunidad', en: 'community' },
-  { key: 'enjoy', n: '07', es: 'disfruta', en: 'enjoy' },
+  { key: 'enjoy', n: '07', es: 'galeria', en: 'gallery' },
   { key: 'visit', n: '08', es: 'visitanos', en: 'visit' },
 ]
 // Places inside a section that old links point to.

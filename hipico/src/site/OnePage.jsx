@@ -10,7 +10,7 @@ import { sectionId } from './routes.js'
 import { BIG, CLIPS, CONTACT, HERO_SCENES, PHOTOS, TESTIMONIALS, mapDirections, mapEmbed } from './content.js'
 import { Hoofprints } from './Hoofprints.jsx'
 import { planList, useSiteData } from './siteData.js'
-import { GalleryRow } from './Gallery.jsx'
+import { Gallery } from './Gallery.jsx'
 
 const wa = (text) => ({ href: waLink(text), target: '_blank', rel: 'noopener noreferrer' })
 const RATE = 0.75 // every clip plays in a soft slow motion
@@ -159,12 +159,13 @@ function Hero() {
   )
 }
 
-/** Galería: one slow row of photos and clips, full width; a tile opens the lightbox. */
+/** Galería: filters, a masonry grid of photos and clips, the lightbox. */
 function Enjoy() {
   const { t } = useI18n()
   return (
-    <Sec k="enjoy" className="senjoy" after={<GalleryRow />}>
+    <Sec k="enjoy" className="senjoy">
       <Kinetic id="enjoy-title" text={t('site.enjoy.title')} />
+      <Gallery />
     </Sec>
   )
 }
@@ -285,7 +286,7 @@ function Competitions() {
 function Therapy() {
   const { t } = useI18n()
   return (
-    <Sec k="therapy">
+    <Sec k="therapy" className="sec--glow">
       <Split media={<Clip clip={CLIPS.grooming} alt={t('site.alt.grooming')} />}>
         <span className="spill">{t('site.tagSoon')}</span>
         <Kinetic id="therapy-title" text={t('site.therapy.title')} />

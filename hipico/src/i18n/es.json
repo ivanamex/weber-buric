@@ -1151,7 +1151,7 @@
       "community": "Comunidad",
       "app": "La app",
       "visit": "Visítanos",
-      "enjoy": "Disfruta"
+      "enjoy": "Galería"
     },
     "meta": {
       "title": "Hípico Riviera Maya · Clases de equitación en Playa del Carmen y Paamul",
@@ -1189,7 +1189,9 @@
       "paddockFace": "Un caballo se asoma en el potrero",
       "jumpSunset": "Un caballo salta un obstáculo al atardecer",
       "jumpClip": "Un caballo salta un obstáculo en la pista",
-      "kids": "Una niña monta un poni en la pista"
+      "kids": "Una niña monta un poni en la pista",
+      "kidPony": "Una niña monta un poni bajo un flamboyán",
+      "horseJungle": "Un caballo con su cuerda entre la vegetación de la selva"
     },
     "hero": {
       "label": "Bienvenida",
@@ -1389,7 +1391,7 @@
     "enjoy": {
       "word": "Disfruta",
       "gallery": "Fotos del club",
-      "title": "Disfruta el club"
+      "title": "Galería del club."
     },
     "gallery": {
       "label": "Fotos y videos del club",
@@ -1399,7 +1401,16 @@
       "close": "Cerrar",
       "prev": "Anterior",
       "next": "Siguiente",
-      "count": "{n} de {total}"
+      "count": "{n} de {total}",
+      "filterLabel": "Filtrar la galería",
+      "filters": {
+        "all": "Todo",
+        "clases": "Clases",
+        "salto": "Salto",
+        "caballos": "Caballos",
+        "comunidad": "Comunidad"
+      },
+      "more": "Ver más fotos ({n})"
     }
   }
 }

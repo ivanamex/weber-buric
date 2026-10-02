@@ -36,14 +36,25 @@ export const CLIPS = {
   herd: { video: '/video/paddock-herd.mp4', poster: '/video/paddock-herd.webp', w: 1280, h: 720 },
 }
 
-// Clips that also play in the gallery's lightbox (the tiles show their poster and a small play mark).
+// Clips in the gallery (`photo`: the gallery photo of the same shot, which then carries the clip): the tile
+// shows the poster with a play mark, plays muted on hover (computers),
+// and plays with controls in the lightbox.
 export const GALLERY_CLIPS = [
-  { name: 'clip-jump', video: '/video/hero-1-jump.mp4', src: '/video/hero-1-jump.webp', w: 1280, h: 700, alt: 'jumpClip' },
-  { name: 'clip-kids', video: '/video/hero-3-kids.mp4', src: '/video/hero-3-kids.webp', w: 1280, h: 700, alt: 'kids' },
-  { name: 'clip-hooves', video: '/video/hooves-sand.mp4', src: '/video/hooves-sand.webp', w: 1280, h: 720, alt: 'hooves' },
-  { name: 'clip-herd', video: '/video/paddock-herd.mp4', src: '/video/paddock-herd.webp', w: 1280, h: 720, alt: 'paddock' },
-  { name: 'clip-grooming', video: '/video/grooming.mp4', src: '/video/grooming.webp', w: 1280, h: 700, alt: 'grooming' },
+  { name: 'clip-jump', photo: 'jump-sunset', video: '/video/hero-1-jump.mp4', src: '/video/hero-1-jump.webp', w: 1280, h: 700, alt: 'jumpClip', tag: 'salto' },
+  { name: 'clip-kids', photo: 'kid-pony-flamboyan', video: '/video/hero-3-kids.mp4', src: '/video/hero-3-kids.webp', w: 1280, h: 700, alt: 'kids', tag: 'clases' },
+  { name: 'clip-hooves', photo: 'hooves-sand-sunset', video: '/video/hooves-sand.mp4', src: '/video/hooves-sand.webp', w: 1280, h: 720, alt: 'hooves', tag: 'salto' },
+  { name: 'clip-herd', video: '/video/paddock-herd.mp4', src: '/video/paddock-herd.webp', w: 1280, h: 720, alt: 'paddock', tag: 'caballos' },
+  { name: 'clip-grooming', photo: 'grooming-hands', video: '/video/grooming.mp4', src: '/video/grooming.webp', w: 1280, h: 700, alt: 'grooming', tag: 'caballos' },
 ]
+
+// Gallery filters. A new file in public/img/gallery/ gets its tag from its name: clases-…, salto-…,
+// caballos-…, comunidad-… (anything else shows under "Todo" only). Known photos are tagged here.
+export const GALLERY_FILTERS = ['clases', 'salto', 'caballos', 'comunidad']
+export const GALLERY_TAGS = {
+  'jump-sunset': 'salto', 'hooves-sand-sunset': 'salto', 'grooming-hands': 'caballos', 'horse-rope-jungle': 'caballos',
+  'kid-pony-flamboyan': 'clases', jumpBay: 'salto', jumpGrey: 'salto', rosette: 'comunidad', families: 'comunidad',
+  rider: 'clases', paddock: 'caballos', fence: 'caballos', hero: 'caballos', closeup: 'comunidad', riding: 'clases', nose: 'caballos',
+}
 
 export const SHARE_IMAGE = '/img/club/og-horse-blaze.jpg'
 
