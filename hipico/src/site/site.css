@@ -264,7 +264,7 @@
 .tile--competitions { grid-area: co; } .tile--boarding { grid-area: bo; }
 .tile--early { grid-area: ea; } .tile--camps { grid-area: ca; } .tile--parties { grid-area: pa; } .tile--coaching { grid-area: ch; }
 @media (min-width: 1000px) {
-  .bento { gap: 14px; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: 128px 128px minmax(120px, auto); grid-template-areas: "cl cl co bo" "cl cl co ea" "ca pa ch ch"; }
+  .bento { gap: 14px; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: minmax(128px, auto) minmax(140px, auto) minmax(120px, auto); grid-template-areas: "cl cl co bo" "cl cl co ea" "ca pa ch ch"; }
   .tile--classes { min-height: 0; }
 }
 .tile { position: relative; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; padding: 18px 18px 18px; border-radius: 24px; overflow: hidden; isolation: isolate; color: var(--deep); background: var(--card); border: 1px solid var(--line); }

@@ -41,7 +41,7 @@
       "title": "Hecho para familias, jinetes y dirección",
       "bookings": {
         "title": "Tus clases",
-        "text": "Horarios por nivel, instructor y pista. Sin grupos sobrecupados."
+        "text": "Horarios por nivel, instructor y pista. Grupos con cupo limitado."
       },
       "plans": {
         "title": "Planes mensuales",
@@ -57,7 +57,7 @@
       },
       "events": {
         "title": "Campamentos y fiestas",
-        "text": "Campamento de verano, cumpleaños, coaching y estimulación temprana."
+        "text": "Campamento de verano, cumpleaños, talleres con caballos y estimulación temprana."
       },
       "admin": {
         "title": "Panel de dirección",
@@ -283,12 +283,12 @@
         "text": "Paseos en poni y convivencia"
       },
       "coaching": {
-        "title": "Coaching y competencia",
-        "text": "Entrenamiento personalizado"
+        "title": "Entrenamiento para competir",
+        "text": "Clases personalizadas de salto"
       },
       "earlyStim": {
         "title": "Estimulación temprana",
-        "text": "Equinoterapia lúdica para peques"
+        "text": "Juegos con ponis para los más pequeños"
       }
     },
     "rental": {
@@ -523,7 +523,7 @@
     "resend": "Reenviar código",
     "resendIn": "Reenviar código en {time}",
     "resent": "Te enviamos un código nuevo.",
-    "linkFallback": "¿No llega? Revisa spam. El correo también trae un enlace para entrar.",
+    "linkFallback": "¿No llega? Revisa tu correo no deseado. El correo también trae un enlace para entrar.",
     "pausedTitle": "Hola de nuevo",
     "pausedText": "Tu cuenta sigue guardada en este teléfono.",
     "continueAs": "Continuar como {email}",
@@ -689,7 +689,7 @@
     "fromDate": "desde {date}",
     "addAt": "Nueva clase el {day} a las {time}",
     "free": "Libre",
-    "dragHint": "Clic para una hora, o arrastra hacia abajo para una clase más larga"
+    "dragHint": "Haz clic en una hora, o arrastra hacia abajo para una clase más larga"
   },
   "install": {
     "iphone": "Descargar para iPhone",
@@ -702,11 +702,11 @@
     "iosTitle": "Instalar en iPhone",
     "iosStep1": "Toca Compartir",
     "iosStep1Hint": "El cuadro con la flecha, abajo en Safari. Si ves ⋯, tócalo primero.",
-    "iosStep2": "Elige «Añadir a pantalla de inicio»",
-    "iosStep2Hint": "Baja un poco en la lista si no lo ves y toca Añadir.",
+    "iosStep2": "Elige «Agregar a inicio»",
+    "iosStep2Hint": "Baja un poco en la lista si no lo ves y toca Agregar.",
     "andTitle": "Instalar en Android",
     "andStep": "Abre el menú ⋮ y toca «Instalar app»",
-    "andHint": "Arriba a la derecha en Chrome. «Añadir a pantalla de inicio» también sirve.",
+    "andHint": "Arriba a la derecha en Chrome. «Agregar a la pantalla principal» también sirve.",
     "otherPhone": "Abre esta página en tu teléfono y sigue estos pasos.",
     "inAppTitle": "Abre este enlace en {browser}",
     "inAppText": "Estás dentro de {app}, y desde ahí no se puede instalar. Copia el enlace y pégalo en {browser}.",
@@ -715,7 +715,7 @@
     "copied": "Enlace copiado. Pégalo en {browser}.",
     "installed": "¡Listo! Busca el ícono en tu pantalla de inicio.",
     "illShare": "Compartir",
-    "illAdd": "Añadir a pantalla de inicio",
+    "illAdd": "Agregar a inicio",
     "illInstall": "Instalar app",
     "illNewTab": "Nueva pestaña",
     "illHistory": "Historial",
@@ -976,7 +976,7 @@
     "kinds": {
       "vaccine": "Vacunas",
       "deworming": "Desparasitación",
-      "farrier": "Herrero",
+      "farrier": "Herrado",
       "vet": "Veterinario"
     },
     "doneOn": "Fecha",
@@ -1166,20 +1166,20 @@
       "early": "Hola, quiero información sobre estimulación temprana con caballos.",
       "camps": "Hola, quiero información sobre los próximos campamentos y el Pony Friday.",
       "parties": "Hola, quiero información para una fiesta infantil en el club.",
-      "coaching": "Hola, quiero información sobre el coaching con caballos.",
+      "coaching": "Hola, quiero información sobre los talleres de desarrollo personal con caballos.",
       "therapy": "Hola, quiero unirme a la lista de interés de equinoterapia.",
       "pony": "Hola, quiero apartar lugar en el próximo Pony Friday.",
       "horses": "Hola, quiero preguntar por los caballos disponibles.",
       "horse": "Hola, me interesa el caballo {name} que está en venta."
     },
     "alt": {
-      "hero": "Un caballo con una mancha blanca en la cara mira de cerca",
+      "hero": "Un caballo alazán con cordón blanco mira de cerca",
       "closeup": "Una niña junto a la cara de su caballo",
       "riding": "Una niña monta a caballo bajo un flamboyán rojo",
-      "jumpBay": "Un jinete salta un obstáculo con un caballo bayo",
+      "jumpBay": "Un jinete salta un obstáculo con un caballo castaño",
       "jumpGrey": "Un caballo tordo salta un obstáculo en competencia",
       "rosette": "Roseta de Campeón Estatal 2024",
-      "paddock": "Caballos pastando en los potreros del club",
+      "paddock": "Caballos en el potrero del club",
       "fence": "Un caballo junto a la cerca del potrero",
       "families": "Familias del club celebrando junto a sus caballos",
       "nose": "Una niña acerca la cara a la nariz de su caballo",
@@ -1189,22 +1189,22 @@
       "paddockFace": "Un caballo se asoma en el potrero",
       "jumpSunset": "Un caballo salta un obstáculo al atardecer",
       "jumpClip": "Un caballo salta un obstáculo en la pista",
-      "kids": "Una niña monta un pony en la pista"
+      "kids": "Una niña monta un poni en la pista"
     },
     "hero": {
       "label": "Bienvenida",
-      "title": "Un club a caballo, en la selva de Paamul",
-      "sub": "Aprende a montar, disfruta y compite, a 20 minutos de Playa del Carmen. Desde los 2 años.",
+      "title": "Club hípico en la selva de Paamul",
+      "sub": "Clases de equitación desde los 2 años, pensión y salto, a 20 minutos de Playa del Carmen.",
       "prices": "Ver clases y precios",
       "scenesLabel": "Escenas del club",
       "scenes": {
         "jumps": {
           "chip": "Saltos",
-          "alt": "Un jinete salta un obstáculo con un caballo bayo"
+          "alt": "Un jinete salta un obstáculo con un caballo castaño"
         },
         "horses": {
           "chip": "Caballos",
-          "alt": "Un caballo con una mancha blanca en la cara mira de cerca"
+          "alt": "Un caballo alazán con cordón blanco mira de cerca"
         },
         "kids": {
           "chip": "Niños",
@@ -1213,7 +1213,7 @@
       }
     },
     "services": {
-      "title": "Todo para vivir los caballos.",
+      "title": "Lo que hacemos en el club.",
       "classes": {
         "title": "Clases",
         "text": "De principiante a avanzado, por edad y nivel, desde los 2 años.",
@@ -1226,33 +1226,33 @@
       },
       "boarding": {
         "title": "Pensión",
-        "text": "Tu caballo cuidado todos los días."
+        "text": "Tu caballo, cuidado todos los días."
       },
       "early": {
         "title": "Estimulación temprana",
-        "text": "Los más pequeños descubren el caballo jugando."
+        "text": "Los más pequeños conocen a los caballos jugando."
       },
       "camps": {
         "title": "Campamentos y Pony Friday",
-        "text": "Verano, vacaciones y un viernes al mes con ponis."
+        "text": "En verano, en vacaciones y un viernes al mes con ponis."
       },
       "parties": {
         "title": "Fiestas infantiles",
         "text": "Un cumpleaños inolvidable con ponis."
       },
       "coaching": {
-        "title": "Coaching con caballos",
-        "text": "Sesiones con caballos para personas y equipos."
+        "title": "Desarrollo personal con caballos",
+        "text": "Talleres con caballos para personas y equipos de trabajo."
       }
     },
     "competitions": {
       "title": "Entrenamos para competir.",
       "training": {
         "title": "Del primer salto al concurso",
-        "text": "Técnica, ritmo y trayectoria en la pista de salto. La altura sube cuando jinete y caballo están listos."
+        "text": "Técnica, ritmo y recorrido en la pista de salto. La altura sube cuando jinete y caballo están listos."
       },
       "events": {
-        "title": "Concursos dentro y fuera",
+        "title": "Concursos en el estado y fuera de él",
         "text": "Preparamos y acompañamos a los jinetes en concursos locales y fuera del estado."
       },
       "champion": {
@@ -1263,8 +1263,8 @@
       "lead": "Técnica, ritmo y confianza: del primer salto al campeonato estatal."
     },
     "therapy": {
-      "title": "El caballo como compañero de desarrollo.",
-      "what": "Un programa nuevo de actividades terapéuticas con caballos para niños, guiado por un terapeuta ecuestre certificado junto con un profesional de la salud (fisioterapeuta o psicólogo). El movimiento del caballo y el contacto con el animal apoyan el desarrollo del niño.",
+      "title": "Crecer junto al caballo.",
+      "what": "Un programa nuevo de actividades terapéuticas con caballos para niños, guiado por un equinoterapeuta certificado junto con un profesional de la salud (fisioterapeuta o psicólogo). El movimiento del caballo y el contacto con él apoyan el desarrollo del niño.",
       "who": "Para niños desde los 3 años. Puede apoyar el equilibrio y la postura, la coordinación, la atención, la comunicación, la confianza y la regulación emocional.",
       "alongside": "Acompaña el tratamiento médico, nunca lo sustituye.",
       "steps": {
@@ -1274,10 +1274,10 @@
         },
         "weekly": {
           "title": "Sesiones semanales",
-          "text": "De 30 a 45 minutos, con un caballo de terapia tranquilo, un guía, acompañantes a los lados y casco."
+          "text": "De 30 a 45 minutos, con un caballo de terapia tranquilo, un guía que lo lleva, acompañantes a los lados y casco."
         },
         "review": {
-          "title": "Revisión de progreso",
+          "title": "Revisión de avances",
           "text": "Cada 8 sesiones revisamos juntos el avance."
         }
       },
@@ -1285,14 +1285,14 @@
       "footnote": "Programa en preparación. Las sesiones serán dirigidas por profesionales certificados."
     },
     "boarding": {
-      "title": "Pensión y caballos.",
+      "title": "Pensión y venta de caballos.",
       "panel": "Pensión",
       "care": {
         "daily": "Cuidado y revisión todos los días",
         "feed": "Alimentación a la medida de tu caballo",
         "vet": "Vacunas, desparasitación y veterinario al día",
-        "farrier": "Herrador en su fecha",
-        "app": "Ves a tu caballo en la app: su ración, su salud y la pensión del mes"
+        "farrier": "Herrado a tiempo",
+        "app": "En la app ves su ración, su salud y el pago de la pensión"
       },
       "cta": "Preguntar por la pensión"
     },
@@ -1306,7 +1306,7 @@
       "looking": "¿Buscas caballo? Pregunta por los disponibles"
     },
     "community": {
-      "title": "Una familia a caballo.",
+      "title": "Familias que montan juntas.",
       "text": "Padres, hijos e instructores comparten la pista, los potreros y las celebraciones.",
       "rowLabel": "Pony Friday, campamentos y próximos eventos",
       "pony": {
@@ -1343,10 +1343,10 @@
       "steps": {
         "confirm": {
           "title": "Confirma tus clases",
-          "text": "Eliges el día y la hora; tu plan descuenta la clase sola."
+          "text": "Eliges día y hora, y la clase se descuenta de tu plan."
         },
         "plan": {
-          "title": "Ve tu plan",
+          "title": "Consulta tu plan",
           "text": "Cuántas clases te quedan y cuándo se renueva."
         },
         "pay": {
@@ -1370,19 +1370,19 @@
       "steps": {
         "trial": {
           "title": "Clase muestra",
-          "text": "Conoces al caballo, al instructor y el club."
+          "text": "Conoce el club, a tu instructor y a tu caballo."
         },
         "plan": {
           "title": "Tu plan",
-          "text": "1, 2 o 3 clases por semana, de fecha a fecha."
+          "text": "1, 2 o 3 clases por semana; el plan corre de fecha a fecha."
         },
         "pony": {
           "title": "Pony Friday",
-          "text": "El último viernes del mes, desde los 2 años."
+          "text": "Una mañana con ponis el último viernes del mes, desde los 2 años."
         },
         "show": {
           "title": "Tu primer concurso",
-          "text": "Entrenas salto y compites con el club."
+          "text": "Entrena salto y compite con el equipo del club."
         }
       }
     },

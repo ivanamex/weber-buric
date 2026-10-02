@@ -1213,7 +1213,7 @@
       }
     },
     "services": {
-      "title": "Everything to live horses.",
+      "title": "What we do at the club.",
       "classes": {
         "title": "Lessons",
         "text": "Beginner to advanced, by age and level, from age 2.",
@@ -1263,7 +1263,7 @@
       "lead": "Technique, rhythm and confidence: from the first jump to the state championship."
     },
     "therapy": {
-      "title": "The horse as a partner in growth.",
+      "title": "Growing up alongside horses.",
       "what": "A new program of therapeutic activities with horses for children, led by a certified equine therapist together with a health professional (physiotherapist or psychologist). The horse's movement and contact with the animal support the child's development.",
       "who": "For children from age 3. It can support balance and posture, coordination, attention, communication, confidence and emotional regulation.",
       "alongside": "It works alongside medical treatment, never instead of it.",
@@ -1285,7 +1285,7 @@
       "footnote": "Program in preparation. Sessions will be led by certified professionals."
     },
     "boarding": {
-      "title": "Boarding and horses.",
+      "title": "Boarding and horses for sale.",
       "panel": "Boarding",
       "care": {
         "daily": "Care and checks every day",
