@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-45**: Ivana's notes of 2 Oct: Competencias row (2 points left, Campeón Estatal with a big rosette photo right), hero "15 minutos" de Playa del Carmen (ES + EN); the overall direction stays on hold
+1. **STEP-47**: the new layout (approved draft): hero as is, Qué hacemos with 4 photo cards that open lightboxes + 4 colorful boxes, Competencias free with video and big rosette, film strip "Familias que montan juntas", Serene Sage palette, green glass buttons, hoofprints behind the whole page; replaces STEP-45
 
 STEP-46 (horseshoe hero) was built and **rolled back** on 2 Oct, 01:12: the band read like a curvy road. Fresh start with a clear head, from references and a draft first.
 
