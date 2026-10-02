@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued: the next step comes from the list below.
+1. **STEP-48**: final polish: no cut horse heads in the cards, icons + hover on the 4 colorful boxes, new button hover (glass sheen, no moving letters), nav back in ALL CAPS
 
 One at a time, check in the browser, then "ok".
 
