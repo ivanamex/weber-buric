@@ -20,3 +20,7 @@ Ivana (2 Oct, 09:54): "with this we are very close to wrapping up."
 
 ## Check
 1440 + 390 px screenshots: full heads in every card, the boxes with icons and their hover, the sheen on the buttons with no moving letters, the nav in caps.
+
+## 5. The map: back to full width, flat
+- "Te esperamos en Paamul": the map is no longer a box. It goes back to how it was before: **full width, edge to edge, flat** (no rounded card, no shadow, no border), part of the section, with the address, hours and WhatsApp button sitting on it (left, on a solid parchment panel so the text stays readable) or right above it.
+- Keep the grey map that turns to color on hover, lazy-loaded. Phones: full width, ~60svh.

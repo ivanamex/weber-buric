@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-48**: final polish: no cut horse heads in the cards, icons + hover on the 4 colorful boxes, new button hover (glass sheen, no moving letters), nav back in ALL CAPS
+1. **STEP-48**: final polish: no cut horse heads in the cards, icons + hover on the 4 colorful boxes, new button hover (glass sheen, no moving letters), nav back in ALL CAPS, the map full width and flat again
 
 One at a time, check in the browser, then "ok".
 
