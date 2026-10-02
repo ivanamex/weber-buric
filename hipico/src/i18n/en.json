@@ -1187,7 +1187,9 @@
       "hooves": "Horse hooves on the sand at sunset",
       "grooming": "Hands brushing a horse",
       "paddockFace": "A horse looks out in the paddock",
-      "jumpSunset": "A horse clears a fence at sunset"
+      "jumpSunset": "A horse clears a fence at sunset",
+      "jumpClip": "A horse jumps a fence in the arena",
+      "kids": "A girl rides a pony in the arena"
     },
     "hero": {
       "label": "Welcome",
@@ -1257,7 +1259,8 @@
         "title": "State Champion 2024",
         "text": "A club achievement at the state show jumping championship, the result of daily work by riders, horses and instructors."
       },
-      "cta": "I want to compete"
+      "cta": "I want to compete",
+      "lead": "Technique, rhythm and confidence: from the first jump to the state championship."
     },
     "therapy": {
       "title": "The horse as a partner in growth.",
@@ -1299,7 +1302,8 @@
       "cta": "Ask about available horses",
       "age": "{n} years old",
       "photoAlt": "Photo of the horse {name}",
-      "askAbout": "Ask about {name} on WhatsApp"
+      "askAbout": "Ask about {name} on WhatsApp",
+      "looking": "Looking for a horse? Ask which ones are available"
     },
     "community": {
       "title": "A family on horseback.",
@@ -1386,6 +1390,16 @@
       "word": "Enjoy",
       "gallery": "Club photos",
       "title": "Enjoy the club"
+    },
+    "gallery": {
+      "label": "Photos and videos of the club",
+      "open": "View large: {name}",
+      "video": "Video",
+      "dialog": "Club gallery",
+      "close": "Close",
+      "prev": "Previous",
+      "next": "Next",
+      "count": "{n} of {total}"
     }
   }
 }

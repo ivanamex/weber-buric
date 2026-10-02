@@ -29,6 +29,7 @@ const P = {
   phone: <><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" /><path d="M11 18.5h2" /></>,
   check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
   arrowRight: <path d="M5 12h14M13 6l6 6-6 6" />,
+  play: <path d="M8 5.5v13l10.5-6.5z" fill="currentColor" />,
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   x: <path d="M6 6l12 12M18 6 6 18" />,
 }

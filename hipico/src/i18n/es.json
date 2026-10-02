@@ -1187,7 +1187,9 @@
       "hooves": "Cascos de caballo sobre la arena al atardecer",
       "grooming": "Unas manos cepillan a un caballo",
       "paddockFace": "Un caballo se asoma en el potrero",
-      "jumpSunset": "Un caballo salta un obstáculo al atardecer"
+      "jumpSunset": "Un caballo salta un obstáculo al atardecer",
+      "jumpClip": "Un caballo salta un obstáculo en la pista",
+      "kids": "Una niña monta un pony en la pista"
     },
     "hero": {
       "label": "Bienvenida",
@@ -1257,7 +1259,8 @@
         "title": "Campeón Estatal 2024",
         "text": "Un logro del club en el campeonato estatal de salto, fruto del trabajo diario de jinetes, caballos e instructores."
       },
-      "cta": "Quiero competir"
+      "cta": "Quiero competir",
+      "lead": "Técnica, ritmo y confianza: del primer salto al campeonato estatal."
     },
     "therapy": {
       "title": "El caballo como compañero de desarrollo.",
@@ -1299,7 +1302,8 @@
       "cta": "Preguntar por los disponibles",
       "age": "{n} años",
       "photoAlt": "Foto del caballo {name}",
-      "askAbout": "Preguntar por {name} en WhatsApp"
+      "askAbout": "Preguntar por {name} en WhatsApp",
+      "looking": "¿Buscas caballo? Pregunta por los disponibles"
     },
     "community": {
       "title": "Una familia a caballo.",
@@ -1386,6 +1390,16 @@
       "word": "Disfruta",
       "gallery": "Fotos del club",
       "title": "Disfruta el club"
+    },
+    "gallery": {
+      "label": "Fotos y videos del club",
+      "open": "Ver en grande: {name}",
+      "video": "Video",
+      "dialog": "Galería del club",
+      "close": "Cerrar",
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "count": "{n} de {total}"
     }
   }
 }

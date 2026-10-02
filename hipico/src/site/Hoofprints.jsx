@@ -1,4 +1,4 @@
-// Hoofprints pressed into arena sand, behind the "Aprende a montar" steps.
+// Hoofprints pressed into the page, behind the "Aprende a montar" steps.
 // A trail walks diagonally across the band when it scrolls into view (one print every 250 ms); on a computer
 // the mouse leaves fresh prints along its path. Prints fade back into the sand after ~6 s.
 // The emboss is a WebGL fragment shader (a height map of one print → normals → light from the top left);
@@ -68,8 +68,8 @@ function litSprite(hm) {
       const shade = (dx + dy) * 2.2 // pressed in: walls facing the light (top left) are dark
       const depth = h(x, y)
       const i = (y * SPRITE + x) * 4
-      if (shade < 0) { img.data[i] = 255; img.data[i + 1] = 250; img.data[i + 2] = 236; img.data[i + 3] = Math.min(255, -shade * 255) }
-      else { img.data[i] = 92; img.data[i + 1] = 70; img.data[i + 2] = 44; img.data[i + 3] = Math.min(255, shade * 255 + depth * 40) }
+      if (shade < 0) { img.data[i] = 255; img.data[i + 1] = 255; img.data[i + 2] = 255; img.data[i + 3] = Math.min(255, -shade * 255) }
+      else { img.data[i] = 16; img.data[i + 1] = 39; img.data[i + 2] = 31; img.data[i + 3] = Math.min(255, shade * 255 + depth * 40) }
     }
   }
   g.putImageData(img, 0, 0)
@@ -86,7 +86,7 @@ void main() { float e = 1. / ${SPRITE}.;
   float dy = texture2D(hm, uv + vec2(0., e)).r - texture2D(hm, uv - vec2(0., e)).r;
   float c = cos(frot), s = sin(frot); vec2 g = vec2(dx * c - dy * s, dx * s + dy * c);
   float shade = (g.x + g.y) * 2.2; float depth = texture2D(hm, uv).r;
-  vec4 col = shade < 0. ? vec4(1., .98, .925, -shade) : vec4(.36, .27, .17, shade + depth * .16);
+  vec4 col = shade < 0. ? vec4(1., 1., 1., -shade) : vec4(.06, .15, .12, shade + depth * .16);
   gl_FragColor = vec4(col.rgb * col.a, col.a) * alpha; }`
 
 function webglRenderer(canvas, hm) {

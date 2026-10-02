@@ -7,6 +7,7 @@ export const CONTACT = {
   instagramHandle: '@hipicoriveramaya',
   facebook: 'https://www.facebook.com/hipicorivieramaya',
   address: 'Carretera Cancún–Chetumal km 273, int. Rancho San Francisco, 77735 Paamul, Q. Roo',
+  hours: null, // opening hours as the club gives them (e.g. 'Martes a domingo, 7:00 a 18:00'); null hides the line
   mapQuery: 'Hípico Riviera Maya, Rancho San Francisco, Paamul, Quintana Roo',
 }
 export const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(CONTACT.mapQuery)}&output=embed`
@@ -28,16 +29,21 @@ export const HERO_SCENES = [
   { key: 'kids', video: '/video/hero-3-kids.mp4', poster: '/video/hero-3-kids.webp' },
 ]
 
-// The only clip outside the hero (the page keeps two videos in all: the hero and this one).
+// The clips outside the hero: Competencias (full width), Equinoterapia and Pensión (big splits).
 export const CLIPS = {
+  hooves: { video: '/video/hooves-sand.mp4', poster: '/video/hooves-sand.webp', w: 1280, h: 720 },
   grooming: { video: '/video/grooming.mp4', poster: '/video/grooming.webp', w: 1280, h: 700 },
+  herd: { video: '/video/paddock-herd.mp4', poster: '/video/paddock-herd.webp', w: 1280, h: 720 },
 }
 
-// Stills that replaced clips: Competencias and Pensión.
-export const STILLS = {
-  jumpSunset: { src: '/img/gallery/jump-sunset.webp', w: 2000, h: 1091 },
-  herd: { src: '/video/paddock-herd.webp', w: 1280, h: 720 },
-}
+// Clips that also play in the gallery's lightbox (the tiles show their poster and a small play mark).
+export const GALLERY_CLIPS = [
+  { name: 'clip-jump', video: '/video/hero-1-jump.mp4', src: '/video/hero-1-jump.webp', w: 1280, h: 700, alt: 'jumpClip' },
+  { name: 'clip-kids', video: '/video/hero-3-kids.mp4', src: '/video/hero-3-kids.webp', w: 1280, h: 700, alt: 'kids' },
+  { name: 'clip-hooves', video: '/video/hooves-sand.mp4', src: '/video/hooves-sand.webp', w: 1280, h: 720, alt: 'hooves' },
+  { name: 'clip-herd', video: '/video/paddock-herd.mp4', src: '/video/paddock-herd.webp', w: 1280, h: 720, alt: 'paddock' },
+  { name: 'clip-grooming', video: '/video/grooming.mp4', src: '/video/grooming.webp', w: 1280, h: 700, alt: 'grooming' },
+]
 
 export const SHARE_IMAGE = '/img/club/og-horse-blaze.jpg'
 
