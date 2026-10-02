@@ -54,7 +54,7 @@
 .shero__title { text-transform: uppercase; line-height: .86; }
 
 /* ───────── Buttons: green glass (sage → olive → light sage) with parchment text, centred; on the video a
-   lighter glass with white text. Secondary = olivewood outline. On hover the label hops once. ───────── */
+   lighter glass with white text. Secondary = olivewood outline. ───────── */
 .sbtn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   min-height: 48px; padding: 0 26px; border-radius: 999px; border: 1.5px solid transparent;
@@ -72,13 +72,17 @@
 .sbtn__in { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
 .sbtn--deep:focus-visible { outline: 3px solid var(--deep); outline-offset: 2px; }
 :is(.shero, .sbar.is-dark) .sbtn--deep:focus-visible { outline-color: #fff; }
+/* Hover: a soft light sweeps across the glass (left → right, 700 ms), the button rises 1 px and glows a little more.
+   The label never moves. */
+.sbtn--deep::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.5) 50%, transparent 75%) no-repeat;
+  background-size: 60% 100%; background-position: -120% 0; transition: background-position .7s ease; }
 @media (hover: hover) {
-  .sbtn--deep:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 14px 30px -10px rgba(51,53,42,.55); filter: brightness(1.05); }
-  .sbtn--deep:hover .sbtn__in { animation: hop .28s ease-out; }
+  .sbtn--deep:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.62), 0 16px 32px -10px rgba(51,53,42,.58); }
+  .sbtn--deep:hover::after { background-position: 220% 0; }
 }
-.sbtn--deep:active .sbtn__in { animation: hop .28s ease-out; }
-@keyframes hop { 0%, 100% { transform: none; } 45% { transform: translateY(-3px); } }
-.sbar__end .sbtn--deep { min-width: 170px; }
+.sbtn--deep:active { transform: translateY(1px); }
+.sbar__end .sbtn--deep { min-width: 170px; justify-content: center; text-transform: uppercase; font-size: 14px; letter-spacing: .08em; }
 .sbtn--line { border-color: var(--deep); color: var(--deep); background: transparent; }
 @media (hover: hover) { .sbtn--line:hover { background: rgba(51,53,42,.06); } }
 .sbtn--sm { min-height: 40px; padding: 0 18px; font-size: .9rem; }
@@ -99,12 +103,12 @@
 @media (min-width: 900px) { .sbar__inner { padding: 0 48px; } }
 .sbar__logo { flex-shrink: 0; display: block; }
 .sbar__nav { position: relative; display: none; align-items: center; gap: 4px; flex: 1; height: 100%; }
-.sbar__nav a { padding: 0 9px; height: 100%; display: inline-flex; align-items: center; font-size: 16px; font-weight: 600; white-space: nowrap; opacity: .8; transition: opacity .2s; }
+.sbar__nav a { padding: 0 9px; height: 100%; display: inline-flex; align-items: center; font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; opacity: .8; transition: opacity .2s; }
 .sbar__nav a:hover, .sbar__nav a.is-active { opacity: 1; }
 .sbar__line { position: absolute; left: 0; bottom: 14px; height: 2px; border-radius: 2px; background: currentColor; transition: transform .4s cubic-bezier(.2,.7,.2,1), width .4s cubic-bezier(.2,.7,.2,1), opacity .3s; pointer-events: none; }
 .sbar__end { display: flex; align-items: center; gap: 14px; margin-left: auto; }
 .sbar__lang, .sbar__login { display: none; }
-.sbar__login { font-weight: 600; font-size: 16px; }
+.sbar__login { font-weight: 600; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
 .sbar__menu { width: 42px; height: 42px; display: grid; place-items: center; border: 0; border-radius: 12px; background: transparent; color: inherit; margin-right: -6px; }
 .sbar__progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--glowline); clip-path: inset(0 100% 0 0); }
 .sbar .lang { background: rgba(51,53,42,.07); }
@@ -270,7 +274,7 @@
 .slight__close { right: 16px; top: 16px; }
 @media (max-width: 699px) { .slight__btn--prev, .slight__btn--next { top: auto; bottom: 14px; margin-top: 0; } .slight__btn--prev { left: calc(50% - 64px); } .slight__btn--next { right: calc(50% - 64px); } }
 
-/* Visítanos: the map on the right */
+/* Visítanos: the map on the right (kept for the old split) */
 .svisit__map iframe { display: block; width: 100%; height: 360px; border: 0; border-radius: 20px; background: #E8DDCB; filter: grayscale(.6) sepia(.15); transition: filter .5s ease; }
 .svisit__map:hover iframe, .svisit__map:focus-within iframe { filter: none; }
 @media (min-width: 900px) { .svisit__map iframe { height: 560px; } }
@@ -333,7 +337,19 @@
 .sbox--light { background: var(--lsage); }
 .sbox--sand { background: var(--sand); }
 .sbox--olive { background: var(--olive); }
-@media (hover: hover) { .sbox:hover { transform: translateY(-3px); box-shadow: 0 18px 36px -20px rgba(51,53,42,.5); } }
+.sbox__icon { color: var(--deep); margin-bottom: 6px; transform-origin: 50% 80%; }
+.sbox--sage .sbox__icon { color: #fff; }
+.sbox__arrow { display: inline-block; transition: transform .25s cubic-bezier(.2,.7,.2,1); }
+.sbox { transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s, background-color .25s; }
+.sbox--sage:hover { background-color: #7E826A; } .sbox--light:hover { background-color: #B2BA96; }
+.sbox--sand:hover { background-color: #CBBC9F; } .sbox--olive:hover { background-color: #B7C0A4; }
+@media (hover: hover) {
+  .sbox:hover { transform: translateY(-4px); box-shadow: 0 20px 38px -20px rgba(51,53,42,.55); }
+  .sbox:hover .sbox__icon { animation: wiggle .4s ease-in-out; }
+  .sbox:hover .sbox__arrow { transform: translateX(4px); }
+}
+.sbox:active { transform: scale(.98); }
+@keyframes wiggle { 0% { transform: rotate(0); } 33% { transform: rotate(-6deg); } 66% { transform: rotate(6deg); } 100% { transform: rotate(0); } }
 
 /* ───────── Competencias, free: text left, the clip right, the big rosette over its corner ───────── */
 .scomp2__grid { display: grid; gap: 28px; }
@@ -406,3 +422,24 @@
   .ssheet2__body { padding: 44px; overflow-y: auto; max-height: calc(100svh - 32px); }
 }
 @media (max-width: 859px) { .ssheet2__close { position: fixed; top: 28px; right: 28px; } }
+
+/* ───────── Te esperamos en Paamul: the map full width and flat, the details on a parchment panel ───────── */
+.svisit2 { padding: 0; }
+.svisit2__map { height: 60svh; min-height: 360px; }
+.svisit2__map iframe { display: block; width: 100%; height: 100%; border: 0; background: #DDD2BC; filter: grayscale(.85) sepia(.12); transition: filter .5s ease; }
+.svisit2__map:hover iframe, .svisit2__map:focus-within iframe { filter: none; }
+.svisit2__panel { display: grid; gap: 18px; justify-items: start; padding: 40px 0 48px; background: var(--mist); }
+.svisit2__panel .kinetic { margin: 0; }
+@media (max-width: 899px) { .svisit2 { display: flex; flex-direction: column-reverse; } }
+@media (min-width: 900px) {
+  .svisit2 { position: relative; min-height: 680px; }
+  .svisit2__map { position: absolute; inset: 0; height: auto; min-height: 0; }
+  .svisit2__inner { position: relative; z-index: 1; pointer-events: none; display: flex; align-items: center; min-height: 680px; }
+  .svisit2__panel { pointer-events: auto; width: min(460px, 42%); padding: 40px 40px 36px; border-radius: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sbtn--deep::after { display: none; }
+  .sbtn--deep:hover, .sbtn--deep:active, .sbox:hover, .sbox:active { transform: none; }
+  .sbox:hover .sbox__icon, .sbox:hover .sbox__arrow { animation: none; transform: none; }
+}
+@media (max-width: 599px) { .scard__plus { width: 30px; height: 30px; right: 8px; top: 8px; font-size: 18px; } }

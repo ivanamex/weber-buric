@@ -56,11 +56,12 @@ export const GALLERY_TAGS = {
   rider: 'clases', paddock: 'caballos', fence: 'caballos', hero: 'caballos', closeup: 'comunidad', riding: 'clases', nose: 'caballos',
 }
 
-// The four service cards in Qué hacemos (and their lightboxes).
+// The four service cards in Qué hacemos (and their lightboxes). `position` is each photo's focal point, chosen so
+// every head and face stays inside the frame from 390 to 1440 px.
 export const SERVICE_PHOTOS = {
   classes: { src: '/img/club/girl-riding-flamboyan-800.webp', w: 800, h: 1067, alt: 'riding', position: '50% 40%' },
-  competitions: { src: '/img/gallery/jump-sunset.webp', w: 2000, h: 1091, alt: 'jumpSunset', position: '30% 50%' },
-  boarding: { src: '/img/club/paddock-herd.webp', w: 1002, h: 668, alt: 'paddock', position: '50% 50%' },
+  competitions: { src: '/img/gallery/jump-sunset.webp', w: 2000, h: 1091, alt: 'jumpSunset', position: '37% 40%' },
+  boarding: { src: '/img/club/horse-fence.webp', w: 504, h: 678, alt: 'fence', position: '50% 30%' },
   early: { src: '/img/gallery/grooming-hands.webp', w: 2000, h: 1091, alt: 'grooming', position: '60% 50%' },
 }
 

@@ -165,10 +165,10 @@ function Hero() {
 }
 
 const BOXES = [
-  { key: 'camps', color: 'sage' },
-  { key: 'pony', color: 'light' },
-  { key: 'parties', color: 'sand' },
-  { key: 'coaching', color: 'olive' },
+  { key: 'camps', color: 'sage', icon: 'tent' },
+  { key: 'pony', color: 'light', icon: 'pony' },
+  { key: 'parties', color: 'sand', icon: 'balloons' },
+  { key: 'coaching', color: 'olive', icon: 'heartHand' },
 ]
 
 /** Qué hacemos: four photo cards (each opens its lightbox) and four colourful boxes (each opens WhatsApp). */
@@ -211,9 +211,10 @@ function Services({ onOpen }) {
       <div className="sboxes">
         {BOXES.map((b) => (
           <a key={b.key} className={`sbox sbox--${b.color}`} {...wa(box[b.key].wa)} data-reveal="">
+            <SiteIcon name={b.icon} size={32} className="sbox__icon" />
             <h3>{box[b.key].title}</h3>
             <p>{t(`site.boxes.${b.key}.text`)}</p>
-            <small>{box[b.key].go} →</small>
+            <small>{box[b.key].go} <span className="sbox__arrow" aria-hidden="true">→</span></small>
           </a>
         ))}
       </div>
@@ -351,28 +352,29 @@ function TheApp() {
   )
 }
 
-/** Te esperamos en Paamul, as it was: address and WhatsApp left, the map right. */
+/** Te esperamos en Paamul: the map full width and flat, the address, contact and WhatsApp on a parchment panel on it. */
 function Visit() {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   return (
-    <Sec k="visit">
-      <Split side="right" bare media={(
-        <div className="svisit__map">
-          <iframe src={mapEmbed} title={t('site.mapTitle')} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+    <section id={sectionId('visit', lang)} className="sec svisit2" data-tone="light" aria-labelledby="visit-title">
+      <div className="svisit2__map">
+        <iframe src={mapEmbed} title={t('site.mapTitle')} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+      </div>
+      <div className="scontainer svisit2__inner">
+        <div className="svisit2__panel">
+          <Kinetic id="visit-title" text={t('site.visit.title')} />
+          <ul className="slist">
+            <li><SiteIcon name="pin" size={22} /><span>{CONTACT.address}</span></li>
+            {CONTACT.hours && <li><SiteIcon name="clock" size={22} /><span>{CONTACT.hours}</span></li>}
+            <li><SiteIcon name="call" size={22} /><a href={CONTACT.phoneHref}>{CONTACT.phone}</a></li>
+            <li><SiteIcon name="mail" size={22} /><a className="break" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></li>
+            <li><SiteIcon name="instagram" size={22} /><a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer">{CONTACT.instagramHandle}</a></li>
+          </ul>
+          <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.general'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={22} /> {t('site.visit.whatsapp')}</span></a>
+          <a className="slinkarrow" href={mapDirections} target="_blank" rel="noopener noreferrer"><SiteIcon name="map" size={20} /> {t('site.directions')}</a>
         </div>
-      )}>
-        <Kinetic id="visit-title" text={t('site.visit.title')} />
-        <ul className="slist">
-          <li><SiteIcon name="pin" size={22} /><span>{CONTACT.address}</span></li>
-          {CONTACT.hours && <li><SiteIcon name="clock" size={22} /><span>{CONTACT.hours}</span></li>}
-          <li><SiteIcon name="call" size={22} /><a href={CONTACT.phoneHref}>{CONTACT.phone}</a></li>
-          <li><SiteIcon name="mail" size={22} /><a className="break" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></li>
-          <li><SiteIcon name="instagram" size={22} /><a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer">{CONTACT.instagramHandle}</a></li>
-        </ul>
-        <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.general'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={22} /> {t('site.visit.whatsapp')}</span></a>
-        <a className="slinkarrow" href={mapDirections} target="_blank" rel="noopener noreferrer"><SiteIcon name="map" size={20} /> {t('site.directions')}</a>
-      </Split>
-    </Sec>
+      </div>
+    </section>
   )
 }
 
