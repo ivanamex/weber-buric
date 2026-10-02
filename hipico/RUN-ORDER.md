@@ -4,7 +4,8 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued: the next step comes from the list below.
+1. **STEP-41**: the app on a computer: content max 1080 px, Inicio in 2 columns, buttons never stretched on desktop
+2. **STEP-42**: website layout system: only 3 patterns (full-bleed media / big 7-5 split / plain), no box in a box, no stray lines, solid jungle buttons on light, side labels removed, big videos in Competencias, Equinoterapia and Pensión, gallery one big row with a lightbox
 
 One at a time, check in the browser, then "ok".
 
