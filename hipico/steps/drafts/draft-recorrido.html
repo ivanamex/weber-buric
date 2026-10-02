@@ -1,0 +1,102 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Draft · El recorrido</title>
+<style>
+@font-face{font-family:Archivo;src:url(node_modules/@fontsource-variable/archivo/files/archivo-latin-standard-normal.woff2);font-weight:100 900;font-stretch:62% 125%}
+@font-face{font-family:Hanken;src:url(node_modules/@fontsource-variable/hanken-grotesk/files/hanken-grotesk-latin-wght-normal.woff2);font-weight:100 900}
+:root{--bg:#F5EFE6;--ink:#2A2420;--deep:#10271F;--jungle:#24503F;--sage:#A9C3AE;--sage2:#8A8E75;--bark:#68604D;--apricot:#F2B48C}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 18px/1.55 Hanken,sans-serif;width:1440px}
+.page{position:relative;height:5200px;overflow:hidden;
+ background:radial-gradient(40% 25% at 95% 18%,rgba(242,180,140,.28),transparent 70%),radial-gradient(35% 20% at 0% 48%,rgba(169,195,174,.35),transparent 70%),radial-gradient(40% 22% at 100% 72%,rgba(242,180,140,.22),transparent 70%),var(--bg)}
+h1,h2,h3{font-family:Archivo;color:var(--deep);font-stretch:66%;font-weight:800;line-height:.92;letter-spacing:-.005em}
+h2{font-size:76px}
+h3{font-size:30px;font-stretch:75%;font-weight:750}
+.abs{position:absolute}
+.ph{position:absolute;border-radius:26px;overflow:hidden;box-shadow:0 30px 60px -30px rgba(42,36,32,.45)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.lead{font-size:19px;color:#4a4038;max-width:34ch;margin:18px 0 26px}
+.btn{white-space:nowrap;display:inline-flex;gap:10px;align-items:center;padding:15px 26px;border-radius:999px;font:650 16px Archivo;font-stretch:80%;color:var(--deep);
+ background:linear-gradient(120deg,rgba(169,195,174,.55),rgba(242,180,140,.55));border:1px solid rgba(255,255,255,.75);box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 10px 24px -10px rgba(16,39,31,.35);backdrop-filter:blur(14px)}
+.btn.w{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.55)}
+.rail{position:absolute;left:44px;width:90px;font:700 13px Archivo;font-stretch:85%;letter-spacing:.06em;color:var(--bark)}
+.rail b{display:block;font:800 54px Archivo;font-stretch:66%;color:var(--deep);letter-spacing:0;line-height:1}
+.rail i{display:block;width:2px;height:60px;background:var(--sage2);opacity:.4;margin:10px 0 0 6px}
+.list{list-style:none;padding:0;margin:0 0 26px}.list li{padding:9px 0;border-bottom:1px solid rgba(104,96,77,.18)}
+.tag{display:inline-block;font:700 13px Archivo;font-stretch:85%;letter-spacing:.05em;color:var(--jungle);background:rgba(169,195,174,.4);padding:6px 12px;border-radius:99px;margin-bottom:16px}
+.note{position:absolute;font:600 15px Archivo;font-stretch:85%;color:var(--bark)}
+/* hero */
+.hero{position:absolute;inset:0 0 auto 0;height:860px;overflow:hidden}
+.hero>img{width:100%;height:100%;object-fit:cover}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,0) 60%)}
+.hero .t{position:absolute;left:90px;top:270px;z-index:2;color:#fff;max-width:640px}
+.hero h1{color:#fff;font-size:104px;text-transform:uppercase}
+.hero p{font-size:20px;margin:22px 0 28px;max-width:40ch}
+nav{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;gap:30px;align-items:center;padding:22px 48px;color:#fff;font:600 16px Archivo;font-stretch:80%}
+nav img{height:46px}nav .sp{flex:1}
+</style></head><body><div class="page" id="page">
+
+<!-- HERO (unchanged) -->
+<section class="hero"><img src="i/hero-1-jump.webp">
+<nav><img src="i/logo-white.png"><span>Aprende</span><span>Competencias</span><span>Equinoterapia</span><span>Pensión</span><span>Galería</span><span>Visítanos</span><span class="sp"></span><span class="btn w">App del club</span></nav>
+<div class="t"><h1>Club hípico en la selva de Paamul</h1><p>Clases de equitación desde los 2 años, pensión y salto, a 15 minutos de Playa del Carmen.</p><span class="btn w">Agenda una clase muestra</span>&nbsp; <span class="btn w" style="background:transparent">Ver clases y precios</span></div></section>
+
+<!-- the course line: drawn by JS from the waypoints below -->
+<svg id="course" class="abs" style="left:0;top:0" width="1440" height="5200"></svg>
+
+<!-- 1 APRENDE -->
+<div class="rail" style="top:980px"><b>01</b>APRENDE<i></i></div>
+<div class="abs" style="left:200px;top:1010px;width:440px"><h2>Aprende a montar</h2><p class="lead">Como un recorrido de salto: un obstáculo a la vez, a tu ritmo. Desde la primera clase muestra hasta tu primer concurso.</p>
+<ul class="list"><li><b>Clase muestra</b> · conoce el club y a tu caballo</li><li><b>Tu plan</b> · 1, 2 o 3 clases por semana</li><li><b>Pony Friday</b> · el último viernes del mes</li><li><b>Tu primer concurso</b> · con el equipo del club</li></ul><span class="btn">Agenda una clase muestra</span></div>
+<div class="ph" style="left:800px;top:960px;width:520px;height:650px"><img src="i/girl-riding-flamboyan.webp"></div>
+<div class="ph" style="left:1180px;top:1520px;width:200px;height:200px;border-radius:50%;border:8px solid var(--bg)"><img src="i/kid-pony-flamboyan.webp"></div>
+
+<!-- 2 COMPETENCIAS -->
+<div class="rail" style="top:1800px"><b>02</b>SALTO<i></i></div>
+<div class="ph" style="left:200px;top:1830px;width:760px;height:500px"><img src="i/jump-sunset.webp"></div>
+<div class="ph" style="left:820px;top:2210px;width:240px;height:300px;border:8px solid var(--bg)"><img src="i/rosette-campeon.webp" style="object-position:50% 40%"></div>
+<div class="abs" style="left:1060px;top:1880px;width:300px"><h2 style="font-size:64px">Entrenamos para competir</h2><p class="lead">Técnica, ritmo y recorrido. La altura sube cuando jinete y caballo están listos.</p><span class="btn">Quiero competir</span></div>
+<div class="abs" style="left:1100px;top:2300px;width:260px"><h3>Campeón Estatal 2024</h3><p style="font-size:16px;color:#4a4038;margin-top:8px">Fruto del trabajo diario de jinetes, caballos e instructores.</p></div>
+
+<!-- 3 EQUINOTERAPIA -->
+<div class="rail" style="top:2700px"><b>03</b>TERAPIA<i></i></div>
+<div class="ph" style="left:200px;top:2760px;width:600px;height:400px"><img src="i/grooming-hands.webp"></div>
+<div class="abs" style="left:900px;top:2700px;width:430px"><span class="tag">Próximamente</span><h2>Crecer junto al caballo</h2><p class="lead">Equinoterapia para niños desde los 3 años, guiada por un equinoterapeuta certificado y un profesional de la salud.</p><span class="btn">Únete a la lista de interés</span></div>
+
+<!-- 4 PENSION -->
+<div class="rail" style="top:3380px"><b>04</b>PENSIÓN<i></i></div>
+<div class="abs" style="left:200px;top:3420px;width:460px"><h2>Pensión y venta de caballos</h2><p class="lead">Tu caballo cuidado todos los días, y en la app ves su ración, su salud y el pago de la pensión.</p><span class="btn">Preguntar por la pensión</span><p style="margin-top:22px;font-weight:600;color:var(--jungle)">¿Buscas caballo? Pregunta por los disponibles →</p></div>
+<div class="ph" style="left:820px;top:3360px;width:500px;height:560px"><img src="i/paddock-herd.webp"></div>
+
+<!-- 5 GALERIA: scattered along the course, no rows -->
+<div class="rail" style="top:4080px"><b>05</b>GALERÍA<i></i></div>
+<div class="abs" style="left:200px;top:4090px"><h2>Galería</h2><p class="lead">Fotos y videos del club. Toca una para verla en grande.</p></div>
+<div class="ph" style="left:200px;top:4300px;width:330px;height:420px"><img src="i/horse-blaze.webp"></div>
+<div class="ph" style="left:600px;top:4080px;width:380px;height:260px"><img src="i/hooves-sand-sunset.webp"></div>
+<div class="ph" style="left:1040px;top:4020px;width:300px;height:380px"><img src="i/horse-rope-jungle.webp"></div>
+<div class="ph" style="left:640px;top:4420px;width:300px;height:300px;border-radius:50%"><img src="i/families-celebrating.webp"></div>
+<div class="ph" style="left:1010px;top:4470px;width:330px;height:240px"><img src="i/kid-pony-flamboyan.webp"></div>
+
+<!-- END: Visitanos -->
+<div class="abs" style="left:0;right:0;top:4840px;text-align:center"><h2 style="font-size:64px">Te esperamos en Paamul</h2><p class="lead" style="margin:16px auto 24px">Carretera Cancún–Chetumal km 273 · a 15 minutos de Playa del Carmen</p><span class="btn">Escríbenos por WhatsApp</span></div>
+
+<div class="note" style="left:1180px;top:900px">la línea del recorrido →<br>une todo el sitio</div>
+</div>
+<script>
+// waypoints of the course (x,y); fences at the marked ones
+const W=[[720,860],[700,930],[690,1040],[720,1300],[700,1560],[760,1700],[1010,1760],[1390,1790],[1400,2100],[1320,2420],[1000,2560],[860,2660],[850,2900],[840,3150],[770,3330],[740,3600],[760,3880],[560,3980],[575,4250],[590,4500],[980,4420],[990,4600],[800,4760],[720,4820]];
+const fences={2:1,6:2,11:3,14:4,17:5};
+function path(p){let d=`M${p[0][0]} ${p[0][1]}`;for(let i=0;i<p.length-1;i++){const p0=p[i-1]||p[i],p1=p[i],p2=p[i+1],p3=p[i+2]||p2;const c1=[p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6],c2=[p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6];d+=` C${c1} ${c2} ${p2}`}return d}
+const svg=document.getElementById('course'),NS='http://www.w3.org/2000/svg';
+const pe=document.createElementNS(NS,'path');pe.setAttribute('d',path(W));pe.setAttribute('fill','none');pe.setAttribute('stroke','#8A8E75');pe.setAttribute('stroke-width','2');pe.setAttribute('stroke-dasharray','2 10');pe.setAttribute('stroke-linecap','round');pe.setAttribute('opacity','.75');svg.appendChild(pe);
+// hoofprints walking along the line
+const L=pe.getTotalLength();let k=0;
+for(let s=160;s<L-60;s+=54,k++){const a=pe.getPointAtLength(s),b=pe.getPointAtLength(s+1);const ang=Math.atan2(b.y-a.y,b.x-a.x);const off=(k%2?1:-1)*9;const x=a.x-Math.sin(ang)*off,y=a.y+Math.cos(ang)*off;
+ const g=document.createElementNS(NS,'g');g.setAttribute('transform',`translate(${x},${y}) rotate(${ang*180/Math.PI+90})`);
+ g.innerHTML='<path d="M-5 4 C-6 -3 -3 -6 0 -6 C3 -6 6 -3 5 4 C3 2 -3 2 -5 4Z" fill="#68604D" opacity=".38"/>';svg.appendChild(g)}
+// fences (course numbers) at nodes
+for(const [i,n] of Object.entries(fences)){const [x,y]=W[i];const g=document.createElementNS(NS,'g');g.setAttribute('transform',`translate(${x},${y})`);
+ g.innerHTML=`<rect x="-26" y="-14" width="4" height="28" rx="1" fill="#10271F"/><rect x="22" y="-14" width="4" height="28" rx="1" fill="#10271F"/>
+ <rect x="-24" y="-4" width="48" height="6" rx="2" fill="#F2B48C"/><rect x="-12" y="-4" width="8" height="6" fill="#F5EFE6"/><rect x="4" y="-4" width="8" height="6" fill="#F5EFE6"/>
+ <circle cx="0" cy="-30" r="14" fill="#10271F"/><text x="0" y="-25" text-anchor="middle" font-family="Archivo" font-weight="800" font-size="14" fill="#fff">${n}</text>`;svg.appendChild(g)}
+// a small horse at the start of the line
+const h=document.createElementNS(NS,'g');h.setAttribute('transform','translate(1180,980)');svg.appendChild(h);
+</script></body></html>
