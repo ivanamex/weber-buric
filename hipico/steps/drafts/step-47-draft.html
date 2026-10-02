@@ -1,0 +1,114 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Draft · mutant</title>
+<style>
+@font-face{font-family:Archivo;src:url(node_modules/@fontsource-variable/archivo/files/archivo-latin-standard-normal.woff2);font-weight:100 900;font-stretch:62% 125%}
+@font-face{font-family:Hanken;src:url(node_modules/@fontsource-variable/hanken-grotesk/files/hanken-grotesk-latin-wght-normal.woff2);font-weight:100 900}
+:root{--bg:#F1EAD8;--ink:#33352A;--deep:#33352A;--jungle:#5E6650;--sage:#8A8E75;--mint:#BEC5A4;--sand:#D5C7AD;--apricot:#C3CBB2;--bark:#68604D}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 18px/1.55 Hanken,sans-serif;width:1440px;position:relative}
+#prints{position:absolute;inset:0;pointer-events:none;z-index:0}
+section,.wrap{position:relative;z-index:1}
+h1,h2,h3{font-family:Archivo;color:var(--deep);font-stretch:66%;font-weight:800;line-height:.92}
+h2{font-size:72px}h3{font-size:28px;font-stretch:75%;font-weight:750}
+.lead{font-size:19px;color:#4a4038;max-width:38ch;margin:16px 0 26px}
+.btn{white-space:nowrap;display:inline-flex;gap:10px;align-items:center;padding:15px 26px;border-radius:999px;font:650 16px Archivo;font-stretch:80%;color:var(--deep);
+ justify-content:center;text-align:center;color:#F1EAD8;background:linear-gradient(135deg,rgba(138,142,117,.92),rgba(94,102,80,.92) 55%,rgba(190,197,164,.85));border:1px solid rgba(241,234,216,.45);box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 10px 24px -10px rgba(16,39,31,.35);backdrop-filter:blur(14px)}
+.btn.w{background:linear-gradient(135deg,rgba(138,142,117,.55),rgba(94,102,80,.45) 55%,rgba(190,197,164,.4));color:#fff;border-color:rgba(241,234,216,.5)}
+.btn.o{background:transparent;box-shadow:none;border:1.5px solid var(--deep);color:var(--deep)}
+.rail{font:700 13px Archivo;font-stretch:85%;letter-spacing:.06em;color:var(--bark)}.rail b{display:block;font:800 52px Archivo;font-stretch:66%;color:var(--deep);line-height:1}
+.ph{border-radius:26px;overflow:hidden;box-shadow:0 30px 60px -30px rgba(42,36,32,.45)}.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.hero{height:860px;position:relative;overflow:hidden}.hero>img{width:100%;height:100%;object-fit:cover}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,0) 60%)}
+.hero .t{position:absolute;left:90px;top:270px;z-index:2;color:#fff;max-width:640px}.hero h1{color:#fff;font-size:104px;text-transform:uppercase}.hero p{font-size:20px;margin:22px 0 28px;max-width:40ch}
+nav{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;gap:30px;align-items:center;padding:22px 48px;color:#fff;font:600 16px Archivo;font-stretch:80%}nav img{height:46px}nav .sp{flex:1}
+.sec{padding:110px 90px 0 200px;position:relative}.sec .rail{position:absolute;left:48px;top:118px}
+/* services */
+.svc{display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:20px;margin-top:36px}
+.card{position:relative;height:440px;border-radius:26px;overflow:hidden;color:#fff;box-shadow:0 30px 60px -30px rgba(42,36,32,.45)}
+.card img{width:100%;height:100%;object-fit:cover}
+.card .c{position:absolute;inset:auto 0 0 0;padding:24px;background:linear-gradient(transparent,rgba(16,39,31,.85))}
+.card h3{color:#fff;font-size:34px}.card p{font-size:15px;opacity:.9;margin-top:4px}
+.card .more{position:absolute;right:16px;top:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.25);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.6);display:grid;place-items:center;font:700 22px Archivo}
+.boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:20px}
+.box{border-radius:22px;padding:24px 24px 26px}.box h3{font-size:26px}.box p{font-size:16px;margin-top:6px;color:#3d352f}.box small{display:block;margin-top:12px;font:700 14px Archivo;font-stretch:85%;color:var(--jungle)}
+/* film strip */
+.film{margin-top:36px;display:flex;gap:18px;overflow:hidden;padding:22px 0;background:#1d1a16;position:relative}
+.film:before,.film:after{content:"";position:absolute;left:0;right:0;height:10px;background:repeating-linear-gradient(90deg,transparent 0 14px,#F5EFE6 14px 28px);opacity:.55}
+.film:before{top:6px}.film:after{bottom:6px}
+.film .f{flex:0 0 auto;height:420px;border-radius:6px;overflow:hidden}.film img{height:100%;display:block}
+.note{font:600 15px Archivo;font-stretch:85%;color:var(--bark)}
+/* lightbox */
+.lb{position:relative;margin:40px auto;width:1100px;display:grid;grid-template-columns:1fr 1.1fr;border-radius:30px;overflow:hidden;background:#FFFBF5;box-shadow:0 40px 90px -30px rgba(0,0,0,.5)}
+.lb .x{position:absolute;right:20px;top:20px;width:44px;height:44px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font:700 20px Archivo}
+.lb .b{padding:44px}.plan{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;border-bottom:1px solid rgba(104,96,77,.18)}
+.plan b{font-family:Archivo;font-stretch:80%;font-size:20px}.plan span{font:700 20px Archivo;color:var(--jungle)}.plan em{display:block;font-style:normal;font-size:14px;color:#6b6258}
+</style></head><body>
+<svg id="prints" width="1440" height="100%"></svg>
+
+<section class="hero"><img src="i/hero-1-jump.webp">
+<nav><img src="i/logo-white.png"><span>Qué hacemos</span><span>Competencias</span><span>Equinoterapia</span><span>Pensión</span><span>Familias</span><span>La app</span><span>Visítanos</span><span class="sp"></span><span class="btn w" style="min-width:170px;padding:14px 28px">App del club</span></nav>
+<div class="t"><h1>Club hípico en la selva de Paamul</h1><p>Clases de equitación desde los 2 años, pensión y salto, a 15 minutos de Playa del Carmen.</p><span class="btn w">Agenda una clase muestra</span>&nbsp; <span class="btn w" style="background:transparent">Ver clases y precios</span></div></section>
+
+<!-- QUÉ HACEMOS + EL CLUB -->
+<section class="sec" style="padding-top:90px"><div class="rail"><b>01</b>EL CLUB</div>
+<div style="display:flex;justify-content:space-between;align-items:end"><h2>Qué hacemos</h2><p class="lead" style="margin:0;max-width:46ch">Un club en la selva de Paamul donde se aprende a montar desde los 2 años hasta competir. Toca un servicio para ver todo lo que incluye.</p></div>
+<div class="svc">
+ <div class="card"><img src="i/girl-riding-flamboyan.webp"><span class="more">+</span><div class="c"><h3>Clases</h3><p>De principiante a avanzado, desde los 2 años. Planes al mes, todos los días o a tu medida.</p></div></div>
+ <div class="card"><img src="i/jump-sunset.webp" style="object-position:30% 50%"><span class="more">+</span><div class="c"><h3>Competencias</h3><p>Entrenamiento de salto y concursos.</p></div></div>
+ <div class="card"><img src="i/paddock-herd.webp"><span class="more">+</span><div class="c"><h3>Pensión</h3><p>Tu caballo, cuidado todos los días.</p></div></div>
+ <div class="card"><img src="i/grooming-hands.webp" style="object-position:60% 50%"><span class="more">+</span><div class="c"><h3>Estimulación temprana</h3><p>Los más pequeños conocen a los caballos jugando.</p></div></div>
+</div>
+<div class="boxes">
+ <div class="box" style="background:var(--sage)"><h3>Campamentos</h3><p>Verano y vacaciones: montar, cuidar y aprender en grupo.</p><small>Pedir fechas →</small></div>
+ <div class="box" style="background:var(--mint)"><h3>Pony Friday</h3><p>El último viernes del mes, desde los 2 años.</p><small>Próximo: 30 de octubre →</small></div>
+ <div class="box" style="background:var(--sand)"><h3>Fiestas infantiles</h3><p>Un cumpleaños inolvidable con ponis.</p><small>Desde $8,500 →</small></div>
+ <div class="box" style="background:var(--apricot)"><h3>Desarrollo personal con caballos</h3><p>Talleres para personas y equipos.</p><small>Más información →</small></div>
+</div></section>
+
+<!-- COMPETENCIAS: free -->
+<section class="sec" style="height:880px"><div class="rail"><b>02</b>SALTO</div>
+<div style="position:absolute;left:200px;top:150px;width:470px"><h2>Entrenamos para competir</h2><p class="lead">Técnica, ritmo y confianza: del primer salto al campeonato estatal.</p><span class="btn">Quiero competir</span>&nbsp; <span class="btn o">Ver entrenamientos</span></div>
+<div class="ph" style="position:absolute;left:720px;top:110px;width:640px;height:560px"><img src="i/hooves-sand-sunset.webp"></div>
+<div style="position:absolute;left:720px;top:600px;color:#fff;padding:0 26px;font:700 14px Archivo;letter-spacing:.06em">▶ VIDEO</div>
+<div class="ph" style="position:absolute;left:420px;top:520px;width:260px;height:320px;border:8px solid var(--bg)"><img src="i/rosette-campeon.webp" style="object-position:50% 40%"></div>
+<div style="position:absolute;left:200px;top:560px;width:200px"><h3>Campeón Estatal 2024</h3><p style="font-size:15px;color:#4a4038;margin-top:8px">Fruto del trabajo diario de jinetes, caballos e instructores.</p></div>
+</section>
+
+<!-- EQUINOTERAPIA: same background -->
+<section class="sec" style="height:640px"><div class="rail"><b>03</b>TERAPIA</div>
+<div class="ph" style="position:absolute;left:200px;top:110px;width:600px;height:420px"><img src="i/grooming-hands.webp"></div>
+<div style="position:absolute;left:880px;top:130px;width:470px"><span class="note" style="background:rgba(169,195,174,.45);padding:6px 12px;border-radius:99px">Próximamente</span><h2 style="margin-top:14px">Crecer junto al caballo</h2><p class="lead">Equinoterapia para niños desde los 3 años, con un equinoterapeuta certificado y un profesional de la salud.</p><span class="btn">Únete a la lista de interés</span></div>
+</section>
+
+<!-- PENSIÓN as is -->
+<section class="sec" style="height:700px"><div class="rail"><b>04</b>PENSIÓN</div>
+<div style="position:absolute;left:200px;top:150px;width:470px"><h2>Pensión y venta de caballos</h2><p class="lead">Cuidado y revisión todos los días, alimentación a su medida, veterinario y herrado a tiempo. En la app ves su ración, su salud y el pago de la pensión.</p><span class="btn">Preguntar por la pensión</span></div>
+<div class="ph" style="position:absolute;left:820px;top:110px;width:540px;height:520px"><img src="i/paddock-herd.webp"></div>
+</section>
+
+<!-- FAMILIAS: film strip -->
+<section class="sec" style="padding-left:0;padding-right:0"><div class="rail"><b>05</b>FAMILIAS</div>
+<div style="padding-left:200px;display:flex;align-items:end;gap:60px"><h2>Familias que montan juntas</h2><p class="note">← arrastra la tira →</p></div>
+<div class="film">
+ <div class="f"><img src="i/families-celebrating.webp"></div><div class="f"><img src="i/kid-pony-flamboyan.webp"></div><div class="f"><img src="i/horse-blaze.webp"></div><div class="f"><img src="i/hooves-sand-sunset.webp"></div><div class="f"><img src="i/horse-rope-jungle.webp"></div>
+</div></section>
+
+<section class="sec" style="padding-bottom:40px"><div class="rail"><b>06</b>LA APP</div><p class="note">(La app, as now)</p></section>
+<section class="sec" style="text-align:center;padding:60px 0 120px"><h2 style="font-size:64px">Te esperamos en Paamul</h2><p class="lead" style="margin:16px auto 24px">Carretera Cancún–Chetumal km 273 · a 15 minutos de Playa del Carmen</p><span class="btn">Escríbenos por WhatsApp</span></section>
+
+<!-- LIGHTBOX example (what opens when you tap "Clases") -->
+<div style="background:rgba(16,39,31,.55);padding:40px 0 60px" id="lbwrap"><p class="note" style="color:#fff;text-align:center;font-size:17px">Al tocar «Clases» se abre:</p>
+<div class="lb"><span class="x">✕</span><div class="ph" style="border-radius:0;box-shadow:none"><img src="i/girl-riding-flamboyan.webp" style="height:620px"></div>
+<div class="b"><h2 style="font-size:58px">Clases</h2><p class="lead" style="margin:12px 0 18px">De principiante a avanzado, por edad y nivel, desde los 2 años. Eliges tu plan y confirmas tus clases desde la app.</p>
+<div class="plan"><div><b>Clase muestra</b><em>Para conocer el club</em></div><span>$400</span></div>
+<div class="plan"><div><b>4 · 8 · 12 clases al mes</b><em>El plan corre de fecha a fecha</em></div><span>desde $2,200</span></div>
+<div class="plan"><div><b>Todos los días</b><em>Para quien monta a diario</em></div><span>Consulta</span></div>
+<div class="plan"><div><b>A tu medida</b><em>Días, horarios y nivel a tu manera</em></div><span>Consulta</span></div>
+<div style="margin-top:24px"><span class="btn">Agenda una clase muestra</span>&nbsp; <span class="btn o">Escríbenos</span></div></div></div></div>
+
+<script>
+// hoofprints pressed into the sand background (on the site they follow the mouse; here a few trails)
+const svg=document.getElementById('prints'),NS='http://www.w3.org/2000/svg';svg.setAttribute('height',document.body.scrollHeight);
+function trail(x,y,dx,dy,n){for(let i=0;i<n;i++){const a=Math.atan2(dy,dx),off=(i%2?1:-1)*10,px=x+dx*i*46-Math.sin(a)*off,py=y+dy*i*46+Math.cos(a)*off;const g=document.createElementNS(NS,'g');g.setAttribute('transform',`translate(${px},${py}) rotate(${a*180/Math.PI+90})`);g.setAttribute('opacity',(0.5-i*0.03).toFixed(2));
+ g.innerHTML='<path d="M-6 5 C-7 -4 -3 -7 0 -7 C3 -7 7 -4 6 5 C4 3 -4 3 -6 5Z" fill="#68604D" opacity=".32"/><path d="M-6 5 C-7 -4 -3 -7 0 -7 C3 -7 7 -4 6 5" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1" transform="translate(-.8,-.8)"/>';svg.appendChild(g)}}
+trail(110,1000,0.15,1,9);trail(1390,1900,-0.1,1,10);trail(120,2700,0.2,1,8);trail(1380,3300,-0.15,1,9);trail(700,940,0.9,0.3,7);
+</script></body></html>
