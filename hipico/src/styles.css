@@ -1206,3 +1206,112 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
   .segmented { width: fit-content; max-width: 100%; }
   .segmented button { flex: 0 0 auto; padding-left: 22px; padding-right: 22px; }
 }
+
+/* ───────── Color that means something: levels, riders, payment status ───────── */
+:root {
+  --lvl-beginner: #BEC5A4; --lvl-intermediate: #D5C7AD; --lvl-advanced: #8A8E75; --lvl-competition: #33352A;
+  --st-paid: #4E7A5A; --st-review: #C9A13B; --st-pending: #B5704F; --st-overdue: var(--danger);
+}
+.lvl { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: .74rem; font-weight: 700; white-space: nowrap; vertical-align: middle; line-height: 1.3; }
+.lvl--beginner { background: var(--lvl-beginner); color: #33352A; }
+.lvl--intermediate { background: var(--lvl-intermediate); color: #33352A; }
+/* Avanzado: a deeper sage behind white text so it reads (AA); the sage itself colors the card edge. */
+.lvl--advanced { background: #6F735C; color: #fff; }
+.lvl--competition { background: var(--lvl-competition); color: #fff; }
+.edge--beginner { --edge: var(--lvl-beginner); }
+.edge--intermediate { --edge: var(--lvl-intermediate); }
+.edge--advanced { --edge: var(--lvl-advanced); }
+.edge--competition { --edge: var(--lvl-competition); }
+.slot[class*='edge--'], .classcard[class*='edge--'], .sched-row[class*='edge--'], .nextclass[class*='edge--'], .upcoming__row[class*='edge--'] { box-shadow: inset 5px 0 0 var(--edge); }
+.sched-row[class*='edge--'], .upcoming__row[class*='edge--'] { padding-left: 14px; }
+.riderdot { display: inline-block; flex: none; border-radius: 50%; background: var(--rc); box-shadow: 0 0 0 2px #fff; vertical-align: middle; }
+.chip .riderdot { margin-right: 2px; }
+.chip.is-active .riderdot { box-shadow: 0 0 0 2px rgba(255,255,255,.9); }
+.stpill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: .74rem; font-weight: 700; white-space: nowrap; vertical-align: middle; line-height: 1.3; }
+.stpill__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sc); flex: none; }
+.stpill--paid { --sc: var(--st-paid); background: #E2EADF; color: #3B5E45; }
+.stpill--review { --sc: var(--st-review); background: #F4E9C8; color: #6B5214; }
+.stpill--pending { --sc: var(--st-pending); background: #F3E1D6; color: #8A4A2E; }
+.stpill--overdue { --sc: var(--st-overdue); background: var(--danger-soft); color: var(--danger-ink); }
+.stpill--neutral { --sc: #A79E8B; background: #ECE6D6; color: #5E5646; }
+.horseav { display: inline-grid; place-items: center; flex: none; border-radius: 50%; object-fit: cover; background: var(--accent-soft); color: var(--green); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(36,33,28,.15); }
+.horsetag { display: inline-flex; align-items: center; gap: 10px; }
+.horsetag > span { display: grid; line-height: 1.2; }
+.horsetag__label { font-size: .72rem; color: var(--muted); }
+.nextclass .horsetag__label { color: rgba(255,255,255,.75); }
+/* Inicio and Resumen: a club photo fades into the green on the right */
+.homehead::before { content: ''; position: absolute; inset: 0 0 0 auto; width: min(58%, 440px); z-index: -2; pointer-events: none;
+  background: url('/img/club/horse-blaze-800.webp') 70% 35% / cover no-repeat;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.12) 40%, rgba(0,0,0,.34) 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.12) 40%, rgba(0,0,0,.34) 100%); }
+.upcoming__horse { display: inline-flex; align-items: center; gap: 6px; }
+.upcoming__horse .horseav { border-width: 1.5px; }
+.nextclass__meta .nextclass__horse { flex-basis: 100%; }
+
+/* ───────── Día · Semana · Mes ───────── */
+.caltoggle { display: flex; justify-content: center; margin: 4px 0 12px; }
+.caltoggle .segmented { width: min(100%, 340px); }
+@media (min-width: 1024px) { .caltoggle { justify-content: flex-start; } .caltoggle .segmented { width: auto; } }
+.weekbar { margin-bottom: 8px; }
+/* Week: columns × hours; phones show 3 days and swipe for the rest (the hours stay put). */
+.wscroll { container-type: inline-size; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-left: 52px; -webkit-overflow-scrolling: touch; border-radius: var(--radius); }
+.wscroll .wgrid { min-width: 100%; }
+@media (max-width: 899px) {
+  .wscroll .wgrid { grid-template-columns: 52px repeat(7, calc((100cqw - 52px) / 3)); width: max-content; }
+  .wscroll .wgrid__head { scroll-snap-align: start; }
+  .wscroll .wgrid__corner, .wscroll .wgrid__hour { position: sticky; left: 0; z-index: 2; background: #F7F2E6; }
+}
+.wgrid__cell.is-today { background: color-mix(in srgb, var(--accent-soft) 45%, transparent); }
+.wgrid__head.is-today { background: var(--accent-soft); }
+.wgrid__head.is-today strong { color: var(--green-dark); text-decoration: underline 3px var(--lvl-advanced); text-underline-offset: 4px; }
+.wgrid__head.is-closed { background: #ECE6D6; }
+.wgrid__head small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wgrid__slot { display: contents; }
+/* Class blocks: the level color as the left edge and a light tint */
+.wgrid__class { width: 100%; border-left: 4px solid var(--lvl-beginner); background: color-mix(in srgb, var(--lvl-beginner) 28%, #fff); color: var(--ink); }
+.wgrid__class.level--intermediate { border-left-color: var(--lvl-intermediate); background: color-mix(in srgb, var(--lvl-intermediate) 40%, #fff); }
+.wgrid__class.level--advanced { border-left-color: var(--lvl-advanced); background: color-mix(in srgb, var(--lvl-advanced) 22%, #fff); }
+.wgrid__class.level--competition { border-left-color: var(--lvl-competition); background: color-mix(in srgb, var(--lvl-competition) 12%, #fff); }
+.wgrid__class span { display: inline-flex; align-items: center; gap: 4px; color: #5E5646; }
+.wgrid__class.is-mine { box-shadow: inset 0 0 0 2px var(--rc); font-weight: 600; }
+.wgrid__class.is-past { opacity: .55; }
+.wgrid__class:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+/* Month */
+.mcal { margin-bottom: 12px; }
+.mcal__bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.mcal__title::first-letter { text-transform: uppercase; }
+.mcal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; padding: 8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.mcal__wd { padding: 4px 0 6px; text-align: center; font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.mcal__day { position: relative; display: grid; align-content: start; justify-items: center; gap: 4px; min-height: 58px; padding: 6px 2px; border: 1px solid transparent; border-radius: 12px; background: #FAF6EC; font: inherit; color: var(--ink); cursor: pointer; }
+.mcal__day:hover:not(:disabled) { border-color: var(--lvl-advanced); }
+.mcal__day:disabled { cursor: default; }
+.mcal__day.is-out { background: transparent; color: #B9B0A0; }
+.mcal__day:disabled:not(.is-out) { color: #A79E8B; }
+.mcal__day.is-today { background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--green); }
+.mcal__day.is-selected { border-color: var(--green-dark); }
+.mcal__day.is-closed { background: repeating-linear-gradient(135deg, transparent 0 6px, rgba(0,0,0,.04) 6px 12px), #EFE8D7; color: #8B8273; }
+.mcal__num { font-family: var(--font-head); font-weight: 700; font-size: .95rem; }
+.mcal__closed { max-width: 100%; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .62rem; font-weight: 600; }
+@media (max-width: 599px) { .mcal__closed { display: none; } }
+.mcal__dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; max-width: 100%; }
+.mcal__dot { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--lvl-beginner); background: transparent; }
+.mcal__dot.dot--intermediate { border-color: #B7A685; }
+.mcal__dot.dot--advanced { border-color: var(--lvl-advanced); }
+.mcal__dot.dot--competition { border-color: var(--lvl-competition); }
+.mcal__dot.dot--beginner { border-color: #A3AB86; }
+.mcal__dot.is-mine { width: 9px; height: 9px; border-color: var(--rc); background: var(--rc); }
+.mcal__more { font-size: .6rem; font-weight: 700; color: var(--muted); line-height: 7px; }
+@media (min-width: 900px) { .mcal__day { min-height: 84px; } .mcal__dot { width: 9px; height: 9px; } .mcal__closed { font-size: .7rem; } }
+.slot__horse { margin-top: 8px; }
+/* Horse photos: Mi caballo gallery, family photos the club can hide */
+.hgallery { display: grid; gap: 8px; }
+.hgallery__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.hgallery__item, .hgallery__add { position: relative; aspect-ratio: 1; border: 0; padding: 0; border-radius: 14px; overflow: hidden; background: var(--accent-soft); cursor: pointer; }
+.hgallery__item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hgallery__add { display: grid; place-content: center; justify-items: center; gap: 4px; border: 1.5px dashed var(--lvl-advanced); color: var(--green); font: inherit; font-size: .8rem; font-weight: 600; background: #FAF6EC; }
+.hgallery__view { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 24px; background: rgba(28,29,22,.9); }
+.hgallery__view img { max-width: 100%; max-height: 86vh; border-radius: 16px; object-fit: contain; }
+.hgallery__close { position: fixed; top: 16px; right: 16px; width: 48px; height: 48px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.35); border-radius: 50%; background: rgba(255,255,255,.14); color: #fff; cursor: pointer; }
+.photos__item.is-hidden img { opacity: .35; filter: grayscale(1); }
+.photos__tag { position: absolute; left: 6px; bottom: 6px; padding: 2px 8px; border-radius: 999px; background: rgba(51,53,42,.85); color: #fff; font-size: .68rem; font-weight: 600; }
+.photos__hide { position: absolute; left: 6px; top: 6px; padding: 3px 9px; border: 0; border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: .72rem; font-weight: 700; box-shadow: var(--shadow); cursor: pointer; }

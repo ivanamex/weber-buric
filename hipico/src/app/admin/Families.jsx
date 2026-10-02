@@ -15,6 +15,7 @@ import ShareApp from './ShareApp.jsx'
 import { DataTable, exportCsv, useDesktop, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
 import { Sheet } from '../../components/EditKit.jsx'
 import { dueOf } from '../../data/store.js'
+import { LevelPill, StatusPill, riderColor } from '../../components/Colors.jsx'
 
 const NEW_RIDER = { name: '', level: 'beginner' }
 const newFamily = () => ({ contact: '', email: '', phone: '', name: '', plan: '8', start: todayKey(), riders: [{ ...NEW_RIDER }] })
@@ -245,17 +246,17 @@ function FamilyCard({ family }) {
               const plan = getPlan(s, r.id)
               return (
                 <li key={r.id} className="list__row">
-                  <span className="chip__avatar">{r.name[0]}</span>
+                  <span className="chip__avatar" style={{ background: riderColor(s, r.id), color: '#fff' }}>{r.name[0]}</span>
                   <div className="grow">
-                    <p className="list__title">{r.name}</p>
+                    <p className="list__title">{r.name} <LevelPill level={r.level} /></p>
                     <p className="small muted">
-                      {r.age ? `${t('more.profile.age', { n: r.age })} · ` : ''}{t(`levels.${r.level}`)}
-                      {r.planClasses ? ` · ${t('admin.families.standing', { n: r.planClasses, date: fmtDate(r.planStart || todayKey(), { day: 'numeric', month: 'short' }) })}` : ''}
+                      {r.age ? t('more.profile.age', { n: r.age }) : ''}
+                      {r.planClasses ? `${r.age ? ' · ' : ''}${t('admin.families.standing', { n: r.planClasses, date: fmtDate(r.planStart || todayKey(), { day: 'numeric', month: 'short' }) })}` : ''}
                     </p>
                   </div>
-                  <Badge tone={plan ? (plan.paid ? 'success' : 'alert') : 'neutral'}>
+                  <StatusPill status={plan ? (plan.paid ? 'paid' : 'pending') : 'neutral'}>
                     {plan ? t('plan.shortUsed', { used: plan.used, total: plan.total }) : t('plan.none')}
-                  </Badge>
+                  </StatusPill>
                 </li>
               )
             })}

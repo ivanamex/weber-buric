@@ -4,6 +4,7 @@ import { uploadReceipt, useStore } from '../data/store.js'
 import { Icon } from './Icon.jsx'
 import { Badge } from './ui.jsx'
 import { useToast } from './Toast.jsx'
+import { StatusPill } from './Colors.jsx'
 
 export const RECEIPT_ACCEPT = 'image/jpeg,image/png,image/heic,image/heif,application/pdf,.heic,.heif,.pdf,.jpg,.jpeg,.png'
 const MAX_BYTES = 10 * 1024 * 1024
@@ -12,8 +13,7 @@ const MAX_BYTES = 10 * 1024 * 1024
 export function ReceiptBadge({ status }) {
   const { t } = useI18n()
   if (!status) return null
-  const tone = { review: 'accent', approved: 'success', rejected: 'alert' }[status]
-  return <Badge tone={tone}>{t(`receipt.status.${status}`)}</Badge>
+  return <StatusPill status={{ review: 'review', approved: 'paid', rejected: 'overdue' }[status]}>{t(`receipt.status.${status}`)}</StatusPill>
 }
 
 /** The club's bank details; placeholders until management fills them in. */

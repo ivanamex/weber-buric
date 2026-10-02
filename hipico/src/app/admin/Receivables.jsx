@@ -11,6 +11,7 @@ import { familyWaLink } from './Summary.jsx'
 import { DataTable, exportCsv, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
 import { Sheet } from '../../components/EditKit.jsx'
 import { addDays } from '../../lib/time.js'
+import { StatusPill } from '../../components/Colors.jsx'
 
 export const SERVICE_ICON = { plan: 'horseshoe', boarding: 'saddle', camp: 'balloons', rental: 'horseHead', events: 'cake', class: 'helmet' }
 const GROUPS = ['overdue', 'today', 'soon', 'later']
@@ -202,8 +203,8 @@ export function Cashflow() {
                       <div className="right">
                         <strong>{fmtMoney(x.amount)}</strong><br />
                         {x.projected ? <Badge tone="neutral">{t('collect.expected')}</Badge>
-                          : x.status === 'paid' ? <Badge tone="success">{t('collect.paidTag')}</Badge>
-                            : <Badge tone={x.due < todayKey() ? 'alert' : 'accent'}>{t(x.due < todayKey() ? 'collect.flowOverdue' : 'collect.flowPending')}</Badge>}
+                          : x.status === 'paid' ? <StatusPill status="paid">{t('collect.paidTag')}</StatusPill>
+                            : <StatusPill status={x.due < todayKey() ? 'overdue' : 'pending'}>{t(x.due < todayKey() ? 'collect.flowOverdue' : 'collect.flowPending')}</StatusPill>}
                       </div>
                     </li>
                   ))}
@@ -247,7 +248,7 @@ export function ReceivablesDesk({ onView }) {
     { key: 'state', label: t('desk.status'), value: (x) => ({ overdue: 0, today: 1, soon: 2, later: 3, paid: 4 }[x.state]), csv: (x) => stateLabel(x),
       render: (x) => (
         <span className="row gap-sm wrap">
-          <Badge tone={x.state === 'paid' ? 'success' : x.state === 'overdue' ? 'alert' : x.state === 'later' ? 'neutral' : 'accent'}>{stateLabel(x)}</Badge>
+          <StatusPill status={x.state === 'paid' ? 'paid' : x.state === 'overdue' ? 'overdue' : x.state === 'later' ? 'neutral' : 'pending'}>{stateLabel(x)}</StatusPill>
           {x.projected && <Badge tone="neutral">{t('collect.expected')}</Badge>}
           {x.receiptStatus && x.state !== 'paid' && <ReceiptBadge status={x.receiptStatus} />}
         </span>

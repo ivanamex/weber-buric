@@ -1,5 +1,7 @@
+import { useRef, useState } from 'react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { useStore, horsePhotoUrl, careOf, lastByKind, horseAge } from '../data/store.js'
+import { useStore, horsePhotoUrl, careOf, lastByKind, horseAge, visiblePhotos, addOwnHorsePhoto } from '../data/store.js'
+import { useToast } from './Toast.jsx'
 import { Icon } from './Icon.jsx'
 import { daysBetween, todayKey } from '../lib/time.js'
 
@@ -7,7 +9,7 @@ const fmtKg = (n, lang) => new Intl.NumberFormat(lang === 'en' ? 'en-US' : 'es-M
 
 /** Main photo, or a pictogram when there's none. */
 export function HorsePhoto({ horse, size = 56 }) {
-  const src = horse.photos?.[0]
+  const src = visiblePhotos(horse)[0]
   return src
     ? <img className="horse__photo" src={horsePhotoUrl(src)} alt={horse.name} width={size} height={size} style={{ width: size, height: size }} />
     : <span className="horse__photo horse__photo--empty" style={{ width: size, height: size }}><Icon name="horseHead" size={Math.round(size * 0.55)} /></span>
@@ -68,8 +70,51 @@ export function NextDates({ last, kinds = ['vaccine', 'deworming', 'farrier', 'v
   )
 }
 
+/** The horse's photos (the first is the main one). The owner family can add their own; the club can hide or delete them. */
+export function HorseGallery({ horse, canAdd = false }) {
+  const { t } = useI18n()
+  const toast = useToast()
+  const input = useRef(null)
+  const [busy, setBusy] = useState(false)
+  const [open, setOpen] = useState(null)
+  const photos = visiblePhotos(horse)
+  const onFile = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setBusy(true)
+    const res = await addOwnHorsePhoto(horse.id, file)
+    setBusy(false)
+    toast(res.ok ? t('myHorse.photoAdded') : t(`errors.${res.code}`), res.ok ? 'success' : 'error')
+  }
+  if (!photos.length && !canAdd) return null
+  return (
+    <div className="hgallery">
+      <div className="hgallery__grid">
+        {photos.map((p, i) => (
+          <button key={p} type="button" className="hgallery__item" onClick={() => setOpen(i)} aria-label={t('myHorse.openPhoto', { n: i + 1, name: horse.name })}>
+            <img src={horsePhotoUrl(p)} alt="" loading="lazy" />
+          </button>
+        ))}
+        {busy && <div className="hgallery__item photos__uploading" role="status"><span className="photos__spinner" aria-hidden="true" /><span>{t('edit.uploading')}</span></div>}
+        {canAdd && !busy && (horse.photos || []).length < 12 && (
+          <button type="button" className="hgallery__add" onClick={() => input.current?.click()}><Icon name="camera" size={22} /><span>{t('myHorse.addPhoto')}</span></button>
+        )}
+      </div>
+      {canAdd && <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" className="visually-hidden" onChange={onFile} />}
+      {canAdd && <p className="small muted">{t('myHorse.photosHint')}</p>}
+      {open != null && photos[open] && (
+        <div className="hgallery__view" role="dialog" aria-modal="true" aria-label={horse.name} onClick={() => setOpen(null)}>
+          <img src={horsePhotoUrl(photos[open])} alt={horse.name} />
+          <button type="button" className="hgallery__close" aria-label={t('common.close')} onClick={() => setOpen(null)}><Icon name="x" size={22} /></button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /** What an owner family sees in Más → Mi caballo. */
-export function MyHorseCard({ horse, split = false }) {
+export function MyHorseCard({ horse, split = false, canAdd = false }) {
   const { t } = useI18n()
   const s = useStore()
   const age = horseAge(horse)
@@ -85,6 +130,8 @@ export function MyHorseCard({ horse, split = false }) {
               <p className="small muted">{[age != null ? t('horses.years', { n: age }) : null, horse.breed, horse.coat].filter(Boolean).join(' · ')}</p>
             </div>
           </div>
+          <p className="card__label mt16">{t('horses.photos')}</p>
+          <HorseGallery horse={horse} canAdd={canAdd} />
           <p className="card__label mt16">{t('horseProfile.ration')}</p>
           <DailyRation care={careOf(s, horse.id)} />
         </div>
@@ -105,6 +152,8 @@ export function MyHorseCard({ horse, split = false }) {
           <p className="small muted">{[age != null ? t('horses.years', { n: age }) : null, horse.breed, horse.coat].filter(Boolean).join(' · ')}</p>
         </div>
       </div>
+      <p className="card__label mt16">{t('horses.photos')}</p>
+      <HorseGallery horse={horse} canAdd={canAdd} />
       <p className="card__label mt16">{t('horseProfile.ration')}</p>
       <DailyRation care={careOf(s, horse.id)} />
       <p className="card__label mt16">{t('myHorse.next')}</p>

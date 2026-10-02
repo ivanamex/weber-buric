@@ -8,6 +8,7 @@ import { Badge, Empty } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { todayKey, addDays } from '../../lib/time.js'
 import { useDeskAction } from '../../components/Desk.jsx'
+import { LevelPill, RiderDot, riderColor, HorseTag, StatusPill } from '../../components/Colors.jsx'
 
 export default function AdminToday() {
   const { t, fmtDate, fmtTime } = useI18n()
@@ -62,10 +63,10 @@ export default function AdminToday() {
         <section key={h} className="hourgroup">
           <h2 className="hourgroup__time">{fmtTime(h)}</h2>
           {occ.filter((o) => o.slot.time === h).map((o) => (
-            <div key={o.slot.id} className="card classcard">
+            <div key={o.slot.id} className={`card classcard edge--${o.slot.level}`}>
               <div className="classcard__head">
                 <div>
-                  <p className="card__title">{t(`disciplines.${o.slot.discipline}`)} · {t(`levels.${o.slot.level}`)}</p>
+                  <p className="card__title">{t(`disciplines.${o.slot.discipline}`)} <LevelPill level={o.slot.level} /></p>
                   <p className="small muted">{o.instructor.name} · {t(`arenas.${o.slot.arena}`)}</p>
                 </div>
                 <div className="classcard__side">
@@ -84,15 +85,15 @@ export default function AdminToday() {
                   return (
                     <li key={b.id} className={`attendee attendee--${b.status}`}>
                       <div className="attendee__info">
-                        <p className="list__title">{rider.name} <span className="muted small">· {family.name.replace(/^Familia |^Family /, '')}</span></p>
-                        <p className="small muted"><Icon name="shoe" size={13} /> {horse?.name}{horse?.type === 'boarded' ? ` (${t('admin.today.own')})` : ''}</p>
+                        <p className="list__title"><RiderDot color={riderColor(s, rider.id)} /> {rider.name} <span className="muted small">· {family.name.replace(/^Familia |^Family /, '')}</span></p>
+                        <p className="small"><HorseTag horse={horse} own={horse?.type === 'boarded'} /></p>
                         <p className="small row gap-sm wrap">
                           <Badge tone={(b.kind || 'plan') === 'plan' ? 'neutral' : 'accent'}>{t(`classKind.tag.${b.kind || 'plan'}`)}</Badge>
                           {(b.kind || 'plan') !== 'plan'
-                            ? <Badge tone={byId(s.payments, b.paymentId)?.status === 'paid' ? 'success' : 'alert'}>{t(byId(s.payments, b.paymentId)?.status === 'paid' ? 'plan.paid' : 'plan.pendingPay')}</Badge>
+                            ? <StatusPill status={byId(s.payments, b.paymentId)?.status === 'paid' ? 'paid' : 'pending'}>{t(byId(s.payments, b.paymentId)?.status === 'paid' ? 'plan.paid' : 'plan.pendingPay')}</StatusPill>
                             : plan
-                            ? <Badge tone={plan.paid ? 'success' : 'alert'}>{plan.paid ? t('admin.today.planOk', { n: planRemaining(plan) }) : t('plan.pendingPay')}</Badge>
-                            : <Badge tone="alert">{t('plan.none')}</Badge>}
+                            ? <StatusPill status={plan.paid ? 'paid' : 'pending'}>{plan.paid ? t('admin.today.planOk', { n: planRemaining(plan) }) : t('plan.pendingPay')}</StatusPill>
+                            : <StatusPill status="overdue">{t('plan.none')}</StatusPill>}
                         </p>
                       </div>
                       <div className="attendee__actions">

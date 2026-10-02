@@ -10,6 +10,7 @@ import { SectionTitle } from '../../components/ui.jsx'
 import { concept, paymentSentence } from '../../components/PaymentHistory.jsx'
 import { todayKey } from '../../lib/time.js'
 import IncomeChart from './IncomeChart.jsx'
+import { LevelPill } from '../../components/Colors.jsx'
 
 /** WhatsApp link to a family's phone (Mexican numbers get +52), with a friendly reminder. */
 export function familyWaLink(phone, text) {
@@ -79,7 +80,7 @@ export default function AdminSummary() {
             {todayClasses.map((o) => (
               <li key={o.slot.id} className="list__row">
                 <strong className="sumtime">{fmtTime(o.slot.time)}</strong>
-                <span className="grow"><span className="list__title">{t(`disciplines.${o.slot.discipline}`)}</span> <span className="small muted">· {t(`levels.${o.slot.level}`)}</span></span>
+                <span className="grow"><span className="list__title">{t(`disciplines.${o.slot.discipline}`)}</span> <LevelPill level={o.slot.level} /></span>
                 <span className="small">{t('summary.ridersN', { n: o.bookings.length, cap: o.slot.capacity })}</span>
               </li>
             ))}

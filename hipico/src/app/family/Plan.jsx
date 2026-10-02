@@ -14,6 +14,7 @@ import { currentMonthKey } from '../../lib/time.js'
 import { ActivePlanCard, ChangePlan } from './ActivePlan.jsx'
 import { UpcomingList } from './Upcoming.jsx'
 import { PaymentHistory, concept } from '../../components/PaymentHistory.jsx'
+import { StatusPill } from '../../components/Colors.jsx'
 
 export default function FamilyPlan() {
   const { t, fmtDate, fmtMoney } = useI18n()
@@ -131,7 +132,7 @@ export default function FamilyPlan() {
         {boarding.map((b) => (
           <div key={b.horse.id} className="row between small">
             <span>{b.horse.name} · {monthName(b.month)}</span>
-            <Badge tone={b.status === 'paid' ? 'success' : 'alert'}>{t(`boarding.status.${b.status}`)}</Badge>
+            <StatusPill status={b.status === 'paid' ? 'paid' : 'pending'}>{t(`boarding.status.${b.status}`)}</StatusPill>
           </div>
         ))}
         {boarding.length > 0 && boarding.some((b) => b.status !== 'paid') && (

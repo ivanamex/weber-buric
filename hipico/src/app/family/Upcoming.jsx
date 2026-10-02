@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { useStore, byId, canCancel, cancelBooking, CANCEL_WINDOW_HOURS } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
+import { HorseAvatar, RiderDot, riderColor } from '../../components/Colors.jsx'
 import { useToast } from '../../components/Toast.jsx'
 
 /** Cancel a confirmed class with a clear message either way. */
@@ -41,17 +42,17 @@ export function UpcomingList({ bookings, showRider = false }) {
         const instructor = byId(s.instructors, slot.instructorId)
         const horse = byId(s.horses, b.horseId)
         return (
-          <li key={b.id} className="list__row upcoming__row">
+          <li key={b.id} className={`list__row upcoming__row edge--${slot.level}`}>
             <div className="upcoming__when">
               <span>{fmtDate(b.date, { weekday: 'short' }).replace('.', '')}</span>
               <strong>{fmtDate(b.date, { day: 'numeric' })}</strong>
               <span>{fmtDate(b.date, { month: 'short' }).replace('.', '')}</span>
             </div>
             <div className="grow">
-              <p className="list__title">{fmtTime(slot.time)} · {t(`disciplines.${slot.discipline}`)}{showRider ? ` · ${byId(s.riders, b.riderId)?.name}` : ''}</p>
+              <p className="list__title"><RiderDot color={riderColor(s, b.riderId)} /> {fmtTime(slot.time)} · {t(`disciplines.${slot.discipline}`)}{showRider ? ` · ${byId(s.riders, b.riderId)?.name}` : ''}</p>
               <p className="small muted upcoming__meta">
                 <span><Icon name="user" size={14} /> {instructor?.name}</span>
-                {horse && <span><Icon name="shoe" size={14} /> {horse.name}</span>}
+                {horse && <span className="upcoming__horse"><HorseAvatar horse={horse} size={28} /> {horse.name}</span>}
               </p>
             </div>
             {canCancel(b, slot)

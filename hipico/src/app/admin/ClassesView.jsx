@@ -11,9 +11,11 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty, Segmented } from '../../components/ui.jsx'
 import { ConfirmDialog, SaveBar, Sheet, useFormState } from '../../components/EditKit.jsx'
 import { useToast } from '../../components/Toast.jsx'
-import { todayKey, addDays, weekStart, daysBetween } from '../../lib/time.js'
+import { todayKey, addDays, weekStart, daysBetween, monthKeyOf } from '../../lib/time.js'
+import { MonthGrid, ViewToggle, useCalView } from '../../components/Calendar.jsx'
 import { useSave } from './useSave.js'
 import { useDeskAction, useDesktop } from '../../components/Desk.jsx'
+import { LevelPill } from '../../components/Colors.jsx'
 
 const DISCIPLINES = ['basics', 'dressage', 'jumping', 'ponies']
 const ARENAS = ['main', 'covered', 'jumping']
@@ -267,10 +269,10 @@ function ClassItem({ slot, date }) {
   // A one-off class, or a date already gone, can only change as a whole.
   const edit = () => (oneOff || !upcoming ? setMode({ scope: 'all' }) : setMode('scope'))
   return (
-    <li className={`sched-row ${off ? 'is-off' : ''} ${cancellation ? 'is-cancelled' : ''}`}>
-      <div className="sched-row__time"><strong>{fmtTime(slot.time)}</strong><span>{slot.duration} min</span></div>
+    <li className={`sched-row edge--${slot.level} ${off ? 'is-off' : ''} ${cancellation ? 'is-cancelled' : ''}`}>
+      <div className="sched-row__time"><strong>{fmtTime(slot.time)}</strong><span>{t('schedule.minutes', { n: slot.duration || 60 })}</span></div>
       <div className="grow">
-        <p className="list__title">{t(`disciplines.${slot.discipline}`)} <Badge tone="neutral">{t(`levels.${slot.level}`)}</Badge></p>
+        <p className="list__title">{t(`disciplines.${slot.discipline}`)} <LevelPill level={slot.level} /></p>
         <p className="small muted">{byId(s.instructors, slot.instructorId)?.name} · {t(`arenas.${slot.arena}`)}
           {oneOff ? ` · ${t('schedule.oneOff')}` : slot.endsOn ? ` · ${t('schedule.untilDate', { date: short(slot.endsOn) })}` : ''}</p>
         <p className="small">
@@ -495,6 +497,14 @@ export default function ClassesView() {
   const [day, setDay] = useState(today)
   const [adding, setAdding] = useState(null) // { weekday, time, date } while the form is open
   const [sheet, setSheet] = useState(null) // 'cancel' | 'copy' | { slot, date }
+  // Día · Semana · Mes, remembered on this device (a computer starts on Semana).
+  const [view, setView] = useCalView('admin', wide ? 'week' : 'day')
+  const [calMonth, setCalMonth] = useState(monthKeyOf(today))
+  const openDay = (d) => { setWeek(Math.floor(daysBetween(weekStart(today), d) / 7)); setDay(d); setView('day') }
+  const monthInfo = (d) => {
+    const closed = isClosed(s, d)
+    return { closed, note: closedDateOn(s, d)?.note || '', dots: closed ? [] : slotsOn(s, d).filter((x) => !cancelledOn(s, x.id, d)).map((x) => ({ key: x.id, level: x.level })) }
+  }
   const start = addDays(weekStart(today), week * 7)
   const days = WEEK.map((wd, i) => ({ wd, date: addDays(start, i) }))
   const goWeek = (w) => { setWeek(w); setDay(w === 0 ? today : addDays(weekStart(today), w * 7)) }
@@ -506,11 +516,12 @@ export default function ClassesView() {
 
   return (
     <>
-      <div className="row between">
+      <ViewToggle value={view} onChange={setView} />
+      {view !== 'month' && <div className="row between">
         <button type="button" className="iconbtn iconbtn--card" onClick={() => goWeek(week - 1)} aria-label={t('common.prev')}><Icon name="chevronLeft" size={20} /></button>
         <p className="card__title center grow">{t('schedule.weekOf', { from: fmtDate(start, { day: 'numeric', month: 'short' }), to: fmtDate(addDays(start, 6), { day: 'numeric', month: 'short' }) })}</p>
         <button type="button" className="iconbtn iconbtn--card" onClick={() => goWeek(week + 1)} aria-label={t('common.next')}><Icon name="chevronRight" size={20} /></button>
-      </div>
+      </div>}
       {adding && desk && (
         <Sheet title={t('schedule.newClass')} onClose={() => setAdding(null)}>
           <BulkForm key={JSON.stringify(adding)} preset={adding} onDone={(count) => { setAdding(null); if (count) toast(t('schedule.createdMany', { n: count })) }} />
@@ -531,9 +542,11 @@ export default function ClassesView() {
         </div>
       )}
 
-      {wide ? (
-        <WeekGrid days={days} onOpen={(slot, date) => setSheet({ slot, date })} onAdd={addAt} />
-      ) : (
+      {view === 'month' && <MonthGrid month={calMonth} onMonth={setCalMonth} info={monthInfo} onPick={openDay} selected={day} />}
+      {view === 'week' && (
+        <div className="wscroll wscroll--admin"><WeekGrid days={days} onOpen={(slot, date) => setSheet({ slot, date })} onAdd={addAt} /></div>
+      )}
+      {view === 'day' && (
         <>
           <div className="daystrip__days schedstrip">
             {days.map(({ wd, date }) => {

@@ -9,8 +9,9 @@ import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
 import { Badge, Horseshoes } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
+import { StatusPill } from '../../components/Colors.jsx'
 
-const STATUS = { paid: ['success', 'plan.paid'], review: ['accent', 'receipt.status.review'], pending: ['alert', 'plan.statusPending'] }
+const STATUS = { paid: ['paid', 'plan.paid'], review: ['review', 'receipt.status.review'], pending: ['pending', 'plan.statusPending'] }
 
 /** "Plan activo" card at the top of Inicio and Mi plan: counter, renewal date, status, Reservar / Cambiar plan. */
 export function ActivePlanCard({ riderId, onChange }) {
@@ -48,7 +49,7 @@ export function ActivePlanCard({ riderId, onChange }) {
     <section className="card activeplan" aria-label={t('plan.activeLabel', { n: plan.total })}>
       <div className="row between gap">
         <p className="card__label">{t('plan.activeLabel', { n: plan.total })} · {rider.name}</p>
-        <Badge tone={tone}>{t(label)}</Badge>
+        <StatusPill status={tone}>{t(label)}</StatusPill>
       </div>
       <p className="bignum">{t('plan.usedOf', { used: plan.used, total: plan.total })}</p>
       <Horseshoes used={plan.used} total={plan.total} label={t('plan.usedOf', { used: plan.used, total: plan.total })} />

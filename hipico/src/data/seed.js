@@ -14,14 +14,14 @@ const instructors = [
 ]
 
 const horses = [
-  { id: 'h1', name: 'Canela', type: 'school', birthYear: 2014, sex: 'mare', breed: 'Cuarto de milla', coat: 'Alazán', heightCm: 150, level: 'beginner' },
-  { id: 'h2', name: 'Lucero', type: 'school', birthYear: 2012, sex: 'gelding', breed: 'Criollo mexicano', coat: 'Tordillo', heightCm: 148, level: 'beginner' },
-  { id: 'h3', name: 'Tornado', type: 'school', birthYear: 2015, sex: 'gelding', breed: 'Pura sangre', coat: 'Negro', heightCm: 163, level: 'advanced' },
-  { id: 'h4', name: 'Brisa', type: 'school', birthYear: 2013, sex: 'mare', breed: 'Árabe', coat: 'Bayo', heightCm: 152, level: 'intermediate' },
-  { id: 'h5', name: 'Cacao', type: 'school', status: 'for_sale', salePrice: 165000, age: 9, birthYear: 2017, sex: 'gelding', breed: 'Cuarto de milla', coat: 'Castaño', heightCm: 155, level: 'intermediate', description: 'Noble y tranquilo, ideal para salto bajo y paseos.', photos: [] },
-  { id: 'h6', name: 'Relámpago', type: 'boarded', ownerFamilyId: 'f1', birthYear: 2011, sex: 'gelding', breed: 'Warmblood', coat: 'Castaño oscuro', heightCm: 168, level: 'competition' },
-  { id: 'h7', name: 'Zafiro', type: 'boarded', ownerFamilyId: 'f2', birthYear: 2016, sex: 'mare', breed: 'Andaluz', coat: 'Tordo', heightCm: 158 },
-  { id: 'h8', name: 'Maya', type: 'boarded', ownerFamilyId: 'f3', birthYear: 2018, sex: 'mare', breed: 'Appaloosa', coat: 'Atigrado', heightCm: 150 },
+  { id: 'h1', name: 'Canela', type: 'school', birthYear: 2014, sex: 'mare', breed: 'Cuarto de milla', coat: 'Alazán', heightCm: 150, level: 'beginner', photos: ['/img/club/horse-fence.webp'] },
+  { id: 'h2', name: 'Lucero', type: 'school', birthYear: 2012, sex: 'gelding', breed: 'Criollo mexicano', coat: 'Tordillo', heightCm: 148, level: 'beginner', photos: ['/img/club/jump-grey.webp'] },
+  { id: 'h3', name: 'Tornado', type: 'school', birthYear: 2015, sex: 'gelding', breed: 'Pura sangre', coat: 'Negro', heightCm: 163, level: 'advanced', photos: ['/img/club/jump-bay.webp'] },
+  { id: 'h4', name: 'Brisa', type: 'school', birthYear: 2013, sex: 'mare', breed: 'Árabe', coat: 'Bayo', heightCm: 152, level: 'intermediate', photos: ['/img/club/horse-blaze-800.webp'] },
+  { id: 'h5', name: 'Cacao', type: 'school', status: 'for_sale', salePrice: 165000, age: 9, birthYear: 2017, sex: 'gelding', breed: 'Cuarto de milla', coat: 'Castaño', heightCm: 155, level: 'intermediate', description: 'Noble y tranquilo, ideal para salto bajo y paseos.', photos: ['/img/club/rider-buckskin.webp'] },
+  { id: 'h6', name: 'Relámpago', type: 'boarded', ownerFamilyId: 'f1', birthYear: 2011, sex: 'gelding', breed: 'Warmblood', coat: 'Castaño oscuro', heightCm: 168, level: 'competition', photos: ['/img/club/girl-horse-closeup-800.webp', '/img/club/girl-horse-nose-800.webp', '/img/club/rider-buckskin.webp'], familyPhotos: ['/img/club/rider-buckskin.webp'] },
+  { id: 'h7', name: 'Zafiro', type: 'boarded', ownerFamilyId: 'f2', birthYear: 2016, sex: 'mare', breed: 'Andaluz', coat: 'Tordo', heightCm: 158, photos: ['/img/gallery/horse-rope-jungle.webp'] },
+  { id: 'h8', name: 'Maya', type: 'boarded', ownerFamilyId: 'f3', birthYear: 2018, sex: 'mare', breed: 'Appaloosa', coat: 'Atigrado', heightCm: 150, photos: ['/img/club/paddock-herd.webp'] },
 ]
 
 /** Daily ration and health history for the sample horses (realistic, all made up). */
@@ -314,7 +314,7 @@ export function createSeed() {
   })
 
   return {
-    version: 2,
+    version: 3,
     seededAt: new Date().toISOString(),
     session: null,
     instructors,

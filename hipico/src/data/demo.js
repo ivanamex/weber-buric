@@ -2,7 +2,7 @@
 import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS_KINDS, applyPrices, resetPrices } from './prices.js'
 import { monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, todayKey, periodOf, addDays, daysBetween, weekdayOf } from '../lib/time.js'
-import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS, slotRuns, isClosed, isOneOff, pickHorse, horseBusy, riderBusy, slotMinutes, closedWeekdays } from './queries.js'
+import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS, slotRuns, isClosed, isOneOff, pickHorse, horseBusy, riderBusy, slotMinutes, closedWeekdays, horseStatus } from './queries.js'
 
 // The demo keeps its data under its own names, apart from the real app. The chosen role is never saved:
 // every visit to /demo starts on the role picker.
@@ -69,7 +69,7 @@ export function activate(setState, inMemory = false) {
   // Demo states saved before closed days and bulk classes: start again from the sample data (the club now closes on Mondays).
   if (!state.settings?.closedWeekdays && !memoryOnly) state = persist(createSeed())
   // Demo states from before the sample data was corrected (dates, horses by level, bank details): start again once.
-  if ((state.version || 1) < 2 && !memoryOnly) state = persist({ ...createSeed(), session: state.session })
+  if ((state.version || 1) < 3 && !memoryOnly) state = persist({ ...createSeed(), session: state.session })
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
   if (!memoryOnly && !storageListener && typeof window !== 'undefined') {
     storageListener = true
@@ -393,6 +393,8 @@ function registerCamp({ eventId, riderId }) {
 function bookRental({ familyId, date, time, hours, horseId }) {
   return mutate((s) => {
     if (!date || !time || !horseId) return fail('missing')
+    const horse = byId(s.horses, horseId)
+    if (!horse || horseStatus(horse) !== 'school' || horse.active === false) return fail('notFound')
     if (hoursUntil(date, time) <= 0) return fail('past')
     if (horseBusy(s, horseId, date, time, hours * 60)) return fail('horseBusy')
     const rental = { id: nextId(s, 'rt'), familyId, date, time, hours, horseId, createdAt: now() }
@@ -717,7 +719,28 @@ async function uploadHorsePhoto(horseId, file) {
   return mutate((s) => {
     const horse = byId(s.horses, horseId)
     if (!horse) return fail('notFound')
-    horse.photos = [...(horse.photos || []), url].slice(0, 6)
+    horse.photos = [...(horse.photos || []), url].slice(0, 12)
+  })
+}
+/** A family adds a photo of its own boarded horse (the club can hide or delete it). */
+async function addOwnHorsePhoto(horseId, file) {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return fail('fileType')
+  if (file.size > 8 * 1024 * 1024) return fail('fileTooBig')
+  const url = await new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result); r.onerror = reject; r.readAsDataURL(file) })
+  return mutate((s) => {
+    const horse = byId(s.horses, horseId)
+    if (!horse || horse.type !== 'boarded' || horse.ownerFamilyId !== s.session?.familyId) return fail('notFound')
+    if ((horse.photos || []).length >= 12) return fail('tooManyPhotos')
+    horse.photos = [...(horse.photos || []), url]
+    horse.familyPhotos = [...(horse.familyPhotos || []), url]
+  })
+}
+function setHorsePhotoHidden(horseId, path, hidden) {
+  return mutate((s) => {
+    const horse = byId(s.horses, horseId)
+    if (!horse) return fail('notFound')
+    const rest = (horse.hiddenPhotos || []).filter((p) => p !== path)
+    horse.hiddenPhotos = hidden ? [...rest, path] : rest
   })
 }
 function removeHorsePhoto(horseId, path) {
@@ -725,6 +748,7 @@ function removeHorsePhoto(horseId, path) {
     const horse = byId(s.horses, horseId)
     if (!horse) return fail('notFound')
     horse.photos = (horse.photos || []).filter((p) => p !== path)
+    horse.hiddenPhotos = (horse.hiddenPhotos || []).filter((p) => p !== path)
   })
 }
 const horsePhotoUrl = (path) => path
@@ -1007,7 +1031,7 @@ export const actions = {
   setPassword, resume: liveOnly, signInPassword: liveOnly,
   uploadReceipt, reviewReceipt, receiptUrl, saveSettings, bookSingleClass, saveClassPrices,
   saveHorseCare, addHealth, updateHealth, deleteHealth,
-  sellHorse, uploadHorsePhoto, removeHorsePhoto, horsePhotoUrl, saveEmployee, paySalary, saveExpense, deleteExpense, saveCategory, saveModules,
+  sellHorse, uploadHorsePhoto, removeHorsePhoto, addOwnHorsePhoto, setHorsePhotoHidden, horsePhotoUrl, saveEmployee, paySalary, saveExpense, deleteExpense, saveCategory, saveModules,
   saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,
   createClasses, editClass, cancelClassRange, copyWeek, saveClosedWeekdays, saveReminderSettings, addClosedDates, deleteClosedDate,
 }

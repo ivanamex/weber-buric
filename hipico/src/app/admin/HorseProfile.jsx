@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { DateInput } from '../../components/DateInput.jsx'
 import {
-  useStore, byId, isDeletedFamily, saveHorse, uploadHorsePhoto, removeHorsePhoto, horsePhotoUrl, saveHorseCare, addHealth, updateHealth, deleteHealth,
+  useStore, byId, isDeletedFamily, saveHorse, uploadHorsePhoto, removeHorsePhoto, horsePhotoUrl, setHorsePhotoHidden, isFamilyPhoto, saveHorseCare, addHealth, updateHealth, deleteHealth,
   horseStatus, moduleOn, horseAge, careOf, healthOf, lastByKind, HORSE_LEVELS, HORSE_SEXES,
 } from '../../data/store.js'
 import { useBase } from '../Backend.jsx'
@@ -14,6 +14,7 @@ import { SaveBar, Sheet, useDiscardGuard, useFormState } from '../../components/
 import { useToast } from '../../components/Toast.jsx'
 import { addDays, addMonthsFrom, todayKey } from '../../lib/time.js'
 import { useSave } from './useSave.js'
+import { LevelPill } from '../../components/Colors.jsx'
 
 /** Suggested next date after a vaccine (+6 months), deworming (+3 months) or farrier visit (+6 weeks). */
 const suggestNext = (kind, doneOn) => {
@@ -36,7 +37,12 @@ function PhotosView({ horse }) {
   if (!photos.length) return <p className="small muted">{t('horseProfile.noPhotos')}</p>
   return (
     <div className="photos">
-      {photos.map((p) => <div key={p} className="photos__item"><img src={horsePhotoUrl(p)} alt={horse.name} loading="lazy" /></div>)}
+      {photos.map((p) => (
+        <div key={p} className={`photos__item ${(horse.hiddenPhotos || []).includes(p) ? 'is-hidden' : ''}`}>
+          <img src={horsePhotoUrl(p)} alt={horse.name} loading="lazy" />
+          {isFamilyPhoto(horse, p) && <span className="photos__tag">{t((horse.hiddenPhotos || []).includes(p) ? 'horses.photoHidden' : 'horses.fromFamily')}</span>}
+        </div>
+      ))}
     </div>
   )
 }
@@ -61,13 +67,19 @@ function PhotosEdit({ horse, onDone }) {
       <p className="small muted">{t('horseProfile.firstIsMain')}</p>
       <div className="photos">
         {photos.map((p) => (
-          <div key={p} className="photos__item">
+          <div key={p} className={`photos__item ${(horse.hiddenPhotos || []).includes(p) ? 'is-hidden' : ''}`}>
             <img src={horsePhotoUrl(p)} alt={horse.name} loading="lazy" />
+            {isFamilyPhoto(horse, p) && (
+              <button type="button" className="photos__hide" disabled={busy} aria-pressed={(horse.hiddenPhotos || []).includes(p)}
+                onClick={() => { const hide = !(horse.hiddenPhotos || []).includes(p); run(() => setHorsePhotoHidden(horse.id, p, hide), t(hide ? 'horses.photoHiddenDone' : 'horses.photoShownDone'), null, { inline: true }) }}>
+                {t((horse.hiddenPhotos || []).includes(p) ? 'horses.showPhoto' : 'horses.hidePhoto')}
+              </button>
+            )}
             <button type="button" className="photos__remove" aria-label={t('horses.removePhoto')} disabled={busy} onClick={() => run(() => removeHorsePhoto(horse.id, p), t('horses.photoRemoved'), null, { inline: true })}><Icon name="x" size={14} /></button>
           </div>
         ))}
         {uploading && <div className="photos__item photos__uploading" role="status"><span className="photos__spinner" aria-hidden="true" /><span>{t('edit.uploading')}</span></div>}
-        {!uploading && photos.length < 6 && (
+        {!uploading && photos.length < 12 && (
           <button type="button" className="photos__add" disabled={busy} onClick={() => input.current?.click()}><Icon name="plus" size={20} /><span>{t('horses.addPhoto')}</span></button>
         )}
       </div>
@@ -327,7 +339,7 @@ export default function HorseProfile({ id: forcedId, embedded = false } = {}) {
           {facts.length > 0 && <p className="small muted">{facts.join(' · ')}</p>}
           <p className="row gap-sm wrap mt8">
             <Badge tone={status === 'for_sale' ? 'accent' : 'neutral'}>{t(`horses.status.${status}`)}</Badge>
-            {horse.level && status !== 'boarded' && <Badge tone="neutral">{t(`levels.${horse.level}`)}</Badge>}
+            {horse.level && status !== 'boarded' && <LevelPill level={horse.level} />}
             {horse.active === false && status !== 'retired' && status !== 'sold' && <Badge tone="neutral">{t('schedule.off')}</Badge>}
           </p>
           {owner && (

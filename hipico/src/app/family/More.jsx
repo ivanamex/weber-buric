@@ -3,6 +3,7 @@ import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { DateInput } from '../../components/DateInput.jsx'
 import {
   useStore, byId, familyRiders, getPlan, registerCamp, bookRental, campTaken, setPassword,
+  horseStatus,
 } from '../../data/store.js'
 import { FROM_PRICES, RENTAL_PER_HOUR, RENTAL_HOURS } from '../../data/prices.js'
 import { Icon } from '../../components/Icon.jsx'
@@ -15,6 +16,7 @@ import { InstallButtons } from '../../components/Install.jsx'
 import { Navigate } from 'react-router-dom'
 import { useBase } from '../Backend.jsx'
 import { todayKey, addDays, hoursUntil } from '../../lib/time.js'
+import { StatusPill, LevelPill } from '../../components/Colors.jsx'
 
 const RENTAL_TIMES = ['07:00', '08:00', '09:00', '10:00', '11:00', '16:00', '17:00']
 const QUOTES = [
@@ -32,7 +34,7 @@ export function MyHorseSection({ split = false }) {
     <section key={h.id} className="myhorse" aria-label={t('myHorse.title')}>
       {/* On its own page the title is already "Mi caballo"; with several horses, each shows its name. */}
       {!split ? <SectionTitle icon="horseHead">{t('myHorse.title')}</SectionTitle> : myHorses.length > 1 && <SectionTitle icon="horseHead">{h.name}</SectionTitle>}
-      <MyHorseCard horse={h} split={split} />
+      <MyHorseCard horse={h} split={split} canAdd />
     </section>
   ))
 }
@@ -49,8 +51,9 @@ export function EventsSection() {
   const campRegs = s.campRegistrations.filter((r) => r.eventId === camp?.id)
   const [campRider, setCampRider] = useState(riders[0]?.id)
   const firstRentalDate = addDays(todayKey(), 1)
-  const [rental, setRental] = useState({ date: firstRentalDate, time: '08:00', hours: 1, horseId: s.horses.find((h) => h.type === 'school')?.id })
-  const schoolHorses = s.horses.filter((h) => h.type === 'school' && h.active !== false)
+  // Only school horses that ride (never one for sale or retired), as book_rental() checks.
+  const schoolHorses = s.horses.filter((h) => horseStatus(h) === 'school' && h.active !== false)
+  const [rental, setRental] = useState({ date: firstRentalDate, time: '08:00', hours: 1, horseId: schoolHorses[0]?.id })
   const myRentals = s.rentals
     .filter((r) => r.familyId === familyId && hoursUntil(r.date, r.time) > 0)
     .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
@@ -98,7 +101,7 @@ export function EventsSection() {
             return (
               <div key={r.id} className="row between small mt8">
                 <span><Icon name="check" size={14} /> {t('more.camp.registered', { name: r.name })}</span>
-                <Badge tone={pay?.status === 'paid' ? 'success' : 'alert'}>{t(pay?.status === 'paid' ? 'more.camp.depositPaid' : 'more.camp.depositPending')}</Badge>
+                <StatusPill status={pay?.status === 'paid' ? 'paid' : 'pending'}>{t(pay?.status === 'paid' ? 'more.camp.depositPaid' : 'more.camp.depositPending')}</StatusPill>
               </div>
             )
           })}
@@ -203,7 +206,7 @@ export function ProfileSection() {
                 <div className="grow">
                   <p className="list__title">{r.name}</p>
                   <p className="small muted">
-                    {t('more.profile.age', { n: r.age })} · {t(`levels.${r.level}`)}{horse ? ` · ${horse.name}` : ''}
+                    {t('more.profile.age', { n: r.age })} · <LevelPill level={r.level} />{horse ? ` · ${horse.name}` : ''}
                   </p>
                 </div>
                 <Badge tone="neutral">{plan ? t('plan.shortUsed', { used: plan.used, total: plan.total }) : t('plan.none')}</Badge>

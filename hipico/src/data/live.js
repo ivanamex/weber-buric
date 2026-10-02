@@ -381,12 +381,26 @@ async function uploadHorsePhoto(horseId, file) {
   const up = await sb.storage.from('horse-photos').upload(path, file, { contentType: file.type, upsert: false })
   if (up.error) { console.error('[hipico] photo upload failed', up.error); return { ok: false, code: 'uploadFailed' } }
   const { data } = await sb.from('horses').select('photos').eq('id', horseId).maybeSingle()
-  return upsertRow('horses', horseId, { photos: [...(data?.photos || []), path].slice(0, 6) })
+  return upsertRow('horses', horseId, { photos: [...(data?.photos || []), path].slice(0, 12) })
+}
+// A family's photo of its own horse: stored under the horse's folder (row-level security checks the owner), then listed.
+async function addOwnHorsePhoto(horseId, file) {
+  if (!PHOTO_EXT[file.type]) return { ok: false, code: 'fileType' }
+  if (file.size > 8 * 1024 * 1024) return { ok: false, code: 'fileTooBig' }
+  const path = `${horseId}/family-${Date.now()}.${PHOTO_EXT[file.type]}`
+  const up = await sb.storage.from('horse-photos').upload(path, file, { contentType: file.type, upsert: false })
+  if (up.error) { console.error('[hipico] photo upload failed', up.error); return { ok: false, code: 'uploadFailed' } }
+  return call('add_horse_photo', { p_horse: horseId, p_path: path })
+}
+async function setHorsePhotoHidden(horseId, path, hidden) {
+  const { data } = await sb.from('horses').select('hidden_photos').eq('id', horseId).maybeSingle()
+  const rest = (data?.hidden_photos || []).filter((p) => p !== path)
+  return upsertRow('horses', horseId, { hidden_photos: hidden ? [...rest, path] : rest })
 }
 async function removeHorsePhoto(horseId, path) {
   await sb.storage.from('horse-photos').remove([path])
-  const { data } = await sb.from('horses').select('photos').eq('id', horseId).maybeSingle()
-  return upsertRow('horses', horseId, { photos: (data?.photos || []).filter((p) => p !== path) })
+  const { data } = await sb.from('horses').select('photos, hidden_photos').eq('id', horseId).maybeSingle()
+  return upsertRow('horses', horseId, { photos: (data?.photos || []).filter((p) => p !== path), hidden_photos: (data?.hidden_photos || []).filter((p) => p !== path) })
 }
 const horsePhotoUrl = (path) => sb.storage.from('horse-photos').getPublicUrl(path).data.publicUrl
 const saveEmployee = (e) => {
@@ -560,6 +574,8 @@ export const actions = {
   sellHorse,
   uploadHorsePhoto,
   removeHorsePhoto,
+  addOwnHorsePhoto,
+  setHorsePhotoHidden,
   horsePhotoUrl,
   saveEmployee,
   paySalary,

@@ -524,7 +524,8 @@
     "trialUsed": "Este jinete ya tomó su clase muestra.",
     "duplicate": "Ya existe una con ese nombre.",
     "closed": "El club está cerrado ese día.",
-    "overlap": "Ya tiene otra clase a esa hora."
+    "overlap": "Ya tiene otra clase a esa hora.",
+    "tooManyPhotos": "Ya hay 12 fotos. Pide al club que quite alguna."
   },
   "live": {
     "loading": "Cargando…",
@@ -985,12 +986,23 @@
     "ownerOrPrice": "Dueño / precio",
     "pending": "Pendientes (14 días)",
     "openFull": "Abrir la ficha completa",
-    "years_one": "1 año"
+    "years_one": "1 año",
+    "assigned": "Caballo",
+    "fromFamily": "De la familia",
+    "photoHidden": "Oculta",
+    "hidePhoto": "Ocultar",
+    "showPhoto": "Mostrar",
+    "photoHiddenDone": "Foto oculta",
+    "photoShownDone": "Foto visible otra vez"
   },
   "myHorse": {
     "title": "Mi caballo",
     "next": "Próximas citas",
-    "readOnly": "Lo actualiza el club. Si algo cambia, avísanos por WhatsApp."
+    "readOnly": "Lo actualiza el club. Si algo cambia, avísanos por WhatsApp.",
+    "addPhoto": "Agregar foto",
+    "photoAdded": "Foto agregada",
+    "openPhoto": "Foto {n} de {name}",
+    "photosHint": "Tus fotos las ve el club, que puede ocultarlas."
   },
   "horseProfile": {
     "basics": "Datos",
@@ -1569,5 +1581,16 @@
     "class": "el pago de la {kind}{of}",
     "camp": "el anticipo del campamento{of}",
     "other": "el pago de {what}{of}"
+  },
+  "calendar": {
+    "day": "Día",
+    "week": "Semana",
+    "month": "Mes",
+    "classes": "{n} clases",
+    "classes_one": "1 clase",
+    "mine": "{n} confirmadas",
+    "mine_one": "1 confirmada",
+    "free": "{n} libres",
+    "free_one": "1 libre"
   }
 }

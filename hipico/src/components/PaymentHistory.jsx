@@ -4,6 +4,7 @@ import { useStore, byId, paymentHistory, planChangesFor } from '../data/store.js
 import ReceiptViewer from '../app/admin/ReceiptViewer.jsx'
 import { Badge } from './ui.jsx'
 import { Icon } from './Icon.jsx'
+import { StatusPill } from './Colors.jsx'
 
 /** What a payment was for: "Plan mensual", "Diferencia de plan (4 → 8 clases)", "Pensión"… */
 export function concept(t, p) {
@@ -29,10 +30,10 @@ export function paymentSentence(t, s, p) {
 }
 
 function statusOf(p) {
-  if (p.status === 'paid') return ['success', 'history.paid']
-  if (p.receiptStatus === 'review') return ['accent', 'receipt.status.review']
-  if (p.receiptStatus === 'rejected') return ['alert', 'receipt.status.rejected']
-  return ['alert', 'history.pending']
+  if (p.status === 'paid') return ['paid', 'history.paid']
+  if (p.receiptStatus === 'review') return ['review', 'receipt.status.review']
+  if (p.receiptStatus === 'rejected') return ['overdue', 'receipt.status.rejected']
+  return ['pending', 'history.pending']
 }
 
 /** Payments of the last 12 months: date, concept, amount, method, status and the receipt when there is one. */
@@ -60,7 +61,7 @@ export function PaymentHistory({ familyId }) {
                 </div>
                 <div className="right">
                   <strong>{fmtMoney(p.amount)}</strong>
-                  <div><Badge tone={tone}>{t(label)}</Badge></div>
+                  <div><StatusPill status={tone}>{t(label)}</StatusPill></div>
                 </div>
               </div>
               {p.receiptPath && (

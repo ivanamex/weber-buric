@@ -12,7 +12,10 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, Empty } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { celebrate } from '../../components/celebrate.js'
-import { todayKey, addDays, monthKeyOf } from '../../lib/time.js'
+import { todayKey, addDays, monthKeyOf, daysBetween } from '../../lib/time.js'
+import { HourGrid, MonthGrid, ViewToggle, useCalView } from '../../components/Calendar.jsx'
+import { HorseTag, LevelPill, RiderDot, riderColor } from '../../components/Colors.jsx'
+import { Sheet } from '../../components/EditKit.jsx'
 
 const DAYS = 7
 const MAX_WEEKS = 2
@@ -29,6 +32,10 @@ export default function FamilyBook() {
   const [date, setDate] = useState(today)
   const [busy, setBusy] = useState(null)
   const [choice, setChoice] = useState(null) // { slotId, reason: 'noPlan' | 'planEmpty' }
+  const [view, setView] = useCalView('family')
+  const [calMonth, setCalMonth] = useState(monthKeyOf(today))
+  const [sheet, setSheet] = useState(null) // slot id opened from Semana
+  const color = riderColor(s, riderId)
 
   const start = addDays(today, week * DAYS)
   const days = Array.from({ length: DAYS }, (_, i) => addDays(start, i))
@@ -38,6 +45,9 @@ export default function FamilyBook() {
   const monthName = fmtDate(`${month}-01`, { month: 'long' })
 
   const changeWeek = (w) => { setWeek(w); setDate(w === 0 ? today : addDays(today, w * DAYS)) }
+  // From Mes: that day in Día (the strip moves to its week).
+  const openDay = (d) => { setWeek(Math.floor(daysBetween(today, d) / DAYS)); setDate(d); setView('day') }
+  const maxWeek = Math.max(MAX_WEEKS - 1, week)
 
   // No plan (and none renewing) or a used-up plan: plans come first, a single class is the quiet option.
   const standing = rider.planClasses && (!rider.planStart || rider.planStart <= date)
@@ -86,6 +96,94 @@ export default function FamilyBook() {
     toast(t('toasts.singleBooked', { kind: t(`classKind.${kind}`), name: rider.name, amount: fmtMoney(res.amount ?? CLASS_PRICES[kind]) }))
   }
 
+  const slotItem = (o) => {
+    const full = o.spotsLeft === 0
+    let state = 'open'
+    if (o.cancellation) state = 'cancelled'
+    else if (o.mine) state = 'mine'
+    else if (o.past) state = 'past'
+    else if (full) state = 'full'
+    else if (!o.levelOk) state = 'level'
+    return (
+      <li key={o.slot.id} className={`slot slot--${state} edge--${o.slot.level}`}>
+        <div className="slot__time">
+          <strong>{fmtTime(o.slot.time)}</strong>
+          <span>{t('schedule.minutes', { n: slotMinutes(o.slot) })}</span>
+        </div>
+        <div className="slot__body">
+          <p className="slot__title">{t(`disciplines.${o.slot.discipline}`)} <LevelPill level={o.slot.level} /></p>
+          <p className="slot__meta">{o.instructor.name} · {t(`arenas.${o.slot.arena}`)}</p>
+          {o.cancellation ? (
+            <p className="slot__spots is-full">{o.cancellation.reason || t('schedule.cancelledShort')}</p>
+          ) : (
+            <p className={`slot__spots ${full ? 'is-full' : o.spotsLeft === 1 ? 'is-low' : ''}`}>
+              {full ? t('family.book.full') : t('family.book.spotsLeft', { n: o.spotsLeft, cap: o.slot.capacity })}
+            </p>
+          )}
+          {o.mine && <p className="slot__horse"><HorseTag horse={byId(s.horses, o.mine.horseId)} /></p>}
+        </div>
+        <div className="slot__action">
+          {state === 'open' && <button type="button" className="btn btn--primary btn--sm" onClick={(e) => onBook(o, e)} disabled={busy !== null}>{busy === o.slot.id ? '…' : t(needsChoice ? 'family.book.options' : 'family.book.book')}</button>}
+          {state === 'mine' && <Badge tone="success"><RiderDot color={color} size={8} /> {t('family.book.booked')}</Badge>}
+          {state === 'past' && <button type="button" className="btn btn--sm" disabled>{t('family.book.past')}</button>}
+          {state === 'cancelled' && <Badge tone="alert">{t('schedule.cancelledBadge')}</Badge>}
+          {state === 'full' && <button type="button" className="btn btn--sm btn--muted" onClick={() => fail('full', o)}>{t('family.book.fullBtn')}</button>}
+          {state === 'level' && <button type="button" className="btn btn--sm btn--muted" onClick={() => fail('level', o)}>{t('family.book.otherLevel')}</button>}
+        </div>
+        {state === 'open' && choice?.slotId === o.slot.id && (
+          <div className="slot__choice">
+            {choice.reason === 'noPlan' ? (
+              <>
+                <p className="small">{t('family.book.choiceNoPlan', { name: rider.name })}</p>
+                <Link to={`${base}/familia/plan?elegir=1`} className="btn btn--primary btn--block">{t('plan.choose')}</Link>
+                <p className="slot__quiet">
+                  {!hadTrial(s, riderId) && (
+                    <button type="button" className="link link--quiet" disabled={busy !== null} onClick={(e) => onSingle(o, 'trial', e)}>
+                      {t('family.book.tryTrial', { price: fmtMoney(CLASS_PRICES.trial) })}
+                    </button>
+                  )}
+                  <button type="button" className="link link--quiet" disabled={busy !== null} onClick={(e) => onSingle(o, 'single', e)}>
+                    {t('family.book.paySingle', { price: fmtMoney(CLASS_PRICES.single) })}
+                  </button>
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="small">{t('family.book.choiceEmpty', { name: rider.name })}</p>
+                <Link to={`${base}/familia/plan?cambiar=1`} className="btn btn--primary btn--block">{t('family.book.biggerPlan')}</Link>
+                <p className="slot__quiet">
+                  <button type="button" className="link link--quiet" disabled={busy !== null} onClick={(e) => onSingle(o, 'extra', e)}>
+                    {t('family.book.bookExtra', { price: fmtMoney(CLASS_PRICES.extra) })}
+                  </button>
+                </p>
+              </>
+            )}
+          </div>
+        )}
+      </li>
+    )
+  }
+
+  // Semana: the week of the strip as columns; each class shows its time, name, level and free places.
+  const weekBlocks = (d) => occurrencesFor(s, d, riderId).map((o) => ({
+    key: o.slot.id, time: o.slot.time,
+    node: (
+      <button type="button" className={`wgrid__class level--${o.slot.level} ${o.mine ? 'is-mine' : ''} ${o.cancellation ? 'is-cancelled' : ''} ${o.past ? 'is-past' : ''}`}
+        style={o.mine ? { '--rc': color } : undefined} onClick={() => { setDate(d); setChoice(null); setSheet(o.slot.id) }}>
+        <strong>{fmtTime(o.slot.time)}</strong> {t(`disciplines.${o.slot.discipline}`)}
+        <span>{o.cancellation ? t('schedule.cancelledShort') : o.mine ? <><RiderDot color={color} size={8} /> {t('family.book.booked')}</> : o.spotsLeft === 0 ? t('family.book.full') : t('calendar.free', { n: o.spotsLeft })}</span>
+      </button>
+    ),
+  }))
+  const monthInfo = (d) => {
+    const closed = isClosed(s, d)
+    return {
+      closed, note: closedDateOn(s, d)?.note || '', disabled: d < today,
+      dots: closed ? [] : occurrencesFor(s, d, riderId).map((o) => ({ key: o.slot.id, level: o.slot.level, mine: Boolean(o.mine), color })),
+    }
+  }
+  const sheetOcc = sheet ? occ.find((o) => o.slot.id === sheet) : null
+
   return (
     <div className="page">
       <h1 className="page__title">{t('family.book.title')}</h1>
@@ -96,7 +194,7 @@ export default function FamilyBook() {
           <>
             <Icon name="plan" size={18} />
             <span>{t('family.book.planLine', { name: rider.name, n: planRemaining(plan), date: fmtDate(planExpiry(plan), { day: 'numeric', month: 'short' }) })}</span>
-            <span className="muted small">· {t(`levels.${rider.level}`)}</span>
+            <LevelPill level={rider.level} />
           </>
         ) : inNext && standing ? (
           // After the renewal the class comes out of the next period: only that line, never "Sin plan".
@@ -113,6 +211,27 @@ export default function FamilyBook() {
         )}
       </div>
 
+      <ViewToggle value={view} onChange={setView} />
+
+      {view === 'month' && <MonthGrid month={calMonth} onMonth={setCalMonth} info={monthInfo} onPick={openDay} selected={date} />}
+      {view === 'week' && (
+        <>
+          <div className="row between weekbar">
+            <button type="button" className="iconbtn iconbtn--card" disabled={week === 0} onClick={() => changeWeek(week - 1)} aria-label={t('common.prev')}><Icon name="chevronLeft" size={20} /></button>
+            <p className="card__title center grow">{fmtDate(start, { day: 'numeric', month: 'short' })} – {fmtDate(addDays(start, DAYS - 1), { day: 'numeric', month: 'short' })}</p>
+            <button type="button" className="iconbtn iconbtn--card" disabled={week >= maxWeek} onClick={() => changeWeek(week + 1)} aria-label={t('common.next')}><Icon name="chevronRight" size={20} /></button>
+          </div>
+          <HourGrid days={days.map((d) => ({ date: d, closed: isClosed(s, d), note: closedDateOn(s, d)?.note }))} blocks={weekBlocks} />
+        </>
+      )}
+      {sheetOcc && (
+        <Sheet title={fmtDate(date, { weekday: 'long', day: 'numeric', month: 'short' })} onClose={() => setSheet(null)}>
+          {inNext && <p className="notice notice--info nextperiod" role="note"><Icon name="calendar" size={18} /><span>{t('family.book.nextPeriod', { month: periodMonth, date: fmtDate(planRenewal(current), { day: 'numeric', month: 'short' }) })}</span></p>}
+          <ul className="slots">{slotItem(sheetOcc)}</ul>
+        </Sheet>
+      )}
+
+      {view === 'day' && <>
       <div className="daystrip">
         <button type="button" className="iconbtn" disabled={week === 0} onClick={() => changeWeek(week - 1)} aria-label={t('common.prev')}>
           <Icon name="chevronLeft" size={20} />
@@ -131,7 +250,7 @@ export default function FamilyBook() {
             )
           })}
         </div>
-        <button type="button" className="iconbtn" disabled={week >= MAX_WEEKS - 1} onClick={() => changeWeek(week + 1)} aria-label={t('common.next')}>
+        <button type="button" className="iconbtn" disabled={week >= maxWeek} onClick={() => changeWeek(week + 1)} aria-label={t('common.next')}>
           <Icon name="chevronRight" size={20} />
         </button>
       </div>
@@ -152,74 +271,10 @@ export default function FamilyBook() {
         </Empty>
       ) : (
         <ul className="slots">
-          {occ.map((o) => {
-            const full = o.spotsLeft === 0
-            let state = 'open'
-            if (o.cancellation) state = 'cancelled'
-            else if (o.mine) state = 'mine'
-            else if (o.past) state = 'past'
-            else if (full) state = 'full'
-            else if (!o.levelOk) state = 'level'
-            return (
-              <li key={o.slot.id} className={`slot slot--${state}`}>
-                <div className="slot__time">
-                  <strong>{fmtTime(o.slot.time)}</strong>
-                  <span>{t('schedule.minutes', { n: slotMinutes(o.slot) })}</span>
-                </div>
-                <div className="slot__body">
-                  <p className="slot__title">{t(`disciplines.${o.slot.discipline}`)} <Badge tone="neutral">{t(`levels.${o.slot.level}`)}</Badge></p>
-                  <p className="slot__meta">{o.instructor.name} · {t(`arenas.${o.slot.arena}`)}</p>
-                  {o.cancellation ? (
-                    <p className="slot__spots is-full">{o.cancellation.reason || t('schedule.cancelledShort')}</p>
-                  ) : (
-                    <p className={`slot__spots ${full ? 'is-full' : o.spotsLeft === 1 ? 'is-low' : ''}`}>
-                      {full ? t('family.book.full') : t('family.book.spotsLeft', { n: o.spotsLeft, cap: o.slot.capacity })}
-                    </p>
-                  )}
-                </div>
-                <div className="slot__action">
-                  {state === 'open' && <button type="button" className="btn btn--primary btn--sm" onClick={(e) => onBook(o, e)} disabled={busy !== null}>{busy === o.slot.id ? '…' : t(needsChoice ? 'family.book.options' : 'family.book.book')}</button>}
-                  {state === 'mine' && <Badge tone="success"><Icon name="check" size={14} /> {t('family.book.booked')}</Badge>}
-                  {state === 'past' && <button type="button" className="btn btn--sm" disabled>{t('family.book.past')}</button>}
-                  {state === 'cancelled' && <Badge tone="alert">{t('schedule.cancelledBadge')}</Badge>}
-                  {state === 'full' && <button type="button" className="btn btn--sm btn--muted" onClick={() => fail('full', o)}>{t('family.book.fullBtn')}</button>}
-                  {state === 'level' && <button type="button" className="btn btn--sm btn--muted" onClick={() => fail('level', o)}>{t('family.book.otherLevel')}</button>}
-                </div>
-                {state === 'open' && choice?.slotId === o.slot.id && (
-                  <div className="slot__choice">
-                    {choice.reason === 'noPlan' ? (
-                      <>
-                        <p className="small">{t('family.book.choiceNoPlan', { name: rider.name })}</p>
-                        <Link to={`${base}/familia/plan?elegir=1`} className="btn btn--primary btn--block">{t('plan.choose')}</Link>
-                        <p className="slot__quiet">
-                          {!hadTrial(s, riderId) && (
-                            <button type="button" className="link link--quiet" disabled={busy !== null} onClick={(e) => onSingle(o, 'trial', e)}>
-                              {t('family.book.tryTrial', { price: fmtMoney(CLASS_PRICES.trial) })}
-                            </button>
-                          )}
-                          <button type="button" className="link link--quiet" disabled={busy !== null} onClick={(e) => onSingle(o, 'single', e)}>
-                            {t('family.book.paySingle', { price: fmtMoney(CLASS_PRICES.single) })}
-                          </button>
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="small">{t('family.book.choiceEmpty', { name: rider.name })}</p>
-                        <Link to={`${base}/familia/plan?cambiar=1`} className="btn btn--primary btn--block">{t('family.book.biggerPlan')}</Link>
-                        <p className="slot__quiet">
-                          <button type="button" className="link link--quiet" disabled={busy !== null} onClick={(e) => onSingle(o, 'extra', e)}>
-                            {t('family.book.bookExtra', { price: fmtMoney(CLASS_PRICES.extra) })}
-                          </button>
-                        </p>
-                      </>
-                    )}
-                  </div>
-                )}
-              </li>
-            )
-          })}
+          {occ.map(slotItem)}
         </ul>
       )}
+      </>}
       {plan && <p className="muted small center mt16">{t('plan.expires', { date: fmtDate(planExpiry(plan), { day: 'numeric', month: 'long' }) })} · {t('family.book.cancelRule')}</p>}
     </div>
   )

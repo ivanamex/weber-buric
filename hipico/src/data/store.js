@@ -53,6 +53,8 @@ export const deleteHealth = act('deleteHealth')
 export const sellHorse = act('sellHorse')
 export const uploadHorsePhoto = act('uploadHorsePhoto')
 export const removeHorsePhoto = act('removeHorsePhoto')
+export const addOwnHorsePhoto = act('addOwnHorsePhoto') // family: a photo of their own boarded horse
+export const setHorsePhotoHidden = act('setHorsePhotoHidden') // management: hide or show a family's photo
 export const horsePhotoUrl = (path) => backend().horsePhotoUrl(path) // synchronous: a public link
 export const saveEmployee = act('saveEmployee')
 export const paySalary = act('paySalary')

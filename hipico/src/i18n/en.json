@@ -524,7 +524,8 @@
     "trialUsed": "This rider has already had their trial class.",
     "duplicate": "There's already one with that name.",
     "closed": "The club is closed that day.",
-    "overlap": "Already has another class at that time."
+    "overlap": "Already has another class at that time.",
+    "tooManyPhotos": "There are already 12 photos. Ask the club to remove one."
   },
   "live": {
     "loading": "Loading…",
@@ -985,12 +986,23 @@
     "ownerOrPrice": "Owner / price",
     "pending": "Due (14 days)",
     "openFull": "Open the full profile",
-    "years_one": "1 year"
+    "years_one": "1 year",
+    "assigned": "Horse",
+    "fromFamily": "From the family",
+    "photoHidden": "Hidden",
+    "hidePhoto": "Hide",
+    "showPhoto": "Show",
+    "photoHiddenDone": "Photo hidden",
+    "photoShownDone": "Photo visible again"
   },
   "myHorse": {
     "title": "My horse",
     "next": "Coming up",
-    "readOnly": "The club keeps this up to date. If something changes, tell us on WhatsApp."
+    "readOnly": "The club keeps this up to date. If something changes, tell us on WhatsApp.",
+    "addPhoto": "Add photo",
+    "photoAdded": "Photo added",
+    "openPhoto": "Photo {n} of {name}",
+    "photosHint": "The club sees your photos and can hide them."
   },
   "horseProfile": {
     "basics": "Details",
@@ -1569,5 +1581,16 @@
     "class": "the payment for the {kind}{of}",
     "camp": "the camp deposit{of}",
     "other": "the payment for {what}{of}"
+  },
+  "calendar": {
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "classes": "{n} classes",
+    "classes_one": "1 class",
+    "mine": "{n} confirmed",
+    "mine_one": "1 confirmed",
+    "free": "{n} open",
+    "free_one": "1 open"
   }
 }

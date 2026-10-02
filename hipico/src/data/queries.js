@@ -264,6 +264,10 @@ export function paymentHistory(s, familyId) {
 
 // ── Owner's panel ──
 export const HORSE_STATUSES = ['school', 'boarded', 'for_sale', 'retired']
+/** A photo the owner family added (the club can hide it). */
+export const isFamilyPhoto = (h, p) => (h?.familyPhotos || []).includes(p) || String(p).includes('/family-')
+/** Photos everyone sees (the club can hide one a family added). The first is the main one. */
+export const visiblePhotos = (h) => (h?.photos || []).filter((p) => !(h.hiddenPhotos || []).includes(p))
 export const horseStatus = (h) => h.status || (h.type === 'boarded' ? 'boarded' : h.active === false ? 'retired' : 'school')
 export const EMPLOYEE_ROLES = ['instructor', 'groom', 'office', 'other']
 export const moduleOn = (s, key) => Boolean(s.settings?.[key])

@@ -17,6 +17,7 @@ import { ActivePlanCard } from './ActivePlan.jsx'
 import { UpcomingList, CancelClassButton } from './Upcoming.jsx'
 import { GreetingMark } from '../../components/GreetingMark.jsx'
 import { useDesktop } from '../../components/Desk.jsx'
+import { StatusPill, LevelPill, HorseTag } from '../../components/Colors.jsx'
 
 function greetingKey() {
   const h = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: TZ }).format(new Date()))
@@ -158,7 +159,7 @@ export default function FamilyHome() {
             <p className="card__title">{b.horse.name}</p>
             <p className="small muted">{t('boarding.monthOf', { month: fmtDate(`${b.month}-01`, { month: 'long' }) })} · {fmtMoney(b.payment?.amount ?? BOARDING_MONTHLY)}</p>
           </div>
-          <Badge tone={b.status === 'paid' ? 'success' : 'alert'}>{t(`boarding.status.${b.status}`)}</Badge>
+          <StatusPill status={b.status === 'paid' ? 'paid' : 'pending'}>{t(`boarding.status.${b.status}`)}</StatusPill>
         </div>
       )) : (
         <Empty icon="saddle" title={t('boarding.noneTitle')}>
@@ -205,17 +206,17 @@ function NextClassCard({ booking, s, rider }) {
   const horse = byId(s.horses, booking.horseId)
   const cancellable = canCancel(booking, slot)
   return (
-    <div className="card card--green nextclass">
+    <div className={`card card--green nextclass edge--${slot.level}`}>
       <Icon name="horseHead" size={84} className="nextclass__art" />
       <div className="row between">
-        <Badge tone="accent">{t(`levels.${slot.level}`)}</Badge>
+        <LevelPill level={slot.level} />
         <span className="small">{rider.name}</span>
       </div>
       <p className="nextclass__date">{fmtDate(booking.date)}</p>
       <p className="nextclass__time">{fmtTime(slot.time)} · {t(`disciplines.${slot.discipline}`)}</p>
       <ul className="nextclass__meta">
         <li><Icon name="user" size={16} /> {instructor.name}</li>
-        <li><Icon name="shoe" size={16} /> {horse?.name}</li>
+        {horse && <li className="nextclass__horse"><HorseTag horse={horse} /></li>}
         <li><Icon name="home" size={16} /> {t(`arenas.${slot.arena}`)}</li>
       </ul>
       {cancellable ? (
