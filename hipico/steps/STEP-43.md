@@ -6,7 +6,7 @@ Ivana: "Un club a caballo" means nothing in Spanish. Full review of the site's S
 | Key | Now | New |
 |---|---|---|
 | `hero.title` | Un club a caballo, en la selva de Paamul | **Club hípico en la selva de Paamul** |
-| `hero.sub` | Aprende a montar, disfruta y compite, a 20 minutos de Playa del Carmen. Desde los 2 años. | Clases de equitación desde los 2 años, pensión y salto, a 20 minutos de Playa del Carmen. |
+| `hero.sub` | Aprende a montar, disfruta y compite, a 20 minutos de Playa del Carmen. Desde los 2 años. | Clases de equitación desde los 2 años, pensión y salto, a 15 minutos de Playa del Carmen. |
 | `services.title` | Todo para vivir los caballos. | Lo que hacemos en el club. |
 | `services.boarding.text` | Tu caballo cuidado todos los días. | Tu caballo, cuidado todos los días. |
 | `services.early.text` | Los más pequeños descubren el caballo jugando. | Los más pequeños conocen a los caballos jugando. |

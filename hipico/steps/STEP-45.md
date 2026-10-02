@@ -9,4 +9,4 @@ Now: 3 columns where two start with a small icon and the third with a small roun
 - Phones: the 2 points, then the rosette photo full width, then its text.
 
 ## 2. Overall: back to "classic stacked sections with slightly different colors"
-Ivana (00:45): after five rounds the page has come back to a classic site where each section is a band in a slightly different color. **On hold until the morning:** we decide the direction before any more fixes (see the plan in chat, 2 Oct).
+Ivana (00:45): after five rounds the page has come back to a classic site where each section is a band in a slightly different color. **Keep the hero exactly as it is** (video, title, line, buttons; only the distance changes: **15 minutos** de Playa del Carmen, also in EN "15 minutes"). Everything below the hero reads like WordPress rows. **On hold until the morning:** we decide the direction before any more fixes (see the plan in chat, 2 Oct).
