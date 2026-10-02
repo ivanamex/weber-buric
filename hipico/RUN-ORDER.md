@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued: the next step comes from the list below.
+1. **STEP-44**: warmer site (sand base, apricot light, sentence-case titles) + a real gallery: masonry grid with filters, clips that play on hover, lightbox; new photos by file name prefix
 
 One at a time, check in the browser, then "ok".
 
