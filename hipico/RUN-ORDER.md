@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-Nothing queued: the next step comes from the list below.
+1. **STEP-43**: Spanish copy check: new hero "Club hípico en la selva de Paamul", 25 lines rewritten, horse colors fixed in alt text (bayo → castaño), Spanish rules applied to the whole app
 
 One at a time, check in the browser, then "ok".
 
