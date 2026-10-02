@@ -5,6 +5,7 @@
 ## The shape
 - The hero video keeps filling the screen **edge to edge on both sides** (no frame on the sides).
 - Only the **bottom** is cut as a **half curve down, like the toe of a horseshoe facing up**: the sides go straight down to about 70% of the hero height, then the edge curves down to its lowest point in the middle (in the drawing, viewBox 1440 × 980: `M0 0 H1440 V660 C1440 860 1110 960 720 960 S0 860 0 660 Z`).
+- **Perfectly symmetric:** the left and right sides start curving at exactly the same height, and the curve is a mirror image around the center (Ivana's sketch was rough; the drawing's path is the reference, not the sketch). Same for the band and the nail holes, which are placed symmetrically from the center out.
 - Implement with an SVG `<clipPath clipPathUnits="objectBoundingBox">` (or CSS `clip-path: path()` from a responsive SVG) on the hero media, so the curve scales with the screen.
 
 ## The horseshoe band
