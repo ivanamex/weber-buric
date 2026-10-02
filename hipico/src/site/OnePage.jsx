@@ -93,29 +93,68 @@ function heroCurve(w, h) {
   return { phone, y0, curve, clip: `M0 0 H${r(w)} V${r(y0)} ${curve.slice(curve.indexOf('C'))} Z` }
 }
 
-/** The iron band along the curve only, with nail holes placed symmetrically from the centre out. */
+/**
+ * The iron band along the curve only, drawn as a filled shape: thickest at the toe (bottom centre) and
+ * tapering toward the heels, a rounded heel cap at each screen edge, and rectangular nail slots that follow
+ * the curve, five a side, placed as mirror pairs (none at the toe centre or the heels). The curve is sampled,
+ * offset by the tapering half-width, and the slots take the tangent's angle, so it stays exact at any width.
+ */
+function bandShape(el, phone, w) {
+  const len = el.getTotalLength()
+  const N = 160
+  const hwEnd = phone ? 5 : 8 // half-width at the heels (band 10 / 16 px)
+  const hwToe = phone ? 11 : 17 // half-width at the toe (band 22 / 34 px)
+  const at = (l) => {
+    const p = el.getPointAtLength(Math.max(0, Math.min(len, l)))
+    const a = el.getPointAtLength(Math.max(0, l - 0.5))
+    const b = el.getPointAtLength(Math.min(len, l + 0.5))
+    const tl = Math.hypot(b.x - a.x, b.y - a.y) || 1
+    return { x: p.x, y: p.y, tx: (b.x - a.x) / tl, ty: (b.y - a.y) / tl }
+  }
+  const r = (n) => Math.round(n * 10) / 10
+  const outer = []
+  const inner = []
+  for (let i = 0; i <= N; i++) {
+    const q = at((len * i) / N)
+    const hw = hwEnd + (hwToe - hwEnd) * Math.sin((Math.PI * i) / N)
+    outer.push(`${r(q.x - q.ty * hw)} ${r(q.y + q.tx * hw)}`)
+    inner.push(`${r(q.x + q.ty * hw)} ${r(q.y - q.tx * hw)}`)
+  }
+  const d = `M${outer.join(' L')} L${inner.reverse().join(' L')}Z`
+  const slots = []
+  const per = 5
+  for (let k = 0; k < per; k++) {
+    const f = 0.13 + (k * (0.8 - 0.13)) / (per - 1) // share of the half-length, from the heel toward the toe
+    for (const l of [(len / 2) * f, len - (len / 2) * f]) {
+      const q = at(l)
+      slots.push({ x: r(q.x), y: r(q.y), deg: r((Math.atan2(q.ty, q.tx) * 180) / Math.PI) })
+    }
+  }
+  const end = at(0)
+  return { d, slots, capY: r(end.y), capX: hwEnd + 2, rx: hwEnd * 2, ry: r(hwEnd * 2.75), w }
+}
+
 function HeroBand({ size }) {
   const path = useRef(null)
-  const [holes, setHoles] = useState([])
+  const [shape, setShape] = useState(null)
   const { phone, curve } = heroCurve(size.w, size.h)
-  useEffect(() => {
-    const el = path.current
-    if (!el) return
-    const len = el.getTotalLength()
-    const gap = phone ? 64 : 110
-    const end = phone ? 36 : 60 // none at the very ends
-    const out = []
-    for (let d = 0; len / 2 + d <= len - end; d += gap) {
-      out.push(len / 2 + d)
-      if (d) out.push(len / 2 - d)
-    }
-    setHoles(out.map((l) => el.getPointAtLength(l)).map((pt) => [Math.round(pt.x * 10) / 10, Math.round(pt.y * 10) / 10]))
-  }, [curve, phone])
+  useEffect(() => { if (path.current) setShape(bandShape(path.current, phone, size.w)) }, [curve, phone, size.w])
+  const sw = phone ? 12 : 18
+  const sh = phone ? 5 : 7
   return (
     <svg className="shero__band" width={size.w} height={size.h} viewBox={`0 0 ${size.w} ${size.h}`} aria-hidden="true" focusable="false">
-      <path d={curve} fill="none" stroke="#3A3A2E" strokeWidth={phone ? 19 : 30} />
-      <path ref={path} d={curve} fill="none" stroke="#68604D" strokeWidth={phone ? 14 : 22} />
-      {holes.map(([x, y]) => <circle key={`${x}-${y}`} cx={x} cy={y} r={phone ? 2.5 : 3.5} fill="#F1EAD8" />)}
+      <path ref={path} d={curve} fill="none" stroke="none" />
+      {shape && (
+        <>
+          <path d={shape.d} fill="#68604D" stroke="#3A3A2E" strokeWidth="3" strokeLinejoin="round" />
+          <ellipse cx={shape.capX} cy={shape.capY} rx={shape.rx} ry={shape.ry} fill="#68604D" />
+          <ellipse cx={shape.w - shape.capX} cy={shape.capY} rx={shape.rx} ry={shape.ry} fill="#68604D" />
+          {shape.slots.map((s) => (
+            <rect key={`${s.x}-${s.y}`} x={s.x - sw / 2} y={s.y - sh / 2} width={sw} height={sh} rx="1.5" fill="#F1EAD8"
+              transform={`rotate(${s.deg} ${s.x} ${s.y})`} />
+          ))}
+        </>
+      )}
     </svg>
   )
 }
