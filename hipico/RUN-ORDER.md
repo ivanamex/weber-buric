@@ -5,7 +5,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 ## Now
 
 1. **STEP-46** (first): the hero ends in a horseshoe curve, video full width on the sides, an iron band with nail holes only along the bottom curve; nothing else changes
-2. Nothing queued: the next step comes from the list below.
+2. **STEP-45**: Ivana's notes of 2 Oct: Competencias row (2 points left, Campeón Estatal with a big rosette photo right), hero "15 minutos" de Playa del Carmen (ES + EN); the overall direction stays on hold
 
 One at a time, check in the browser, then "ok".
 
