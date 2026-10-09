@@ -15,7 +15,7 @@ import ShareApp from './ShareApp.jsx'
 import { DataTable, exportCsv, useDesktop, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
 import { Sheet } from '../../components/EditKit.jsx'
 import { dueOf } from '../../data/store.js'
-import { LevelPill, StatusPill, riderColor } from '../../components/Colors.jsx'
+import { LevelPill, StatusPill, riderColor, riderInk, riderFill } from '../../components/Colors.jsx'
 
 const NEW_RIDER = { name: '', level: 'beginner' }
 const newFamily = () => ({ contact: '', email: '', phone: '', name: '', plan: '8', start: todayKey(), riders: [{ ...NEW_RIDER }] })
@@ -246,7 +246,7 @@ function FamilyCard({ family }) {
               const plan = getPlan(s, r.id)
               return (
                 <li key={r.id} className="list__row">
-                  <span className="chip__avatar" style={{ background: riderColor(s, r.id), color: '#fff' }}>{r.name[0]}</span>
+                  <span className="chip__avatar" style={{ background: riderFill(riderColor(s, r.id)), color: riderInk(riderColor(s, r.id)) }}>{r.name[0]}</span>
                   <div className="grow">
                     <p className="list__title">{r.name} <LevelPill level={r.level} /></p>
                     <p className="small muted">

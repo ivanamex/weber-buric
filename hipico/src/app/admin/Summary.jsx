@@ -58,7 +58,7 @@ export default function AdminSummary() {
       <div className="sumgrid">
       <section className="sumblock sumblock--money">
       <SectionTitle icon="receipt">{t('summary.money')}</SectionTitle>
-      <div className="card">
+      <div className="card c-sage edge-c">
         <div className="money3">
           <div><span className="small muted">{t('summary.today')}</span><strong>{fmtMoney(money.today)}</strong></div>
           <div><span className="small muted">{t('summary.thisMonth')}</span><strong>{fmtMoney(money.month)}</strong></div>
@@ -76,7 +76,7 @@ export default function AdminSummary() {
       <section className="sumblock sumblock--today">
         <SectionTitle icon="helmet" action={<Link to={`${base}/direccion/hoy`} className="link">{t('summary.open')}</Link>}>{t('tabs.today')}</SectionTitle>
         {todayClasses.length === 0 ? <p className="muted small">{t('admin.today.emptyTitle')}</p> : (
-          <ul className="list card">
+          <ul className="list card c-slate edge-c">
             {todayClasses.map((o) => (
               <li key={o.slot.id} className="list__row">
                 <strong className="sumtime">{fmtTime(o.slot.time)}</strong>
@@ -92,7 +92,7 @@ export default function AdminSummary() {
       {owed.length === 0 ? (
         <p className="muted small">{t('summary.nobodyOwes')}</p>
       ) : (
-        <ul className="list card">
+        <ul className="list card c-terracotta edge-c">
           {owedShown.map(({ payment: p, days, family }) => {
             const rider = p.meta?.riderId ? byId(s.riders, p.meta.riderId)?.name : p.meta?.horseId ? byId(s.horses, p.meta.horseId)?.name : ''
             const text = t('summary.waReminder', { contact: family?.contact?.split(' ')[0] || '', what: paymentSentence(t, s, p), amount: fmtMoney(p.amount) })
@@ -121,7 +121,7 @@ export default function AdminSummary() {
       {renewing.length === 0 ? (
         <p className="muted small">{t('summary.noRenewals')}</p>
       ) : (
-        <ul className="list card">
+        <ul className="list card c-sage edge-c">
           {renewing.map(({ rider, family, renews }) => (
             <li key={rider.id} className="list__row">
               <span className="grow"><span className="list__title">{rider.name}</span> <span className="small muted">· {family?.name}</span></span>
@@ -134,7 +134,7 @@ export default function AdminSummary() {
       </section>
       <section className="sumblock">
       <SectionTitle icon="calendar">{t('summary.occupancy')}</SectionTitle>
-      <div className="card row gap">
+      <div className="card row gap c-slate edge-c">
         <div className="donut" style={{ '--p': occ.pct }}><span>{occ.pct}%</span></div>
         <div className="grow">
           <p className="card__title">{t('admin.reports.seats', { taken: occ.taken, seats: occ.seats })}</p>
@@ -146,7 +146,7 @@ export default function AdminSummary() {
       {horseDue.length > 0 && (
         <section className="sumblock">
           <SectionTitle icon="horseHead">{t('summary.horsesDue')}</SectionTitle>
-          <ul className="list card">
+          <ul className="list card c-plum edge-c">
             {horseDue.map((x) => (
               <li key={`${x.horse.id}-${x.kind}`} className="list__row">
                 <Link to={`${base}/direccion/caballos/${x.horse.id}`} state={{ from: { to: `${base}/direccion`, label: t('tabs.summary') } }} className="grow"><span className="list__title">{x.horse.name}</span> <span className="small muted">· {t(`horseProfile.kinds.${x.kind}`)}</span></Link>
@@ -160,7 +160,7 @@ export default function AdminSummary() {
       {salaries.length > 0 && (
         <section className="sumblock">
           <SectionTitle icon="users" action={<Link to={`${base}/direccion/nomina`} className="link">{t('summary.open')}</Link>}>{t('summary.salaries')}</SectionTitle>
-          <ul className="list card">
+          <ul className="list card c-mustard edge-c">
             {salaries.map((e) => (
               <li key={e.id} className="list__row">
                 <span className="grow"><span className="list__title">{e.name}</span> <span className="small muted">· {short(e.nextPayDate)}</span></span>
@@ -174,12 +174,20 @@ export default function AdminSummary() {
       </div>
 
       <SectionTitle>{t('summary.more')}</SectionTitle>
-      <div className="tiles">
-        <Link to={`${base}/direccion/reportes`} className="tilelink"><Icon name="chart" /> {t('tabs.reports')}</Link>
-        {moduleOn(s, 'moduleProfit') && <Link to={`${base}/direccion/rentabilidad`} className="tilelink"><Icon name="trophy" /> {t('profit.title')}</Link>}
-        {moduleOn(s, 'modulePayroll') && <Link to={`${base}/direccion/nomina`} className="tilelink"><Icon name="users" /> {t('payroll.title')}</Link>}
-        <Link to={`${base}/direccion/ajustes`} className="tilelink"><Icon name="plan" /> {t('modules.title')}</Link>
-      </div>
+      <nav className="ctiles ctiles--4" aria-label={t('summary.more')}>
+        {[
+          { to: 'reportes', color: 'slate', icon: 'chart', title: t('tabs.reports'), text: t('summary.tiles.reports') },
+          moduleOn(s, 'moduleProfit') && { to: 'rentabilidad', color: 'mustard', icon: 'trophy', title: t('profit.title'), text: t('summary.tiles.profit') },
+          moduleOn(s, 'modulePayroll') && { to: 'nomina', color: 'plum', icon: 'users', title: t('payroll.title'), text: t('summary.tiles.payroll') },
+          { to: 'ajustes', color: 'sage', icon: 'plan', title: t('modules.title'), text: t('summary.tiles.settings') },
+        ].filter(Boolean).map((x) => (
+          <Link key={x.to} to={`${base}/direccion/${x.to}`} className={`ctile c-${x.color}`}>
+            <span className="ctile__icon"><Icon name={x.icon} size={22} /></span>
+            <span className="ctile__title">{x.title}</span>
+            <span className="ctile__text">{x.text}</span>
+          </Link>
+        ))}
+      </nav>
     </div>
   )
 }

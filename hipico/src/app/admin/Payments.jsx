@@ -12,6 +12,7 @@ import { SaveBar } from '../../components/EditKit.jsx'
 import { concept } from '../../components/PaymentHistory.jsx'
 import { Receivables, ReceivablesDesk, Cashflow, SERVICE_ICON } from './Receivables.jsx'
 import { useDesktop } from '../../components/Desk.jsx'
+import { StatusPill } from '../../components/Colors.jsx'
 
 
 export default function AdminPayments() {
@@ -42,8 +43,8 @@ export default function AdminPayments() {
 
       {toReview.length > 0 && (
         <section className="reviewblock" aria-label={t('admin.payments.reviewTitle')}>
-          <SectionTitle icon="receipt">{t('admin.payments.reviewTitle')} <Badge tone="alert">{toReview.length}</Badge></SectionTitle>
-          <ul className="card list">
+          <SectionTitle icon="receipt">{t('admin.payments.reviewTitle')} <StatusPill status="review">{toReview.length}</StatusPill></SectionTitle>
+          <ul className="card list c-mustard edge-c">
             {toReview.map((p) => (
               <li key={p.id} className="list__row">
                 <Icon name={SERVICE_ICON[p.service] || 'receipt'} size={18} />

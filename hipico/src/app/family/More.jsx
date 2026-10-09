@@ -73,7 +73,7 @@ export function EventsSection() {
     <>
       <SectionTitle icon="balloons">{t('more.events')}</SectionTitle>
       {camp && (
-        <div className="card card--camp">
+        <div className="card card--camp c-plum edge-c">
           <div className="row gap">
             <span className="tile-icon tile-icon--accent"><Icon name="balloons" /></span>
             <div className="grow">
@@ -110,7 +110,7 @@ export function EventsSection() {
 
       <div className="quotes">
         {QUOTES.map((q) => (
-          <div key={q.key} className="card quote">
+          <div key={q.key} className="card quote c-plum edge-c">
             <span className="tile-icon"><Icon name={q.icon} /></span>
             <div className="grow">
               <p className="card__title">{t(`more.quotes.${q.key}.title`)}</p>

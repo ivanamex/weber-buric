@@ -149,7 +149,7 @@ function Hero() {
           <p className="shero__sub">{t('site.hero.sub')}</p>
           <div className="shero__ctas">
             <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.trial'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</span></a>
-            <a className="sbtn sbtn--light sbtn--lg" href={`#${sectionId('services', lang)}`}>{t('site.hero.prices')}</a>
+            <a className="sbtn sbtn--sage sbtn--lg" href={`#${sectionId('services', lang)}`}>{t('site.hero.prices')}</a>
           </div>
         </div>
         <div className="shero__chips" role="group" aria-label={t('site.hero.scenesLabel')}>
@@ -164,11 +164,12 @@ function Hero() {
   )
 }
 
+// White cards with a colored top edge and a tinted icon tile; hover fills them with their color glass.
 const BOXES = [
-  { key: 'camps', color: 'sage', icon: 'tent' },
-  { key: 'pony', color: 'light', icon: 'pony' },
-  { key: 'parties', color: 'sand', icon: 'balloons' },
-  { key: 'coaching', color: 'olive', icon: 'heartHand' },
+  { key: 'camps', color: 'mustard', icon: 'tent' },
+  { key: 'pony', color: 'terracotta', icon: 'pony' },
+  { key: 'parties', color: 'plum', icon: 'balloons' },
+  { key: 'coaching', color: 'slate', icon: 'heartHand' },
 ]
 
 /** Qué hacemos: four photo cards (each opens its lightbox) and four colourful boxes (each opens WhatsApp). */
@@ -210,8 +211,8 @@ function Services({ onOpen }) {
       </div>
       <div className="sboxes">
         {BOXES.map((b) => (
-          <a key={b.key} className={`sbox sbox--${b.color}`} {...wa(box[b.key].wa)} data-reveal="">
-            <SiteIcon name={b.icon} size={32} className="sbox__icon" />
+          <a key={b.key} className={`sbox c-${b.color}`} {...wa(box[b.key].wa)} data-reveal="">
+            <span className="sbox__tile"><SiteIcon name={b.icon} size={28} className="sbox__icon" /></span>
             <h3>{box[b.key].title}</h3>
             <p>{t(`site.boxes.${b.key}.text`)}</p>
             <small>{box[b.key].go} <span className="sbox__arrow" aria-hidden="true">→</span></small>
@@ -234,7 +235,7 @@ function Competitions({ onOpen }) {
           <p className="slead">{t('site.competitions.lead')}</p>
           <div className="sctas">
             <a className="sbtn sbtn--deep" {...wa(t('site.wa.competitions'))}><span className="sbtn__in">{t('site.competitions.cta')}</span></a>
-            <button type="button" className="sbtn sbtn--line" aria-haspopup="dialog"
+            <button type="button" className="sbtn sbtn--sage" aria-haspopup="dialog"
               onClick={() => onOpen({ key: 'competitions', photo: ph, alt: t(`site.alt.${ph.alt}`), position: ph.position })}>{t('site.competitions.more')}</button>
           </div>
         </div>

@@ -167,7 +167,8 @@
       "upcoming": "Upcoming classes",
       "cancelAsk": "Cancel this class?",
       "cancelYes": "Yes, cancel",
-      "cancelNo": "No"
+      "cancelNo": "No",
+      "seeDetail": "See details"
     },
     "book": {
       "title": "Classes",
@@ -864,7 +865,13 @@
     "more": "More",
     "horsesDue": "Horses: coming up",
     "ridersN": "{n}/{cap} riders",
-    "daysLate_one": "1 day late"
+    "daysLate_one": "1 day late",
+    "tiles": {
+      "reports": "Income, occupancy and Excel",
+      "profit": "Income minus salaries and costs",
+      "payroll": "Salaries and payments",
+      "settings": "Closed days, reminders and modules"
+    }
   },
   "payroll": {
     "title": "Payroll",
@@ -1592,5 +1599,20 @@
     "mine_one": "1 confirmed",
     "free": "{n} open",
     "free_one": "1 open"
+  },
+  "homeTiles": {
+    "label": "Quick links",
+    "classes": "Confirm your classes",
+    "plan": "{n} classes · renews {date}",
+    "noPlan": "Choose your plan",
+    "horse": "Feed, health and photos",
+    "payments": "Payments",
+    "paymentsDue": "{n} payments due",
+    "paymentsDue_one": "1 payment due",
+    "paymentsOk": "All up to date",
+    "events": "Events",
+    "eventsText": "Camps, Pony Friday and parties",
+    "profile": "Profile",
+    "profileText": "Riders and details"
   }
 }

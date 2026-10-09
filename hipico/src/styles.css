@@ -1238,7 +1238,7 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .horsetag { display: inline-flex; align-items: center; gap: 10px; }
 .horsetag > span { display: grid; line-height: 1.2; }
 .horsetag__label { font-size: .72rem; color: var(--muted); }
-.nextclass .horsetag__label { color: rgba(255,255,255,.75); }
+
 /* Inicio and Resumen: a club photo fades into the green on the right */
 .homehead::before { content: ''; position: absolute; inset: 0 0 0 auto; width: min(58%, 440px); z-index: -2; pointer-events: none;
   background: url('/img/club/horse-blaze-800.webp') 70% 35% / cover no-repeat;
@@ -1315,3 +1315,155 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .photos__item.is-hidden img { opacity: .35; filter: grayscale(1); }
 .photos__tag { position: absolute; left: 6px; bottom: 6px; padding: 2px 8px; border-radius: 999px; background: rgba(51,53,42,.85); color: #fff; font-size: .68rem; font-weight: 600; }
 .photos__hide { position: absolute; left: 6px; top: 6px; padding: 3px 9px; border: 0; border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: .72rem; font-weight: 700; box-shadow: var(--shadow); cursor: pointer; }
+
+/* ───────── Warm color with one job each, and colored glass (shared by the app and the site) ───────── */
+:root {
+  --mustard: #D9A441; --slate: #5F7A8C; --terracotta: #B5704F; --plum: #7D5A6B; --sage: #8A8E75;
+  /* light tints for icon tiles */
+  --mustard-t: #F6E3B4; --slate-t: #D3DDE4; --terracotta-t: #EFD2C2; --plum-t: #E6D5DC; --sage-t: #DDE1CF;
+  /* the glass fill under white text: a deeper shade of the same color so it reads (AA) */
+  --slate-g: #4A6577; --terracotta-g: #93553A; --plum-g: #6E4D5D; --sage-g: #5F634E;
+  /* icons on the light tints */
+  --mustard-i: #8A6417; --slate-i: #4A6577; --terracotta-i: #93553A; --plum-i: #6E4D5D; --sage-i: #5F634E;
+}
+/* A color for a card, tile or button: --c the color, --ct its tint, --cg the glass fill, --cx text on the glass, --ci the icon on the tint */
+.c-mustard { --c: var(--mustard); --ct: var(--mustard-t); --cg: var(--mustard); --cx: var(--ink); --ci: var(--mustard-i); }
+.c-slate { --c: var(--slate); --ct: var(--slate-t); --cg: var(--slate-g); --cx: #fff; --ci: var(--slate-i); }
+.c-terracotta { --c: var(--terracotta); --ct: var(--terracotta-t); --cg: var(--terracotta-g); --cx: #fff; --ci: var(--terracotta-i); }
+.c-plum { --c: var(--plum); --ct: var(--plum-t); --cg: var(--plum-g); --cx: #fff; --ci: var(--plum-i); }
+.c-sage { --c: var(--sage); --ct: var(--sage-t); --cg: var(--sage-g); --cx: #fff; --ci: var(--sage-i); }
+
+/* The glass: color with a lighter top, blur + saturation of what's behind, a white edge and highlight, a shadow in the same color. */
+.btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours { --cg: var(--mustard); --cx: var(--ink); --gtop: 70%; }
+.btn--slate { --cg: var(--slate-g); --cx: #fff; --gtop: 90%; }
+.btn--sage { --cg: var(--sage-g); --cx: #fff; --gtop: 90%; }
+:is(.btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours, .btn--slate, .btn--sage) {
+  position: relative; isolation: isolate; overflow: hidden;
+  background-color: var(--cg);
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--cg) var(--gtop), white) 0%, color-mix(in srgb, var(--cg) var(--gop, 88%), transparent) 100%);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid rgba(255,255,255,.55); color: var(--cx); font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 0 -8px 16px rgba(255,255,255,.08), 0 10px 24px -10px color-mix(in srgb, var(--cg) 60%, transparent);
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+}
+:is(.btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours, .btn--slate, .btn--sage) { background-color: transparent; }
+/* the sheen that sweeps across on hover */
+:is(.btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours, .btn--slate, .btn--sage)::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.45) 50%, transparent 75%) no-repeat;
+  background-size: 60% 100%; background-position: -120% 0; transition: background-position .7s ease;
+}
+@media (hover: hover) {
+  :is(.btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours, .btn--slate, .btn--sage):hover:not(:disabled) {
+    filter: none; transform: translateY(-1px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.8), inset 0 -8px 16px rgba(255,255,255,.1), 0 14px 28px -10px color-mix(in srgb, var(--cg) 70%, transparent);
+  }
+  :is(.btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours, .btn--slate, .btn--sage):hover:not(:disabled)::after { background-position: 220% 0; }
+}
+:is(.btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours, .btn--slate, .btn--sage):active:not(:disabled) {
+  transform: translateY(1px); filter: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 6px 14px -8px color-mix(in srgb, var(--cg) 60%, transparent);
+}
+/* On the green headers the glass lets the green show through (mustard stays dense enough for its dark text). */
+:is(.hero, .lheader, .closing, .pband, .lfooter, .card--green, .appbar, .homehead) :is(.btn--primary, .btn--accent, .dlbtn.is-yours) {
+  --gop: 84%; color: var(--ink); border-color: rgba(255,255,255,.55);
+  background-color: transparent; background-image: linear-gradient(180deg, color-mix(in srgb, var(--mustard) 78%, white) 0%, color-mix(in srgb, var(--mustard) 84%, transparent) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 0 -8px 16px rgba(255,255,255,.08), 0 10px 24px -10px rgba(0,0,0,.35);
+}
+:is(.hero, .lheader, .closing, .pband, .lfooter, .card--green, .appbar, .homehead) :is(.btn--primary, .btn--accent, .dlbtn.is-yours):is(:hover, :active) { background-color: transparent; }
+/* Clear glass (Cambiar plan, second choices on green) */
+.homehead .activeplan__change, .btn--ghost-light {
+  background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.5); color: #fff;
+  -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+}
+/* Without backdrop-filter: the same gradient at full opacity. */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  :is(.btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours, .btn--slate, .btn--sage) {
+    background-image: linear-gradient(180deg, color-mix(in srgb, var(--cg) var(--gtop), white) 0%, var(--cg) 100%);
+  }
+  .homehead .activeplan__change, .btn--ghost-light { background: rgba(255,255,255,.22); }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours, .btn--slate, .btn--sage)::after { display: none; }
+  :is(.btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours, .btn--slate, .btn--sage):hover { transform: none; }
+}
+
+/* Cards with a meaning: a 5 px edge in their color */
+.card.edge-c { box-shadow: inset 5px 0 0 var(--c), var(--shadow); }
+/* Tiles: white, a colored top edge and a tinted icon tile; hover/tap fills them with their color glass, text and icon turn light. */
+.ctiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (min-width: 720px) { .ctiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.ctile { position: relative; isolation: isolate; overflow: hidden; display: grid; align-content: start; gap: 4px; min-height: 132px; padding: 16px 16px 18px;
+  border-radius: 18px; background: var(--card); border: 1px solid var(--border); border-top: 0; color: var(--ink); text-decoration: none;
+  box-shadow: inset 0 4px 0 var(--c), 0 1px 2px rgba(36,33,28,.04), 0 8px 22px -14px rgba(36,33,28,.25);
+  transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s, color .2s; }
+.ctile::before { content: ''; position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity .25s;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--cg) var(--gtop, 90%), white) 0%, color-mix(in srgb, var(--cg) 94%, transparent) 100%); }
+.c-mustard.ctile::before { --gtop: 72%; }
+.ctile__icon { display: inline-grid; place-items: center; width: 42px; height: 42px; margin-bottom: 10px; border-radius: 12px; background: var(--ct); color: var(--ci); transition: background .25s, color .25s; }
+.ctile__title { font-family: var(--font-head); font-stretch: var(--head-stretch); font-weight: 800; font-size: 1.15rem; line-height: 1.1; }
+.ctile__text { font-size: .84rem; color: var(--muted); line-height: 1.35; transition: color .2s; }
+@media (hover: hover) {
+  .ctile:hover { transform: translateY(-4px); color: var(--cx); box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 18px 34px -16px color-mix(in srgb, var(--c) 70%, transparent); }
+  .ctile:hover::before { opacity: 1; }
+  .ctile:hover .ctile__text { color: var(--cx); }
+  .ctile:hover .ctile__icon { background: rgba(255,255,255,.22); color: var(--cx); }
+}
+.ctile:active { transform: scale(.98); color: var(--cx); }
+.ctile:active::before { opacity: 1; }
+.ctile:active .ctile__text { color: var(--cx); }
+.ctile:active .ctile__icon { background: rgba(255,255,255,.22); color: var(--cx); }
+.ctile:focus-visible { outline: 3px solid var(--c); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .ctile, .ctile:hover, .ctile:active { transform: none; } }
+
+/* Sidebars: the active item on a mustard tint */
+@media (min-width: 1024px) {
+  .desk__link.is-active, .fdesk__link.is-active { background: var(--mustard-t); color: var(--ink); box-shadow: inset 3px 0 0 var(--mustard); }
+  .desk__link.is-active .desk__icon { color: var(--mustard-i); }
+}
+/* Inicio and Resumen header: a soft slate-blue light in the top-right corner (sky through the trees); no photo. */
+.homehead::before { content: none; }
+.homehead {
+  background:
+    radial-gradient(55% 75% at 100% 0%, rgba(95,122,140,.62) 0%, rgba(95,122,140,0) 72%),
+    radial-gradient(40% 60% at 0% 100%, rgba(190,197,164,.22) 0%, rgba(190,197,164,0) 70%),
+    linear-gradient(140deg, #33352A 0%, #4E5743 55%, #6E7563 100%);
+}
+.homehead .shoe.is-used { color: var(--mustard); }
+@supports not (color: color-mix(in srgb, red, blue)) {
+  :is(.btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours, .btn--slate, .btn--sage) { background-color: var(--cg); background-image: none; }
+  :is(.hero, .lheader, .closing, .pband, .lfooter, .card--green, .appbar, .homehead) :is(.btn--primary, .btn--accent, .dlbtn.is-yours) { background-color: var(--mustard); background-image: none; }
+  .ctile::before { background: var(--cg); }
+}
+/* Status pills: Pagado sage (green text), Por revisar mustard, Pendiente terracotta, Vencido red */
+.stpill--paid { --sc: #4E7A5A; background: var(--sage-t); color: #3B5E45; }
+.stpill--review { --sc: var(--mustard); background: var(--mustard-t); color: #6B4E10; }
+.stpill--pending { --sc: var(--terracotta); background: var(--terracotta-t); color: #7E4529; }
+/* Inicio: Próxima clase (slate) and Pagos por vencer (terracotta) side by side on a computer */
+.homepair { display: grid; gap: 12px; }
+@media (min-width: 1024px) { .homepair { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; } .homepair > * { margin: 0; } }
+.nextclass { display: grid; gap: 8px; }
+.nextclass .card__label { display: inline-flex; align-items: center; gap: 6px; }
+.nextclass__when { font-family: var(--font-head); font-stretch: var(--head-stretch); font-weight: 800; font-size: 1.45rem; line-height: 1.1; color: var(--ink); }
+.nextclass__when::first-letter { text-transform: uppercase; }
+.nextclass__actions { margin-top: 4px; }
+.duecard, .duecard--now { background: var(--card); border-color: var(--border); }
+.hometiles { margin: 4px 0; }
+@media (min-width: 1024px) { .ctiles--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.list.card.edge-c, .card.row.edge-c { padding-left: 18px; }
+/* /descargar features: white cards with a colored top edge and a tinted icon tile; hover fills them with their color glass */
+.feature { position: relative; isolation: isolate; overflow: hidden; border-top: 0;
+  box-shadow: inset 0 4px 0 var(--c), 0 1px 2px rgba(36,33,28,.04), 0 10px 26px -16px rgba(36,33,28,.3); transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s, color .2s; }
+.feature::before { content: ''; position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity .25s;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--cg) var(--gtop, 90%), white) 0%, color-mix(in srgb, var(--cg) 94%, transparent) 100%); }
+.feature.c-mustard::before { --gtop: 72%; }
+.feature .feature__icon, .feature:nth-child(3n+2) .feature__icon { background: var(--ct); color: var(--ci); transition: background .25s, color .25s; }
+.feature h3, .feature p { transition: color .2s; }
+@media (hover: hover) {
+  .feature:hover { transform: translateY(-4px); box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 22px 40px -18px color-mix(in srgb, var(--c) 75%, transparent); }
+  .feature:hover::before { opacity: 1; }
+  .feature:hover h3, .feature:hover p { color: var(--cx); }
+  .feature:hover .feature__icon { background: rgba(255,255,255,.22); color: var(--cx); }
+}
+@media (prefers-reduced-motion: reduce) { .feature:hover { transform: none; } }

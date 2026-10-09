@@ -167,7 +167,8 @@
       "upcoming": "Próximas clases",
       "cancelAsk": "¿Cancelar esta clase?",
       "cancelYes": "Sí, cancelar",
-      "cancelNo": "No"
+      "cancelNo": "No",
+      "seeDetail": "Ver detalle"
     },
     "book": {
       "title": "Clases",
@@ -864,7 +865,13 @@
     "more": "Más",
     "horsesDue": "Caballos: próximos pendientes",
     "ridersN": "{n}/{cap} jinetes",
-    "daysLate_one": "1 día de atraso"
+    "daysLate_one": "1 día de atraso",
+    "tiles": {
+      "reports": "Ingresos, ocupación y Excel",
+      "profit": "Ingresos menos sueldos y gastos",
+      "payroll": "Sueldos y pagos",
+      "settings": "Días cerrados, recordatorios y módulos"
+    }
   },
   "payroll": {
     "title": "Nómina",
@@ -1592,5 +1599,20 @@
     "mine_one": "1 confirmada",
     "free": "{n} libres",
     "free_one": "1 libre"
+  },
+  "homeTiles": {
+    "label": "Accesos rápidos",
+    "classes": "Confirma tus clases",
+    "plan": "{n} clases · se renueva el {date}",
+    "noPlan": "Elige tu plan",
+    "horse": "Ración, salud y fotos",
+    "payments": "Pagos",
+    "paymentsDue": "{n} pagos por vencer",
+    "paymentsDue_one": "1 pago por vencer",
+    "paymentsOk": "Todo al corriente",
+    "events": "Eventos",
+    "eventsText": "Campamentos, Pony Friday y fiestas",
+    "profile": "Perfil",
+    "profileText": "Jinetes y datos"
   }
 }

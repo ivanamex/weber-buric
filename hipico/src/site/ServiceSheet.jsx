@@ -57,7 +57,7 @@ export function ServiceSheet({ service, onClose }) {
         </ul>
         <div className="ssheet2__ctas">
           <a className="sbtn sbtn--deep" {...wa(t('site.wa.trial'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</span></a>
-          <a className="sbtn sbtn--line" {...wa(t('site.wa.classes'))}>{t('site.sheet.write')}</a>
+          <a className="sbtn sbtn--sage" {...wa(t('site.wa.classes'))}>{t('site.sheet.write')}</a>
         </div>
       </>
     )

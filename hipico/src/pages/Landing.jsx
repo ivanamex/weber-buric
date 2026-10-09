@@ -15,13 +15,14 @@ const STEPS = [
   { key: 'plan', icon: 'horseshoe' },
   { key: 'pay', icon: 'phone' },
 ]
+// Each feature with its color: a top edge and an icon tile; hover fills the card with its color glass.
 const FEATURES = [
-  { key: 'bookings', icon: 'calendar' },
-  { key: 'plans', icon: 'horseshoe' },
-  { key: 'boarding', icon: 'barn' },
-  { key: 'rental', icon: 'horseHead' },
-  { key: 'events', icon: 'balloons' },
-  { key: 'admin', icon: 'chart' },
+  { key: 'bookings', icon: 'calendar', color: 'mustard' },
+  { key: 'plans', icon: 'horseshoe', color: 'terracotta' },
+  { key: 'boarding', icon: 'barn', color: 'sage' },
+  { key: 'rental', icon: 'horseHead', color: 'slate' },
+  { key: 'events', icon: 'balloons', color: 'mustard' },
+  { key: 'admin', icon: 'chart', color: 'plum' },
 ]
 
 /** On a computer, a small QR next to the download buttons (hidden on phones: they're already on one). */
@@ -144,7 +145,7 @@ export default function Landing() {
           <h2 className="lsection__title">{t('landing.features.title')}</h2>
           <div className="features">
             {FEATURES.map((f) => (
-              <article key={f.key} className="feature">
+              <article key={f.key} className={`feature c-${f.color}`}>
                 <span className="feature__icon"><Icon name={f.icon} size={28} /></span>
                 <h3>{t(`landing.features.${f.key}.title`)}</h3>
                 <p>{t(`landing.features.${f.key}.text`)}</p>

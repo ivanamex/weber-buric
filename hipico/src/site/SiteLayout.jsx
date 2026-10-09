@@ -31,11 +31,11 @@ function hasApp() {
   return false
 }
 
-export function AppButton({ className = '', children }) {
+export function AppButton({ className = '', children, tone = 'deep' }) {
   const { t } = useI18n()
   const [to, setTo] = useState('/descargar')
   useEffect(() => { setTo(hasApp() ? '/app' : '/descargar') }, [])
-  return <Link to={to} className={`sbtn sbtn--deep ${className}`}><span className="sbtn__in">{children || t('site.appButton')}</span></Link>
+  return <Link to={to} className={`sbtn sbtn--${tone} ${className}`}><span className="sbtn__in">{children || t('site.appButton')}</span></Link>
 }
 
 /* ───────── <head>: title, description, languages, share image, structured data ───────── */
@@ -185,7 +185,7 @@ function SiteBar({ scroll, progress }) {
           <div className="sbar__end">
             <span className="sbar__lang"><LangSwitch active={scroll.active} /></span>
             <Link to="/app" className="sbar__login">{t('landing.signIn')}</Link>
-            <AppButton className="sbtn--sm" />
+            <AppButton className="sbtn--sm" tone="sage" />
             <button type="button" className="sbar__menu" aria-expanded={open} aria-controls="ssheet" onClick={() => setOpen(true)} aria-label={t('site.menuOpen')}>
               <SiteIcon name="menu" size={24} />
             </button>

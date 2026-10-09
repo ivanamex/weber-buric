@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
   useStore, byId, occurrencesFor, bookClass, bookSingleClass, getPlan, planRemaining, planExpiry, hadTrial, slotsOn, isClosed, closedDateOn,
@@ -28,11 +28,17 @@ export default function FamilyBook() {
   const base = useBase()
   const rider = byId(s.riders, riderId)
   const today = todayKey()
-  const [week, setWeek] = useState(0)
-  const [date, setDate] = useState(today)
+  // "Ver detalle" from Inicio opens the day of that class (?fecha=YYYY-MM-DD).
+  const [params] = useSearchParams()
+  const asked = /^\d{4}-\d{2}-\d{2}$/.test(params.get('fecha') || '') && params.get('fecha') >= today ? params.get('fecha') : null
+  const [week, setWeek] = useState(asked ? Math.floor(daysBetween(today, asked) / DAYS) : 0)
+  const [date, setDate] = useState(asked || today)
   const [busy, setBusy] = useState(null)
   const [choice, setChoice] = useState(null) // { slotId, reason: 'noPlan' | 'planEmpty' }
-  const [view, setView] = useCalView('family')
+  const [savedView, setView] = useCalView('family')
+  const [fromLink, setFromLink] = useState(Boolean(asked))
+  const view = fromLink ? 'day' : savedView // a class opened from Inicio shows its day
+  const chooseView = (v) => { setFromLink(false); setView(v) }
   const [calMonth, setCalMonth] = useState(monthKeyOf(today))
   const [sheet, setSheet] = useState(null) // slot id opened from Semana
   const color = riderColor(s, riderId)
@@ -211,7 +217,7 @@ export default function FamilyBook() {
         )}
       </div>
 
-      <ViewToggle value={view} onChange={setView} />
+      <ViewToggle value={view} onChange={chooseView} />
 
       {view === 'month' && <MonthGrid month={calMonth} onMonth={setCalMonth} info={monthInfo} onPick={openDay} selected={date} />}
       {view === 'week' && (

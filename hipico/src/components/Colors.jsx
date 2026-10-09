@@ -10,8 +10,13 @@ export function LevelPill({ level }) {
   return <span className={`lvl lvl--${level}`}>{t(`levels.${level}`)}</span>
 }
 
-// Five earthy tones: sage, terracotta, ochre, slate blue, plum.
-export const RIDER_COLORS = ['#8A8E75', '#B5704F', '#C9A13B', '#5F7A8C', '#7D5A6B']
+// Five warm tones, in this order: mustard, slate blue, terracotta, plum, sage.
+export const RIDER_COLORS = ['#D9A441', '#5F7A8C', '#B5704F', '#7D5A6B', '#8A8E75']
+/** Text on a rider's color: dark on mustard, white on the others (AA). */
+export const riderInk = (color) => (color === '#D9A441' ? '#33352A' : '#fff')
+// Behind a white initial the color goes a shade deeper so the letter reads (AA); dots and edges keep the color itself.
+const DEEP = { '#5F7A8C': '#4A6577', '#B5704F': '#93553A', '#7D5A6B': '#6E4D5D', '#8A8E75': '#5F634E' }
+export const riderFill = (color) => DEEP[color] || color
 /** Each rider keeps a color by their place in the family (the first rider sage, the second terracotta…). */
 export function riderColor(s, riderId) {
   const rider = s.riders.find((r) => r.id === riderId)

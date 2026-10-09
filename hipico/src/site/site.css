@@ -443,3 +443,56 @@
   .sbox:hover .sbox__icon, .sbox:hover .sbox__arrow { animation: none; transform: none; }
 }
 @media (max-width: 599px) { .scard__plus { width: 30px; height: 30px; right: 8px; top: 8px; font-size: 18px; } }
+
+/* ───────── Warm color + colored glass: main = mustard glass (dark text), secondary = sage glass (white text), outline for the rest ───────── */
+.sbtn--deep { --cg: var(--mustard); --gtop: 70%; --gop: 88%; color: var(--ink); }
+.sbtn--sage { --cg: var(--sage-g); --gtop: 90%; --gop: 88%; color: #fff; position: relative; isolation: isolate; overflow: hidden; }
+.sbtn--deep, .sbtn--sage {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--cg) var(--gtop), white) 0%, color-mix(in srgb, var(--cg) var(--gop), transparent) 100%);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid rgba(255,255,255,.55);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 0 -8px 16px rgba(255,255,255,.08), 0 10px 24px -10px color-mix(in srgb, var(--cg) 60%, transparent);
+}
+.sbtn--deep::before, .sbtn--sage::before { content: none; }
+.sbtn--sage::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.45) 50%, transparent 75%) no-repeat;
+  background-size: 60% 100%; background-position: -120% 0; transition: background-position .7s ease; }
+@media (hover: hover) {
+  .sbtn--deep:hover, .sbtn--sage:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.8), inset 0 -8px 16px rgba(255,255,255,.1), 0 16px 30px -10px color-mix(in srgb, var(--cg) 70%, transparent); }
+  .sbtn--sage:hover::after { background-position: 220% 0; }
+}
+.sbtn--deep:active, .sbtn--sage:active { transform: translateY(1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 6px 14px -8px color-mix(in srgb, var(--cg) 60%, transparent); }
+.sbtn--sage:focus-visible { outline: 3px solid var(--deep); outline-offset: 2px; }
+/* On the video hero and the dark bar: more translucent (mustard stays dense enough for its dark text). */
+:is(.shero, .sbar.is-dark) .sbtn--deep { color: var(--ink); --gtop: 78%; --gop: 84%; border-color: rgba(255,255,255,.55); box-shadow: inset 0 1px 0 rgba(255,255,255,.75), 0 10px 24px -10px rgba(0,0,0,.4);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--mustard) 78%, white) 0%, color-mix(in srgb, var(--mustard) 84%, transparent) 100%); }
+:is(.shero, .sbar.is-dark) .sbtn--sage { --gop: 55%; --gtop: 60%; color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 8px 24px rgba(0,0,0,.18); }
+:is(.shero, .sbar.is-dark) .sbtn--sage:focus-visible { outline-color: #fff; }
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .sbtn--deep, .sbtn--sage { background: linear-gradient(180deg, color-mix(in srgb, var(--cg) var(--gtop), white) 0%, var(--cg) 100%); }
+  :is(.shero, .sbar.is-dark) .sbtn--sage { background: color-mix(in srgb, var(--sage-g) 80%, transparent); }
+}
+@supports not (color: color-mix(in srgb, red, blue)) { .sbtn--deep { background: var(--mustard); } .sbtn--sage { background: var(--sage-g); } }
+@media (prefers-reduced-motion: reduce) { .sbtn--sage::after { display: none; } .sbtn--sage:hover { transform: none; } }
+
+/* The 4 boxes under Qué hacemos: white cards, a colored top edge, a tinted icon tile; hover fills them with their color glass */
+.sbox { position: relative; isolation: isolate; overflow: hidden; background: var(--card, #FFFBF5); color: var(--deep);
+  box-shadow: inset 0 4px 0 var(--c), 0 1px 2px rgba(36,33,28,.04), 0 10px 26px -16px rgba(36,33,28,.3); }
+.sbox::before { content: ''; position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity .25s;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--cg) var(--gtop, 90%), white) 0%, color-mix(in srgb, var(--cg) 94%, transparent) 100%); }
+.sbox.c-mustard::before { --gtop: 72%; }
+.sbox h3, .sbox p, .sbox small { color: inherit; transition: color .2s; }
+.sbox p { color: #4A4238; }
+.sbox small { color: var(--ci); }
+.sbox__tile { display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; margin-bottom: 8px; background: var(--ct); color: var(--ci); transition: background .25s, color .25s; }
+.sbox__icon { color: inherit; margin: 0; }
+.sbox:hover, .sbox:active { background-color: var(--card, #FFFBF5); }
+@media (hover: hover) {
+  .sbox:hover { color: var(--cx); box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 22px 40px -18px color-mix(in srgb, var(--c) 75%, transparent); }
+  .sbox:hover::before { opacity: 1; }
+  .sbox:hover p, .sbox:hover small { color: var(--cx); }
+  .sbox:hover .sbox__tile { background: rgba(255,255,255,.22); color: var(--cx); }
+}
+.sbox:active::before { opacity: 1; }
+.sbox:active, .sbox:active p, .sbox:active small { color: var(--cx); }
+.sbox:focus-visible { outline: 3px solid var(--c); outline-offset: 3px; }
