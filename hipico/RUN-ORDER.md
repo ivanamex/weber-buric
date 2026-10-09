@@ -4,7 +4,8 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
+1. **STEP-51**: warm color + colored glass (iOS-like, with color): mustard main actions, slate blue next to the sage, terracotta / plum by meaning, tiles and cards fill with their color on hover; app, panel and site
+2. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
 
