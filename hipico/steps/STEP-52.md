@@ -20,3 +20,9 @@ Fields: **Nombre** · **Teléfono (WhatsApp)** · **Correo** (one of the two is 
 
 ## Check
 Send a test from the Clases lightbox and from Visítanos (ES and EN): the success state, the row in `contact_messages`, the message in Dirección → Mensajes, and the email (or, if SMTP isn't set, a clear note in the report that it's waiting for SMTP_USER/SMTP_PASS in Vercel). Honeypot and rate limit tested.
+
+## 4. Small fix: Cobros filter bar (Ivana's screenshot, 9 Oct)
+- The concept pills overflow and **"Eventos" is cut off under the "Imprimir" button**. Let the pills **wrap** to a second line on narrow widths (desktop) and scroll sideways with a soft fade on phones; nothing may sit on top of a pill.
+- **Imprimir** moves out of the row to the right end of the page header (with the other page actions).
+- There are **two "Todos"** (status and concept): rename the concept one to **"Todos los conceptos"** (or group the concept pills under a small label "Concepto"), so they can't be confused.
+- Check the same pattern in every filter bar of the panel (Familias, Caballos, Nómina, Reportes) at 1024, 1280 and 1440 px.
