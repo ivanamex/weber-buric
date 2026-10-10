@@ -19,6 +19,7 @@ import AdminSummary from './admin/Summary.jsx'
 import AdminPayroll from './admin/Payroll.jsx'
 import AdminProfit from './admin/Profit.jsx'
 import AdminModules from './admin/Modules.jsx'
+import AdminMessages from './admin/Messages.jsx'
 import HorseProfile from './admin/HorseProfile.jsx'
 
 const BaseContext = createContext('/app')
@@ -109,6 +110,7 @@ export default function Backend({ mode, base }) {
           <Route path="cobros" element={<AdminPayments />} />
           <Route path="familias" element={<AdminFamilies />} />
           <Route path="reportes" element={<AdminReports />} />
+          <Route path="mensajes" element={<AdminMessages />} />
         </Route>
         <Route path="*" element={<Navigate to={base} replace />} />
       </Routes>

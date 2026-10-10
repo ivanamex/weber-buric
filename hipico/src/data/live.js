@@ -106,7 +106,7 @@ async function load() {
     const riderRows = rows(riders)
     // Owner's panel (management only; before the database update these tables don't exist yet).
     const owner = who.data.is_admin
-      ? await Promise.all(['employees', 'salary_payments', 'expenses', 'expense_categories', 'horse_sales', 'payment_reminders'].map((tbl) => sb.from(tbl).select('*')))
+      ? await Promise.all(['employees', 'salary_payments', 'expenses', 'expense_categories', 'horse_sales', 'payment_reminders', 'contact_messages'].map((tbl) => sb.from(tbl).select('*')))
       : []
     // Horse care and health: management sees all; a family only its own boarded horses (row-level security).
     const [care, health, closed] = await Promise.all([
@@ -146,6 +146,7 @@ async function load() {
       expenseCategories: ownerRows(3).sort((a, b) => a.name.localeCompare(b.name)),
       horseSales: ownerRows(4),
       paymentReminders: ownerRows(5),
+      contactMessages: ownerRows(6),
       horseCare: care.error ? [] : rows(care),
       horseHealth: health.error ? [] : rows(health),
       planChanges: planChanges.error ? [] : rows(planChanges),
@@ -583,4 +584,5 @@ export const actions = {
   deleteExpense,
   saveCategory,
   saveModules,
+  markContactMessage: (id, status) => call('mark_contact_message', { p_id: id, p_status: status }),
 }

@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { familyRiders, login, logout, useStore, byId, moduleOn } from '../data/store.js'
+import { familyRiders, login, logout, useStore, byId, moduleOn, newMessages } from '../data/store.js'
 import { Logo } from '../components/Logo.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
 import { Icon } from '../components/Icon.jsx'
@@ -31,8 +31,9 @@ const SIDEBAR = [
   { to: 'direccion', icon: 'chart', label: 'tabs.summary', end: true },
   { to: 'direccion/hoy', icon: 'helmet', label: 'tabs.today' },
   { to: 'direccion/horario', icon: 'calendar', label: 'tabs.schedule', match: (p, q) => p.endsWith('/horario') && q.get('vista') !== 'caballos' && q.get('vista') !== 'instructores' },
-  { to: 'direccion/cobros', icon: 'receipt', label: 'tabs.payments', badge: true },
+  { to: 'direccion/cobros', icon: 'receipt', label: 'tabs.payments', badge: 'review' },
   { to: 'direccion/familias', icon: 'family', label: 'tabs.families' },
+  { to: 'direccion/mensajes', icon: 'mail', label: 'messages.title', badge: 'messages' },
   { to: 'direccion/horario?vista=caballos', icon: 'horseHead', label: 'schedule.horses', match: (p, q) => p.includes('/caballos/') || (p.endsWith('/horario') && q.get('vista') === 'caballos') },
   { to: 'direccion/horario?vista=instructores', icon: 'user', label: 'schedule.instructors', match: (p, q) => p.endsWith('/horario') && q.get('vista') === 'instructores' },
   { to: 'direccion/nomina', icon: 'users', label: 'payroll.title', module: 'modulePayroll' },
@@ -47,7 +48,7 @@ function deskTitle(pathname, search) {
   if (q.get('vista') === 'instructores') return 'schedule.instructors'
   const last = pathname.replace(/\/$/, '').split('/').pop()
   return { direccion: 'tabs.summary', hoy: 'tabs.today', horario: 'tabs.schedule', cobros: 'tabs.payments', familias: 'tabs.families',
-    nomina: 'payroll.title', rentabilidad: 'profit.title', ajustes: 'modules.title', reportes: 'tabs.reports' }[last] || 'tabs.summary'
+    nomina: 'payroll.title', rentabilidad: 'profit.title', ajustes: 'modules.title', reportes: 'tabs.reports', mensajes: 'messages.title' }[last] || 'tabs.summary'
 }
 const SIDE_KEY = 'hipico.sidebarSmall'
 
@@ -84,7 +85,7 @@ function Crumbs({ items }) {
   )
 }
 
-/** Management on a computer: sidebar (collapsible to icons), top bar with title, search and the page's main action. */
+/** Management on a computer: sidebar (collapsible to icons), top bar with title, search and the page's actions. */
 function DeskShell({ onLogout, toReview, demoBar }) {
   const { t } = useI18n()
   const s = useStore()
@@ -117,6 +118,8 @@ function DeskShell({ onLogout, toReview, demoBar }) {
   const ctx = useMemo(() => ({ desk: true, query, setQuery, setAction, setSearchable }), [query])
   const q = new URLSearchParams(search)
   const items = SIDEBAR.filter((i) => !i.module || moduleOn(s, i.module))
+  const badges = { review: toReview, messages: newMessages(s) } // counts shown on the sidebar icons
+  const actions = [].concat(action || []) // a page may offer one main action or a few (the last one is the main one)
   const horseId = pathname.match(/\/caballos\/([^/]+)$/)?.[1]
   const adminCrumbs = [{ label: t('desk.crumbAdmin'), to: `${base}/direccion` }]
   if (deskTitle(pathname, search) !== 'tabs.summary') adminCrumbs.push({ label: t(deskTitle(pathname, search)), to: horseId ? `${base}/direccion/horario?vista=caballos` : null })
@@ -132,7 +135,7 @@ function DeskShell({ onLogout, toReview, demoBar }) {
               return (
                 <NavLink key={i.to} to={`${base}/${i.to}`} end={i.end} title={t(i.label)}
                   className={({ isActive }) => `desk__link ${(active ?? isActive) ? 'is-active' : ''}`}>
-                  <span className="desk__icon"><Icon name={i.icon} size={20} />{i.badge && toReview > 0 && <span className="tabbar__badge">{toReview}</span>}</span>
+                  <span className="desk__icon"><Icon name={i.icon} size={20} />{i.badge && badges[i.badge] > 0 && <span className="tabbar__badge">{badges[i.badge]}</span>}</span>
                   <span className="desk__label">{t(i.label)}</span>
                 </NavLink>
               )
@@ -161,11 +164,11 @@ function DeskShell({ onLogout, toReview, demoBar }) {
                   onKeyDown={(e) => { if (e.key === 'Escape') { setQuery(''); e.currentTarget.blur() } }} />
               </label>
             )}
-            {action && (
-              <button type="button" className="btn btn--primary desk__action" onClick={action.onClick}>
-                {action.icon && <Icon name={action.icon} size={18} />} {action.label}
+            {actions.map((a, i) => (
+              <button key={a.label} type="button" className={`btn ${i < actions.length - 1 ? 'btn--outline' : 'btn--primary'} desk__action`} onClick={a.onClick}>
+                {a.icon && <Icon name={a.icon} size={18} />} {a.label}
               </button>
-            )}
+            ))}
           </header>
           <main className="desk__content">
             <InstallPrompt />

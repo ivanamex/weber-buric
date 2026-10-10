@@ -11,7 +11,7 @@ import { CLIPS, CONTACT, HERO_SCENES, PHOTOS, SERVICE_PHOTOS, mapDirections, map
 import { PageHoofprints } from './Hoofprints.jsx'
 import { planList, useSiteData } from './siteData.js'
 import { FilmStrip } from './Gallery.jsx'
-import { ServiceSheet } from './ServiceSheet.jsx'
+import { ContactSheet, ServiceSheet } from './ServiceSheet.jsx'
 
 const wa = (text) => ({ href: waLink(text), target: '_blank', rel: 'noopener noreferrer' })
 const RATE = 0.75 // every clip plays in a soft slow motion
@@ -353,8 +353,8 @@ function TheApp() {
   )
 }
 
-/** Te esperamos en Paamul: the map full width and flat, the address, contact and WhatsApp on a parchment panel on it. */
-function Visit() {
+/** Te esperamos en Paamul: the map full width and flat; the address, contact, "Escríbenos" (the form) and a WhatsApp link on a parchment panel on it. */
+function Visit({ onWrite }) {
   const { t, lang } = useI18n()
   return (
     <section id={sectionId('visit', lang)} className="sec svisit2" data-tone="light" aria-labelledby="visit-title">
@@ -371,7 +371,10 @@ function Visit() {
             <li><SiteIcon name="mail" size={22} /><a className="break" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></li>
             <li><SiteIcon name="instagram" size={22} /><a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer">{CONTACT.instagramHandle}</a></li>
           </ul>
-          <a className="sbtn sbtn--deep sbtn--lg" {...wa(t('site.wa.general'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={22} /> {t('site.visit.whatsapp')}</span></a>
+          <div className="svisit2__ctas">
+            <button type="button" className="sbtn sbtn--deep sbtn--lg" aria-haspopup="dialog" onClick={onWrite}><span className="sbtn__in"><SiteIcon name="mail" size={22} /> {t('site.visit.write')}</span></button>
+            <a className="svisit2__wa" {...wa(t('site.wa.general'))}><SiteIcon name="whatsapp" size={18} /> {t('site.visit.orWhatsapp')}</a>
+          </div>
           <a className="slinkarrow" href={mapDirections} target="_blank" rel="noopener noreferrer"><SiteIcon name="map" size={20} /> {t('site.directions')}</a>
         </div>
       </div>
@@ -381,6 +384,7 @@ function Visit() {
 
 export default function OnePage() {
   const [sheet, setSheet] = useState(null)
+  const [writing, setWriting] = useState(false)
   return (
     <>
       <PageHoofprints />
@@ -391,8 +395,9 @@ export default function OnePage() {
       <Boarding />
       <Families />
       <TheApp />
-      <Visit />
+      <Visit onWrite={() => setWriting(true)} />
       {sheet && <ServiceSheet service={sheet} onClose={() => setSheet(null)} />}
+      {writing && <ContactSheet onClose={() => setWriting(false)} />}
     </>
   )
 }

@@ -148,7 +148,7 @@ export function Receivables({ onView }) {
           </button>
         ))}
       </div>
-      <div className="chips-scroll" role="group">
+      <div className="chips-scroll chips-scroll--fade" role="group" aria-label={t('collect.concept')}>
         {FILTERS.map((f) => (
           <button key={f} type="button" className={`chip ${filter === f ? 'is-active' : ''}`} aria-pressed={filter === f} onClick={() => setFilter(f)}>{t(`collect.filters.${f}`)}</button>
         ))}
@@ -256,7 +256,11 @@ export function ReceivablesDesk({ onView }) {
     { key: 'reminders', label: t('collect.reminders'), value: (x) => (x.projected || x.state === 'paid' ? 0 : remindersFor(s, x).length), csv: (x) => (x.projected || x.state === 'paid' ? '' : remindersFor(s, x).length) },
     { key: 'amount', nowrap: true, label: t('collect.col.amount'), align: 'right', value: (x) => x.amount, render: (x) => <strong>{fmtMoney(x.amount)}</strong> },
   ]
-  useDeskAction({ label: t('desk.export'), icon: 'download', onClick: () => exportCsv(`cobros-${today}.csv`, columns, rows) }, [rows.length, status, filter, only, q])
+  // Page actions in the top bar: Imprimir beside Exportar (never over the filter pills).
+  useDeskAction([
+    { label: t('desk.print'), icon: 'printer', onClick: () => window.print() },
+    { label: t('desk.export'), icon: 'download', onClick: () => exportCsv(`cobros-${today}.csv`, columns, rows) },
+  ], [rows.length, status, filter, only, q])
   const selected = open && [...pending, ...paid].find((x) => x.id === open)
   return (
     <>
@@ -273,12 +277,14 @@ export function ReceivablesDesk({ onView }) {
         <Segmented small value={status} onChange={(v) => { setStatus(v); if (v !== 'pending') setOnly(null) }} options={[
           { value: 'pending', label: t('collect.status2.pending') }, { value: 'paid', label: t('collect.status2.paid') }, { value: 'all', label: t('desk.all') },
         ]} />
-        <div className="chips-scroll grow" role="group">
-          {FILTERS.map((f) => (
-            <button key={f} type="button" className={`chip ${filter === f ? 'is-active' : ''}`} aria-pressed={filter === f} onClick={() => setFilter(f)}>{t(`collect.filters.${f}`)}</button>
-          ))}
+        <div className="chipgroup grow" role="group" aria-label={t('collect.concept')}>
+          <span className="chipgroup__label">{t('collect.concept')}</span>
+          <div className="chips-scroll chips-scroll--wrap">
+            {FILTERS.map((f) => (
+              <button key={f} type="button" className={`chip ${filter === f ? 'is-active' : ''}`} aria-pressed={filter === f} onClick={() => setFilter(f)}>{t(`collect.filters.${f}`)}</button>
+            ))}
+          </div>
         </div>
-        <button type="button" className="btn btn--sm" onClick={() => window.print()} title={t('desk.print')}><Icon name="printer" size={16} /> {t('desk.print')}</button>
       </div>
       <DataTable columns={columns} rows={rows} onRow={(x) => setOpen(x.id)} selected={open} defaultSort={{ key: 'due', dir: status === 'paid' ? -1 : 1 }}
         empty={<p className="muted small">{t('collect.none')}</p>} />

@@ -526,7 +526,9 @@
     "duplicate": "Ya existe una con ese nombre.",
     "closed": "El club está cerrado ese día.",
     "overlap": "Ya tiene otra clase a esa hora.",
-    "tooManyPhotos": "Ya hay 12 fotos. Pide al club que quite alguna."
+    "tooManyPhotos": "Ya hay 12 fotos. Pide al club que quite alguna.",
+    "contactRequired": "Deja un teléfono o un correo.",
+    "badPhone": "Revisa el número de teléfono."
   },
   "live": {
     "loading": "Cargando…",
@@ -870,7 +872,8 @@
       "reports": "Ingresos, ocupación y Excel",
       "profit": "Ingresos menos sueldos y gastos",
       "payroll": "Sueldos y pagos",
-      "settings": "Días cerrados, recordatorios y módulos"
+      "settings": "Días cerrados, recordatorios y módulos",
+      "messages": "Lo que escriben desde la página"
     }
   },
   "payroll": {
@@ -1121,7 +1124,7 @@
       "later": "Más adelante este mes"
     },
     "filters": {
-      "all": "Todos",
+      "all": "Todos los conceptos",
       "plan": "Planes",
       "boarding": "Pensión",
       "class": "Clases",
@@ -1174,7 +1177,8 @@
     "tableTotal": "{n} pagos · {amount}",
     "dueOverdue_one": "Venció el {date} · 1 día",
     "count_one": "1 pago",
-    "tableTotal_one": "1 pago · {amount}"
+    "tableTotal_one": "1 pago · {amount}",
+    "concept": "Concepto"
   },
   "reminders": {
     "title": "Recordatorios de pago",
@@ -1449,7 +1453,8 @@
     },
     "visit": {
       "title": "Te esperamos en Paamul",
-      "whatsapp": "Escríbenos por WhatsApp"
+      "write": "Escríbenos",
+      "orWhatsapp": "o por WhatsApp"
     },
     "footer": {
       "place": "Paamul, Riviera Maya",
@@ -1578,6 +1583,42 @@
     "families": {
       "drag": "← arrastra la tira →",
       "label": "Fotos y videos del club"
+    },
+    "contact": {
+      "title": "Escríbenos",
+      "lead": "Cuéntanos qué te interesa y te contestamos hoy mismo.",
+      "back": "Volver",
+      "name": "Nombre",
+      "phone": "Teléfono (WhatsApp)",
+      "email": "Correo",
+      "oneOf": "Deja tu WhatsApp o tu correo, el que prefieras.",
+      "channel": "¿Cómo prefieres que te contactemos?",
+      "channels": {
+        "whatsapp": "WhatsApp",
+        "email": "Correo"
+      },
+      "message": "Mensaje",
+      "prefill": "Me interesa: {service}",
+      "placeholder": "¿En qué te ayudamos?",
+      "send": "Enviar mensaje",
+      "sending": "Enviando…",
+      "done": "¡Gracias, {name}! Te contestamos hoy mismo por {channel}.",
+      "doneChannels": {
+        "whatsapp": "WhatsApp",
+        "email": "correo"
+      },
+      "another": "Enviar otro mensaje",
+      "website": "Sitio web",
+      "errors": {
+        "name": "Escribe tu nombre.",
+        "contact": "Deja tu WhatsApp o tu correo para poder contestarte.",
+        "needPhone": "Para contestarte por WhatsApp necesitamos tu número.",
+        "needEmail": "Para contestarte por correo necesitamos tu dirección.",
+        "badEmail": "Revisa el correo: parece incompleto.",
+        "badPhone": "Revisa el número: faltan dígitos.",
+        "tooMany": "Ya recibimos varios mensajes tuyos. Espera un rato o escríbenos por WhatsApp.",
+        "network": "No se pudo enviar. Inténtalo de nuevo o escríbenos por WhatsApp."
+      }
     }
   },
   "wa": {
@@ -1614,5 +1655,42 @@
     "eventsText": "Campamentos, Pony Friday y fiestas",
     "profile": "Perfil",
     "profileText": "Jinetes y datos"
+  },
+  "messages": {
+    "title": "Mensajes",
+    "intro": "Lo que escriben desde la página del club. Contesta y marca el mensaje como contestado.",
+    "new": "Nuevos",
+    "answered": "Contestados",
+    "all": "Todos",
+    "general": "General",
+    "newCount": "{n} nuevos",
+    "newCount_one": "1 nuevo",
+    "none": "Nada nuevo por contestar.",
+    "noneAll": "Aún no hay mensajes desde la página.",
+    "noneAnswered": "Todavía no has marcado ninguno como contestado.",
+    "prefers": "Prefiere {channel}",
+    "channels": {
+      "whatsapp": "WhatsApp",
+      "email": "correo"
+    },
+    "writtenIn": "escrito en inglés",
+    "replyWa": "Responder por WhatsApp",
+    "replyEmail": "Responder por correo",
+    "markAnswered": "Marcar como contestado",
+    "markNew": "Marcar como nuevo",
+    "answeredOn": "Contestado el {date}",
+    "receivedOn": "Recibido el {date}",
+    "replyText": "Hola {name}, gracias por escribirnos al Hípico Riviera Maya. ",
+    "replySubject": "Tu mensaje al Hípico Riviera Maya",
+    "col": {
+      "name": "Nombre",
+      "service": "Servicio",
+      "channel": "Contacto",
+      "date": "Fecha"
+    },
+    "tile": "Lo que escriben desde la página",
+    "searchPh": "Buscar nombre o mensaje",
+    "stateNew": "Nuevo",
+    "stateAnswered": "Contestado"
   }
 }

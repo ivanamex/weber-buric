@@ -537,3 +537,8 @@ export function remindersFor(s, p, today = todayKey()) {
   }
   return out
 }
+
+/** Messages from the website, newest first. */
+export const contactMessages = (s) => [...(s.contactMessages || [])].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+/** How many website messages nobody has answered yet (the badge). */
+export const newMessages = (s) => (s.contactMessages || []).filter((m) => m.status === 'new').length

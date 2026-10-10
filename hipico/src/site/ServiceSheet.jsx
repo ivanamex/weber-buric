@@ -1,21 +1,21 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { SiteIcon } from '../components/site/Icons.jsx'
 import { waLink } from '../components/ui.jsx'
 import { planList, useSiteData } from './siteData.js'
+import { BIG } from './content.js'
+import { ContactForm } from './ContactForm.jsx'
 
 const wa = (text) => ({ href: waLink(text), target: '_blank', rel: 'noopener noreferrer' })
-const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([tabindex="-1"]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 /**
- * A service in full: photo on the left, the explanation, what's included and the prices on the right
- * (stacked and scrolling inside on phones). Prices always come from the app; "Consulta" when one is missing.
+ * The website's lightbox: photo on the left, content on the right (stacked and scrolling inside on phones).
  * Esc and the close button close it; Tab stays inside while it's open.
  */
-export function ServiceSheet({ service, onClose }) {
-  const { t, fmtMoney } = useI18n()
-  const data = useSiteData()
+export function SiteDialog({ photo, alt, position, labelledBy, onClose, children }) {
+  const { t } = useI18n()
   const panel = useRef(null)
   const closeBtn = useRef(null)
   useEffect(() => {
@@ -36,6 +36,28 @@ export function ServiceSheet({ service, onClose }) {
     window.addEventListener('keydown', onKey)
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prev; before?.focus?.() }
   }, [onClose])
+  return createPortal(
+    <div className="ssheet2" role="dialog" aria-modal="true" aria-labelledby={labelledBy}>
+      <button type="button" className="ssheet2__scrim" aria-hidden="true" tabIndex={-1} onClick={onClose} />
+      <div className="ssheet2__panel" ref={panel}>
+        <button ref={closeBtn} type="button" className="ssheet2__close" aria-label={t('site.sheet.close')} onClick={onClose}><SiteIcon name="x" size={22} /></button>
+        <figure className="ssheet2__photo"><img src={photo.src} width={photo.w} height={photo.h} alt={alt} style={position ? { objectPosition: position } : undefined} /></figure>
+        {children}
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+/**
+ * A service in full: the explanation, what's included and the prices. Prices always come from the app; "Consulta"
+ * when one is missing. "Escríbenos" slides the right column to the contact form ("← Volver" comes back).
+ */
+export function ServiceSheet({ service, onClose }) {
+  const { t, fmtMoney } = useI18n()
+  const data = useSiteData()
+  const [writing, setWriting] = useState(false)
+  const [back, setBack] = useState(false) // coming back from the form: the text slides in from the left
 
   const price = (n) => (n > 0 ? fmtMoney(n) : t('site.sheet.ask'))
   const plans = planList(data?.prices)
@@ -57,7 +79,7 @@ export function ServiceSheet({ service, onClose }) {
         </ul>
         <div className="ssheet2__ctas">
           <a className="sbtn sbtn--deep" {...wa(t('site.wa.trial'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</span></a>
-          <a className="sbtn sbtn--sage" {...wa(t('site.wa.classes'))}>{t('site.sheet.write')}</a>
+          <button type="button" className="sbtn sbtn--sage" onClick={() => { setWriting(true); setBack(true) }}>{t('site.sheet.write')}</button>
         </div>
       </>
     )
@@ -95,19 +117,30 @@ export function ServiceSheet({ service, onClose }) {
     )
   }
 
-  return createPortal(
-    <div className="ssheet2" role="dialog" aria-modal="true" aria-labelledby="ssheet2-title">
-      <button type="button" className="ssheet2__scrim" aria-hidden="true" tabIndex={-1} onClick={onClose} />
-      <div className="ssheet2__panel" ref={panel}>
-        <button ref={closeBtn} type="button" className="ssheet2__close" aria-label={t('site.sheet.close')} onClick={onClose}><SiteIcon name="x" size={22} /></button>
-        <figure className="ssheet2__photo"><img src={service.photo.src} width={service.photo.w} height={service.photo.h} alt={service.alt} style={service.position ? { objectPosition: service.position } : undefined} /></figure>
-        <div className="ssheet2__body">
+  return (
+    <SiteDialog photo={service.photo} alt={service.alt} position={service.position} labelledBy="ssheet2-title" onClose={onClose}>
+      {writing ? (
+        <div key="form" className="ssheet2__body ssheet2__body--in">
+          <ContactForm service={service.key} titleId="ssheet2-title" onBack={() => setWriting(false)} />
+        </div>
+      ) : (
+        <div key="info" className={`ssheet2__body ${back ? 'ssheet2__body--back' : ''}`}>
           <h2 id="ssheet2-title" className="kinetic is-in">{t(`site.sheet.${service.key}.title`)}</h2>
           <p className="slead">{t(`site.sheet.${service.key}.text`)}</p>
           {body}
         </div>
-      </div>
-    </div>,
-    document.body,
+      )}
+    </SiteDialog>
+  )
+}
+
+/** "Escríbenos" from Visítanos: the same lightbox with only the contact form. */
+export function ContactSheet({ onClose }) {
+  const { t } = useI18n()
+  const photo = BIG.nose
+  return (
+    <SiteDialog photo={{ src: photo.small, w: 800, h: 1067 }} alt={t('site.alt.nose')} position={photo.position} labelledBy="ssheet2-title" onClose={onClose}>
+      <div className="ssheet2__body"><ContactForm titleId="ssheet2-title" /></div>
+    </SiteDialog>
   )
 }

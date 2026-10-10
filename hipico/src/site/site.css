@@ -496,3 +496,50 @@
 .sbox:active::before { opacity: 1; }
 .sbox:active, .sbox:active p, .sbox:active small { color: var(--cx); }
 .sbox:focus-visible { outline: 3px solid var(--c); outline-offset: 3px; }
+
+/* ───────── Contact form (in the lightbox): "Escríbenos" slides the right column to the form ───────── */
+.has-motion .ssheet2__body--in { animation: paneIn .32s cubic-bezier(.2,.7,.2,1) both; }
+.has-motion .ssheet2__body--back { animation: paneBack .32s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes paneIn { from { opacity: 0; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+@keyframes paneBack { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
+.sback { justify-self: start; display: inline-flex; align-items: center; gap: 6px; margin: -6px 0 -4px; padding: 6px 0; border: 0; background: none; cursor: pointer; font-family: var(--site-font); font-stretch: var(--ui-stretch); font-weight: 600; font-size: .95rem; color: var(--jungle); }
+.sback:hover { text-decoration: underline; }
+.sback:focus-visible { outline: 3px solid var(--deep); outline-offset: 2px; border-radius: 6px; }
+.cform { display: grid; gap: 14px; align-content: start; }
+.cform .kinetic { margin: 0; }
+.cform .slead { margin: 0; }
+.cfield { display: grid; gap: 6px; }
+.cfield > span { font-family: var(--site-font); font-stretch: var(--ui-stretch); font-weight: 600; font-size: .86rem; color: var(--soft); letter-spacing: .01em; }
+.cfield input, .cfield textarea {
+  width: 100%; min-height: 48px; padding: 10px 14px; border-radius: 14px; border: 1.5px solid var(--line); background: #fff; color: var(--ink);
+  font-family: var(--text-font); font-size: 1rem; line-height: 1.4; box-shadow: inset 0 1px 2px rgba(51,53,42,.05);
+}
+.cfield textarea { resize: vertical; min-height: 110px; }
+.cfield input:focus, .cfield textarea:focus { outline: none; border-color: var(--jungle); box-shadow: 0 0 0 3px rgba(94,102,80,.18); }
+.cfield input[aria-invalid="true"] { border-color: #B5562A; }
+.cform__pair { display: grid; gap: 14px; }
+@media (min-width: 560px) { .cform__pair { grid-template-columns: 1fr 1fr; } }
+.cform__hint { color: var(--soft); font-size: .86rem; margin-top: -6px; }
+.cform__err { color: #8E3F1B; font-size: .86rem; font-weight: 500; }
+.cform__err a { color: inherit; font-weight: 700; }
+.cpills { display: flex; flex-wrap: wrap; gap: 8px; }
+.cpill { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 16px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; color: var(--ink); cursor: pointer;
+  font-family: var(--site-font); font-stretch: var(--ui-stretch); font-weight: 600; font-size: .95rem; }
+.cpill .sicon { color: var(--jungle); }
+.cpill.is-active { border-color: var(--ink); background: var(--ink); color: #fff; }
+.cpill.is-active .sicon { color: #fff; }
+.cpill:focus-visible { outline: 3px solid var(--deep); outline-offset: 2px; }
+.cform__hp { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+.cform__foot { display: grid; gap: 10px; justify-items: start; margin-top: 4px; }
+.sbtn.is-busy { pointer-events: none; opacity: .85; }
+.sspin { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid rgba(51,53,42,.25); border-top-color: var(--ink); animation: sspin .8s linear infinite; }
+@keyframes sspin { to { transform: rotate(360deg); } }
+.cform__done { display: grid; gap: 14px; justify-items: start; align-content: center; min-height: 260px; outline: none; }
+.has-motion .cform__done { animation: paneIn .32s cubic-bezier(.2,.7,.2,1) both; }
+.cform__check { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 50%; background: var(--sage-t, #DDE1CF); color: #3B5E45; }
+.cform__thanks { margin: 0; font-family: var(--site-font); font-stretch: 72%; font-weight: 700; font-size: clamp(1.5rem, 2.4vw, 2rem); line-height: 1.15; color: var(--deep); }
+.cform__done .slinkarrow { border: 0; background: none; cursor: pointer; padding: 0; }
+/* Visítanos: "Escríbenos" opens the form; WhatsApp stays as a small link beside it */
+.svisit2__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.svisit2__wa { display: inline-flex; align-items: center; gap: 6px; font-family: var(--site-font); font-stretch: var(--ui-stretch); font-weight: 600; color: var(--jungle); white-space: nowrap; }
+.svisit2__wa:hover { text-decoration: underline; }

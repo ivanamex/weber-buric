@@ -55,6 +55,19 @@ function horseSample(today) {
   return { horseCare, horseHealth }
 }
 
+/** Messages from the website's contact form (made up): two new, one already answered. */
+function contactSample(today) {
+  const at = (days, hour) => `${addDays(today, days)}T${String(hour).padStart(2, '0')}:20:00.000Z`
+  return [
+    { id: 'cm1', name: 'Mariana Ruiz', phone: '+52 998 234 5678', email: null, channel: 'whatsapp', service: 'classes', page: '/', lang: 'es', status: 'new', answeredAt: null,
+      createdAt: at(0, 14), message: 'Me interesa: Clases\nMi hija tiene 7 años y nunca ha montado. ¿Qué días hay clase muestra por la tarde?' },
+    { id: 'cm2', name: 'Tom Becker', phone: null, email: 'tom.becker@ejemplo.com', channel: 'email', service: 'boarding', page: '/en', lang: 'en', status: 'new', answeredAt: null,
+      createdAt: at(-2, 21), message: "I'm interested in: Boarding\nWe're moving to Playa del Carmen in January with our mare. Do you have a free stall, and what does the monthly price include?" },
+    { id: 'cm3', name: 'Carla Domínguez', phone: '+52 984 765 4321', email: 'carla.dominguez@ejemplo.com', channel: 'whatsapp', service: null, page: '/', lang: 'es', status: 'answered', answeredAt: at(-5, 16),
+      createdAt: at(-6, 18), message: 'Queremos organizar una fiesta de cumpleaños para 12 niños en noviembre. ¿Manejan paquetes con paseo a caballo?' },
+  ]
+}
+
 const families = [
   { id: 'f1', email: 'paola.hernandez@ejemplo.com', name: 'Familia Hernández', contact: 'Paola Hernández', phone: '+52 984 111 2233' },
   { id: 'f2', email: 'jorge.martinez@ejemplo.com', name: 'Familia Martínez', contact: 'Jorge Martínez', phone: '+52 984 222 3344' },
@@ -334,6 +347,7 @@ export function createSeed() {
     ...ownerSample(today),
     cancellations: [], // single class dates cancelled by the club
     planChanges: [], // plan history: new / upgrade / downgrade
+    contactMessages: contactSample(today),
     nextId: n + 1,
   }
 }

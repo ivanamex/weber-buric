@@ -70,6 +70,8 @@ export function activate(setState, inMemory = false) {
   if (!state.settings?.closedWeekdays && !memoryOnly) state = persist(createSeed())
   // Demo states from before the sample data was corrected (dates, horses by level, bank details): start again once.
   if ((state.version || 1) < 3 && !memoryOnly) state = persist({ ...createSeed(), session: state.session })
+  // Demo states saved before the website's contact form: add the sample messages once.
+  if (!state.contactMessages && !memoryOnly) { state.contactMessages = createSeed().contactMessages; persist(state) }
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
   if (!memoryOnly && !storageListener && typeof window !== 'undefined') {
     storageListener = true
@@ -1023,8 +1025,50 @@ function markClassAttended(slotId, date) {
   })
 }
 
+/**
+ * The website's form when there's no database: the same checks as send_contact_message() in SQL, and the message
+ * lands in the demo's data (Dirección → Mensajes). Works before the demo has opened in this tab.
+ */
+export function addContactMessage(fields) {
+  if (!state) state = load() || persist(createSeed())
+  const name = String(fields.name || '').trim().slice(0, 120)
+  const phone = String(fields.phone || '').trim().slice(0, 40) || null
+  const email = String(fields.email || '').trim().toLowerCase().slice(0, 160) || null
+  if (String(fields.website || '').trim()) return { ok: true } // a bot filled the hidden field
+  if (!name) return fail('missing')
+  if (!phone && !email) return fail('contactRequired')
+  if (email && !EMAIL_RE.test(email)) return fail('badEmail')
+  if (phone && phone.replace(/\D/g, '').length < 8) return fail('badPhone')
+  let channel = fields.channel === 'email' ? 'email' : 'whatsapp'
+  if (channel === 'whatsapp' && !phone) channel = 'email'
+  if (channel === 'email' && !email) channel = 'whatsapp'
+  return mutate((s) => {
+    s.contactMessages ||= []
+    const hourAgo = Date.now() - 3600000
+    const recent = s.contactMessages.filter((m) => new Date(m.createdAt).getTime() > hourAgo && ((phone && m.phone === phone) || (email && m.email === email)))
+    if (recent.length >= 5) return fail('tooMany')
+    s.contactMessages.unshift({
+      id: nextId(s, 'cm'), name, phone, email, channel, service: String(fields.service || '').slice(0, 60) || null,
+      message: String(fields.message || '').trim().slice(0, 2000), page: String(fields.page || '').slice(0, 200) || null,
+      lang: fields.lang === 'en' ? 'en' : 'es', status: 'new', createdAt: now(), answeredAt: null,
+    })
+    return { ok: true }
+  })
+}
+
+/** Management: a message answered (or back to new). */
+function markContactMessage(id, status) {
+  return mutate((s) => {
+    const m = byId(s.contactMessages || [], id)
+    if (!m || !['new', 'answered'].includes(status)) return fail('notFound')
+    m.status = status
+    m.answeredAt = status === 'answered' ? now() : null
+    return { ok: true }
+  })
+}
+
 export const actions = {
-  login, logout, resetDemo, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
+  login, logout, resetDemo, markContactMessage, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
   requestBoardingPayment, markPaid, registerCamp, bookRental,
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),

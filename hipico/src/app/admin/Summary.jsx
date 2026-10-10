@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, activeCounts, moneySummary, overdue, renewingSoon, weekOccupancy, upcomingSalaries, moduleOn, healthDueSoon, occurrencesFor,
+  useStore, byId, activeCounts, moneySummary, overdue, renewingSoon, weekOccupancy, upcomingSalaries, moduleOn, healthDueSoon, occurrencesFor, newMessages,
 } from '../../data/store.js'
 import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
@@ -174,8 +174,9 @@ export default function AdminSummary() {
       </div>
 
       <SectionTitle>{t('summary.more')}</SectionTitle>
-      <nav className="ctiles ctiles--4" aria-label={t('summary.more')}>
+      <nav className="ctiles ctiles--5" aria-label={t('summary.more')}>
         {[
+          { to: 'mensajes', color: 'terracotta', icon: 'mail', title: t('messages.title'), count: newMessages(s), text: newMessages(s) ? t('messages.newCount', { n: newMessages(s) }) : t('summary.tiles.messages') },
           { to: 'reportes', color: 'slate', icon: 'chart', title: t('tabs.reports'), text: t('summary.tiles.reports') },
           moduleOn(s, 'moduleProfit') && { to: 'rentabilidad', color: 'mustard', icon: 'trophy', title: t('profit.title'), text: t('summary.tiles.profit') },
           moduleOn(s, 'modulePayroll') && { to: 'nomina', color: 'plum', icon: 'users', title: t('payroll.title'), text: t('summary.tiles.payroll') },
@@ -183,6 +184,7 @@ export default function AdminSummary() {
         ].filter(Boolean).map((x) => (
           <Link key={x.to} to={`${base}/direccion/${x.to}`} className={`ctile c-${x.color}`}>
             <span className="ctile__icon"><Icon name={x.icon} size={22} /></span>
+            {x.count > 0 && <span className="ctile__count">{x.count}</span>}
             <span className="ctile__title">{x.title}</span>
             <span className="ctile__text">{x.text}</span>
           </Link>

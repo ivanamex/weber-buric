@@ -21,7 +21,7 @@ export function useDesktop() {
 export const DeskContext = createContext({ desk: false, query: '', setQuery: () => {}, setAction: () => {}, setSearchable: () => {} })
 export const useDesk = () => useContext(DeskContext)
 
-/** A page offers a main action in the top bar ("+ Nueva clase"…) while it's on screen (desktop only). */
+/** A page offers its actions in the top bar ("+ Nueva clase"…) while it's on screen (desktop only): one, or a list whose last one is the main one. */
 export function useDeskAction(action, deps = []) {
   const { desk, setAction } = useDesk()
   useEffect(() => {

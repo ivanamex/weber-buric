@@ -526,7 +526,9 @@
     "duplicate": "There's already one with that name.",
     "closed": "The club is closed that day.",
     "overlap": "Already has another class at that time.",
-    "tooManyPhotos": "There are already 12 photos. Ask the club to remove one."
+    "tooManyPhotos": "There are already 12 photos. Ask the club to remove one.",
+    "contactRequired": "Leave a phone or an email.",
+    "badPhone": "Check the phone number."
   },
   "live": {
     "loading": "Loading…",
@@ -870,7 +872,8 @@
       "reports": "Income, occupancy and Excel",
       "profit": "Income minus salaries and costs",
       "payroll": "Salaries and payments",
-      "settings": "Closed days, reminders and modules"
+      "settings": "Closed days, reminders and modules",
+      "messages": "What people write from the website"
     }
   },
   "payroll": {
@@ -1121,7 +1124,7 @@
       "later": "Later this month"
     },
     "filters": {
-      "all": "All",
+      "all": "All concepts",
       "plan": "Plans",
       "boarding": "Boarding",
       "class": "Classes",
@@ -1174,7 +1177,8 @@
     "tableTotal": "{n} payments · {amount}",
     "dueOverdue_one": "Was due {date} · 1 day",
     "count_one": "1 payment",
-    "tableTotal_one": "1 payment · {amount}"
+    "tableTotal_one": "1 payment · {amount}",
+    "concept": "Concept"
   },
   "reminders": {
     "title": "Payment reminders",
@@ -1449,7 +1453,8 @@
     },
     "visit": {
       "title": "See you in Paamul",
-      "whatsapp": "Message us on WhatsApp"
+      "write": "Message us",
+      "orWhatsapp": "or on WhatsApp"
     },
     "footer": {
       "place": "Paamul, Riviera Maya",
@@ -1578,6 +1583,42 @@
     "families": {
       "drag": "← drag the strip →",
       "label": "Photos and videos of the club"
+    },
+    "contact": {
+      "title": "Message us",
+      "lead": "Tell us what you're interested in and we'll get back to you today.",
+      "back": "Back",
+      "name": "Name",
+      "phone": "Phone (WhatsApp)",
+      "email": "Email",
+      "oneOf": "Leave your WhatsApp or your email, whichever you prefer.",
+      "channel": "How would you like us to reach you?",
+      "channels": {
+        "whatsapp": "WhatsApp",
+        "email": "Email"
+      },
+      "message": "Message",
+      "prefill": "I'm interested in: {service}",
+      "placeholder": "How can we help?",
+      "send": "Send message",
+      "sending": "Sending…",
+      "done": "Thanks, {name}! We'll get back to you today by {channel}.",
+      "doneChannels": {
+        "whatsapp": "WhatsApp",
+        "email": "email"
+      },
+      "another": "Send another message",
+      "website": "Website",
+      "errors": {
+        "name": "Enter your name.",
+        "contact": "Leave your WhatsApp or email so we can reply.",
+        "needPhone": "To reply on WhatsApp we need your number.",
+        "needEmail": "To reply by email we need your address.",
+        "badEmail": "Check the email: it looks incomplete.",
+        "badPhone": "Check the number: some digits are missing.",
+        "tooMany": "We've received several messages from you. Wait a while or message us on WhatsApp.",
+        "network": "It couldn't be sent. Try again or message us on WhatsApp."
+      }
     }
   },
   "wa": {
@@ -1614,5 +1655,42 @@
     "eventsText": "Camps, Pony Friday and parties",
     "profile": "Profile",
     "profileText": "Riders and details"
+  },
+  "messages": {
+    "title": "Messages",
+    "intro": "What people write from the club website. Reply, then mark the message as answered.",
+    "new": "New",
+    "answered": "Answered",
+    "all": "All",
+    "general": "General",
+    "newCount": "{n} new",
+    "newCount_one": "1 new",
+    "none": "Nothing new to answer.",
+    "noneAll": "No messages from the website yet.",
+    "noneAnswered": "You haven't marked any as answered yet.",
+    "prefers": "Prefers {channel}",
+    "channels": {
+      "whatsapp": "WhatsApp",
+      "email": "email"
+    },
+    "writtenIn": "written in English",
+    "replyWa": "Reply on WhatsApp",
+    "replyEmail": "Reply by email",
+    "markAnswered": "Mark as answered",
+    "markNew": "Mark as new",
+    "answeredOn": "Answered on {date}",
+    "receivedOn": "Received on {date}",
+    "replyText": "Hi {name}, thanks for writing to Hípico Riviera Maya. ",
+    "replySubject": "Your message to Hípico Riviera Maya",
+    "col": {
+      "name": "Name",
+      "service": "Service",
+      "channel": "Contact",
+      "date": "Date"
+    },
+    "tile": "What people write from the website",
+    "searchPh": "Search name or message",
+    "stateNew": "New",
+    "stateAnswered": "Answered"
   }
 }

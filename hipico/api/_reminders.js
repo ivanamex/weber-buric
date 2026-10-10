@@ -55,14 +55,15 @@ export function message(r) {
   return { subject, text }
 }
 
-/** The email sender configured in Vercel: Resend (RESEND_API_KEY + REMINDER_FROM) or SMTP (SMTP_USER + SMTP_PASS, Gmail by default). */
+/** The email sender configured in Vercel: Resend (RESEND_API_KEY + REMINDER_FROM) or SMTP (SMTP_USER + SMTP_PASS, Gmail by default).
+ *  `replyTo` (optional) lets the club answer a website message by hitting reply. */
 export async function makeSender(env = process.env) {
   if (env.RESEND_API_KEY && env.REMINDER_FROM) {
-    return async ({ to, subject, text }) => {
+    return async ({ to, subject, text, replyTo }) => {
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: env.REMINDER_FROM, to: [to], subject, text }),
+        body: JSON.stringify({ from: env.REMINDER_FROM, to: [to], subject, text, ...(replyTo ? { reply_to: replyTo } : {}) }),
       })
       if (!res.ok) throw new Error(`resend ${res.status}`)
     }
@@ -74,7 +75,7 @@ export async function makeSender(env = process.env) {
       host: env.SMTP_HOST || 'smtp.gmail.com', port, secure: port === 465, auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
     })
     const from = env.REMINDER_FROM || `"${CLUB}" <${env.SMTP_USER}>`
-    return async ({ to, subject, text }) => { await transport.sendMail({ from, to, subject, text }) }
+    return async ({ to, subject, text, replyTo }) => { await transport.sendMail({ from, to, subject, text, ...(replyTo ? { replyTo } : {}) }) }
   }
   return null
 }

@@ -60,18 +60,20 @@ function HorsesDesk() {
     { key: 'due', label: t('horses.pending'), value: (h) => due.filter((x) => x.horse.id === h.id).map((x) => t(`horseProfile.kinds.${x.kind}`)).join(', '),
       render: (h) => { const d = due.filter((x) => x.horse.id === h.id); return d.length ? <span className="owed__late small">{d.map((x) => t(`horseProfile.kinds.${x.kind}`)).join(', ')}</span> : '' } },
   ]
-  useDeskAction({ label: t('schedule.addHorse'), icon: 'plus', onClick: () => navigate(`${base}/direccion/caballos/nuevo`) }, [])
+  useDeskAction([
+    { label: t('desk.export'), icon: 'download', onClick: () => exportCsv('caballos.csv', columns, rows) },
+    { label: t('schedule.addHorse'), icon: 'plus', onClick: () => navigate(`${base}/direccion/caballos/nuevo`) },
+  ], [rows.length, status, q])
   return (
     <>
       <div className="dtoolbar">
-        <div className="chips-scroll grow" role="group">
+        <div className="chips-scroll chips-scroll--wrap grow" role="group">
           {['all', ...statuses].map((st) => (
             <button key={st} type="button" className={`chip ${status === st ? 'is-active' : ''}`} aria-pressed={status === st} onClick={() => setStatus(st)}>
               {st === 'all' ? t('desk.all') : t(`horses.group.${st}`)}
             </button>
           ))}
         </div>
-        <button type="button" className="btn btn--sm" onClick={() => exportCsv('caballos.csv', columns, rows)}><Icon name="download" size={16} /> {t('desk.export')}</button>
       </div>
       <DataTable columns={columns} rows={rows} onRow={(h) => setOpen(h.id)} selected={open} defaultSort={{ key: 'name', dir: 1 }} />
       {open && (

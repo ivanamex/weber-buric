@@ -29,6 +29,10 @@
     "api/reminders.js": {
       "includeFiles": "scripts/supabase-ca.crt",
       "maxDuration": 60
+    },
+    "api/contact.js": {
+      "includeFiles": "scripts/supabase-ca.crt",
+      "maxDuration": 30
     }
   },
   "crons": [
