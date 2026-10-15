@@ -87,3 +87,12 @@ Ivana's screenshot: six white boxes of uneven height on cream, all with the same
 6. The description at the top shrinks to one line ("De principiante a avanzado, desde los 2 años."), so the whole choice fits at 1440×900 with no scroll inside the panel.
 - Phones: the same, stacked, with the footer stuck to the bottom of the sheet.
 - The next steps (rider details, payment) use the same sticky footer, so the main button is always in the same spot.
+
+## Hoy: say what the numbers mean
+Ivana: the "1/4", "2/3" pill on each class card is not understandable ("if I struggle, the client will").
+- Replace it with words and an icon: a rider icon + **"1 de 4 lugares"**. In a tooltip/sub-line: "3 libres". Full class: "Llena · 4 de 4" in terracotta.
+- The same rule applies everywhere a bare fraction appears (Horario week grid "2/3", Resumen "17/66", plan counts "2/4"): always words, e.g. "2 de 4 clases", "17 de 66 lugares". `npm run check:hover` doesn't cover this, so Claude Code greps the components for `{x}/{y}` displays and lists what it changed.
+- On the same screen:
+  - the rider's tag "Plan" becomes **"Del plan"** (vs "Muestra", "Suelta", "Adicional");
+  - "Plan al corriente · quedan 0" becomes **"Plan pagado · 0 clases restantes"**, plus a small terracotta "Renovar" hint when it's 0;
+  - the horse line keeps "Zafiro · propio" on one line ("propio" as a small pill after the name).
