@@ -69,3 +69,19 @@ Ivana's screenshots: the buttons have no hierarchy, and their colors and transpa
 5. **Hierarchy in the whole panel:** one mustard button per screen (the main action). Everything else is an option card, a drop zone or a text link. The ¿Dudas? pills stay sage.
 6. The summary line capitalizes names: "12 clases al mes · Ivana · $6,900" (today it shows "ivana").
 - The app's `PayDialog` uses the same option cards and the same drop zone.
+
+## Clases lightbox: choosing the option (better UX than 6 equal boxes)
+Ivana's screenshot: six white boxes of uneven height on cream, all with the same weight. Plans and single classes are mixed together, "A tu medida" looks like something you can buy, and "Continuar" sits greyed out below the fold.
+
+**New flow (right column, ES/EN):**
+1. **Two-tab switch at the top** (segmented, level 2): **Plan mensual** (default) · **Sin plan**.
+2. **Plan mensual:**
+   - a 3-part selector **4 · 8 · 12 clases al mes**, with 8 preselected and a small "Más elegido" tag above it;
+   - under it, **one summary card** for the selected plan, light sage edge: "8 clases al mes" (large), "2 por semana · el plan corre de fecha a fecha", "$613 por clase", and the price **$4,900** large on the right;
+   - the card updates as you switch 4/8/12, with no layout jump.
+3. **Sin plan:** a list of two rows (radio rows, not boxes): **Clase muestra** $500 "Para conocer el club · una por jinete" and **Clase suelta** $750 "Cuando quieras, sin plan". Clase muestra is preselected.
+4. **A tu medida** is not an option. It's a text link under the selector: "¿Necesitas días u horarios a tu medida? Escríbenos →", which opens the contact form prefilled.
+5. **Sticky footer** in the right column, always visible without scrolling: the selected option and price on the left ("8 clases al mes · $4,900"), and the mustard **Continuar** on the right. It's never disabled, because something is always selected.
+6. The description at the top shrinks to one line ("De principiante a avanzado, desde los 2 años."), so the whole choice fits at 1440×900 with no scroll inside the panel.
+- Phones: the same, stacked, with the footer stuck to the bottom of the sheet.
+- The next steps (rider details, payment) use the same sticky footer, so the main button is always in the same spot.
