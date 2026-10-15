@@ -71,7 +71,7 @@ Ivana's screenshots: the buttons have no hierarchy, and their colors and transpa
 - The app's `PayDialog` uses the same option cards and the same drop zone.
 
 ## Clases lightbox: choosing the option (better UX than 6 equal boxes)
-**Draft first: don't build this section yet.** Chat Claude draws it (`steps/drafts/step-60-clases.png`), and this section is built only after Ivana approves the draft. The direction below is the starting point for the draft.
+**Skip this section in STEP-60: it is built in STEP-63 from the approved draft.** Chat Claude draws it (`steps/drafts/step-60-clases.png`), and this section is built only after Ivana approves the draft. The direction below is the starting point for the draft.
 
 Ivana's screenshot: six white boxes of uneven height on cream, all with the same weight. Plans and single classes are mixed together, "A tu medida" looks like something you can buy, and "Continuar" sits greyed out below the fold.
 
