@@ -5,8 +5,9 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 ## Now
 
 1. **STEP-56**: real prices (muestra 500, suelta 750, adicional 750, 4 clases 2,900, 8 clases 4,900, 12 clases 6,900), inset fields, short "¿Dudas?" WhatsApp · Mensaje pills, date in Spanish
-2. **STEP-55 (on hold until Ivana says the screens are final)**: two video guides the El Árbol way (real recording, camera follows the action, Alejandro Garcia voice): "El club desde la app" (1920×1080) and "Clases en el Hípico" (vertical, for WhatsApp)
-3. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
+2. **STEP-57**: Cobros on a computer with room and order (tabs row, concept pills row on one line, $0 tiles neutral, clickable tiles, concept as two lines)
+3. **STEP-55 (on hold until Ivana says the screens are final)**: two video guides the El Árbol way (real recording, camera follows the action, Alejandro Garcia voice): "El club desde la app" (1920×1080) and "Clases en el Hípico" (vertical, for WhatsApp)
+4. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
 
