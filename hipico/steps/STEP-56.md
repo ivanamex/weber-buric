@@ -8,7 +8,7 @@ Ivana checked STEP-53's Clases lightbox (15 Oct). Run this before STEP-55, so th
 | `class_trial` (Clase muestra) | 400 | **500** |
 | `class_single` (Clase suelta) | 650 | **750** |
 | `class_extra` (Clase adicional) | 600 | **750** |
-| `plan_4` (4 clases al mes) | 2200 | 2200 (stays) |
+| `plan_4` (4 clases al mes) | 2200 | **2900** |
 | `plan_8` (8 clases al mes) | 3900 | **4900** |
 | `plan_12` (12 clases al mes) | 5400 | **6900** |
 | `boarding_monthly` (Pensión) | 9500 | 9500 (stays) |
@@ -43,7 +43,7 @@ Replace the two long, stacked buttons under "Más información":
 "Fecha de inicio" shows "10/15/2026" (the browser's US format). Use the app's `DateInput` pattern on the site too: it shows "15 oct 2026" in Spanish and "Oct 15, 2026" in English, with the native picker on top, invisible.
 
 ## Check
-- At 1440 and 390 px, in ES and EN: the Clases lightbox shows 500 / 750 / 4 clases $2,200 / 8 clases $4,900 / 12 clases $6,900. Choosing 12 makes the button read "Pagar $6,900".
+- At 1440 and 390 px, in ES and EN: the Clases lightbox shows 500 / 750 / 4 clases $2,900 / 8 clases $4,900 / 12 clases $6,900. Choosing 12 makes the button read "Pagar $6,900".
 - In the app, Precios de clases shows 500 / 750 / 750.
 - The fields read clearly as inset, and focus turns them mustard.
 - The two info pills sit on one row.
