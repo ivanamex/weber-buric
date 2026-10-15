@@ -35,6 +35,13 @@ Today the "Por revisar" heading (icon, title, count pill) sits right on top of t
 - In the card, keep 24 px of padding on the left after the mustard edge, and leave the icon room to breathe (12 px gap to the text).
 - Apply the same heading spacing to every section heading in the panel (Cobros, Resumen, Hoy, Familias, Mensajes) and in the family app: one class, one rule.
 
+## Datos para transferencia (Cobros)
+Today the card shows only the labels Banco, Titular and CLABE with nothing next to them, plus an outline Editar button. It looks broken.
+- **Empty (no bank details yet):** heading "Datos para transferencia", then one line: "Aún no hay datos bancarios. Mientras tanto, las familias ven «El club te enviará los datos para pagar»." Then a mustard main button **Agregar datos**. Also a small terracotta pill "Falta" next to the heading, because without these details nobody can pay by transfer.
+- **Filled:** heading plus three rows. Each row has the label in small caps (bark) above the value in olivewood, 16 px semibold. The CLABE is grouped in blocks (`0121 8000 1234 5678 90`) in tabular numbers, with a copy icon. **Editar** sits top-right of the card as a small slate button.
+- Same padding as the other cards (24 px), and 16 px between rows.
+- Check what the family sees in the transfer panel and the website's Transferencia step when the details are empty: the same "El club te enviará los datos para pagar" line, never empty labels.
+
 ## Same order elsewhere
 Apply the same rows (tabs row, then filter row, with the same spacing) to the other desktop pages that have tabs plus filter pills: Familias, Caballos and Mensajes, if their rows run into each other too.
 
