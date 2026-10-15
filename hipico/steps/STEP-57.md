@@ -16,6 +16,7 @@ Ivana (15 Oct, screenshot of Cobros → Por cobrar at about 1500 px): "Everythin
 - Today, "Vence hoy" and "Por vencer" look tinted even at $0, so they read as selected.
 - Same height, same inner padding (20 px 24 px), 16 px between tiles.
 - Clicking a tile filters the table to that group, and the tile shows an olive 2 px outline while active. Clicking it again clears the filter.
+- **Hover**, so the tiles don't look static: the tile lifts 2 px with a soft shadow in its own color, the fill deepens a touch, and a small "Ver →" appears bottom-right (the same pattern as Resumen's tiles in STEP-54). A $0 tile gets the mustard glass hover. Pointer cursor. Reduced motion: only the color changes.
 
 ## Table
 - **Concepto** cell: first line "Plan 8 clases" (the plan, no "Plan mensual ·" in front). Second line the rider, "Regina", in small muted text. Same pattern for the other concepts: "Pensión · octubre" / horse name, "Clase suelta" / rider.
