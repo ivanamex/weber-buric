@@ -15,9 +15,9 @@ const MSG_OF = { missing: 'name', contactRequired: 'contact', badEmail: 'badEmai
  * the service, a hidden field that only bots fill in. "Enviar mensaje" shows a spinner; then a calm thank-you.
  * `service`: the lightbox's service key (null from Visítanos). `onBack`: "← Volver" to the service text.
  */
-export function ContactForm({ service = null, onBack, titleId }) {
+export function ContactForm({ service = null, prefill = null, onBack, titleId }) {
   const { t, lang } = useI18n()
-  const fresh = () => ({ name: '', phone: '', email: '', channel: 'whatsapp', website: '', message: service ? t('site.contact.prefill', { service: t(`site.sheet.${service}.title`) }) : '' })
+  const fresh = () => ({ name: '', phone: '', email: '', channel: 'whatsapp', website: '', message: prefill ?? (service ? t('site.contact.prefill', { service: t(`site.sheet.${service}.title`) }) : '') })
   const [f, setF] = useState(fresh)
   const [errors, setErrors] = useState({})
   const [busy, setBusy] = useState(false)

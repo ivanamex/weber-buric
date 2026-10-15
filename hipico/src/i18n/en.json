@@ -145,7 +145,8 @@
   },
   "methods": {
     "cash": "Cash",
-    "transfer": "Transfer"
+    "transfer": "Transfer",
+    "card": "Card"
   },
   "family": {
     "rider": "Rider",
@@ -528,7 +529,8 @@
     "overlap": "Already has another class at that time.",
     "tooManyPhotos": "There are already 12 photos. Ask the club to remove one.",
     "contactRequired": "Leave a phone or an email.",
-    "badPhone": "Check the phone number."
+    "badPhone": "Check the phone number.",
+    "cardOff": "Card payment isn't available right now. Pay by transfer."
   },
   "live": {
     "loading": "Loading…",
@@ -1242,7 +1244,8 @@
     "meta": {
       "title": "Hípico Riviera Maya · Horse riding lessons in Playa del Carmen and Paamul",
       "desc": "Equestrian club in Paamul, Riviera Maya: horse riding lessons in Playa del Carmen from age 2, horse boarding, show jumping, summer horse camp and equine therapy.",
-      "download": "Get the app · Hípico Riviera Maya"
+      "download": "Get the app · Hípico Riviera Maya",
+      "pay": "Payment · Hípico Riviera Maya"
     },
     "wa": {
       "general": "Hi, I'd like information about Hípico Riviera Maya.",
@@ -1550,7 +1553,10 @@
         "daily": "Every day",
         "dailyNote": "For those who ride daily",
         "custom": "Made to measure",
-        "customNote": "Days, times and level your way"
+        "customNote": "Days, times and level your way",
+        "single": "Single class",
+        "singleNote": "No plan, whenever you like",
+        "plan": "{n} classes a month"
       },
       "competitions": {
         "title": "Show jumping",
@@ -1618,7 +1624,78 @@
         "badPhone": "Check the number: some digits are missing.",
         "tooMany": "We've received several messages from you. Wait a while or message us on WhatsApp.",
         "network": "It couldn't be sent. Try again or message us on WhatsApp."
+      },
+      "customPrefill": "I'm interested in: A plan of my own"
+    },
+    "info": {
+      "whatsapp": "Message us on WhatsApp",
+      "message": "Send us a message",
+      "title": "More information"
+    },
+    "enroll": {
+      "pick": "Pick an option and pay online",
+      "customHint": "Tell us your days, times and level, and we'll put your plan together.",
+      "popular": "Most popular",
+      "perClass": "{price} per class",
+      "continue": "Continue",
+      "request": "Request my plan",
+      "back": "Back",
+      "chosen": "You chose: {option}",
+      "riderName": "Rider's name",
+      "riderAge": "Age",
+      "contact": "Parent or guardian's name",
+      "phone": "Phone (WhatsApp)",
+      "email": "Email",
+      "emailHint": "You'll sign in to the app with this email.",
+      "start": "Start date",
+      "startClass": "Preferred day",
+      "startHint": "The club confirms the time with you.",
+      "pay": "Pay {amount}",
+      "paying": "One moment…",
+      "howPay": "How would you like to pay?",
+      "transfer": "Bank transfer",
+      "card": "Card",
+      "cardNote": "Secure payment with Mercado Pago",
+      "cardGo": "Pay by card",
+      "cardWait": "Opening Mercado Pago…",
+      "transferTitle": "Transfer {amount} to this account",
+      "concept": "In the reference write: {ref}",
+      "bankPending": "The club hasn't published its bank details yet: we'll send them by WhatsApp or email.",
+      "copy": "Copy",
+      "copied": "CLABE copied",
+      "upload": "Upload receipt",
+      "uploading": "Uploading…",
+      "formats": "Photo or PDF · up to 10 MB",
+      "later": "I'll upload it later from the app",
+      "doneTitle": "All set, {name}!",
+      "transferDone": "We got your receipt. The club reviews it and confirms by WhatsApp or email.",
+      "laterDone": "Your spot is saved. Transfer when you can and upload the receipt from the app.",
+      "appLine": "Sign in to the app with {email}: a 6-digit code arrives by email.",
+      "appBtn": "Open the app",
+      "another": "Enrol another rider",
+      "errors": {
+        "riderName": "Enter the rider's name.",
+        "contact": "Enter your name.",
+        "email": "Enter a valid email.",
+        "phone": "Check the number: some digits are missing.",
+        "age": "Age between 2 and 99.",
+        "date": "Pick a date from today on."
       }
+    },
+    "pay": {
+      "received": {
+        "title": "Payment received!",
+        "text": "Thank you. Your card payment is recorded and your spot is confirmed. Open the app to see your classes."
+      },
+      "pending": {
+        "title": "Payment in progress",
+        "text": "Mercado Pago is still confirming your payment. Once it's approved you'll see it in the app; there's no need to pay again."
+      },
+      "rejected": {
+        "title": "The payment didn't go through",
+        "text": "Your card was declined. Try another one from the app or pay by bank transfer."
+      },
+      "back": "Back to the site"
     }
   },
   "wa": {

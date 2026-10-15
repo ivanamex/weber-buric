@@ -112,9 +112,50 @@ function paint(ctx, cells, cw, ch, ox, oy, alpha, tint = mix) {
   }
 }
 
-/** The closing band's horse: gallops across in about 12 s, three frames for the legs. Still with reduced motion. */
-/** colors: [from, to] as [r, g, b]; the app's sage → light sage by default. */
-export function RunningHorse({ colors }) {
+// A small course for the footer: 3 numbered fences (posts + striped poles) on a dotted ground line.
+const FENCES = [0.24, 0.5, 0.76]
+const INK = 'rgba(51,53,42,'
+function drawCourse(ctx, w, ground, fh) {
+  ctx.save()
+  ctx.lineCap = 'round'
+  ctx.strokeStyle = `${INK}.5)`
+  ctx.lineWidth = 1.5
+  ctx.setLineDash([2, 7])
+  ctx.beginPath(); ctx.moveTo(16, ground + 0.5); ctx.lineTo(w - 16, ground + 0.5); ctx.stroke()
+  const half = Math.max(22, fh * 0.55)
+  FENCES.forEach((fx, i) => {
+    const cx = Math.round(fx * w)
+    ctx.setLineDash([])
+    ctx.strokeStyle = `${INK}.72)`
+    ctx.lineWidth = 2
+    for (const px of [cx - half, cx + half]) { // posts with a small cap
+      ctx.beginPath(); ctx.moveTo(px, ground); ctx.lineTo(px, ground - fh - 6); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(px - 4, ground - fh - 6); ctx.lineTo(px + 4, ground - fh - 6); ctx.stroke()
+    }
+    ctx.lineWidth = 3
+    ctx.setLineDash([10, 7]) // striped poles
+    for (let k = 1; k <= 3; k++) {
+      const y = ground - (fh * k) / 3
+      ctx.beginPath(); ctx.moveTo(cx - half + 3, y); ctx.lineTo(cx + half - 3, y); ctx.stroke()
+    }
+    ctx.setLineDash([])
+    ctx.lineWidth = 1.5 // the number, like a course plan
+    ctx.beginPath(); ctx.arc(cx - half - 12, ground - fh - 14, 9, 0, Math.PI * 2); ctx.stroke()
+    ctx.fillStyle = `${INK}.85)`
+    ctx.font = '700 11px "Archivo Variable", sans-serif'
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+    ctx.fillText(String(i + 1), cx - half - 12, ground - fh - 13.5)
+  })
+  ctx.restore()
+}
+
+/**
+ * The closing band's horse: gallops across in about 14 s, three frames for the legs. With `course`, three numbered
+ * fences stand on a dotted ground line and the horse jumps each one (a smooth arc, stretched out in the air), then
+ * loops. Reduced motion: the horse stands still at the start line; the fences stay.
+ * colors: [from, to] as [r, g, b]; the app's sage → light sage by default.
+ */
+export function RunningHorse({ colors, course = false }) {
   const ref = useRef(null)
   const tint = colors ? mixer(colors[0], colors[1]) : mix
   useEffect(() => {
@@ -127,13 +168,13 @@ export function RunningHorse({ colors }) {
     let raf = 0
     let alive = true
     let visible = false
-    const LAP = 12000
+    const LAP = course ? 14000 : 12000
     const STEP = 110
     const layout = () => {
       const w = canvas.parentElement.clientWidth
       const h = canvas.parentElement.clientHeight
       const cols = w < 600 ? 50 : 64
-      hw = Math.min(w * 0.62, w < 600 ? 230 : 330)
+      hw = course ? Math.min(w * 0.5, w < 600 ? 200 : 300) : Math.min(w * 0.62, w < 600 ? 230 : 330)
       cw = hw / cols
       chH = cw * CHAR_RATIO
       frames = POSES.map((p) => rasterise(p, cols))
@@ -143,10 +184,23 @@ export function RunningHorse({ colors }) {
       const w = canvas.clientWidth
       const h = canvas.clientHeight
       const still = reducedMotion()
-      const f = frames[still ? 0 : Math.floor(t / STEP) % frames.length]
-      const x = still ? (w - hw) / 2 : ((t % LAP) / LAP) * (w + hw) - hw
-      const y = h - f.rows * chH - 12
       ctx.clearRect(0, 0, w, h)
+      const ground = h - 14
+      const fh = course ? Math.min(70, frames[0].rows * chH * 0.42) : 0
+      if (course) drawCourse(ctx, w, ground, fh)
+      let lift = 0
+      const x = still ? (course ? 12 : (w - hw) / 2) : ((t % LAP) / LAP) * (w + hw) - hw
+      if (course && !still) {
+        const nose = x + hw * 0.55
+        const span = hw * 0.78
+        for (const fx of FENCES) {
+          const d = (nose - fx * w) / span
+          if (Math.abs(d) < 1) lift = Math.max(lift, (fh + 18) * (1 - d * d))
+        }
+      }
+      const inAir = lift > (fh + 18) * 0.25
+      const f = frames[still || inAir ? 0 : Math.floor(t / STEP) % frames.length]
+      const y = ground - f.rows * chH + 2 - lift
       paint(ctx, f.cells, cw, chH, x, y, 0.62, tint)
     }
     const loop = (t) => {

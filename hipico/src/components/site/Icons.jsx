@@ -2,6 +2,7 @@ import { HORSESHOE_D } from '../Icon.jsx'
 
 // The website's pictograms: line drawings on a 24×24 grid, same stroke as the app's icons.
 const P = {
+  card: <><rect x="3" y="5.5" width="18" height="13" rx="2.5" /><path d="M3 10h18M7 15h4" /></>,
   helmet: <><path d="M4 16c0-5.6 3.6-9.6 8.3-9.6 4.4 0 7.6 3.4 7.7 7.6l2.2 1.6c.3.3.1.6-.3.6H4z" /><path d="M5 12.6h14.4" /><path d="M6.5 16.4c0 2.4 1.7 4.1 4.1 4.1" /><circle cx="12.3" cy="6.4" r=".75" fill="currentColor" stroke="none" /></>,
   horseshoe: <path d={HORSESHOE_D} fill="currentColor" stroke="none" fillRule="evenodd" />,
   saddle: <><path d="M3 5.5c.9 3.4 3.6 5 7.8 4.8 3.3-.2 5.4-1.4 6.9-3.5.6-.9 1.7-1.2 2.6-.7" /><path d="M8.3 10.2 7.6 16c-.1 1.1.7 2 1.8 2h3.3c1 0 1.8-.8 1.9-1.8l.4-6.6" /><path d="M11.2 18v1.3M9.4 21.2h3.6M9.8 21.2l1.4-1.9 1.4 1.9" /></>,

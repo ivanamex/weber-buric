@@ -3,9 +3,10 @@ import { createPortal } from 'react-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { SiteIcon } from '../components/site/Icons.jsx'
 import { waLink } from '../components/ui.jsx'
-import { planList, useSiteData } from './siteData.js'
+import { useSiteData } from './siteData.js'
 import { BIG } from './content.js'
 import { ContactForm } from './ContactForm.jsx'
+import { Enroll } from './Enroll.jsx'
 
 const wa = (text) => ({ href: waLink(text), target: '_blank', rel: 'noopener noreferrer' })
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([tabindex="-1"]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -56,12 +57,23 @@ export function SiteDialog({ photo, alt, position, labelledBy, onClose, children
 export function ServiceSheet({ service, onClose }) {
   const { t, fmtMoney } = useI18n()
   const data = useSiteData()
-  const [writing, setWriting] = useState(false)
+  const [writing, setWriting] = useState(false) // false | true | 'custom' (A tu medida)
   const [back, setBack] = useState(false) // coming back from the form: the text slides in from the left
+  const write = (what = true) => { setWriting(what); setBack(true) }
+  // "Más información": WhatsApp with a ready message, or the contact form. The same pair in every lightbox.
+  const info = (
+    <div className="ssheet2__info">
+      <span className="ssheet2__infolabel">{t('site.info.title')}</span>
+      <div className="ssheet2__ctas">
+        <a className="sbtn sbtn--sage" {...wa(t(`site.wa.${{ classes: 'classes', competitions: 'competitions', boarding: 'boarding', early: 'early' }[service.key] || 'general'}`))}>
+          <span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.info.whatsapp')}</span>
+        </a>
+        <button type="button" className="sbtn sbtn--sage" onClick={() => write()}><span className="sbtn__in"><SiteIcon name="mail" size={20} /> {t('site.info.message')}</span></button>
+      </div>
+    </div>
+  )
 
   const price = (n) => (n > 0 ? fmtMoney(n) : t('site.sheet.ask'))
-  const plans = planList(data?.prices)
-  const lowest = plans.length ? Math.min(...plans.map((p) => p.price)) : 0
   const Row = ({ name, note, value }) => (
     <li className="ssheetrow"><div><b>{name}</b>{note && <em>{note}</em>}</div><span>{value}</span></li>
   )
@@ -70,17 +82,8 @@ export function ServiceSheet({ service, onClose }) {
   if (service.key === 'classes') {
     body = (
       <>
-        <ul className="ssheet2__rows">
-          <Row name={t('site.sheet.classes.trial')} note={t('site.sheet.classes.trialNote')} value={price(data?.prices?.class_trial)} />
-          <Row name={t('site.sheet.classes.plans', { list: (plans.length ? plans.map((p) => p.classes) : [4, 8, 12]).join(' · ') })}
-            note={t('site.sheet.classes.plansNote')} value={lowest ? t('site.sheet.from', { price: fmtMoney(lowest) }) : t('site.sheet.ask')} />
-          <Row name={t('site.sheet.classes.daily')} note={t('site.sheet.classes.dailyNote')} value={t('site.sheet.ask')} />
-          <Row name={t('site.sheet.classes.custom')} note={t('site.sheet.classes.customNote')} value={t('site.sheet.ask')} />
-        </ul>
-        <div className="ssheet2__ctas">
-          <a className="sbtn sbtn--deep" {...wa(t('site.wa.trial'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</span></a>
-          <button type="button" className="sbtn sbtn--sage" onClick={() => { setWriting(true); setBack(true) }}>{t('site.sheet.write')}</button>
-        </div>
+        <Enroll data={data} onCustom={() => write('custom')} />
+        {info}
       </>
     )
   } else if (service.key === 'boarding') {
@@ -94,9 +97,7 @@ export function ServiceSheet({ service, onClose }) {
         {data?.prices?.boarding_monthly > 0 && (
           <ul className="ssheet2__rows"><Row name={t('site.sheet.boarding.monthly')} note={t('site.sheet.boarding.monthlyNote')} value={fmtMoney(data.prices.boarding_monthly)} /></ul>
         )}
-        <div className="ssheet2__ctas">
-          <a className="sbtn sbtn--deep" {...wa(t('site.wa.boarding'))}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.boarding.cta')}</span></a>
-        </div>
+        {info}
       </>
     )
   } else {
@@ -108,11 +109,7 @@ export function ServiceSheet({ service, onClose }) {
             <li key={i}><SiteIcon name={comp ? (i === 3 ? 'trophy' : 'jump') : 'check'} size={22} /><span>{t(`site.sheet.${service.key}.items.${i}`)}</span></li>
           ))}
         </ul>
-        <div className="ssheet2__ctas">
-          <a className="sbtn sbtn--deep" {...wa(t(comp ? 'site.wa.competitions' : 'site.wa.early'))}>
-            <span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t(comp ? 'site.competitions.cta' : 'site.sheet.early.cta')}</span>
-          </a>
-        </div>
+        {info}
       </>
     )
   }
@@ -121,7 +118,7 @@ export function ServiceSheet({ service, onClose }) {
     <SiteDialog photo={service.photo} alt={service.alt} position={service.position} labelledBy="ssheet2-title" onClose={onClose}>
       {writing ? (
         <div key="form" className="ssheet2__body ssheet2__body--in">
-          <ContactForm service={service.key} titleId="ssheet2-title" onBack={() => setWriting(false)} />
+          <ContactForm service={service.key} prefill={writing === 'custom' ? t('site.contact.customPrefill') : null} titleId="ssheet2-title" onBack={() => setWriting(false)} />
         </div>
       ) : (
         <div key="info" className={`ssheet2__body ${back ? 'ssheet2__body--back' : ''}`}>

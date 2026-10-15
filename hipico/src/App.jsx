@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import SiteLayout from './site/SiteLayout.jsx'
 import OnePage from './site/OnePage.jsx'
+import PayResult from './site/PayResult.jsx'
 import { OLD_PAGES, homePath, sectionId } from './site/routes.js'
 import { useI18n } from './i18n/I18nProvider.jsx'
 
@@ -28,10 +29,12 @@ export default function App() {
       <Routes>
         <Route path="/" element={<SiteLayout lang="es" />}>
           <Route index element={<OnePage />} />
+          <Route path="pago/:estado" element={<PayResult />} />
           {oldPages('es')}
         </Route>
         <Route path="/en" element={<SiteLayout lang="en" />}>
           <Route index element={<OnePage />} />
+          <Route path="payment/:estado" element={<PayResult />} />
           {oldPages('en')}
         </Route>
         <Route path="/descargar" element={<DownloadPage />} />

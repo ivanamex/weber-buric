@@ -23,6 +23,7 @@ async function fromDatabase() {
     prices: d.prices || {},
     events: d.events || [],
     sales: d.sales ? d.sales.map((h) => ({ ...h, photo: photo(h.photo) })) : null,
+    bank: d.bank || {}, // the club's bank details, for paying by transfer on the website
   }
 }
 
@@ -39,6 +40,7 @@ async function fromDemo() {
     sales: s.horses.filter((h) => h.status === 'for_sale').map((h) => ({
       id: h.id, name: h.name, level: h.level, breed: h.breed, sex: h.sex, age: h.age, photo: null,
     })),
+    bank: { bankName: s.settings.bankName, accountHolder: s.settings.accountHolder, clabe: s.settings.clabe },
   }
 }
 
@@ -47,7 +49,7 @@ export function loadSiteData() {
   if (!pending) {
     pending = (LIVE_CONFIGURED ? fromDatabase() : fromDemo())
       .then((d) => { cache = d; return d })
-      .catch(() => { pending = null; return { prices: {}, events: [], sales: null } })
+      .catch(() => { pending = null; return { prices: {}, events: [], sales: null, bank: {} } })
   }
   return pending
 }

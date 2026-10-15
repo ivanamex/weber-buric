@@ -83,3 +83,7 @@ export const FIGURES = { years: null, horses: null, hectares: null, riders: null
 
 // Testimonials: only real ones, word for word, with the person's name. Empty hides the block.
 export const TESTIMONIALS = []
+
+// The slogan above the footer's course (the horse jumps the fences under it). To swap it, change the two lines.
+// Alternatives Ivana liked: "Aquí los caballos son el plan." / "Here, the horses are the plan." · "Un salto a la vez." / "One jump at a time."
+export const SLOGAN = { es: 'Tu lugar feliz, a caballo.', en: 'Your happy place, on horseback.' }

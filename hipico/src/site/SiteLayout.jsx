@@ -8,7 +8,7 @@ import { SiteIcon } from '../components/site/Icons.jsx'
 import { waLink } from '../components/ui.jsx'
 import { isStandalone } from '../lib/install.js'
 import { SECTIONS, homePath, sectionId, translateHash } from './routes.js'
-import { CONTACT, SHARE_IMAGE } from './content.js'
+import { CONTACT, SHARE_IMAGE, SLOGAN } from './content.js'
 import { reducedMotion, useReveal } from './motion.jsx'
 import './site.css'
 
@@ -221,7 +221,8 @@ function SiteFooter() {
   const { t, lang } = useI18n()
   return (
     <footer className="sfooter" data-tone="light">
-      <div className="sgallop" aria-hidden="true"><RunningHorse colors={HORSE_COLORS} /></div>
+      <p className="sfooter__slogan">{SLOGAN[lang] || SLOGAN.es}</p>
+      <div className="sgallop" aria-hidden="true"><RunningHorse colors={HORSE_COLORS} course /></div>
       <div className="scontainer sfooter__row">
         <a href={`${homePath(lang)}#top`} aria-label={t('site.homeLabel')}><Logo /></a>
         <div className="sfooter__social">

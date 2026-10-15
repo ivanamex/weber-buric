@@ -145,7 +145,8 @@
   },
   "methods": {
     "cash": "Efectivo",
-    "transfer": "Transferencia"
+    "transfer": "Transferencia",
+    "card": "Tarjeta"
   },
   "family": {
     "rider": "Jinete",
@@ -528,7 +529,8 @@
     "overlap": "Ya tiene otra clase a esa hora.",
     "tooManyPhotos": "Ya hay 12 fotos. Pide al club que quite alguna.",
     "contactRequired": "Deja un teléfono o un correo.",
-    "badPhone": "Revisa el número de teléfono."
+    "badPhone": "Revisa el número de teléfono.",
+    "cardOff": "El pago con tarjeta no está disponible por ahora. Paga por transferencia."
   },
   "live": {
     "loading": "Cargando…",
@@ -1242,7 +1244,8 @@
     "meta": {
       "title": "Hípico Riviera Maya · Clases de equitación en Playa del Carmen y Paamul",
       "desc": "Club ecuestre en Paamul, Riviera Maya: clases de equitación en Playa del Carmen desde los 2 años, pensión de caballos, competencias de salto, campamento de verano con caballos y equinoterapia.",
-      "download": "Descarga la app · Hípico Riviera Maya"
+      "download": "Descarga la app · Hípico Riviera Maya",
+      "pay": "Pago · Hípico Riviera Maya"
     },
     "wa": {
       "general": "Hola, quiero información sobre Hípico Riviera Maya.",
@@ -1550,7 +1553,10 @@
         "daily": "Todos los días",
         "dailyNote": "Para quien monta a diario",
         "custom": "A tu medida",
-        "customNote": "Días, horarios y nivel a tu manera"
+        "customNote": "Días, horarios y nivel a tu manera",
+        "single": "Clase suelta",
+        "singleNote": "Sin plan, cuando quieras",
+        "plan": "{n} clases al mes"
       },
       "competitions": {
         "title": "Competencias",
@@ -1618,7 +1624,78 @@
         "badPhone": "Revisa el número: faltan dígitos.",
         "tooMany": "Ya recibimos varios mensajes tuyos. Espera un rato o escríbenos por WhatsApp.",
         "network": "No se pudo enviar. Inténtalo de nuevo o escríbenos por WhatsApp."
+      },
+      "customPrefill": "Me interesa: A tu medida"
+    },
+    "info": {
+      "whatsapp": "Escríbenos por WhatsApp",
+      "message": "Envíanos un mensaje",
+      "title": "Más información"
+    },
+    "enroll": {
+      "pick": "Elige una opción y paga en línea",
+      "customHint": "Cuéntanos días, horarios y nivel, y armamos tu plan.",
+      "popular": "Más elegido",
+      "perClass": "{price} por clase",
+      "continue": "Continuar",
+      "request": "Pedir mi plan",
+      "back": "Volver",
+      "chosen": "Elegiste: {option}",
+      "riderName": "Nombre del jinete",
+      "riderAge": "Edad",
+      "contact": "Nombre de mamá, papá o tutor",
+      "phone": "Teléfono (WhatsApp)",
+      "email": "Correo",
+      "emailHint": "Con este correo entras a la app.",
+      "start": "Fecha de inicio",
+      "startClass": "Día que prefieres",
+      "startHint": "El club confirma contigo la hora.",
+      "pay": "Pagar {amount}",
+      "paying": "Un momento…",
+      "howPay": "¿Cómo quieres pagar?",
+      "transfer": "Transferencia",
+      "card": "Tarjeta",
+      "cardNote": "Pago seguro con Mercado Pago",
+      "cardGo": "Pagar con tarjeta",
+      "cardWait": "Abriendo Mercado Pago…",
+      "transferTitle": "Transfiere {amount} a esta cuenta",
+      "concept": "En el concepto escribe: {ref}",
+      "bankPending": "El club aún no publica sus datos bancarios: te los mandamos por WhatsApp o correo.",
+      "copy": "Copiar",
+      "copied": "CLABE copiada",
+      "upload": "Subir comprobante",
+      "uploading": "Subiendo…",
+      "formats": "Foto o PDF · hasta 10 MB",
+      "later": "Lo subo después desde la app",
+      "doneTitle": "¡Listo, {name}!",
+      "transferDone": "Recibimos tu comprobante. El club lo revisa y te confirma por WhatsApp o correo.",
+      "laterDone": "Tu lugar está apartado. Transfiere cuando puedas y sube el comprobante desde la app.",
+      "appLine": "Entra a la app con {email}: te llega un código de 6 dígitos.",
+      "appBtn": "Abrir la app",
+      "another": "Inscribir a otro jinete",
+      "errors": {
+        "riderName": "Escribe el nombre del jinete.",
+        "contact": "Escribe tu nombre.",
+        "email": "Escribe un correo válido.",
+        "phone": "Revisa el número: faltan dígitos.",
+        "age": "Edad entre 2 y 99.",
+        "date": "Elige una fecha de hoy en adelante."
       }
+    },
+    "pay": {
+      "received": {
+        "title": "¡Pago recibido!",
+        "text": "Gracias. Tu pago con tarjeta quedó registrado y tu lugar está confirmado. Entra a la app para ver tus clases."
+      },
+      "pending": {
+        "title": "Pago en proceso",
+        "text": "Mercado Pago sigue confirmando tu pago. En cuanto se apruebe lo verás en la app; no hace falta pagar de nuevo."
+      },
+      "rejected": {
+        "title": "El pago no se completó",
+        "text": "Tu tarjeta no fue aceptada. Intenta con otra desde la app o paga por transferencia."
+      },
+      "back": "Volver al sitio"
     }
   },
   "wa": {

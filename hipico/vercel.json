@@ -33,6 +33,18 @@
     "api/contact.js": {
       "includeFiles": "scripts/supabase-ca.crt",
       "maxDuration": 30
+    },
+    "api/enroll.js": {
+      "includeFiles": "scripts/supabase-ca.crt",
+      "maxDuration": 30
+    },
+    "api/mp-checkout.js": {
+      "includeFiles": "scripts/supabase-ca.crt",
+      "maxDuration": 30
+    },
+    "api/mp-webhook.js": {
+      "includeFiles": "scripts/supabase-ca.crt",
+      "maxDuration": 30
     }
   },
   "crons": [

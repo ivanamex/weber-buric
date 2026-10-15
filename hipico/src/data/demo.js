@@ -15,7 +15,8 @@ function load() {
     const raw = localStorage.getItem(KEY)
     if (raw) {
       const s = JSON.parse(raw)
-      if (s?.version === 1) return { ...s, session: null }
+      // Any saved demo state comes back (activate() brings older ones up to date); a broken one starts again.
+      if (s && typeof s === 'object' && Array.isArray(s.families)) return { ...s, session: null }
     }
   } catch { /* corrupted or unavailable storage → reseed */ }
   return null
@@ -181,13 +182,19 @@ function bookSingleClass({ riderId, slotId, date, kind }) {
     const horseId = pickHorse(s, rider, slot, date)
     if (!horseId) return fail('noHorse')
     const booking = { id: nextId(s, 'b'), slotId, date, riderId, horseId, status: 'booked', kind, createdAt: now() }
-    const payment = {
-      id: nextId(s, 'pay'), familyId: rider.familyId, service: 'class', amount: CLASS_PRICES[kind],
-      status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, kind, date, slotId, bookingId: booking.id },
+    // A class of this kind paid (or charged) on the website and not yet used: this booking takes it.
+    let payment = s.payments.filter((p) => p.familyId === rider.familyId && p.service === 'class' && p.meta?.web && p.meta?.kind === kind && p.meta?.riderId === riderId && !p.meta?.bookingId)
+      .sort((a, b) => (b.status === 'paid') - (a.status === 'paid') || a.createdAt.localeCompare(b.createdAt))[0]
+    if (payment) payment.meta = { ...payment.meta, date, slotId, bookingId: booking.id }
+    else {
+      payment = {
+        id: nextId(s, 'pay'), familyId: rider.familyId, service: 'class', amount: CLASS_PRICES[kind],
+        status: 'pending', method: null, createdAt: now(), paidAt: null, meta: { riderId, kind, date, slotId, bookingId: booking.id },
+      }
+      s.payments.push(payment)
     }
     booking.paymentId = payment.id
     s.bookings.push(booking)
-    s.payments.push(payment)
     return { ok: true, booking, payment, amount: payment.amount }
   })
 }
@@ -1052,6 +1059,81 @@ export function addContactMessage(fields) {
       message: String(fields.message || '').trim().slice(0, 2000), page: String(fields.page || '').slice(0, 200) || null,
       lang: fields.lang === 'en' ? 'en' : 'es', status: 'new', createdAt: now(), answeredAt: null,
     })
+    return { ok: true }
+  })
+}
+
+/**
+ * "Pagar" on the website when there's no database: the same rules as web_enroll() in SQL. The family (found by email
+ * or created), the rider, the plan from its start date or the class, and the charge, in the demo's data.
+ */
+export function webEnroll(fields) {
+  if (!state) state = load() || persist(createSeed())
+  const option = String(fields.option || '')
+  const email = String(fields.email || '').trim().toLowerCase()
+  const contact = String(fields.contact || '').trim().slice(0, 120)
+  const phone = String(fields.phone || '').trim().slice(0, 40) || null
+  const riderName = String(fields.rider?.name || '').trim().slice(0, 80)
+  const age = fields.rider?.age == null || fields.rider.age === '' ? null : Number(fields.rider.age)
+  if (String(fields.website || '').trim()) return { ok: true, bot: true }
+  if (!['trial', 'single', '4', '8', '12'].includes(option)) return fail('badPlan')
+  if (!riderName || !contact) return fail('missing')
+  if (!EMAIL_RE.test(email)) return fail('badEmail')
+  if (phone && phone.replace(/\D/g, '').length < 8) return fail('badPhone')
+  if (age != null && !(age >= 2 && age <= 99)) return fail('missing')
+  const today = todayKey()
+  let start = /^\d{4}-\d{2}-\d{2}$/.test(fields.start || '') ? fields.start : today
+  if (start < today) start = today
+  const classes = option === 'trial' || option === 'single' ? null : Number(option)
+  const price = classes ? planPrice(classes) : CLASS_PRICES[option]
+  if (!price) return fail('badPlan')
+  return mutate((s) => {
+    const hourAgo = Date.now() - 3600000
+    if (s.payments.filter((p) => p.meta?.web && new Date(p.createdAt).getTime() > hourAgo).length >= 5) return fail('tooMany')
+    let family = s.families.find((f) => f.email?.toLowerCase() === email)
+    let newFamily = false
+    if (family && (family.active === false || family.deletedAt)) return fail('accountBlocked')
+    if (!family) {
+      family = { id: nextId(s, 'f'), name: familyNameFor(contact), contact, email, phone: phone || '', active: true, selfSignup: true }
+      s.families.push(family)
+      newFamily = true
+    } else if (phone && !family.phone) family.phone = phone
+    let rider = s.riders.find((r) => r.familyId === family.id && r.active !== false && r.name.toLowerCase() === riderName.toLowerCase())
+    if (!rider) {
+      rider = { id: nextId(s, 'r'), familyId: family.id, name: riderName, age, level: 'beginner', active: true, planClasses: null, planStart: null }
+      s.riders.push(rider)
+    } else if (age != null && rider.age !== age) rider.age = age
+    let payment
+    if (classes) {
+      if (s.payments.some((p) => p.familyId === family.id && p.service === 'plan' && p.status === 'pending' && p.meta?.riderId === rider.id && p.receiptStatus === 'review')) return fail('pendingExists')
+      const period = periodOf(start, start > today ? start : today)
+      const month = monthKeyOf(period.startsOn)
+      payment = s.payments.find((p) => p.familyId === family.id && p.service === 'plan' && p.status === 'pending' && p.meta?.riderId === rider.id && p.meta?.kind !== 'upgrade' && p.meta?.month === month)
+      if (!payment) {
+        payment = { id: nextId(s, 'pay'), familyId: family.id, service: 'plan', amount: price, status: 'pending', method: null, createdAt: now(), paidAt: null,
+          meta: { riderId: rider.id, classes, month, start: period.startsOn, web: true, lang: fields.lang === 'en' ? 'en' : 'es' } }
+        s.payments.push(payment)
+      } else payment.meta = { ...payment.meta, web: true }
+      const res = setPlanIn(s, rider.id, classes, start)
+      if (!res.ok) return res
+    } else {
+      payment = { id: nextId(s, 'pay'), familyId: family.id, service: 'class', amount: price, status: 'pending', method: null, createdAt: now(), paidAt: null,
+        meta: { riderId: rider.id, kind: option, date: start, web: true, lang: fields.lang === 'en' ? 'en' : 'es' } }
+      s.payments.push(payment)
+    }
+    return { ok: true, payment_id: payment.id, amount: payment.amount, family_id: family.id, family_name: family.name, rider_id: rider.id, new_family: newFamily, option, start }
+  })
+}
+
+/** A receipt from the website for one of its charges → "Por revisar". */
+export function webReceipt(paymentId, file) {
+  if (!state) state = load() || persist(createSeed())
+  if (!file || file.size > RECEIPT_MAX_BYTES) return fail('fileTooBig')
+  return mutate((s) => {
+    const p = byId(s.payments, paymentId)
+    if (!p || p.status !== 'pending' || !p.meta?.web || p.receiptStatus === 'review') return fail('notFound')
+    keepFile(paymentId, file)
+    Object.assign(p, { receiptPath: `web/${paymentId}/${file.name}`, receiptStatus: 'review', receiptNote: null, receiptUploadedAt: now(), reviewedAt: null })
     return { ok: true }
   })
 }
