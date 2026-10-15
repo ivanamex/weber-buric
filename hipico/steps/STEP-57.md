@@ -21,6 +21,11 @@ Ivana (15 Oct, screenshot of Cobros → Por cobrar at about 1500 px): "Everythin
 ## Table
 - **Concepto** cell: first line "Plan 8 clases" (the plan, no "Plan mensual ·" in front). Second line the rider, "Regina", in small muted text. Same pattern for the other concepts: "Pensión · octubre" / horse name, "Clase suelta" / rider.
 - Rows: 16 px vertical padding, cells vertically centered, the amount right-aligned in tabular numbers.
+- **Sort arrows** (every `DataTable`: Cobros, Familias, Caballos, Nómina). Today the idle arrow is a pale chevron that almost disappears.
+  - Idle: a small up-and-down pair (⇅ shape, 14 px, 2 px stroke) in bark `#68604D`, so it reads as "sortable" at a glance.
+  - Sorted column: a single arrow (up or down) in olivewood, in a mustard tint pill around the header label. The label is bold.
+  - Hover on any header: the mustard glass highlight, with the arrow in olivewood. Pointer cursor, and the arrow pair nudges 1 px.
+  - Contrast: the idle arrow reaches at least 3:1 against the header row.
 - Column widths so that nothing wraps at 1280 px except the concept's second line.
 
 ## Section headings above cards ("Por revisar" and the like)
