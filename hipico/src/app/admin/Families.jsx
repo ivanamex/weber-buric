@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { DateInput } from '../../components/DateInput.jsx'
 import {
@@ -289,9 +290,23 @@ function FamiliesDesk() {
   const { t, fmtMoney } = useI18n()
   const s = useStore()
   const q = useDeskSearch(t('admin.families.search'))
-  const [status, setStatus] = useState('active')
-  const [planFilter, setPlanFilter] = useState('all')
-  const [owing, setOwing] = useState(false)
+  // The filters live in the address, so Resumen's numbers can open the list already filtered.
+  const [params, setParams] = useSearchParams()
+  const param = (key, map, fallback) => map[params.get(key)] ?? fallback
+  const status = param('estado', { activas: 'active', bloqueadas: 'inactive', todas: 'all' }, 'active')
+  const planFilter = param('plan', { con: 'with', sin: 'without', todas: 'all' }, 'all')
+  const classes = Number(params.get('clases')) || null
+  const view = params.get('vista') === 'jinetes' ? 'riders' : 'families'
+  const owing = params.get('adeudo') === '1'
+  const setParam = (changes) => {
+    const next = new URLSearchParams(params)
+    for (const [k, v] of Object.entries(changes)) { if (v == null) next.delete(k); else next.set(k, v) }
+    setParams(next, { replace: true })
+  }
+  const setStatus = (v) => setParam({ estado: { active: null, inactive: 'bloqueadas', all: 'todas' }[v] })
+  const setPlanFilter = (v) => setParam({ plan: { all: null, with: 'con', without: 'sin' }[v], clases: v === 'with' ? params.get('clases') : null })
+  const setOwing = (v) => setParam({ adeudo: v ? '1' : null })
+  const setView = (v) => setParam({ vista: v === 'riders' ? 'jinetes' : null })
   const [open, setOpen] = useState(null) // family id | 'new' | 'share'
   const today = todayKey()
   const listed = s.families.filter((f) => !isDeletedFamily(f))
@@ -309,6 +324,7 @@ function FamiliesDesk() {
     .filter((f) => (status === 'all' ? true : status === 'active' ? isActiveFamily(f) : !isActiveFamily(f)))
     .map((f) => ({ ...f, info: info(f) }))
     .filter((f) => planFilter === 'all' || (planFilter === 'with' ? f.info.plans.length > 0 : f.info.plans.length === 0))
+    .filter((f) => !classes || f.info.riders.some((r) => r.planClasses === classes))
     .filter((f) => !owing || f.info.owed > 0)
     .filter((f) => !q || [f.name, f.contact, f.email, f.phone, ...f.info.riders.map((r) => r.name)].some((v) => v?.toLowerCase().includes(q)))
   const columns = [
@@ -322,12 +338,24 @@ function FamiliesDesk() {
     { key: 'state', label: t('desk.status'), value: (f) => (isActiveFamily(f) ? t('admin.families.activeState') : t('admin.families.blocked')),
       render: (f) => <Badge tone={isActiveFamily(f) ? 'success' : 'alert'}>{isActiveFamily(f) ? t('admin.families.activeState') : t('admin.families.blocked')}</Badge> },
   ]
+  // Jinetes: one row per rider of the families listed (the same filters), opening the family.
+  const riderRows = rows.flatMap((f) => f.info.riders.filter((r) => !classes || r.planClasses === classes).map((r) => ({ ...r, family: f })))
+  const riderColumns = [
+    { key: 'name', label: t('admin.families.riderCols.name'), render: (r) => <span className="dtable__strong">{r.name}</span> },
+    { key: 'age', label: t('admin.families.riderCols.age'), value: (r) => r.age ?? '' },
+    { key: 'level', label: t('admin.families.riderCols.level'), value: (r) => t(`levels.${r.level}`), render: (r) => <LevelPill level={r.level} /> },
+    { key: 'family', label: t('admin.families.riderCols.family'), value: (r) => r.family.name },
+    { key: 'plan', label: t('admin.families.riderCols.plan'), value: (r) => r.planClasses || 0, render: (r) => (r.planClasses ? t('admin.families.planOf', { n: r.planClasses }) : <span className="muted">{t('admin.families.riderCols.noPlan')}</span>) },
+  ]
   useDeskAction({ label: t('admin.families.add'), icon: 'plus', onClick: () => setOpen('new') }, [])
   const selected = open && open !== 'new' && open !== 'share' ? byIdSafe(listed, open) : null
   return (
     <div className="page">
       <p className="small muted">{t('admin.families.intro')}</p>
       <div className="dtoolbar">
+        <Segmented small value={view} onChange={setView} options={[
+          { value: 'families', label: t('admin.families.viewFamilies') }, { value: 'riders', label: t('admin.families.viewRiders') },
+        ]} />
         <Segmented small value={status} onChange={setStatus} options={[
           { value: 'active', label: t('admin.families.activeState') }, { value: 'inactive', label: t('admin.families.blocked') }, { value: 'all', label: t('desk.all') },
         ]} />
@@ -339,9 +367,22 @@ function FamiliesDesk() {
         <button type="button" className="btn btn--sm" onClick={() => setOpen('share')}><Icon name="qr" size={16} /> {t('share.short')}</button>
         <button type="button" className="btn btn--sm" onClick={() => exportCsv(`familias-${today}.csv`, columns, rows)}><Icon name="download" size={16} /> {t('desk.export')}</button>
       </div>
-      <DataTable columns={columns} rows={rows} onRow={(f) => setOpen(f.id)} selected={open} defaultSort={{ key: 'name', dir: 1 }}
-        empty={<Empty icon="family" title={t(q ? 'admin.families.noMatch' : 'admin.families.emptyTitle')} />} />
-      <p className="small muted">{t('admin.families.count', { n: rows.length, riders: rows.reduce((a, f) => a + f.info.riders.length, 0) })}</p>
+      {classes && (
+        <p className="filterline small"><strong>{t('admin.families.planOf', { n: classes })}</strong><button type="button" className="link" onClick={() => setParam({ clases: null })}>{t('admin.families.clearFilter')}</button></p>
+      )}
+      {view === 'riders' ? (
+        <>
+          <DataTable columns={riderColumns} rows={riderRows} onRow={(r) => setOpen(r.family.id)} selected={null} defaultSort={{ key: 'name', dir: 1 }}
+            empty={<Empty icon="family" title={t(q ? 'admin.families.noMatch' : 'admin.families.noRiders')} />} />
+          <p className="small muted">{t('admin.families.riderCount', { n: riderRows.length })}</p>
+        </>
+      ) : (
+        <>
+          <DataTable columns={columns} rows={rows} onRow={(f) => setOpen(f.id)} selected={open} defaultSort={{ key: 'name', dir: 1 }}
+            empty={<Empty icon="family" title={t(q ? 'admin.families.noMatch' : 'admin.families.emptyTitle')} />} />
+          <p className="small muted">{t('admin.families.count', { n: rows.length, riders: rows.reduce((a, f) => a + f.info.riders.length, 0) })}</p>
+        </>
+      )}
       {open === 'new' && <Sheet title={t('admin.families.newTitle')} onClose={() => setOpen(null)}><NewFamilyForm onDone={() => setOpen(null)} /></Sheet>}
       {open === 'share' && <Sheet title={t('share.short')} onClose={() => setOpen(null)}><ShareApp onClose={() => setOpen(null)} /></Sheet>}
       {selected && <Sheet title={selected.name} onClose={() => setOpen(null)}><FamilyCard family={selected} /></Sheet>}

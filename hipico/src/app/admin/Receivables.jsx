@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { useStore, byId, markPaid, receivables, cashflow, remindersFor, dueOf } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
@@ -224,7 +225,13 @@ export function ReceivablesDesk({ onView }) {
   const s = useStore()
   const describe = useDescribe()
   const q = useDeskSearch(t('collect.searchPh'))
-  const [status, setStatus] = useState('pending')
+  // Resumen's figures open this list already filtered: ?estado=pagados&desde=…&hasta=… or ?estado=pendientes.
+  const [params, setParams] = useSearchParams()
+  const [status, setStatusState] = useState({ pagados: 'paid', pendientes: 'pending', todos: 'all' }[params.get('estado')] || 'pending')
+  const isDay = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v || '')
+  const range = isDay(params.get('desde')) ? { from: params.get('desde'), to: isDay(params.get('hasta')) ? params.get('hasta') : todayKey() } : null
+  const clearRange = () => { const next = new URLSearchParams(params); next.delete('desde'); next.delete('hasta'); next.delete('estado'); setParams(next, { replace: true }) }
+  const setStatus = (v) => { setStatusState(v); if (range) clearRange() }
   const [filter, setFilter] = useState('all')
   const [only, setOnly] = useState(null)
   const [open, setOpen] = useState(null)
@@ -232,8 +239,9 @@ export function ReceivablesDesk({ onView }) {
   const { groups } = receivables(s)
   const sum = (list) => list.reduce((a, x) => a + x.amount, 0)
   const pending = GROUPS.flatMap((g) => groups[g])
-  const since = addDays(today, -60)
-  const paid = s.payments.filter((p) => p.status === 'paid' && p.paidAt && p.paidAt.slice(0, 10) >= since)
+  const since = range ? range.from : addDays(today, -60)
+  const until = range ? range.to : today
+  const paid = s.payments.filter((p) => p.status === 'paid' && p.paidAt && p.paidAt.slice(0, 10) >= since && p.paidAt.slice(0, 10) <= until)
     .map((p) => ({ ...p, due: dueOf(s, p), state: 'paid' }))
   const base = status === 'pending' ? pending : status === 'paid' ? paid : [...pending, ...paid]
   const rows = base
@@ -286,6 +294,9 @@ export function ReceivablesDesk({ onView }) {
           </div>
         </div>
       </div>
+      {range && status === 'paid' && (
+        <p className="filterline small"><strong>{t('collect.paidRange', { from: fmtDate(range.from, { day: 'numeric', month: 'short' }), to: fmtDate(range.to, { day: 'numeric', month: 'short' }) })}</strong><button type="button" className="link" onClick={clearRange}>{t('collect.clearRange')}</button></p>
+      )}
       <DataTable columns={columns} rows={rows} onRow={(x) => setOpen(x.id)} selected={open} defaultSort={{ key: 'due', dir: status === 'paid' ? -1 : 1 }}
         empty={<p className="muted small">{t('collect.none')}</p>} />
       <p className="small muted">{t('collect.tableTotal', { n: rows.length, amount: fmtMoney(sum(rows)) })}</p>

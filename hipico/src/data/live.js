@@ -120,6 +120,7 @@ async function load() {
     publish({
       ...empty,
       status: 'ready',
+      loadedAt: lastLoad,
       email,
       hasPassword: Boolean(session.user?.user_metadata?.has_password),
       viaLink,
@@ -585,4 +586,5 @@ export const actions = {
   saveCategory,
   saveModules,
   markContactMessage: (id, status) => call('mark_contact_message', { p_id: id, p_status: status }),
+  refreshData: async () => { await refresh(); return { ok: true } },
 }

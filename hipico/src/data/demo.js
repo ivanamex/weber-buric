@@ -30,7 +30,7 @@ function persist(s) {
 let state = null
 let memoryOnly = false // the landing's phone preview: fresh sample data, nothing saved in the browser
 let publish = () => {}
-const view = () => ({ ...state, mode: memoryOnly ? 'preview' : 'demo', status: 'ready' })
+const view = () => ({ ...state, mode: memoryOnly ? 'preview' : 'demo', status: 'ready', loadedAt: Date.now() })
 
 function commit(next) {
   state = persist(next)
@@ -1150,7 +1150,7 @@ function markContactMessage(id, status) {
 }
 
 export const actions = {
-  login, logout, resetDemo, markContactMessage, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
+  login, logout, resetDemo, markContactMessage, refreshData: () => { publish(view()); return { ok: true } }, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
   requestBoardingPayment, markPaid, registerCamp, bookRental,
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),

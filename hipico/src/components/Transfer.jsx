@@ -5,6 +5,7 @@ import { Icon } from './Icon.jsx'
 import { Badge } from './ui.jsx'
 import { useToast } from './Toast.jsx'
 import { StatusPill } from './Colors.jsx'
+import { payByCard, useCardEnabled } from '../lib/card.js'
 
 export const RECEIPT_ACCEPT = 'image/jpeg,image/png,image/heic,image/heif,application/pdf,.heic,.heif,.pdf,.jpg,.jpeg,.png'
 const MAX_BYTES = 10 * 1024 * 1024
@@ -53,10 +54,17 @@ export function BankDetails() {
 
 /** Bank details + receipt upload for one pending payment. */
 export function TransferPanel({ payment, family }) {
-  const { t, fmtMoney } = useI18n()
+  const { t, fmtMoney, lang } = useI18n()
   const toast = useToast()
   const input = useRef(null)
   const [busy, setBusy] = useState(false)
+  const card = useCardEnabled()
+  const [cardBusy, setCardBusy] = useState(false)
+  const onCard = async () => {
+    setCardBusy(true)
+    const res = await payByCard(payment.id, lang)
+    if (!res.ok) { setCardBusy(false); toast(t(`errors.${res.code}`), 'error') }
+  }
 
   const onFile = async (e) => {
     const file = e.target.files?.[0]
@@ -71,6 +79,14 @@ export function TransferPanel({ payment, family }) {
   const waiting = payment.receiptStatus === 'review'
   return (
     <div className="transfer">
+      {card && !waiting && (
+        <div className="transfer__card">
+          <button type="button" className="btn btn--primary btn--block" disabled={cardBusy} onClick={onCard}>
+            <Icon name={cardBusy ? 'refresh' : 'card'} size={18} /> {t(cardBusy ? 'plan.cardOpening' : 'plan.payCard')}
+          </button>
+          <p className="small muted center">{t('plan.cardSecure')} · {t('receipt.orTransfer')}</p>
+        </div>
+      )}
       <p className="small">{t('receipt.instructions', { amount: fmtMoney(payment.amount) })}</p>
       <BankDetails />
       <p className="small muted">{t('receipt.reference', { ref: family?.name || '' })}</p>

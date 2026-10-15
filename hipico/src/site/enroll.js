@@ -1,7 +1,7 @@
 // Choosing and paying on the website. Live: the serverless function creates the family, the rider, the plan or class
 // and the charge (and emails the family); if it's unreachable the browser calls the database function itself. The
 // receipt goes to the receipts bucket under web/<charge>/ and is attached with submit_web_receipt(). Card payments
-// go through /api/mp-checkout (hidden while the club's Mercado Pago keys aren't in Vercel). Without a database
+// go through /api/mp-checkout (`lib/card.js`; hidden while the club's Mercado Pago keys aren't in Vercel). Without a database
 // (local build) everything lands in the demo's data, so /demo → Dirección → Cobros shows it.
 const URL = __SUPABASE_URL__
 const KEY = __SUPABASE_KEY__
@@ -61,24 +61,4 @@ export async function sendReceipt(paymentId, file) {
   }
 }
 
-let cardCache = null
-/** Whether "Pagar con tarjeta" is on (the club's Mercado Pago keys are in Vercel). Never throws. */
-export async function cardEnabled() {
-  if (!LIVE_CONFIGURED) return false
-  if (cardCache != null) return cardCache
-  try {
-    const res = await fetch('/api/mp-checkout')
-    cardCache = res.ok ? Boolean((await res.json()).enabled) : false
-  } catch { cardCache = false }
-  return cardCache
-}
-
-/** Where to send the visitor to pay a charge by card: { ok, url } or { ok: false, code }. */
-export async function cardCheckout(paymentId, lang) {
-  try {
-    return (await post('/api/mp-checkout', { paymentId, lang })) || { ok: false, code: 'network' }
-  } catch (err) {
-    console.error('[enroll] checkout failed', err.message)
-    return { ok: false, code: 'network' }
-  }
-}
+export { cardEnabled, cardCheckout } from '../lib/card.js'

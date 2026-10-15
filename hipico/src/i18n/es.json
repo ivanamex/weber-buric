@@ -250,7 +250,9 @@
     "likedIt": "¿Te gustó? Elige tu plan",
     "likedItText": "Con un plan, {name} tiene sus clases de cada mes y cada una sale más barata.",
     "nextPeriodCount": "{month} (desde el {date}): {used} de {total} clases",
-    "remaining_one": "Te queda 1"
+    "remaining_one": "Te queda 1",
+    "cardOpening": "Abriendo Mercado Pago…",
+    "cardSecure": "Pago seguro con Mercado Pago"
   },
   "boarding": {
     "title": "Pensión de caballos",
@@ -265,7 +267,8 @@
     "noneTitle": "¿Tienes caballo propio? Pregúntanos por la pensión",
     "goPay": "Pagar pensión",
     "ask": "Solicitar información",
-    "waText": "Hola, quiero información sobre la pensión de caballos."
+    "waText": "Hola, quiero información sobre la pensión de caballos.",
+    "payInside": "Pagar pensión"
   },
   "more": {
     "title": "Más",
@@ -445,7 +448,21 @@
       "planStartOf": "Inicio del plan de {name}",
       "blockTitle": "¿Bloquear a {name}?",
       "blockText": "No podrá entrar ni reservar hasta que la desbloquees. Sus clases y pagos se conservan.",
-      "count_one": "1 familia · {riders} jinetes"
+      "count_one": "1 familia · {riders} jinetes",
+      "viewFamilies": "Familias",
+      "viewRiders": "Jinetes",
+      "riderCols": {
+        "name": "Jinete",
+        "age": "Edad",
+        "level": "Nivel",
+        "family": "Familia",
+        "plan": "Plan",
+        "noPlan": "Sin plan"
+      },
+      "planOf": "Plan de {n} clases",
+      "clearFilter": "Quitar filtro",
+      "riderCount": "{n} jinetes",
+      "riderCount_one": "1 jinete"
     }
   },
   "toasts": {
@@ -597,7 +614,8 @@
     "rejectNote": "Motivo (la familia lo verá)",
     "rejectPh": "Ej.: el monto no coincide",
     "bankTitle": "Datos para transferencia",
-    "toReview": "{n} por revisar"
+    "toReview": "{n} por revisar",
+    "orTransfer": "o por transferencia"
   },
   "schedule": {
     "title": "Horario",
@@ -876,6 +894,22 @@
       "payroll": "Sueldos y pagos",
       "settings": "Días cerrados, recordatorios y módulos",
       "messages": "Lo que escriben desde la página"
+    },
+    "counts": {
+      "families": "activas, con acceso a la app",
+      "riders": "activos en familias activas",
+      "plans": "vigentes hoy, por paquete",
+      "boarded": "en el club hoy"
+    },
+    "see": "Ver",
+    "updatedAgo": "Actualizado hace {n} min",
+    "updatedAgo_one": "Actualizado hace 1 min",
+    "updatedNow": "Actualizado hace un momento",
+    "refresh": "Actualizar",
+    "moneyHint": {
+      "today": "cobrado hoy",
+      "month": "cobrado este mes",
+      "last30": "cobrado en 30 días"
     }
   },
   "payroll": {
@@ -1180,7 +1214,9 @@
     "dueOverdue_one": "Venció el {date} · 1 día",
     "count_one": "1 pago",
     "tableTotal_one": "1 pago · {amount}",
-    "concept": "Concepto"
+    "concept": "Concepto",
+    "paidRange": "Pagados del {from} al {to}",
+    "clearRange": "Ver los últimos 60 días"
   },
   "reminders": {
     "title": "Recordatorios de pago",

@@ -18,7 +18,7 @@ import { UpcomingList, CancelClassButton } from './Upcoming.jsx'
 import { GreetingMark } from '../../components/GreetingMark.jsx'
 import { getPlan, planRenewal } from '../../data/store.js'
 import { useDesktop } from '../../components/Desk.jsx'
-import { StatusPill, LevelPill, HorseTag, RiderDot, riderColor } from '../../components/Colors.jsx'
+import { StatusPill, LevelPill, HorseTag, RiderDot, riderColor, HorseAvatar } from '../../components/Colors.jsx'
 
 function greetingKey() {
   const h = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: TZ }).format(new Date()))
@@ -149,25 +149,31 @@ export default function FamilyHome() {
 
     </>
   )
+  // The pensión as a card: the horse's photo, "Pensión de octubre · $9,500", the status and "Pagar pensión" inside it.
   const boardingBlock = (
     <>
       <SectionTitle icon="saddle">{t('family.home.boarding')}</SectionTitle>
       {boarding.length ? boarding.map((b) => (
-        <div className="card row gap" key={b.horse.id}>
-          <span className="tile-icon"><Icon name="barn" /></span>
-          <div className="grow">
-            <p className="card__title">{b.horse.name}</p>
-            <p className="small muted">{t('boarding.monthOf', { month: fmtDate(`${b.month}-01`, { month: 'long' }) })} · {fmtMoney(b.payment?.amount ?? BOARDING_MONTHLY)}</p>
+        <section className="card boardcard c-sage edge-c" key={b.horse.id} aria-label={t('family.home.boarding')}>
+          <div className="boardcard__row">
+            <HorseAvatar horse={b.horse} size={56} />
+            <div className="grow">
+              <p className="card__title">{b.horse.name}</p>
+              <p className="small muted">{t('boarding.monthOf', { month: fmtDate(`${b.month}-01`, { month: 'long' }) })} · {fmtMoney(b.payment?.amount ?? BOARDING_MONTHLY)}</p>
+            </div>
+            <StatusPill status={b.status === 'paid' ? 'paid' : 'pending'}>{t(`boarding.status.${b.status}`)}</StatusPill>
           </div>
-          <StatusPill status={b.status === 'paid' ? 'paid' : 'pending'}>{t(`boarding.status.${b.status}`)}</StatusPill>
-        </div>
+          {b.status !== 'paid' && (
+            <div className="boardcard__actions">
+              <Link to={`${base}/familia/plan${b.payment ? `?pagar=${b.payment.id}` : ''}`} className="btn btn--primary btn--block"><Icon name="receipt" size={18} /> {t('boarding.payInside')}</Link>
+              <span className="small muted">{t('familyDue.atClub')}</span>
+            </div>
+          )}
+        </section>
       )) : (
         <Empty icon="saddle" title={t('boarding.noneTitle')}>
           <a className="btn btn--outline" href={waLink(t('boarding.waText'))} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" size={18} /> {t('boarding.ask')}</a>
         </Empty>
-      )}
-      {boarding.some((b) => b.status !== 'paid') && (
-        <Link to={`${base}/familia/plan`} className="btn btn--outline btn--block">{t('boarding.goPay')}</Link>
       )}
     </>
   )
@@ -184,7 +190,8 @@ export default function FamilyHome() {
   )
 
   const tiles = <QuickTiles s={s} rider={rider} familyId={family.id} dueCount={dueSoon.length} />
-  // Desktop: the green card, then next class and payments due side by side, then the quick tiles.
+  // Desktop: the green card, then next class and payments due side by side, then the quick tiles, then the rest in a
+  // 2-column grid filled from the left (an odd last card spans the width: no lone block in a corner).
   // Phone: the green card, the quick tiles, then the rest.
   return (
     <div className="page">
@@ -194,9 +201,8 @@ export default function FamilyHome() {
           {cancelledBlock}
           <div className="homepair">{nextBlock}{dueBlock}</div>
           {tiles}
-          <div className="fcols">
-            <div className="fcol">{upcomingBlock}{receiptsBlock}</div>
-            <div className="fcol">{boardingBlock}</div>
+          <div className="homegrid">
+            {[upcoming.length > 1 && upcomingBlock, receipts.length > 0 && receiptsBlock, boardingBlock].filter(Boolean).map((block, i) => <div key={i}>{block}</div>)}
           </div>
         </>
       ) : (

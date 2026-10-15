@@ -15,12 +15,14 @@ import { ActivePlanCard, ChangePlan } from './ActivePlan.jsx'
 import { UpcomingList } from './Upcoming.jsx'
 import { PaymentHistory, concept } from '../../components/PaymentHistory.jsx'
 import { StatusPill } from '../../components/Colors.jsx'
+import { payByCard, useCardEnabled } from '../../lib/card.js'
 
 export default function FamilyPlan() {
-  const { t, fmtDate, fmtMoney } = useI18n()
+  const { t, fmtDate, fmtMoney, lang } = useI18n()
   const s = useStore()
   const toast = useToast()
   const { riderId } = useFamilyContext()
+  const card = useCardEnabled()
   const rider = byId(s.riders, riderId)
   const familyId = s.session.familyId
   const thisMonth = currentMonthKey()
@@ -45,7 +47,6 @@ export default function FamilyPlan() {
   const boarding = boardingStatus(s, familyId)
   const pending = s.payments.filter((p) => p.familyId === familyId && p.status === 'pending')
 
-  const payCard = () => toast(t('toasts.cardSoon'), 'info')
   const [busy, setBusy] = useState(false)
   const [openId, setOpenId] = useState(null)
   const family = byId(s.families, familyId)
@@ -64,14 +65,23 @@ export default function FamilyPlan() {
     if (!res.ok && !(method === 'transfer' && res.code === 'pendingExists')) {
       return toast(t(`errors.${res.code}`, { month: monthName(month) }), 'error')
     }
-    if (method === 'transfer') return openTransfer(res.payment?.id || res.payment_id || pendingPlanPayment())
+    const id = res.payment?.id || res.payment_id || pendingPlanPayment()
+    if (method === 'transfer') return openTransfer(id)
+    if (method === 'card') return goCard(id)
     toast(t('toasts.planPending', { n: selected, name: rider.name, month: monthName(month) }))
+  }
+  // The charge exists; Mercado Pago opens in this tab and comes back to /pago/….
+  const goCard = async (id) => {
+    if (!id) return toast(t('errors.notFound'), 'error')
+    setBusy(true)
+    const r = await payByCard(id, lang)
+    if (!r.ok) { setBusy(false); toast(t(`errors.${r.code}`), 'error') }
   }
   const payBoarding = async (method) => {
     const res = await requestBoardingPayment(familyId)
-    if (method === 'transfer' && (res.ok || res.code === 'pendingExists')) {
+    if ((method === 'transfer' || method === 'card') && (res.ok || res.code === 'pendingExists')) {
       const id = getState().payments.find((p) => p.familyId === familyId && p.service === 'boarding' && p.status === 'pending')?.id
-      return openTransfer(id)
+      return method === 'card' ? goCard(id) : openTransfer(id)
     }
     toast(res.ok ? t('toasts.boardingPending') : t(`errors.${res.code}`), res.ok ? 'success' : 'info')
   }
@@ -109,13 +119,7 @@ export default function FamilyPlan() {
               </button>
             ))}
           </div>
-          <div className="stack">
-            <button type="button" className="btn btn--primary btn--block" onClick={payCard}><Icon name="card" size={20} /> {t('plan.payCard')}</button>
-            <div className="grid2">
-              <button type="button" className="btn btn--outline" onClick={() => payPlan('transfer')} disabled={busy}><Icon name="share" size={18} /> {t('plan.payTransfer')}</button>
-              <button type="button" className="btn btn--outline" onClick={() => payPlan('cash')} disabled={busy}><Icon name="cash" size={18} /> {t('plan.payCash')}</button>
-            </div>
-          </div>
+          <PayButtons card={card} busy={busy} onPay={payPlan} />
         </>
       )}
 
@@ -136,13 +140,7 @@ export default function FamilyPlan() {
           </div>
         ))}
         {boarding.length > 0 && boarding.some((b) => b.status !== 'paid') && (
-          <div className="stack mt12">
-            <button type="button" className="btn btn--primary btn--block" onClick={payCard}><Icon name="card" size={20} /> {t('plan.payCard')}</button>
-            <div className="grid2">
-              <button type="button" className="btn btn--outline" onClick={() => payBoarding('transfer')}><Icon name="share" size={18} /> {t('plan.payTransfer')}</button>
-              <button type="button" className="btn btn--outline" onClick={() => payBoarding('cash')}><Icon name="cash" size={18} /> {t('plan.payCash')}</button>
-            </div>
-          </div>
+          <div className="mt12"><PayButtons card={card} busy={busy} onPay={payBoarding} /></div>
         )}
         {boarding.length === 0 && (
           <button type="button" className="btn btn--outline btn--block mt12" onClick={() => toast(t('toasts.soon'), 'info')}>{t('boarding.ask')}</button>
@@ -155,6 +153,29 @@ export default function FamilyPlan() {
       </div>
       </div>
       <p className="sample-note">{t('common.samplePrices')}</p>
+    </div>
+  )
+}
+
+/** Tarjeta (only when Mercado Pago is on) as the main button, else Transferencia; cash at the club beside it. */
+function PayButtons({ card, busy, onPay }) {
+  const { t } = useI18n()
+  return (
+    <div className="stack">
+      {card ? (
+        <>
+          <button type="button" className="btn btn--primary btn--block" onClick={() => onPay('card')} disabled={busy}><Icon name="card" size={20} /> {t(busy ? 'plan.cardOpening' : 'plan.payCard')}</button>
+          <div className="grid2">
+            <button type="button" className="btn btn--outline" onClick={() => onPay('transfer')} disabled={busy}><Icon name="share" size={18} /> {t('plan.payTransfer')}</button>
+            <button type="button" className="btn btn--outline" onClick={() => onPay('cash')} disabled={busy}><Icon name="cash" size={18} /> {t('plan.payCash')}</button>
+          </div>
+        </>
+      ) : (
+        <div className="grid2">
+          <button type="button" className="btn btn--primary" onClick={() => onPay('transfer')} disabled={busy}><Icon name="share" size={18} /> {t('plan.payTransfer')}</button>
+          <button type="button" className="btn btn--outline" onClick={() => onPay('cash')} disabled={busy}><Icon name="cash" size={18} /> {t('plan.payCash')}</button>
+        </div>
+      )}
     </div>
   )
 }

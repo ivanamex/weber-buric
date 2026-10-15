@@ -94,3 +94,4 @@ export const deleteClosedDate = act('deleteClosedDate')
 export const reopenClassDate = act('reopenClassDate')
 export const markClassAttended = act('markClassAttended') // "Todos vinieron"
 export const markContactMessage = act('markContactMessage') // management: a website message answered / new
+export const refreshData = act('refreshData') // load everything again (the "Actualizar" icon on Resumen)

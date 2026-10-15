@@ -1,14 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
-  useStore, byId, activeCounts, moneySummary, overdue, renewingSoon, weekOccupancy, upcomingSalaries, moduleOn, healthDueSoon, occurrencesFor, newMessages,
+  useStore, byId, activeCounts, moneySummary, overdue, renewingSoon, weekOccupancy, upcomingSalaries, moduleOn, healthDueSoon, occurrencesFor, newMessages, refreshData,
 } from '../../data/store.js'
 import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
 import { SectionTitle } from '../../components/ui.jsx'
 import { concept, paymentSentence } from '../../components/PaymentHistory.jsx'
-import { todayKey } from '../../lib/time.js'
+import { todayKey, addDays, currentMonthKey } from '../../lib/time.js'
 import IncomeChart from './IncomeChart.jsx'
 import { LevelPill } from '../../components/Colors.jsx'
 
@@ -36,22 +36,28 @@ export default function AdminSummary() {
   const owedShown = allOwed ? owed : owed.slice(0, 5)
   const short = (d) => fmtDate(d, { day: 'numeric', month: 'short' })
   const todayClasses = occurrencesFor(s, todayKey(), null, { includeClosed: true }).filter((o) => o.bookings.length > 0)
+  const today = todayKey()
 
   return (
     <div className="page">
       <section className="homehead">
         <div>
           <h1 className="page__title">{t('summary.title')}</h1>
-          <p className="daylabel">{fmtDate(todayKey())}</p>
+          <p className="daylabel daylabel--live">{fmtDate(todayKey())} <Updated at={s.loadedAt} /></p>
         </div>
       <div className="stats stats--4">
-        <div className="stat"><strong>{counts.families}</strong><span>{t('summary.families')}</span></div>
-        <div className="stat"><strong>{counts.riders}</strong><span>{t('summary.riders')}</span></div>
-        <div className="stat">
-          <strong>{counts.plans}</strong><span>{t('summary.plans')}</span>
-          {counts.plans > 0 && <small>{Object.entries(counts.byType).sort((a, b) => a[0] - b[0]).map(([n, c]) => t('summary.planType', { n, c })).join(' · ')}</small>}
-        </div>
-        <div className="stat"><strong>{counts.boarded}</strong><span>{t('summary.boarded')}</span></div>
+        <Stat to={`${base}/direccion/familias?estado=activas`} n={counts.families} label={t('summary.families')} hint={t('summary.counts.families')} />
+        <Stat to={`${base}/direccion/familias?vista=jinetes`} n={counts.riders} label={t('summary.riders')} hint={t('summary.counts.riders')} />
+        <Stat to={`${base}/direccion/familias?plan=con`} n={counts.plans} label={t('summary.plans')} hint={t('summary.counts.plans')}>
+          {counts.plans > 0 && (
+            <span className="stat__split">
+              {Object.entries(counts.byType).sort((a, b) => a[0] - b[0]).map(([n, c]) => (
+                <Link key={n} to={`${base}/direccion/familias?plan=con&clases=${n}`} onClick={(e) => e.stopPropagation()}>{t('summary.planType', { n, c })}</Link>
+              ))}
+            </span>
+          )}
+        </Stat>
+        <Stat to={`${base}/direccion/horario?vista=caballos&estado=boarded`} n={counts.boarded} label={t('summary.boarded')} hint={t('summary.counts.boarded')} />
       </div>
       </section>
 
@@ -60,14 +66,21 @@ export default function AdminSummary() {
       <SectionTitle icon="receipt">{t('summary.money')}</SectionTitle>
       <div className="card c-sage edge-c">
         <div className="money3">
-          <div><span className="small muted">{t('summary.today')}</span><strong>{fmtMoney(money.today)}</strong></div>
-          <div><span className="small muted">{t('summary.thisMonth')}</span><strong>{fmtMoney(money.month)}</strong></div>
-          <div><span className="small muted">{t('summary.last30')}</span><strong>{fmtMoney(money.last30)}</strong></div>
+          {[
+            { k: 'today', label: t('summary.today'), n: money.today, from: today },
+            { k: 'month', label: t('summary.thisMonth'), n: money.month, from: `${currentMonthKey()}-01` },
+            { k: 'last30', label: t('summary.last30'), n: money.last30, from: addDays(today, -29) },
+          ].map((m) => (
+            <Link key={m.k} to={`${base}/direccion/cobros?estado=pagados&desde=${m.from}&hasta=${today}`} title={t('summary.see')}>
+              <span className="small muted">{m.label}</span><strong>{fmtMoney(m.n)}</strong><small>{t(`summary.moneyHint.${m.k}`)}</small>
+              <span className="stat__go">{t('summary.see')} <Icon name="arrowRight" size={12} /></span>
+            </Link>
+          ))}
         </div>
-        <div className="expected mt12">
+        <Link to={`${base}/direccion/cobros?estado=pendientes`} className="expected expected__link mt12" title={t('summary.see')}>
           <div className="row between small"><span>{t('summary.expected')}</span><span><strong>{fmtMoney(money.expectedPaid)}</strong> / {fmtMoney(money.expected)} · {pct}%</span></div>
           <div className="expected__track"><span style={{ width: `${pct}%` }} /></div>
-        </div>
+        </Link>
         <p className="card__label mt16">{t('summary.chartTitle')}</p>
         <IncomeChart daily={money.daily} />
       </div>
@@ -191,5 +204,32 @@ export default function AdminSummary() {
         ))}
       </nav>
     </div>
+  )
+}
+
+/** A header tile that opens its source, already filtered: the number, what it counts, and "Ver →" on hover. */
+function Stat({ to, n, label, hint, children }) {
+  const { t } = useI18n()
+  return (
+    <Link to={to} className="stat stat--link" title={t('summary.see')}>
+      <strong>{n}</strong><span>{label}</span><small>{hint}</small>{children}
+      <span className="stat__go">{t('summary.see')} <Icon name="arrowRight" size={12} /></span>
+    </Link>
+  )
+}
+
+/** "Actualizado hace 1 min" with a refresh icon, so the numbers read as live. */
+function Updated({ at }) {
+  const { t } = useI18n()
+  const [, tick] = useState(0)
+  const [busy, setBusy] = useState(false)
+  useEffect(() => { const id = setInterval(() => tick((x) => x + 1), 30000); return () => clearInterval(id) }, [])
+  const mins = at ? Math.floor((Date.now() - at) / 60000) : 0
+  const reload = async () => { setBusy(true); await refreshData(); setBusy(false) }
+  return (
+    <>
+      <span className="daylabel__updated">· {mins < 1 ? t('summary.updatedNow') : t('summary.updatedAgo', { n: mins })}</span>
+      <button type="button" className={`daylabel__refresh ${busy ? 'is-busy' : ''}`} onClick={reload} aria-label={t('summary.refresh')} title={t('summary.refresh')}><Icon name="refresh" size={14} /></button>
+    </>
   )
 }

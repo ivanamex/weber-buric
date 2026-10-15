@@ -250,7 +250,9 @@
     "likedIt": "Did you enjoy it? Choose your plan",
     "likedItText": "With a plan, {name} has classes every month and each one costs less.",
     "nextPeriodCount": "{month} (from {date}): {used} of {total} classes",
-    "remaining_one": "1 left"
+    "remaining_one": "1 left",
+    "cardOpening": "Opening Mercado Pago…",
+    "cardSecure": "Secure payment with Mercado Pago"
   },
   "boarding": {
     "title": "Horse boarding",
@@ -265,7 +267,8 @@
     "noneTitle": "Have your own horse? Ask us about boarding",
     "goPay": "Pay boarding",
     "ask": "Request information",
-    "waText": "Hi, I'd like information about horse boarding."
+    "waText": "Hi, I'd like information about horse boarding.",
+    "payInside": "Pay boarding"
   },
   "more": {
     "title": "More",
@@ -445,7 +448,21 @@
       "planStartOf": "{name}'s plan start",
       "blockTitle": "Block {name}?",
       "blockText": "They can't sign in or book until you unblock them. Their classes and payments are kept.",
-      "count_one": "1 family · {riders} riders"
+      "count_one": "1 family · {riders} riders",
+      "viewFamilies": "Families",
+      "viewRiders": "Riders",
+      "riderCols": {
+        "name": "Rider",
+        "age": "Age",
+        "level": "Level",
+        "family": "Family",
+        "plan": "Plan",
+        "noPlan": "No plan"
+      },
+      "planOf": "{n}-class plan",
+      "clearFilter": "Clear filter",
+      "riderCount": "{n} riders",
+      "riderCount_one": "1 rider"
     }
   },
   "toasts": {
@@ -597,7 +614,8 @@
     "rejectNote": "Reason (the family will see it)",
     "rejectPh": "E.g. the amount doesn't match",
     "bankTitle": "Bank details for transfers",
-    "toReview": "{n} to review"
+    "toReview": "{n} to review",
+    "orTransfer": "or by bank transfer"
   },
   "schedule": {
     "title": "Schedule",
@@ -876,6 +894,22 @@
       "payroll": "Salaries and payments",
       "settings": "Closed days, reminders and modules",
       "messages": "What people write from the website"
+    },
+    "counts": {
+      "families": "active, with access to the app",
+      "riders": "active in active families",
+      "plans": "running today, by package",
+      "boarded": "at the club today"
+    },
+    "see": "See",
+    "updatedAgo": "Updated {n} min ago",
+    "updatedAgo_one": "Updated 1 min ago",
+    "updatedNow": "Updated just now",
+    "refresh": "Refresh",
+    "moneyHint": {
+      "today": "collected today",
+      "month": "collected this month",
+      "last30": "collected in 30 days"
     }
   },
   "payroll": {
@@ -1180,7 +1214,9 @@
     "dueOverdue_one": "Was due {date} · 1 day",
     "count_one": "1 payment",
     "tableTotal_one": "1 payment · {amount}",
-    "concept": "Concept"
+    "concept": "Concept",
+    "paidRange": "Paid from {from} to {to}",
+    "clearRange": "See the last 60 days"
   },
   "reminders": {
     "title": "Payment reminders",
