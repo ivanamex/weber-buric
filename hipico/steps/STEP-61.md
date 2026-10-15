@@ -5,7 +5,7 @@ Run after STEP-60 (it uses STEP-60's three hover levels). Ivana (15 Oct, `/desca
 ## Fixes (`pages/Landing.jsx`, its CSS)
 - **Logo** (header `lheader` and hero `hero__logo`): no background or box on hover, opacity .85 only, no `title` tooltip (STEP-60 "Logo hover").
 - **Entrar:** level 1 (light mustard text + underline under the baseline over the dark bar), never a pill.
-- **Abrir la app** (header) and the main hero button: level 3 (mustard, sheen + lift, the color stays).
+- **Abrir la app** (header) and the main hero button: level 3 (mustard, sheen + lift, the color stays). **Bug in Ivana's screenshot:** on hover the header "Abrir la app" loses its fill: it becomes transparent with dark text on the dark bar, so the label disappears. The fill must never drop on hover (check `btn--accent` inside `.lheader` and any `:hover { background: transparent }` override).
 - **Ver cómo funciona:** secondary green glass, like the site hero's "Ver clases y precios": stays green on hover.
 - **ES/EN, the feature tiles, the "Cómo funciona" steps, the download buttons, the QR card:** each on its STEP-60 level. Tiles are level 2 with the lift.
 - **Header:** the same as the site bar: transparent only at the very top, olivewood glass as soon as the page scrolls.
