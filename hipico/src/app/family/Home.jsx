@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import {
@@ -19,6 +20,7 @@ import { GreetingMark } from '../../components/GreetingMark.jsx'
 import { getPlan, planRenewal } from '../../data/store.js'
 import { useDesktop } from '../../components/Desk.jsx'
 import { StatusPill, LevelPill, HorseTag, RiderDot, riderColor, HorseAvatar } from '../../components/Colors.jsx'
+import { PayDialog } from '../../components/PayDialog.jsx'
 
 function greetingKey() {
   const h = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: TZ }).format(new Date()))
@@ -44,6 +46,15 @@ export default function FamilyHome() {
 
   const dueSoon = familyDueSoon(s, family.id)
   const desk = useDesktop()
+  // Every "Pagar" opens the same payment lightbox (Transferencia · Tarjeta · En el club).
+  const [paying, setPaying] = useState(null)
+  const payBoarding = async (b) => {
+    if (b.payment) return setPaying(b.payment.id)
+    const res = await requestBoardingPayment(family.id)
+    if (!res.ok && res.code !== 'pendingExists') return toast(t(`errors.${res.code}`), 'error')
+    const id = getState().payments.find((p) => p.familyId === family.id && p.service === 'boarding' && p.status === 'pending' && p.meta?.horseId === b.horse.id)?.id
+    if (id) setPaying(id)
+  }
 
 
 
@@ -53,28 +64,30 @@ export default function FamilyHome() {
 
     </>
   )
-  const dueBlock = (
-    <>
-      {dueSoon.length > 0 && (
-        <section className="card duecard c-terracotta edge-c" aria-label={t('familyDue.title')}>
-          <p className="card__label">{t('familyDue.title')}</p>
-          <ul className="list">
-            {dueSoon.map((p) => (
-              <li key={p.id} className="list__row">
-                <div className="grow">
-                  <p className="list__title">{concept(t, p)}{p.meta?.riderId ? ` · ${byId(s.riders, p.meta.riderId)?.name}` : ''}{p.meta?.horseId ? ` · ${byId(s.horses, p.meta.horseId)?.name}` : ''}</p>
-                  <p className="small"><StatusPill status={p.state === 'overdue' ? 'overdue' : p.state === 'today' ? 'pending' : 'neutral'}>{t(`familyDue.${p.state}`, { date: fmtDate(p.due, { day: 'numeric', month: 'short' }) })}</StatusPill></p>
-                </div>
-                <strong>{fmtMoney(p.amount)}</strong>
-              </li>
-            ))}
-          </ul>
-          <Link to={`${base}/familia/plan?pagar=${dueSoon[0].id}`} className="btn btn--primary btn--block">{t('familyDue.pay')}</Link>
-          <p className="small muted center">{t('familyDue.atClub')}</p>
-        </section>
-      )}
-
-    </>
+  // Pagos por vencer: always a card (an empty one says so and opens Pagos).
+  const dueBlock = dueSoon.length > 0 ? (
+    <section className="card duecard c-terracotta edge-c" aria-label={t('familyDue.title')}>
+      <p className="card__label">{t('familyDue.title')}</p>
+      <ul className="list">
+        {dueSoon.map((p) => (
+          <li key={p.id} className="list__row">
+            <div className="grow">
+              <p className="list__title">{concept(t, p)}{p.meta?.riderId ? ` · ${byId(s.riders, p.meta.riderId)?.name}` : ''}{p.meta?.horseId ? ` · ${byId(s.horses, p.meta.horseId)?.name}` : ''}</p>
+              <p className="small"><StatusPill status={p.state === 'overdue' ? 'overdue' : p.state === 'today' ? 'pending' : 'neutral'}>{t(`familyDue.${p.state}`, { date: fmtDate(p.due, { day: 'numeric', month: 'short' }) })}</StatusPill></p>
+            </div>
+            <strong>{fmtMoney(p.amount)}</strong>
+            <button type="button" className="btn btn--primary btn--sm" onClick={() => setPaying(p.id)}>{t('familyDue.pay')}</button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ) : (
+    <section className="card duecard" aria-label={t('familyDue.title')}>
+      <p className="card__label">{t('familyDue.title')}</p>
+      <Empty icon="receipt" title={t('familyDue.none')}>
+        <Link to={`${base}/familia/pagos`} className="link">{t('familyDue.seePayments')}</Link>
+      </Empty>
+    </section>
   )
   const cancelledBlock = (
     <>
@@ -165,8 +178,7 @@ export default function FamilyHome() {
           </div>
           {b.status !== 'paid' && (
             <div className="boardcard__actions">
-              <Link to={`${base}/familia/plan${b.payment ? `?pagar=${b.payment.id}` : ''}`} className="btn btn--primary btn--block"><Icon name="receipt" size={18} /> {t('boarding.payInside')}</Link>
-              <span className="small muted">{t('familyDue.atClub')}</span>
+              <button type="button" className="btn btn--primary btn--block" onClick={() => payBoarding(b)}><Icon name="receipt" size={18} /> {t('boarding.payInside')}</button>
             </div>
           )}
         </section>
@@ -201,13 +213,14 @@ export default function FamilyHome() {
           {cancelledBlock}
           <div className="homerow">{planBlock}{nextBlock}</div>
           <div className="homegrid">
-            {[dueSoon.length > 0 && dueBlock, upcoming.length > 1 && upcomingBlock, receipts.length > 0 && receiptsBlock, boardingBlock].filter(Boolean).map((block, i) => <div key={i}>{block}</div>)}
+            {[dueBlock, upcoming.length > 1 && upcomingBlock, receipts.length > 0 && receiptsBlock, boardingBlock].filter(Boolean).map((block, i) => <div key={i}>{block}</div>)}
           </div>
           {tiles}
         </>
       ) : (
-        <>{head}{planBlock}{tiles}{cancelledBlock}{nextBlock}{dueBlock}{upcomingBlock}{receiptsBlock}{boardingBlock}</>
+        <>{head}{planBlock}{tiles}{cancelledBlock}{nextBlock}{dueSoon.length > 0 && dueBlock}{upcomingBlock}{receiptsBlock}{boardingBlock}</>
       )}
+      {paying && <PayDialog paymentId={paying} onClose={() => setPaying(null)} />}
     </div>
   )
 

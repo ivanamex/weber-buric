@@ -592,6 +592,28 @@ function uploadReceipt(paymentId, file) {
   })
 }
 
+/** "En el club": the family says it will pay at the office; Cobros shows it and the reminders wait 3 days. */
+function payAtClub(paymentId) {
+  return mutate((s) => {
+    const p = byId(s.payments, paymentId)
+    if (!p || p.status !== 'pending' || p.familyId !== s.session?.familyId) return fail('notFound')
+    p.meta = { ...(p.meta || {}), payAtClub: todayKey() }
+    return { ok: true }
+  })
+}
+
+/** The demo's card payment: no Mercado Pago here, so the charge is simply marked paid by card. */
+function simulateCardPayment(paymentId) {
+  return mutate((s) => {
+    const p = byId(s.payments, paymentId)
+    if (!p || p.status !== 'pending' || p.familyId !== s.session?.familyId) return fail('notFound')
+    Object.assign(p, { status: 'paid', method: 'card', paidAt: now(), meta: { ...(p.meta || {}), demoCard: 'true' } })
+    if (p.receiptStatus) { p.receiptStatus = 'approved'; p.reviewedAt = now() }
+    applyPlanPayment(s, p)
+    return { ok: true, payment: p }
+  })
+}
+
 function reviewReceipt(paymentId, approve, note) {
   return mutate((s) => {
     const p = byId(s.payments, paymentId)
@@ -1156,7 +1178,7 @@ export const actions = {
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),
   setPassword, resume: liveOnly, signInPassword: liveOnly,
-  uploadReceipt, reviewReceipt, receiptUrl, saveSettings, bookSingleClass, saveClassPrices,
+  uploadReceipt, reviewReceipt, receiptUrl, saveSettings, bookSingleClass, saveClassPrices, payAtClub, simulateCardPayment,
   saveHorseCare, addHealth, updateHealth, deleteHealth,
   sellHorse, uploadHorsePhoto, removeHorsePhoto, addOwnHorsePhoto, setHorsePhotoHidden, horsePhotoUrl, saveEmployee, paySalary, saveExpense, deleteExpense, saveCategory, saveModules,
   saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,

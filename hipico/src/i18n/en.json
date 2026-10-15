@@ -252,7 +252,8 @@
     "nextPeriodCount": "{month} (from {date}): {used} of {total} classes",
     "remaining_one": "1 left",
     "cardOpening": "Opening Mercado Pago…",
-    "cardSecure": "Secure payment with Mercado Pago"
+    "cardSecure": "Secure payment with Mercado Pago",
+    "chooseAndPay": "Choose and pay {amount}"
   },
   "boarding": {
     "title": "Horse boarding",
@@ -914,7 +915,18 @@
       "today": "collected today",
       "month": "collected this month",
       "last30": "collected in 30 days"
-    }
+    },
+    "viewAll": "See all ({n}) →",
+    "seeSchedule": "See schedule →",
+    "seePlans": "See plans →",
+    "seeHorses": "See horses →",
+    "seePayroll": "See payroll →",
+    "seeCollect": "See collections →",
+    "seeToday": "See all ({n}) →",
+    "emptyToday": "No classes with riders today.",
+    "emptyHorses": "No horse has anything due in 14 days.",
+    "emptySalaries": "No salary is due in 15 days.",
+    "seats": "{taken} of {seats} seats"
   },
   "payroll": {
     "title": "Payroll",
@@ -1043,7 +1055,8 @@
     "hidePhoto": "Hide",
     "showPhoto": "Show",
     "photoHiddenDone": "Photo hidden",
-    "photoShownDone": "Photo visible again"
+    "photoShownDone": "Photo visible again",
+    "healthFilter": "Health due"
   },
   "myHorse": {
     "title": "My horse",
@@ -1241,8 +1254,9 @@
     "overdue": "Was due {date}",
     "today": "Due today",
     "soon": "Due {date}",
-    "pay": "Pay by transfer",
-    "atClub": "or pay at the club"
+    "pay": "Pay",
+    "none": "You have no pending payments.",
+    "seePayments": "See payments →"
   },
   "desk": {
     "noRows": "Nothing to show.",
@@ -1807,5 +1821,42 @@
     "searchPh": "Search name or message",
     "stateNew": "New",
     "stateAnswered": "Answered"
+  },
+  "pay": {
+    "title": "Pay",
+    "how": "How do you want to pay?",
+    "transfer": "Transfer",
+    "card": "Card",
+    "club": "At the club",
+    "amount": "Amount",
+    "reference": "Reference",
+    "copyClabe": "Copy CLABE",
+    "copyAmount": "Copy amount",
+    "copyRef": "Copy reference",
+    "copied": "Copied",
+    "uploadTitle": "Upload your receipt",
+    "chooseFile": "Choose a photo or file",
+    "changeFile": "Change",
+    "send": "Send receipt",
+    "sending": "Sending…",
+    "waiting": "Your receipt is under review. We'll let you know when the club approves it.",
+    "rejected": "The club rejected the receipt: upload another one.",
+    "cardText": "Pay with a credit or debit card on Mercado Pago, securely.",
+    "cardBtn": "Pay {amount} by card",
+    "cardProcessing": "Processing…",
+    "cardDemo": "Demo simulation",
+    "clubText": "Pay in cash or by card at the club's office. Once the club records your payment, it shows here as Paid.",
+    "clubBtn": "Let the club know I'll pay there",
+    "clubSaid": "On {date} you said you'd pay at the club.",
+    "resultReview": "Receipt sent",
+    "resultReviewText": "It's now Under review. Once the club approves it, it shows here as Paid.",
+    "resultPaid": "Payment received",
+    "resultPaidText": "Your payment is recorded.",
+    "resultClub": "Notice sent",
+    "resultClubText": "The club knows you'll pay at the office. Once it records it, it shows here as Paid.",
+    "done": "Done",
+    "atClubTag": "Pays at the club",
+    "pay": "Pay",
+    "payDeposit": "Pay the deposit"
   }
 }

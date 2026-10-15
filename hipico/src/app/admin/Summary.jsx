@@ -6,7 +6,7 @@ import {
 } from '../../data/store.js'
 import { useBase } from '../Backend.jsx'
 import { Icon } from '../../components/Icon.jsx'
-import { SectionTitle } from '../../components/ui.jsx'
+import { Empty, SectionTitle } from '../../components/ui.jsx'
 import { concept, paymentSentence } from '../../components/PaymentHistory.jsx'
 import { todayKey, addDays, currentMonthKey } from '../../lib/time.js'
 import IncomeChart from './IncomeChart.jsx'
@@ -24,7 +24,6 @@ export default function AdminSummary() {
   const { t, fmtMoney, fmtDate, fmtTime } = useI18n()
   const s = useStore()
   const base = useBase()
-  const [allOwed, setAllOwed] = useState(false)
   const counts = activeCounts(s)
   const money = moneySummary(s)
   const owed = overdue(s)
@@ -33,7 +32,6 @@ export default function AdminSummary() {
   const salaries = moduleOn(s, 'modulePayroll') ? upcomingSalaries(s, 15) : []
   const horseDue = healthDueSoon(s, 14)
   const pct = money.expected ? Math.round((money.expectedPaid / money.expected) * 100) : 0
-  const owedShown = allOwed ? owed : owed.slice(0, 5)
   const short = (d) => fmtDate(d, { day: 'numeric', month: 'short' })
   const todayClasses = occurrencesFor(s, todayKey(), null, { includeClosed: true }).filter((o) => o.bookings.length > 0)
   const today = todayKey()
@@ -88,25 +86,28 @@ export default function AdminSummary() {
       </section>
       <section className="sumblock sumblock--today">
         <SectionTitle icon="helmet" action={<Link to={`${base}/direccion/hoy`} className="link">{t('summary.open')}</Link>}>{t('tabs.today')}</SectionTitle>
-        {todayClasses.length === 0 ? <p className="muted small">{t('admin.today.emptyTitle')}</p> : (
+        {todayClasses.length === 0 ? (
+          <div className="card"><Empty icon="helmet" title={t('summary.emptyToday')}><Link to={`${base}/direccion/hoy`} className="link">{t('summary.open')}</Link></Empty></div>
+        ) : (
           <ul className="list card c-slate edge-c">
-            {todayClasses.map((o) => (
+            {todayClasses.slice(0, 5).map((o) => (
               <li key={o.slot.id} className="list__row">
                 <strong className="sumtime">{fmtTime(o.slot.time)}</strong>
                 <span className="grow"><span className="list__title">{t(`disciplines.${o.slot.discipline}`)}</span> <LevelPill level={o.slot.level} /></span>
                 <span className="small">{t('summary.ridersN', { n: o.bookings.length, cap: o.slot.capacity })}</span>
               </li>
             ))}
+            {todayClasses.length > 5 && <li className="list__row list__more"><Link to={`${base}/direccion/hoy`} className="link">{t('summary.seeToday', { n: todayClasses.length })}</Link></li>}
           </ul>
         )}
       </section>
       <section className="sumblock">
       <SectionTitle icon="alert">{t('summary.owes', { n: owed.length })}</SectionTitle>
       {owed.length === 0 ? (
-        <p className="muted small">{t('summary.nobodyOwes')}</p>
+        <div className="card"><Empty icon="receipt" title={t('summary.nobodyOwes')}><Link to={`${base}/direccion/cobros`} className="link">{t('summary.seeCollect')}</Link></Empty></div>
       ) : (
         <ul className="list card c-terracotta edge-c">
-          {owedShown.map(({ payment: p, days, family }) => {
+          {owed.slice(0, 5).map(({ payment: p, days, family }) => {
             const rider = p.meta?.riderId ? byId(s.riders, p.meta.riderId)?.name : p.meta?.horseId ? byId(s.horses, p.meta.horseId)?.name : ''
             const text = t('summary.waReminder', { contact: family?.contact?.split(' ')[0] || '', what: paymentSentence(t, s, p), amount: fmtMoney(p.amount) })
             return (
@@ -123,7 +124,7 @@ export default function AdminSummary() {
             )
           })}
           {owed.length > 5 && (
-            <li className="list__row"><button type="button" className="link" onClick={() => setAllOwed(!allOwed)}>{allOwed ? t('summary.showLess') : t('summary.showAll', { n: owed.length })}</button></li>
+            <li className="list__row list__more"><Link to={`${base}/direccion/cobros?estado=pendientes`} className="link">{t('summary.viewAll', { n: owed.length })}</Link></li>
           )}
         </ul>
       )}
@@ -132,56 +133,68 @@ export default function AdminSummary() {
       <section className="sumblock">
       <SectionTitle icon="refresh">{t('summary.renewing')}</SectionTitle>
       {renewing.length === 0 ? (
-        <p className="muted small">{t('summary.noRenewals')}</p>
+        <div className="card"><Empty icon="refresh" title={t('summary.noRenewals')}><Link to={`${base}/direccion/familias?plan=con`} className="link">{t('summary.seePlans')}</Link></Empty></div>
       ) : (
         <ul className="list card c-sage edge-c">
-          {renewing.map(({ rider, family, renews }) => (
+          {renewing.slice(0, 5).map(({ rider, family, renews }) => (
             <li key={rider.id} className="list__row">
               <span className="grow"><span className="list__title">{rider.name}</span> <span className="small muted">· {family?.name}</span></span>
               <span className="small">{t('plan.classesPlan', { n: rider.planClasses })} · {short(renews)}</span>
             </li>
           ))}
+          {renewing.length > 5 && <li className="list__row list__more"><Link to={`${base}/direccion/familias?plan=con`} className="link">{t('summary.viewAll', { n: renewing.length })}</Link></li>}
         </ul>
       )}
 
       </section>
       <section className="sumblock">
       <SectionTitle icon="calendar">{t('summary.occupancy')}</SectionTitle>
-      <div className="card row gap c-slate edge-c">
-        <div className="donut" style={{ '--p': occ.pct }}><span>{occ.pct}%</span></div>
-        <div className="grow">
-          <p className="card__title">{t('admin.reports.seats', { taken: occ.taken, seats: occ.seats })}</p>
-          <p className="small muted">{t('summary.thisWeek')}</p>
+      <div className={`card occcard edge-c ${occ.pct > 80 ? 'c-mustard' : occ.pct >= 40 ? 'c-sage' : 'c-slate'}`}>
+        <div className="occcard__row">
+          <div className={`donut donut--${occ.pct > 80 ? 'mustard' : occ.pct >= 40 ? 'sage' : 'slate'}`} style={{ '--p': occ.pct }}><span>{occ.pct}%</span></div>
+          <div className="grow">
+            <p className="card__title occcard__seats">{t('summary.seats', { taken: occ.taken, seats: occ.seats })}</p>
+            <p className="small muted">{t('summary.thisWeek')}</p>
+          </div>
         </div>
+        <Link to={`${base}/direccion/horario`} className="link card__foot">{t('summary.seeSchedule')}</Link>
       </div>
 
       </section>
-      {horseDue.length > 0 && (
-        <section className="sumblock">
-          <SectionTitle icon="horseHead">{t('summary.horsesDue')}</SectionTitle>
+      <section className="sumblock">
+        <SectionTitle icon="horseHead">{t('summary.horsesDue')}</SectionTitle>
+        {horseDue.length === 0 ? (
+          <div className="card"><Empty icon="horseHead" title={t('summary.emptyHorses')}><Link to={`${base}/direccion/horario?vista=caballos`} className="link">{t('summary.seeHorses')}</Link></Empty></div>
+        ) : (
           <ul className="list card c-plum edge-c">
-            {horseDue.map((x) => (
+            {horseDue.slice(0, 5).map((x) => (
               <li key={`${x.horse.id}-${x.kind}`} className="list__row">
                 <Link to={`${base}/direccion/caballos/${x.horse.id}`} state={{ from: { to: `${base}/direccion`, label: t('tabs.summary') } }} className="grow"><span className="list__title">{x.horse.name}</span> <span className="small muted">· {t(`horseProfile.kinds.${x.kind}`)}</span></Link>
                 <span className={`small ${x.due < todayKey() ? 'owed__late' : ''}`}>{x.due < todayKey() ? t('horseProfile.overdue', { date: short(x.due) }) : short(x.due)}</span>
               </li>
             ))}
+            {horseDue.length > 5 && <li className="list__row list__more"><Link to={`${base}/direccion/horario?vista=caballos&salud=pendientes`} className="link">{t('summary.viewAll', { n: horseDue.length })}</Link></li>}
           </ul>
-        </section>
-      )}
+        )}
+      </section>
 
-      {salaries.length > 0 && (
+      {moduleOn(s, 'modulePayroll') && (
         <section className="sumblock">
           <SectionTitle icon="users" action={<Link to={`${base}/direccion/nomina`} className="link">{t('summary.open')}</Link>}>{t('summary.salaries')}</SectionTitle>
-          <ul className="list card c-mustard edge-c">
-            {salaries.map((e) => (
-              <li key={e.id} className="list__row">
-                <span className="grow"><span className="list__title">{e.name}</span> <span className="small muted">· {short(e.nextPayDate)}</span></span>
-                <strong>{fmtMoney(e.salary)}</strong>
-              </li>
-            ))}
-            <li className="list__row small"><span className="grow muted">{t('summary.salariesTotal')}</span><strong>{fmtMoney(salaries.reduce((a, e) => a + e.salary, 0))}</strong></li>
-          </ul>
+          {salaries.length === 0 ? (
+            <div className="card"><Empty icon="users" title={t('summary.emptySalaries')}><Link to={`${base}/direccion/nomina`} className="link">{t('summary.seePayroll')}</Link></Empty></div>
+          ) : (
+            <ul className="list card c-mustard edge-c">
+              {salaries.slice(0, 5).map((e) => (
+                <li key={e.id} className="list__row">
+                  <span className="grow"><span className="list__title">{e.name}</span> <span className="small muted">· {short(e.nextPayDate)}</span></span>
+                  <strong>{fmtMoney(e.salary)}</strong>
+                </li>
+              ))}
+              {salaries.length > 5 && <li className="list__row list__more"><Link to={`${base}/direccion/nomina`} className="link">{t('summary.viewAll', { n: salaries.length })}</Link></li>}
+              <li className="list__row small"><span className="grow muted">{t('summary.salariesTotal')}</span><strong>{fmtMoney(salaries.reduce((a, e) => a + e.salary, 0))}</strong></li>
+            </ul>
+          )}
         </section>
       )}
       </div>

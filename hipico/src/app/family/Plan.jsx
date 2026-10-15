@@ -7,22 +7,21 @@ import {
 import { PLANS, BOARDING_MONTHLY } from '../../data/prices.js'
 import { RiderPicker, useFamilyContext } from '../RiderPicker.jsx'
 import { Icon } from '../../components/Icon.jsx'
-import { Badge, SectionTitle } from '../../components/ui.jsx'
+import { Badge, Empty, SectionTitle } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
-import { ReceiptBadge, TransferPanel } from '../../components/Transfer.jsx'
+import { ReceiptBadge } from '../../components/Transfer.jsx'
+import { PayDialog } from '../../components/PayDialog.jsx'
 import { currentMonthKey } from '../../lib/time.js'
 import { ActivePlanCard, ChangePlan } from './ActivePlan.jsx'
 import { UpcomingList } from './Upcoming.jsx'
 import { PaymentHistory, concept } from '../../components/PaymentHistory.jsx'
 import { StatusPill } from '../../components/Colors.jsx'
-import { payByCard, useCardEnabled } from '../../lib/card.js'
 
 export default function FamilyPlan() {
-  const { t, fmtDate, fmtMoney, lang } = useI18n()
+  const { t, fmtDate, fmtMoney } = useI18n()
   const s = useStore()
   const toast = useToast()
   const { riderId } = useFamilyContext()
-  const card = useCardEnabled()
   const rider = byId(s.riders, riderId)
   const familyId = s.session.familyId
   const thisMonth = currentMonthKey()
@@ -49,41 +48,21 @@ export default function FamilyPlan() {
 
   const [busy, setBusy] = useState(false)
   const [openId, setOpenId] = useState(null)
-  const family = byId(s.families, familyId)
 
-  // Open the transfer panel (bank details + upload) of a pending payment and bring it into view.
-  const openTransfer = (id) => {
-    if (!id) return
-    setOpenId(id)
-    setTimeout(() => document.getElementById(`pay-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60)
-  }
+  // Every "Pagar" opens the same payment lightbox (Transferencia · Tarjeta · En el club) for that charge.
+  const openTransfer = (id) => setOpenId(id || null)
   const pendingPlanPayment = () => getState().payments.filter((p) => p.service === 'plan' && p.status === 'pending' && p.meta?.riderId === riderId).pop()?.id
-  const payPlan = async (method) => {
+  const payPlan = async () => {
     setBusy(true)
     const res = await choosePlan({ riderId, classes: selected, month })
     setBusy(false)
-    if (!res.ok && !(method === 'transfer' && res.code === 'pendingExists')) {
-      return toast(t(`errors.${res.code}`, { month: monthName(month) }), 'error')
-    }
-    const id = res.payment?.id || res.payment_id || pendingPlanPayment()
-    if (method === 'transfer') return openTransfer(id)
-    if (method === 'card') return goCard(id)
-    toast(t('toasts.planPending', { n: selected, name: rider.name, month: monthName(month) }))
+    if (!res.ok && res.code !== 'pendingExists') return toast(t(`errors.${res.code}`, { month: monthName(month) }), 'error')
+    openTransfer(res.payment?.id || res.payment_id || pendingPlanPayment())
   }
-  // The charge exists; Mercado Pago opens in this tab and comes back to /pago/….
-  const goCard = async (id) => {
-    if (!id) return toast(t('errors.notFound'), 'error')
-    setBusy(true)
-    const r = await payByCard(id, lang)
-    if (!r.ok) { setBusy(false); toast(t(`errors.${r.code}`), 'error') }
-  }
-  const payBoarding = async (method) => {
+  const payBoarding = async () => {
     const res = await requestBoardingPayment(familyId)
-    if ((method === 'transfer' || method === 'card') && (res.ok || res.code === 'pendingExists')) {
-      const id = getState().payments.find((p) => p.familyId === familyId && p.service === 'boarding' && p.status === 'pending')?.id
-      return method === 'card' ? goCard(id) : openTransfer(id)
-    }
-    toast(res.ok ? t('toasts.boardingPending') : t(`errors.${res.code}`), res.ok ? 'success' : 'info')
+    if (!res.ok && res.code !== 'pendingExists') return toast(t(`errors.${res.code}`), 'error')
+    openTransfer(getState().payments.find((p) => p.familyId === familyId && p.service === 'boarding' && p.status === 'pending')?.id)
   }
 
   return (
@@ -119,7 +98,7 @@ export default function FamilyPlan() {
               </button>
             ))}
           </div>
-          <PayButtons card={card} busy={busy} onPay={payPlan} />
+          <button type="button" className="btn btn--primary btn--block" onClick={payPlan} disabled={busy}><Icon name="receipt" size={18} /> {t('plan.chooseAndPay', { amount: fmtMoney(PLANS.find((p) => p.classes === selected)?.price || 0) })}</button>
         </>
       )}
 
@@ -140,7 +119,7 @@ export default function FamilyPlan() {
           </div>
         ))}
         {boarding.length > 0 && boarding.some((b) => b.status !== 'paid') && (
-          <div className="mt12"><PayButtons card={card} busy={busy} onPay={payBoarding} /></div>
+          <div className="mt12"><button type="button" className="btn btn--primary btn--block" onClick={payBoarding} disabled={busy}><Icon name="receipt" size={18} /> {t('boarding.payInside')}</button></div>
         )}
         {boarding.length === 0 && (
           <button type="button" className="btn btn--outline btn--block mt12" onClick={() => toast(t('toasts.soon'), 'info')}>{t('boarding.ask')}</button>
@@ -156,34 +135,10 @@ export default function FamilyPlan() {
   )
 }
 
-/** Tarjeta (only when Mercado Pago is on) as the main button, else Transferencia; cash at the club beside it. */
-function PayButtons({ card, busy, onPay }) {
-  const { t } = useI18n()
-  return (
-    <div className="stack">
-      {card ? (
-        <>
-          <button type="button" className="btn btn--primary btn--block" onClick={() => onPay('card')} disabled={busy}><Icon name="card" size={20} /> {t(busy ? 'plan.cardOpening' : 'plan.payCard')}</button>
-          <div className="grid2">
-            <button type="button" className="btn btn--outline" onClick={() => onPay('transfer')} disabled={busy}><Icon name="share" size={18} /> {t('plan.payTransfer')}</button>
-            <button type="button" className="btn btn--outline" onClick={() => onPay('cash')} disabled={busy}><Icon name="cash" size={18} /> {t('plan.payCash')}</button>
-          </div>
-        </>
-      ) : (
-        <div className="grid2">
-          <button type="button" className="btn btn--primary" onClick={() => onPay('transfer')} disabled={busy}><Icon name="share" size={18} /> {t('plan.payTransfer')}</button>
-          <button type="button" className="btn btn--outline" onClick={() => onPay('cash')} disabled={busy}><Icon name="cash" size={18} /> {t('plan.payCash')}</button>
-        </div>
-      )}
-    </div>
-  )
-}
-
 /** Pendientes de pago (each with Pagar por transferencia) and the payment history. Mi plan and Pagos. */
 export function PendingPayments({ familyId, openId, onOpen, history = true }) {
   const { t, fmtDate, fmtMoney } = useI18n()
   const s = useStore()
-  const family = byId(s.families, familyId)
   const pending = s.payments.filter((p) => p.familyId === familyId && p.status === 'pending')
   const openTransfer = onOpen
   return (
@@ -203,17 +158,17 @@ export function PendingPayments({ familyId, openId, onOpen, history = true }) {
                   <div><ReceiptBadge status={p.receiptStatus} /></div>
                 </div>
               </div>
-              {openId === p.id || p.receiptStatus === 'rejected' ? (
-                <TransferPanel payment={p} family={family} />
-              ) : p.receiptStatus !== 'review' && (
-                <button type="button" className="link" onClick={() => openTransfer(p.id)}>{t('receipt.payByTransfer')}</button>
+              {p.receiptStatus === 'rejected' && p.receiptNote && <p className="small transfer__note"><Icon name="alert" size={14} /> {p.receiptNote}</p>}
+              {p.receiptStatus !== 'review' && (
+                <button type="button" className="btn btn--primary btn--sm" onClick={() => openTransfer(p.id)}>{t('pay.pay')}</button>
               )}
             </li>
           ))}
         </ul>
       ) : (
-        <p className="muted small">{t('plan.noPending')}</p>
+        <div className="card"><Empty icon="receipt" title={t('plan.noPending')} /></div>
       )}
+      {openId && <PayDialog paymentId={openId} onClose={() => onOpen(null)} />}
       {history && (
         <>
           <SectionTitle icon="receipt">{t('history.title')}</SectionTitle>

@@ -252,7 +252,8 @@
     "nextPeriodCount": "{month} (desde el {date}): {used} de {total} clases",
     "remaining_one": "Te queda 1",
     "cardOpening": "Abriendo Mercado Pago…",
-    "cardSecure": "Pago seguro con Mercado Pago"
+    "cardSecure": "Pago seguro con Mercado Pago",
+    "chooseAndPay": "Elegir y pagar {amount}"
   },
   "boarding": {
     "title": "Pensión de caballos",
@@ -914,7 +915,18 @@
       "today": "cobrado hoy",
       "month": "cobrado este mes",
       "last30": "cobrado en 30 días"
-    }
+    },
+    "viewAll": "Ver todos ({n}) →",
+    "seeSchedule": "Ver horario →",
+    "seePlans": "Ver planes →",
+    "seeHorses": "Ver caballos →",
+    "seePayroll": "Ver nómina →",
+    "seeCollect": "Ver cobros →",
+    "seeToday": "Ver todas ({n}) →",
+    "emptyToday": "Hoy no hay clases con jinetes.",
+    "emptyHorses": "Ningún caballo tiene pendientes en 14 días.",
+    "emptySalaries": "Ningún sueldo vence en 15 días.",
+    "seats": "{taken} de {seats} lugares"
   },
   "payroll": {
     "title": "Nómina",
@@ -1043,7 +1055,8 @@
     "hidePhoto": "Ocultar",
     "showPhoto": "Mostrar",
     "photoHiddenDone": "Foto oculta",
-    "photoShownDone": "Foto visible otra vez"
+    "photoShownDone": "Foto visible otra vez",
+    "healthFilter": "Pendientes de salud"
   },
   "myHorse": {
     "title": "Mi caballo",
@@ -1241,8 +1254,9 @@
     "overdue": "Venció el {date}",
     "today": "Vence hoy",
     "soon": "Vence el {date}",
-    "pay": "Pagar por transferencia",
-    "atClub": "o paga en el club"
+    "pay": "Pagar",
+    "none": "No tienes pagos pendientes.",
+    "seePayments": "Ver pagos →"
   },
   "desk": {
     "noRows": "Nada que mostrar.",
@@ -1807,5 +1821,42 @@
     "searchPh": "Buscar nombre o mensaje",
     "stateNew": "Nuevo",
     "stateAnswered": "Contestado"
+  },
+  "pay": {
+    "title": "Pagar",
+    "how": "¿Cómo quieres pagar?",
+    "transfer": "Transferencia",
+    "card": "Tarjeta",
+    "club": "En el club",
+    "amount": "Monto",
+    "reference": "Referencia",
+    "copyClabe": "Copiar CLABE",
+    "copyAmount": "Copiar monto",
+    "copyRef": "Copiar referencia",
+    "copied": "Copiado",
+    "uploadTitle": "Sube tu comprobante",
+    "chooseFile": "Elegir foto o archivo",
+    "changeFile": "Cambiar",
+    "send": "Enviar comprobante",
+    "sending": "Enviando…",
+    "waiting": "Tu comprobante está en revisión. Te avisamos cuando el club lo apruebe.",
+    "rejected": "El club rechazó el comprobante: sube otro.",
+    "cardText": "Pagas con tarjeta de crédito o débito en Mercado Pago, de forma segura.",
+    "cardBtn": "Pagar {amount} con tarjeta",
+    "cardProcessing": "Procesando…",
+    "cardDemo": "Simulación de demo",
+    "clubText": "Paga en efectivo o con tarjeta en la oficina del club. Cuando el club registre tu pago, aquí lo verás como Pagado.",
+    "clubBtn": "Avisar que pago en el club",
+    "clubSaid": "Avisaste el {date} que pagas en el club.",
+    "resultReview": "Comprobante enviado",
+    "resultReviewText": "Queda Por revisar. Cuando el club lo apruebe, aquí lo verás como Pagado.",
+    "resultPaid": "Pago recibido",
+    "resultPaidText": "Tu pago quedó registrado.",
+    "resultClub": "Aviso enviado",
+    "resultClubText": "El club sabe que pagas en la oficina. Cuando lo registre, aquí lo verás como Pagado.",
+    "done": "Listo",
+    "atClubTag": "Paga en el club",
+    "pay": "Pagar",
+    "payDeposit": "Pagar anticipo"
   }
 }

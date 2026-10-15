@@ -42,13 +42,20 @@ function HorsesDesk() {
   const { pathname, search } = useLocation()
   // The status filter lives in the address, so coming back from a profile keeps it.
   const [params, setParams] = useSearchParams()
-  const status = params.get('estado') || 'all'
-  const setStatus = (st) => { const next = new URLSearchParams(params); if (st === 'all') next.delete('estado'); else next.set('estado', st); setParams(next, { replace: true }) }
+  // "Pendientes de salud" (?salud=pendientes, from Resumen's "Ver todos") is one more pill: horses with something due in 14 days.
+  const health = params.get('salud') === 'pendientes'
+  const status = health ? 'health' : params.get('estado') || 'all'
+  const setStatus = (st) => {
+    const next = new URLSearchParams(params)
+    next.delete('estado'); next.delete('salud')
+    if (st === 'health') next.set('salud', 'pendientes'); else if (st !== 'all') next.set('estado', st)
+    setParams(next, { replace: true })
+  }
   const [open, setOpen] = useState(null)
   const due = healthDueSoon(s, 14)
-  const statuses = ['school', 'boarded', ...(moduleOn(s, 'moduleSales') ? ['for_sale'] : []), 'retired', 'sold']
+  const statuses = ['school', 'boarded', ...(moduleOn(s, 'moduleSales') ? ['for_sale'] : []), 'retired', 'sold', 'health']
   const rows = s.horses
-    .filter((h) => status === 'all' ? horseStatus(h) !== 'sold' : horseStatus(h) === status)
+    .filter((h) => status === 'all' ? horseStatus(h) !== 'sold' : status === 'health' ? due.some((x) => x.horse.id === h.id) : horseStatus(h) === status)
     .filter((h) => !q || [h.name, h.breed, byId(s.families, h.ownerFamilyId)?.name].some((v) => v?.toLowerCase().includes(q)))
   const columns = [
     { key: 'name', label: t('schedule.name'), render: (h) => <span className="row gap-sm"><HorsePhoto horse={h} size={32} /><span className="dtable__strong">{h.name}</span></span> },
@@ -70,7 +77,7 @@ function HorsesDesk() {
         <FilterRow label={t('desk.status')}>
           {['all', ...statuses].map((st) => (
             <button key={st} type="button" className={`chip ${status === st ? 'is-active' : ''}`} aria-pressed={status === st} onClick={() => setStatus(st)}>
-              {st === 'all' ? t('desk.all') : t(`horses.group.${st}`)}
+              {st === 'all' ? t('desk.all') : st === 'health' ? t('horses.healthFilter') : t(`horses.group.${st}`)}
             </button>
           ))}
         </FilterRow>

@@ -1,6 +1,7 @@
 // Color that means something: levels, riders and payment status, the same everywhere.
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { familyRiders, horsePhotoUrl, visiblePhotos } from '../data/store.js'
+import { photoFocus } from '../data/photoFocus.js'
 import { Icon } from './Icon.jsx'
 
 /** Principiante · Intermedio · Avanzado · Competencia as a colored pill. */
@@ -38,7 +39,7 @@ export function HorseAvatar({ horse, size = 40 }) {
   if (!horse) return null
   const src = visiblePhotos(horse)[0]
   return src
-    ? <img className="horseav" src={horsePhotoUrl(src)} alt="" width={size} height={size} style={{ width: size, height: size }} loading="lazy" />
+    ? <img className="horseav" src={horsePhotoUrl(src)} alt="" width={size} height={size} style={{ width: size, height: size, objectPosition: photoFocus(src) }} loading="lazy" />
     : <span className="horseav horseav--empty" style={{ width: size, height: size }} aria-hidden="true"><Icon name="horseHead" size={Math.round(size * 0.55)} /></span>
 }
 

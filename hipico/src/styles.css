@@ -1725,3 +1725,68 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
   .switch:hover .switch__track, .switch:focus-within .switch__track, .switch:hover > span:first-of-type { box-shadow: 0 0 0 3px var(--mg-soft); }
   .daychip:hover:not(.is-active):not(:disabled), .daychip:focus-visible:not(.is-active):not(:disabled) { background: var(--mg-soft); border-color: var(--mustard); color: var(--ink); }
 }
+
+/* One payment lightbox (Transferencia · Tarjeta · En el club): centered on a computer, a bottom sheet on phones. */
+.paydlg { position: fixed; inset: 0; z-index: 96; display: flex; align-items: flex-end; justify-content: center; }
+.paydlg__scrim { position: absolute; inset: 0; border: 0; padding: 0; background: rgba(40, 38, 30, .55); animation: fade-in .2s ease; }
+.paydlg__panel { position: relative; width: 100%; max-width: 560px; max-height: 92dvh; overflow: auto; display: grid; gap: 14px; padding: 18px 18px calc(18px + var(--safe-bottom, 0px)); border-radius: 24px 24px 0 0; background: var(--cream); box-shadow: 0 -10px 40px rgba(0,0,0,.2); animation: sheet-up .26s ease; }
+.paydlg__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.paydlg__what { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.paydlg__what .grow { min-width: 0; }
+.paydlg__title { font-family: var(--font-head); font-weight: 700; font-size: 1.2rem; color: var(--green-dark); line-height: 1.2; }
+.paydlg__amount { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.paydlg__amount strong { font-family: var(--font-head); font-size: 2rem; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; }
+.paydlg__how { font-family: var(--font-head); font-stretch: 80%; font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+.paydlg__methods { display: grid; gap: 8px; }
+.paydlg__method { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--card); font: inherit; font-weight: 600; color: var(--ink); cursor: pointer; text-align: left; transition: background .15s, border-color .15s, color .15s; }
+.paydlg__method.is-active { background: var(--green); border-color: var(--green); color: #fff; }
+.paydlg__method:focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }
+.paydlg__body { display: grid; gap: 12px; padding: 16px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--border); }
+.paydlg__sub { font-weight: 600; color: var(--ink); }
+.paydlg__file { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.paydlg__filename { color: var(--muted); overflow-wrap: anywhere; }
+.paydlg__result { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 20px 16px 8px; }
+.paydlg__resicon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--sage-t); color: var(--sage-i); }
+.paydlg__restitle { font-family: var(--font-head); font-weight: 700; font-size: 1.3rem; color: var(--green-dark); }
+.paydlg__demo { font-size: .74rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-ink); padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); }
+.paydlg__result .btn { margin-top: 8px; }
+@media (hover: hover) { .paydlg__method:hover:not(.is-active) { background: var(--mg-soft); border-color: var(--mustard); } }
+@media (min-width: 700px) {
+  .paydlg { align-items: center; padding: 16px; }
+  .paydlg__panel { border-radius: 24px; max-height: 90vh; padding: 24px; animation: pop .2s ease; }
+  .paydlg__methods { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .paydlg__method { justify-content: center; }
+  .paydlg__body .btn--block { width: auto; justify-self: start; }
+}
+@keyframes pop { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .paydlg__panel { animation: none; } }
+
+/* Pensión card: the pill stays inside; the horse's round photo uses the photo's focal point. */
+.boardcard__row { flex-wrap: wrap; }
+.boardcard__row .stpill { flex: none; margin-left: auto; }
+
+/* Resumen rows: every block a card (empty too), cards in a row the same height, lists of 5 + "Ver todos", no lone block. */
+.sumblock { display: flex; flex-direction: column; }
+.sumblock > .card:last-child, .homegrid > div > .card:last-child, .homegrid > div > .list.card:last-child { flex: 1; }
+.sumblock > .list.card, .homegrid > div > .list.card { display: flex; flex-direction: column; }
+.sumblock > .list.card .list__row, .homegrid > div > .list.card .list__row { flex: none; }
+.list__more { margin-top: auto; }
+.card .empty { border: 0; background: transparent; padding: 18px 8px; height: 100%; justify-content: center; }
+.sumblock > .card > .empty, .homegrid > div > .card > .empty { min-height: 100%; }
+.occcard { display: flex; flex-direction: column; gap: 14px; }
+.occcard__row { display: flex; align-items: center; gap: 20px; }
+.occcard__seats { white-space: nowrap; }
+.card__foot { margin-top: auto; align-self: flex-start; }
+.donut--slate { background: conic-gradient(var(--slate) calc(var(--p) * 1%), #E6E3D0 0); }
+.donut--sage { background: conic-gradient(var(--sage) calc(var(--p) * 1%), #E6E3D0 0); }
+.donut--mustard { background: conic-gradient(var(--mustard) calc(var(--p) * 1%), #E6E3D0 0); }
+.duecard .list__row .btn--sm { flex: none; }
+@media (min-width: 1024px) {
+  .sumgrid { align-items: stretch; }
+  .sumblock .list.card { max-height: none; overflow: visible; }
+  /* fewer blocks than columns in the last row: the last one spans the rest */
+  .sumgrid > .sumblock:last-child:nth-child(3n + 1):not(:nth-child(-n + 3)) { grid-column: 1 / -1; }
+  .sumgrid > .sumblock:last-child:nth-child(3n + 2):not(:nth-child(-n + 3)) { grid-column: span 2; }
+  .homegrid { align-items: stretch; }
+  .homegrid > div { display: flex; flex-direction: column; }
+}

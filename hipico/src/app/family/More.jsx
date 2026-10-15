@@ -7,6 +7,7 @@ import {
 } from '../../data/store.js'
 import { FROM_PRICES, RENTAL_PER_HOUR, RENTAL_HOURS } from '../../data/prices.js'
 import { Icon } from '../../components/Icon.jsx'
+import { PayDialog } from '../../components/PayDialog.jsx'
 import { Badge, SectionTitle, Segmented, waLink } from '../../components/ui.jsx'
 import { LangToggle } from '../../components/LangToggle.jsx'
 import { useToast } from '../../components/Toast.jsx'
@@ -50,6 +51,7 @@ export function EventsSection() {
   const camp = s.events.find((e) => e.type === 'camp')
   const campRegs = s.campRegistrations.filter((r) => r.eventId === camp?.id)
   const [campRider, setCampRider] = useState(riders[0]?.id)
+  const [paying, setPaying] = useState(null)
   const firstRentalDate = addDays(todayKey(), 1)
   // Only school horses that ride (never one for sale or retired), as book_rental() checks.
   const schoolHorses = s.horses.filter((h) => horseStatus(h) === 'school' && h.active !== false)
@@ -72,6 +74,7 @@ export function EventsSection() {
   return (
     <>
       <SectionTitle icon="balloons">{t('more.events')}</SectionTitle>
+      {paying && <PayDialog paymentId={paying} onClose={() => setPaying(null)} />}
       {camp && (
         <div className="card card--camp c-plum edge-c">
           <div className="row gap">
@@ -99,9 +102,12 @@ export function EventsSection() {
             const reg = campRegs.find((c) => c.riderId === r.id)
             const pay = byId(s.payments, reg.paymentId)
             return (
-              <div key={r.id} className="row between small mt8">
+              <div key={r.id} className="row between small mt8 wrap gap-sm">
                 <span><Icon name="check" size={14} /> {t('more.camp.registered', { name: r.name })}</span>
-                <StatusPill status={pay?.status === 'paid' ? 'paid' : 'pending'}>{t(pay?.status === 'paid' ? 'more.camp.depositPaid' : 'more.camp.depositPending')}</StatusPill>
+                <span className="row gap-sm">
+                  <StatusPill status={pay?.status === 'paid' ? 'paid' : 'pending'}>{t(pay?.status === 'paid' ? 'more.camp.depositPaid' : 'more.camp.depositPending')}</StatusPill>
+                  {pay && pay.status !== 'paid' && pay.receiptStatus !== 'review' && <button type="button" className="btn btn--primary btn--sm" onClick={() => setPaying(pay.id)}>{t('pay.payDeposit')}</button>}
+                </span>
               </div>
             )
           })}
