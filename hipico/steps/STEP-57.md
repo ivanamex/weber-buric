@@ -45,7 +45,7 @@ Today the card shows only the labels Banco, Titular and CLABE with nothing next 
 
 ## Hover everywhere: one sweep, not screenshot by screenshot
 Ivana keeps finding elements with no hover (latest: the Nuevos · Contestados · Todos tabs in Mensajes). Find them all at once:
-1. **Audit script** (scratchpad, not committed): Playwright at 1440×900 on `/demo?reset=1`, both roles. Visit every route of Familia and Dirección, every tab and open sheet, plus `/`, `/en` and `/descargar`. Collect every interactive element: `button`, `a[href]`, `[role=tab|button|link|option|switch]`, `summary`, `label` wrapping a control, `[tabindex="0"]`, clickable table rows and cards.
+1. **Audit script** (`scripts/hover-audit.mjs`): Playwright at 1440×900 on `/demo?reset=1`, both roles. Visit every route of Familia and Dirección, every tab and open sheet, plus `/`, `/en` and `/descargar`. Collect every interactive element: `button`, `a[href]`, `[role=tab|button|link|option|switch]`, `summary`, `label` wrapping a control, `[tabindex="0"]`, clickable table rows and cards.
 2. For each one, read its computed style (background, color, border, box-shadow, transform, text-decoration, outline). Hover it, read again, and list every element where **nothing changes**.
 3. Fix them all with the existing tokens:
    - unselected segmented tabs (`--mg-soft`), with a mustard tint fill and olivewood text;
