@@ -43,6 +43,17 @@ export function useDeskSearch(placeholder) {
   return desk ? query.trim().toLowerCase() : ''
 }
 
+/** A filter row on a computer: a small-caps label and the pills on one line (they scroll sideways with a fade, never wrap). */
+export function FilterRow({ label, children, end }) {
+  return (
+    <div className="drows__filter" role="group" aria-label={label}>
+      <span className="drows__label">{label}</span>
+      <div className="chips-scroll chips-scroll--fade drows__chips">{children}</div>
+      {end}
+    </div>
+  )
+}
+
 /**
  * A table with sortable columns and clickable rows.
  * columns: [{ key, label, value?: (row) => sortable, render?: (row) => node, align?: 'right', nowrap?, csvOnly?, csv?: (row) => text }]
@@ -74,9 +85,9 @@ export function DataTable({ columns: allColumns, rows, rowKey = (r) => r.id, onR
             {columns.map((c) => (
               <th key={c.key} className={c.align === 'right' ? 'is-right' : ''} aria-sort={sort?.key === c.key ? (sort.dir === 1 ? 'ascending' : 'descending') : 'none'}>
                 {c.sortable === false ? c.label : (
-                  <button type="button" className="dtable__sort" onClick={() => toggle(c.key)} title={t('desk.sortBy', { col: c.label })}>
+                  <button type="button" className={`dtable__sort ${sort?.key === c.key ? 'is-sorted' : ''}`} onClick={() => toggle(c.key)} title={t('desk.sortBy', { col: c.label })}>
                     {c.label}
-                    <Icon name={sort?.key === c.key ? (sort.dir === 1 ? 'chevronUp' : 'chevronDown') : 'chevronDown'} size={14} className={sort?.key === c.key ? '' : 'is-faint'} />
+                    <Icon name={sort?.key === c.key ? (sort.dir === 1 ? 'arrowUp' : 'arrowDown') : 'sort'} size={14} className="dtable__arrow" />
                   </button>
                 )}
               </th>

@@ -17,7 +17,11 @@ export function ReceiptBadge({ status }) {
   return <StatusPill status={{ review: 'review', approved: 'paid', rejected: 'overdue' }[status]}>{t(`receipt.status.${status}`)}</StatusPill>
 }
 
-/** The club's bank details; placeholders until management fills them in. */
+/** The CLABE in blocks of four: "0121 8000 1234 5678 90". */
+export const fmtClabe = (c) => String(c || '').replace(/\s+/g, '').replace(/(\d{4})(?=\d)/g, '$1 ')
+export const hasBank = (settings) => Boolean(settings?.bankName || settings?.accountHolder || settings?.clabe)
+
+/** The club's bank details as label-over-value rows; one line ("El club te enviará los datos para pagar") until management fills them in. */
 export function BankDetails() {
   const { t } = useI18n()
   const toast = useToast()
@@ -31,23 +35,20 @@ export function BankDetails() {
       toast(clabe, 'info')
     }
   }
-  const row = (label, value) => (
+  if (!hasBank(settings)) return <p className="bank__none">{t('receipt.noBank')}</p>
+  const row = (label, value, extra) => value ? (
     <div className="bank__row">
-      <span className="small muted">{label}</span>
-      <strong className={value ? '' : 'bank__placeholder'}>{value || t('receipt.pending')}</strong>
+      <span className="bank__label">{label}</span>
+      <span className="bank__value">{value}{extra}</span>
     </div>
-  )
+  ) : null
   return (
     <div className="bank">
       {row(t('receipt.bank'), settings?.bankName)}
       {row(t('receipt.holder'), settings?.accountHolder)}
-      <div className="bank__row">
-        <span className="small muted">CLABE</span>
-        <span className="row gap-sm">
-          <strong className={`bank__clabe ${clabe ? '' : 'bank__placeholder'}`}>{clabe ? clabe.replace(/(\d{3})(\d{3})(\d{11})(\d)/, '$1 $2 $3 $4') : t('receipt.pending')}</strong>
-          {clabe && <button type="button" className="link" onClick={copy}>{t('receipt.copy')}</button>}
-        </span>
-      </div>
+      {row('CLABE', clabe && <span className="bank__clabe">{fmtClabe(clabe)}</span>, clabe && (
+        <button type="button" className="iconbtn iconbtn--card bank__copy" onClick={copy} aria-label={t('receipt.copy')} title={t('receipt.copy')}><Icon name="copy" size={16} /></button>
+      ))}
     </div>
   )
 }

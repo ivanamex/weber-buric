@@ -13,7 +13,7 @@ import { useToast } from '../../components/Toast.jsx'
 import { PaymentHistory, PlanHistory } from '../../components/PaymentHistory.jsx'
 import { SaveBar, useFormState } from '../../components/EditKit.jsx'
 import ShareApp from './ShareApp.jsx'
-import { DataTable, exportCsv, useDesktop, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
+import { DataTable, exportCsv, useDesktop, useDeskAction, useDeskSearch, FilterRow } from '../../components/Desk.jsx'
 import { Sheet } from '../../components/EditKit.jsx'
 import { dueOf } from '../../data/store.js'
 import { LevelPill, StatusPill, riderColor, riderInk, riderFill } from '../../components/Colors.jsx'
@@ -347,25 +347,31 @@ function FamiliesDesk() {
     { key: 'family', label: t('admin.families.riderCols.family'), value: (r) => r.family.name },
     { key: 'plan', label: t('admin.families.riderCols.plan'), value: (r) => r.planClasses || 0, render: (r) => (r.planClasses ? t('admin.families.planOf', { n: r.planClasses }) : <span className="muted">{t('admin.families.riderCols.noPlan')}</span>) },
   ]
-  useDeskAction({ label: t('admin.families.add'), icon: 'plus', onClick: () => setOpen('new') }, [])
+  // Page actions in the top bar (never in the filter row): Compartir la app, Exportar, and Nueva familia as the main one.
+  useDeskAction([
+    { label: t('share.short'), icon: 'qr', onClick: () => setOpen('share') },
+    { label: t('desk.export'), icon: 'download', onClick: () => exportCsv(`familias-${today}.csv`, columns, rows) },
+    { label: t('admin.families.add'), icon: 'plus', onClick: () => setOpen('new') },
+  ], [rows.length, status, planFilter, owing, classes, q])
   const selected = open && open !== 'new' && open !== 'share' ? byIdSafe(listed, open) : null
   return (
     <div className="page">
       <p className="small muted">{t('admin.families.intro')}</p>
-      <div className="dtoolbar">
-        <Segmented small value={view} onChange={setView} options={[
-          { value: 'families', label: t('admin.families.viewFamilies') }, { value: 'riders', label: t('admin.families.viewRiders') },
-        ]} />
-        <Segmented small value={status} onChange={setStatus} options={[
-          { value: 'active', label: t('admin.families.activeState') }, { value: 'inactive', label: t('admin.families.blocked') }, { value: 'all', label: t('desk.all') },
-        ]} />
-        <Segmented small value={planFilter} onChange={setPlanFilter} options={[
-          { value: 'all', label: t('admin.families.anyPlan') }, { value: 'with', label: t('admin.families.withPlan') }, { value: 'without', label: t('admin.families.withoutPlan') },
-        ]} />
-        <button type="button" className={`chip ${owing ? 'is-active' : ''}`} aria-pressed={owing} onClick={() => setOwing(!owing)}>{t('admin.families.owingFilter')}</button>
-        <span className="grow" />
-        <button type="button" className="btn btn--sm" onClick={() => setOpen('share')}><Icon name="qr" size={16} /> {t('share.short')}</button>
-        <button type="button" className="btn btn--sm" onClick={() => exportCsv(`familias-${today}.csv`, columns, rows)}><Icon name="download" size={16} /> {t('desk.export')}</button>
+      <div className="drows">
+        <div className="drows__tabs">
+          <Segmented small value={view} onChange={setView} options={[
+            { value: 'families', label: t('admin.families.viewFamilies') }, { value: 'riders', label: t('admin.families.viewRiders') },
+          ]} />
+        </div>
+        <FilterRow label={t('desk.filters')}>
+          <Segmented small value={status} onChange={setStatus} options={[
+            { value: 'active', label: t('admin.families.activeState') }, { value: 'inactive', label: t('admin.families.blocked') }, { value: 'all', label: t('desk.all') },
+          ]} />
+          <Segmented small value={planFilter} onChange={setPlanFilter} options={[
+            { value: 'all', label: t('admin.families.anyPlan') }, { value: 'with', label: t('admin.families.withPlan') }, { value: 'without', label: t('admin.families.withoutPlan') },
+          ]} />
+          <button type="button" className={`chip ${owing ? 'is-active' : ''}`} aria-pressed={owing} onClick={() => setOwing(!owing)}>{t('admin.families.owingFilter')}</button>
+        </FilterRow>
       </div>
       {classes && (
         <p className="filterline small"><strong>{t('admin.families.planOf', { n: classes })}</strong><button type="button" className="link" onClick={() => setParam({ clases: null })}>{t('admin.families.clearFilter')}</button></p>

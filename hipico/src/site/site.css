@@ -645,3 +645,22 @@
 .ssheet2__infolabel { text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; }
 .ipills { display: flex; flex-wrap: wrap; gap: 10px; }
 .sbtn--pill { min-height: 44px; padding: 0 16px; font-size: .92rem; }
+
+/* Hovers the audit found missing on the site: the logo, the film strip photos, the mustard box. */
+.sbar__logo { border-radius: 12px; transition: background .15s, box-shadow .15s; }
+.sfilm__item img, .sfilm__item video { transition: transform .3s ease, filter .3s ease; }
+@media (hover: hover) {
+  .sbar__logo:hover, .sbar__logo:focus-visible { background: color-mix(in srgb, var(--mustard) 32%, transparent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--mustard) 32%, transparent); }
+  .sfilm__item:hover img, .sfilm__item:hover video, .sfilm__item:focus-visible img { transform: scale(1.04); }
+  .sfilm__item:hover, .sfilm__item:focus-visible { box-shadow: inset 0 0 0 3px var(--mustard); }
+  .sfilm__item:hover img, .sfilm__item:hover video { filter: brightness(.92); }
+  .sbox.c-mustard:hover { --cg: color-mix(in srgb, var(--mustard) 82%, var(--ink)); --c: color-mix(in srgb, var(--mustard) 82%, var(--ink)); }
+  .sbox.c-mustard:hover::before { background: linear-gradient(180deg, color-mix(in srgb, var(--mustard) 90%, white) 0%, color-mix(in srgb, var(--mustard) 70%, var(--ink)) 100%); }
+}
+@media (prefers-reduced-motion: reduce) { .sfilm__item:hover img, .sfilm__item:hover video { transform: none; } }
+.slist a, .sfooter__row > a { border-radius: 6px; transition: background .2s, color .2s; }
+@media (hover: hover) {
+  .slist a:hover, .slist a:focus-visible { color: var(--ink); text-decoration: none; background: color-mix(in srgb, var(--mustard) 45%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mustard) 45%, transparent); }
+  .sfooter__row > a:hover, .sfooter__row > a:focus-visible { background: color-mix(in srgb, var(--mustard) 32%, transparent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--mustard) 32%, transparent); }
+  .shorses__ask:hover, .shorses__ask:focus-visible { background: var(--mg); color: var(--ink); box-shadow: 0 10px 20px -12px color-mix(in srgb, var(--mustard) 70%, transparent); }
+}

@@ -6,7 +6,7 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, SectionTitle } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { currentMonthKey } from '../../lib/time.js'
-import { BankDetails } from '../../components/Transfer.jsx'
+import { BankDetails, hasBank } from '../../components/Transfer.jsx'
 import ReceiptViewer from './ReceiptViewer.jsx'
 import { SaveBar } from '../../components/EditKit.jsx'
 import { concept } from '../../components/PaymentHistory.jsx'
@@ -69,7 +69,7 @@ export default function AdminPayments() {
       {desk ? <ReceivablesDesk onView={setViewing} /> : <Receivables onView={setViewing} />}
       <Cashflow />
 
-      <SectionTitle>{t('receipt.bankTitle')}</SectionTitle>
+      <SectionTitle>{t('receipt.bankTitle')} {!hasBank(s.settings) && <StatusPill status="pending">{t('receipt.missing')}</StatusPill>}</SectionTitle>
       <BankSettings />
 
       <SectionTitle icon="horseshoe">{t('prices.title')}</SectionTitle>
@@ -123,13 +123,15 @@ function ClassPrices() {
   if (!editing) {
     return (
       <div className="card">
-        <ul className="list">
-          {CLASS_KINDS.map((k) => (
-            <li key={k} className="list__row"><span className="grow">{t(`classKind.${k}`)}</span><strong>{fmtMoney(CLASS_PRICES[k])}</strong></li>
-          ))}
-        </ul>
+        <div className="cardtop">
+          <ul className="list grow">
+            {CLASS_KINDS.map((k) => (
+              <li key={k} className="list__row"><span className="grow">{t(`classKind.${k}`)}</span><strong className="dtable__num">{fmtMoney(CLASS_PRICES[k])}</strong></li>
+            ))}
+          </ul>
+          <button type="button" className="btn btn--slate" onClick={start}>{t('more.profile.edit')}</button>
+        </div>
         <p className="small muted mt8">{t('prices.hint')}</p>
-        <button type="button" className="btn btn--outline btn--sm btn--block mt12" onClick={start}>{t('more.profile.edit')}</button>
       </div>
     )
   }
@@ -168,9 +170,18 @@ function BankSettings() {
   }
   if (!editing) {
     return (
-      <div className="card">
-        <BankDetails />
-        <button type="button" className="btn btn--outline btn--sm btn--block mt12" onClick={start}>{t('more.profile.edit')}</button>
+      <div className="card bankcard">
+        {hasBank(settings) ? (
+          <div className="cardtop">
+            <div className="grow"><BankDetails /></div>
+            <button type="button" className="btn btn--slate" onClick={start}>{t('more.profile.edit')}</button>
+          </div>
+        ) : (
+          <>
+            <p className="bankcard__empty">{t('receipt.bankEmptyAdmin')}</p>
+            <button type="button" className="btn btn--primary" onClick={start}><Icon name="plus" size={18} /> {t('receipt.bankAdd')}</button>
+          </>
+        )}
       </div>
     )
   }

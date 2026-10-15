@@ -46,17 +46,16 @@ export function ActivePlanCard({ riderId, onChange }) {
     : { as: Link, props: { to: `${base}/familia/plan?cambiar=1` } }
   const Change = changeProps.as
   return (
-    <section className="card activeplan" aria-label={t('plan.activeLabel', { n: plan.total })}>
+    <section className="card activeplan c-sage edge-c" aria-label={t('plan.activeLabel', { n: plan.total })}>
       <div className="row between gap">
         <p className="card__label">{t('plan.activeLabel', { n: plan.total })} · {rider.name}</p>
         <StatusPill status={tone}>{t(label)}</StatusPill>
       </div>
-      <p className="bignum">{t('plan.usedOf', { used: plan.used, total: plan.total })}</p>
+      <p className="bignum activeplan__count">{t('plan.usedOf', { used: plan.used, total: plan.total })}</p>
       <Horseshoes used={plan.used} total={plan.total} label={t('plan.usedOf', { used: plan.used, total: plan.total })} />
-      <div className="row between small muted">
-        <span>{t('plan.remaining', { n: planRemaining(plan) })}</span>
-        <span>{t(rider.planClasses ? 'plan.renews' : 'plan.expires', { date: fmtDate(rider.planClasses ? planRenewal(plan) : planExpiry(plan), { day: 'numeric', month: 'short' }) })}</span>
-      </div>
+      <p className="small muted activeplan__line">
+        {t('plan.remaining', { n: planRemaining(plan) })} · {t(rider.planClasses ? 'plan.renews' : 'plan.expires', { date: fmtDate(rider.planClasses ? planRenewal(plan) : planExpiry(plan), { day: 'numeric', month: 'short' }) })}
+      </p>
       {upgrade && <p className="activeplan__note"><Icon name="clock" size={15} /> {t('plan.upgradeWaiting', { n: upgrade.meta.classes })}</p>}
       {nextPlan && (
         <p className="activeplan__note activeplan__note--next">
@@ -69,7 +68,7 @@ export function ActivePlanCard({ riderId, onChange }) {
       {nextSize && <p className="activeplan__note"><Icon name="calendar" size={15} /> {t('plan.downgradeNote', { n: nextSize, date: fmtDate(nextStart, { day: 'numeric', month: 'short' }) })}</p>}
       <div className="grid2">
         <Link to={`${base}/familia/reservar`} className="btn btn--primary">{t('plan.bookClass')}</Link>
-        <Change className="btn activeplan__change" {...changeProps.props}>{t('plan.change')}</Change>
+        <Change className="btn btn--outline activeplan__change" {...changeProps.props}>{t('plan.change')}</Change>
       </div>
     </section>
   )

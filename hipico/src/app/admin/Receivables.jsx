@@ -9,7 +9,7 @@ import { ReceiptBadge } from '../../components/Transfer.jsx'
 import { concept, paymentSentence } from '../../components/PaymentHistory.jsx'
 import { daysBetween, todayKey } from '../../lib/time.js'
 import { familyWaLink } from './Summary.jsx'
-import { DataTable, exportCsv, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
+import { DataTable, FilterRow, exportCsv, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
 import { Sheet } from '../../components/EditKit.jsx'
 import { addDays } from '../../lib/time.js'
 import { StatusPill } from '../../components/Colors.jsx'
@@ -19,18 +19,27 @@ const GROUPS = ['overdue', 'today', 'soon', 'later']
 const FILTERS = ['all', 'plan', 'boarding', 'class', 'rental', 'events']
 const matches = (filter, x) => filter === 'all' || x.service === filter || (filter === 'events' && x.service === 'camp')
 
-/** "Nico · 8 clases · octubre", "Relámpago · noviembre" … */
-function useDescribe() {
+/**
+ * The charge in two lines: what it is ("Plan 8 clases", "Pensión · octubre", "Clase suelta") and who it's for (the rider or
+ * the horse). Phones join them with " · ".
+ */
+function useDescribeLines() {
   const { t, fmtDate } = useI18n()
   const s = useStore()
   return (p) => {
-    const bits = [concept(t, p)]
-    if (p.meta?.classes && p.meta?.kind !== 'upgrade') bits.push(t('plan.classesPlan', { n: p.meta.classes }))
-    if (p.meta?.riderId) bits.push(byId(s.riders, p.meta.riderId)?.name)
-    if (p.meta?.horseId) bits.push(byId(s.horses, p.meta.horseId)?.name)
-    if (p.meta?.month && p.service === 'boarding') bits.push(fmtDate(`${p.meta.month}-01`, { month: 'long' }))
-    return bits.filter(Boolean).join(' · ')
+    const what = p.meta?.classes && p.meta?.kind !== 'upgrade' && p.service === 'plan'
+      ? [t('plan.classesPlan', { n: p.meta.classes })]
+      : [concept(t, p), p.meta?.classes && p.meta?.kind !== 'upgrade' ? t('plan.classesPlan', { n: p.meta.classes }) : null]
+    if (p.meta?.month && p.service === 'boarding') what.push(fmtDate(`${p.meta.month}-01`, { month: 'long' }))
+    const who = [p.meta?.riderId ? byId(s.riders, p.meta.riderId)?.name : null, p.meta?.horseId ? byId(s.horses, p.meta.horseId)?.name : null]
+    return [what.filter(Boolean).join(' · '), who.filter(Boolean).join(' · ')]
   }
+}
+
+/** "Nico · 8 clases · octubre", "Relámpago · noviembre" … */
+function useDescribe() {
+  const lines = useDescribeLines()
+  return (p) => lines(p).filter(Boolean).join(' · ')
 }
 
 function DueLine({ item }) {
@@ -224,6 +233,7 @@ export function ReceivablesDesk({ onView }) {
   const { t, fmtMoney, fmtDate, fmtInstant } = useI18n()
   const s = useStore()
   const describe = useDescribe()
+  const lines = useDescribeLines()
   const q = useDeskSearch(t('collect.searchPh'))
   // Resumen's figures open this list already filtered: ?estado=pagados&desde=…&hasta=… or ?estado=pendientes.
   const [params, setParams] = useSearchParams()
@@ -250,19 +260,19 @@ export function ReceivablesDesk({ onView }) {
   const stateLabel = (x) => (x.state === 'paid' ? t('collect.paidTag') : x.state === 'overdue' ? t('collect.dueOverdue', { date: fmtDate(x.due, { day: 'numeric', month: 'short' }), n: daysBetween(x.due, today) })
     : t(`collect.groups.${x.state}`))
   const columns = [
-    { key: 'family', label: t('collect.col.family'), value: (x) => byId(s.families, x.familyId)?.name || '', render: (x) => <span className="dtable__strong">{byId(s.families, x.familyId)?.name}</span> },
-    { key: 'concept', label: t('collect.col.concept'), value: (x) => describe(x) },
+    { key: 'family', nowrap: true, label: t('collect.col.family'), value: (x) => byId(s.families, x.familyId)?.name || '', render: (x) => <span className="dtable__strong">{byId(s.families, x.familyId)?.name}</span> },
+    { key: 'concept', label: t('collect.col.concept'), value: (x) => describe(x), render: (x) => { const [what, who] = lines(x); return <span className="dtable__two"><span>{what}</span>{who && <span className="small muted">{who}</span>}</span> } },
     { key: 'due', nowrap: true, label: t('collect.col.due'), value: (x) => x.due, render: (x) => fmtDate(x.due, { day: 'numeric', month: 'short', year: 'numeric' }), csv: (x) => x.due },
-    { key: 'state', label: t('desk.status'), value: (x) => ({ overdue: 0, today: 1, soon: 2, later: 3, paid: 4 }[x.state]), csv: (x) => stateLabel(x),
+    { key: 'state', nowrap: true, label: t('desk.status'), value: (x) => ({ overdue: 0, today: 1, soon: 2, later: 3, paid: 4 }[x.state]), csv: (x) => stateLabel(x),
       render: (x) => (
-        <span className="row gap-sm wrap">
+        <span className="row gap-sm">
           <StatusPill status={x.state === 'paid' ? 'paid' : x.state === 'overdue' ? 'overdue' : x.state === 'later' ? 'neutral' : 'pending'}>{stateLabel(x)}</StatusPill>
           {x.projected && <Badge tone="neutral">{t('collect.expected')}</Badge>}
           {x.receiptStatus && x.state !== 'paid' && <ReceiptBadge status={x.receiptStatus} />}
         </span>
       ) },
-    { key: 'reminders', label: t('collect.reminders'), value: (x) => (x.projected || x.state === 'paid' ? 0 : remindersFor(s, x).length), csv: (x) => (x.projected || x.state === 'paid' ? '' : remindersFor(s, x).length) },
-    { key: 'amount', nowrap: true, label: t('collect.col.amount'), align: 'right', value: (x) => x.amount, render: (x) => <strong>{fmtMoney(x.amount)}</strong> },
+    { key: 'reminders', nowrap: true, label: t('collect.reminders'), value: (x) => (x.projected || x.state === 'paid' ? 0 : remindersFor(s, x).length), csv: (x) => (x.projected || x.state === 'paid' ? '' : remindersFor(s, x).length) },
+    { key: 'amount', nowrap: true, label: t('collect.col.amount'), align: 'right', value: (x) => x.amount, render: (x) => <strong className="dtable__num">{fmtMoney(x.amount)}</strong> },
   ]
   // Page actions in the top bar: Imprimir beside Exportar (never over the filter pills).
   useDeskAction([
@@ -272,27 +282,27 @@ export function ReceivablesDesk({ onView }) {
   const selected = open && [...pending, ...paid].find((x) => x.id === open)
   return (
     <>
-      <div className="duegroups" role="group" aria-label={t('collect.title')}>
+      <div className="duegroups duegroups--desk" role="group" aria-label={t('collect.title')}>
         {GROUPS.map((g) => (
-          <button key={g} type="button" className={`duegroup duegroup--${g} ${only === g ? 'is-active' : ''}`} aria-pressed={only === g} onClick={() => { setOnly(only === g ? null : g); setStatus('pending') }}>
+          <button key={g} type="button" className={`duegroup duegroup--${g} ${sum(groups[g]) ? '' : 'is-empty'} ${only === g ? 'is-active' : ''}`} aria-pressed={only === g} onClick={() => { setOnly(only === g ? null : g); setStatus('pending') }}>
             <span className="duegroup__label">{t(`collect.groups.${g}`)}</span>
             <strong className="duegroup__sum">{fmtMoney(sum(groups[g]))}</strong>
             <span className="duegroup__n">{t('collect.count', { n: groups[g].length })}</span>
+            <span className="duegroup__go">{t('summary.see')} <Icon name="arrowRight" size={12} /></span>
           </button>
         ))}
       </div>
-      <div className="dtoolbar">
-        <Segmented small value={status} onChange={(v) => { setStatus(v); if (v !== 'pending') setOnly(null) }} options={[
-          { value: 'pending', label: t('collect.status2.pending') }, { value: 'paid', label: t('collect.status2.paid') }, { value: 'all', label: t('desk.all') },
-        ]} />
-        <div className="chipgroup grow" role="group" aria-label={t('collect.concept')}>
-          <span className="chipgroup__label">{t('collect.concept')}</span>
-          <div className="chips-scroll chips-scroll--wrap">
-            {FILTERS.map((f) => (
-              <button key={f} type="button" className={`chip ${filter === f ? 'is-active' : ''}`} aria-pressed={filter === f} onClick={() => setFilter(f)}>{t(`collect.filters.${f}`)}</button>
-            ))}
-          </div>
+      <div className="drows">
+        <div className="drows__tabs">
+          <Segmented small value={status} onChange={(v) => { setStatus(v); if (v !== 'pending') setOnly(null) }} options={[
+            { value: 'pending', label: t('collect.status2.pending') }, { value: 'paid', label: t('collect.status2.paid') }, { value: 'all', label: t('desk.all') },
+          ]} />
         </div>
+        <FilterRow label={t('collect.concept')}>
+          {FILTERS.map((f) => (
+            <button key={f} type="button" className={`chip ${filter === f ? 'is-active' : ''}`} aria-pressed={filter === f} onClick={() => setFilter(f)}>{t(`collect.filters.${f}`)}</button>
+          ))}
+        </FilterRow>
       </div>
       {range && status === 'paid' && (
         <p className="filterline small"><strong>{t('collect.paidRange', { from: fmtDate(range.from, { day: 'numeric', month: 'short' }), to: fmtDate(range.to, { day: 'numeric', month: 'short' }) })}</strong><button type="button" className="link" onClick={clearRange}>{t('collect.clearRange')}</button></p>

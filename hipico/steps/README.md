@@ -11,5 +11,6 @@ When Ivana says **"do STEP-XX"**, open `hipico/steps/STEP-XX.md` and build exact
 6. **No traces:** nothing that ships (UI, comments, commit messages, file names, metadata) names a tool, a model or a step number.
 7. Mirror new features in `/demo`.
 8. No flow gets more taps than it has now.
-9. Push to `main`. Check the Vercel build log shows `[migrate]` with no error. Mark the step done in `hipico/RUN-ORDER.md`.
-10. Give Ivana a 3-line summary plus what to check in the browser, then **wait for her "ok"**.
+9. Run `npm run check:hover`; a new interactive element without hover is a bug.
+10. Push to `main`. Check the Vercel build log shows `[migrate]` with no error. Mark the step done in `hipico/RUN-ORDER.md`.
+11. Give Ivana a 3-line summary plus what to check in the browser, then **wait for her "ok"**.

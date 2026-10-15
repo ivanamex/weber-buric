@@ -162,7 +162,7 @@ function PayStep({ order, card, lang, bank, onDone }) {
   const [error, setError] = useState(null)
   const [copied, setCopied] = useState(false)
   const input = useRef(null)
-  const clabe = bank?.clabe ? bank.clabe.replace(/(\d{3})(\d{3})(\d{11})(\d)/, '$1 $2 $3 $4') : null
+  const clabe = bank?.clabe ? String(bank.clabe).replace(/\s+/g, '').replace(/(\d{4})(?=\d)/g, '$1 ') : null
   const copy = async () => { try { await navigator.clipboard.writeText(bank.clabe); setCopied(true); setTimeout(() => setCopied(false), 2000) } catch { /* ignore */ } }
   const onFile = async (e) => {
     const file = e.target.files?.[0]

@@ -1581,3 +1581,147 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .input::placeholder { color: var(--field-ph); }
 .input:focus, .dateinput:focus-within .dateinput__shown { background: var(--field-focus-bg); border-color: var(--mustard); box-shadow: var(--field-ring); }
 .input[aria-invalid="true"], .input:invalid:not(:placeholder-shown):not(:focus) { border-color: var(--terracotta); }
+
+/* Cobros on a computer, with room and order: the four tiles, the tabs on their own row, the concept pills on one line, the table. */
+.duegroups--desk { gap: 16px; }
+.duegroups--desk .duegroup { position: relative; isolation: isolate; padding: 20px 24px; gap: 4px; border: 1px solid var(--border); background: var(--card); color: var(--ink); transition: transform .2s, box-shadow .2s, background .2s, border-color .2s; }
+.duegroups--desk .duegroup__label { color: var(--muted); }
+.duegroups--desk .duegroup__sum { font-size: 1.5rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.duegroups--desk .duegroup.is-empty .duegroup__sum, .duegroups--desk .duegroup.is-empty .duegroup__n { color: var(--muted); }
+.duegroups--desk .duegroup--overdue:not(.is-empty) { --c: var(--danger); background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); }
+.duegroups--desk .duegroup--overdue:not(.is-empty) :is(.duegroup__label, .duegroup__sum) { color: var(--danger-ink); }
+.duegroups--desk .duegroup--today:not(.is-empty) { --c: var(--terracotta); background: var(--terracotta-t); border-color: color-mix(in srgb, var(--terracotta) 50%, var(--border)); }
+.duegroups--desk .duegroup--today:not(.is-empty) :is(.duegroup__label, .duegroup__sum) { color: var(--terracotta-i); }
+.duegroups--desk .duegroup--soon:not(.is-empty) { --c: var(--mustard); background: var(--mustard-t); border-color: color-mix(in srgb, var(--mustard) 60%, var(--border)); }
+.duegroups--desk .duegroup--soon:not(.is-empty) :is(.duegroup__label, .duegroup__sum) { color: var(--mustard-i); }
+.duegroups--desk .duegroup.is-active { box-shadow: 0 0 0 2px var(--green); border-color: var(--green); }
+.duegroup__go { display: none; position: absolute; right: 12px; bottom: 10px; font-size: .72rem; font-weight: 700; color: var(--ink); align-items: center; gap: 2px; }
+@media (hover: hover) {
+  .duegroups--desk .duegroup:hover { transform: translateY(-2px); box-shadow: 0 14px 26px -14px color-mix(in srgb, var(--c, var(--mustard)) 80%, transparent); }
+  .duegroups--desk .duegroup.is-active:hover { box-shadow: 0 0 0 2px var(--green), 0 14px 26px -14px color-mix(in srgb, var(--c, var(--mustard)) 80%, transparent); }
+  .duegroups--desk .duegroup--overdue:not(.is-empty):hover { background: color-mix(in srgb, var(--danger) 22%, var(--card)); }
+  .duegroups--desk .duegroup--today:not(.is-empty):hover { background: color-mix(in srgb, var(--terracotta) 30%, var(--card)); }
+  .duegroups--desk .duegroup--soon:not(.is-empty):hover { background: color-mix(in srgb, var(--mustard) 40%, var(--card)); }
+  .duegroups--desk .duegroup.is-empty:hover, .duegroups--desk .duegroup--later:hover { background: var(--mg); border-color: transparent; }
+  .duegroups--desk .duegroup.is-empty:hover :is(.duegroup__label, .duegroup__sum, .duegroup__n), .duegroups--desk .duegroup--later:hover :is(.duegroup__label, .duegroup__sum, .duegroup__n) { color: var(--ink); }
+  .duegroups--desk .duegroup:hover .duegroup__go { display: inline-flex; }
+}
+.duegroups--desk .duegroup:focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .duegroups--desk .duegroup, .duegroups--desk .duegroup:hover { transform: none; transition: none; } }
+
+.drows { display: grid; gap: 16px; margin-top: 16px; }
+.drows__tabs { display: flex; }
+.drows__filter { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.drows__label { font-family: var(--font-head); font-stretch: 80%; font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); white-space: nowrap; }
+.drows__chips { flex: 1; min-width: 0; flex-wrap: nowrap; gap: 8px; padding: 2px 24px 2px 0; }
+.drows__chips .chip { flex: none; height: 36px; padding: 0 14px; font-size: .875rem; border: 1px solid var(--border); background: var(--card); color: var(--ink); }
+.drows__chips .chip.is-active { background: var(--green); border-color: var(--green); color: #fff; }
+.drows__chips .segmented { margin-right: 4px; }
+.drows + .dtable__wrap, .drows + .filterline { margin-top: 8px; }
+.drows__end { display: flex; gap: 8px; flex: none; }
+
+.dtable td { padding: 16px 14px; }
+.dtable__two { display: grid; gap: 2px; min-width: 180px; }
+.dtable__two > .small { line-height: 1.3; }
+.dtable__num { font-variant-numeric: tabular-nums; }
+.dtable th { padding: 10px 10px; }
+.dtable__sort { gap: 6px; padding: 4px 8px; margin: -4px -8px; border-radius: 999px; color: var(--accent-ink); transition: background .15s, color .15s; }
+.dtable__sort .dtable__arrow { color: var(--accent-ink); transition: transform .15s; }
+.dtable__sort.is-sorted { background: var(--mustard-t); color: var(--ink); font-weight: 800; }
+.dtable__sort.is-sorted .dtable__arrow { color: var(--ink); }
+@media (hover: hover) {
+  .dtable__sort:hover { background: var(--mg); color: var(--ink); box-shadow: none; border-radius: 999px; }
+  .dtable__sort:hover .dtable__arrow { color: var(--ink); transform: translateY(-1px); }
+}
+.dtable__sort:focus-visible { outline: 2px solid var(--mustard); outline-offset: 1px; }
+@media (prefers-reduced-motion: reduce) { .dtable__sort:hover .dtable__arrow { transform: none; } }
+
+/* Section headings above cards: one rule everywhere. 32 px above (16 + the page's gap), 16 px to the card on a computer. */
+.section-title { margin-top: 16px; }
+.section-title:first-child { margin-top: 0; }
+.section-title h2 { gap: 8px; align-items: center; }
+.section-title h2 .stpill { margin-left: 2px; }
+.reviewblock, .homegrid > div, .sumblock { display: grid; gap: 12px; align-content: start; }
+@media (min-width: 1024px) {
+  .desk__content .reviewblock, .fdesk__content .homegrid > div, .desk__content .sumblock { gap: 16px; }
+  .desk__content .card, .fdesk__content .card { padding: 22px 24px; }
+  .desk__content .card.list, .fdesk__content .card.list { padding: 6px 24px; }
+  .desk__content .list.card.edge-c, .fdesk__content .list.card.edge-c, .desk__content .card.row.edge-c { padding-left: 29px; }
+}
+
+/* Datos para transferencia: the label over the value, the CLABE in blocks with a copy icon, Editar top-right. */
+.cardtop { display: flex; align-items: flex-start; gap: 16px; }
+.cardtop > .btn { flex: none; }
+.bank { display: grid; gap: 16px; }
+.bank__row { display: grid; gap: 2px; }
+.bank__label { font-family: var(--font-head); font-stretch: 80%; font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+.bank__value { display: inline-flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 600; color: var(--ink); }
+.bank__clabe { font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+.bank__copy { width: 32px; height: 32px; }
+.bank__none { font-size: .95rem; color: var(--ink); }
+.bankcard__empty { margin-bottom: 14px; }
+.bankcard .btn--primary { justify-self: start; }
+
+/* Family Inicio: a slim greeting band (greeting + rider chips on one row); the plan as its own light card under it. */
+.homehead--slim { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; padding: 20px 20px; min-height: 0; }
+.homehead--slim .hello { flex: none; }
+.homehead--slim .hello h1 { font-size: 1.7rem; }
+.homehead--slim .riderpick, .homehead--slim .chips { flex: 1 1 auto; justify-content: flex-end; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+.homehead--slim .chips::-webkit-scrollbar { display: none; }
+.activeplan { gap: 10px; }
+.activeplan__count { font-size: 2rem; margin: 0; }
+.activeplan .shoes { gap: 6px; margin: 0 0 2px; }
+.activeplan .shoe { width: 28px; height: 28px; }
+.activeplan__line { margin: 0; }
+.activeplan .grid2 { grid-template-columns: auto auto; justify-content: start; gap: 10px; margin-top: 4px; }
+.activeplan .grid2 > .btn { white-space: nowrap; padding: 0 18px; }
+.homerow { display: grid; gap: 12px; }
+@media (min-width: 1024px) {
+  .homehead--slim { padding: 24px 28px; min-height: 140px; }
+  .homehead--slim .hello h1 { font-size: 1.9rem; }
+  .homerow { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px; align-items: stretch; }
+  .homerow > * { margin: 0; }
+  .activeplan { padding: 24px; }
+}
+@media (max-width: 380px) {
+  .activeplan .grid2 { grid-template-columns: 1fr; }
+  .activeplan .grid2 > .btn { white-space: normal; }
+}
+/* Resumen: the band stays under ~180 px on a computer (tighter padding, slimmer tiles). */
+@media (min-width: 1024px) {
+  .desk__content .homehead { padding: 18px 24px; gap: 12px; }
+  .desk__content .homehead .stats .stat { padding: 10px 8px; }
+}
+
+/* Every interactive element gets a hover (found by `npm run check:hover`): mustard tokens, pointer, and the keyboard focus matches. */
+.logo, .desk__brand, .demobar__switch button, .demobar__exit, .day:not(:disabled), .wgrid__class, .hgallery__item, .hgallery__add, .nextdates__tap, .healthrow__tap:not(:disabled), .login__btn, .login__back, .msg__contact a, .sumblock .list__row > a { cursor: pointer; }
+.logo, .desk__brand { border-radius: 12px; transition: background .15s, transform .15s; }
+.msg__contact a, .sumblock .list__row > a, .login__back, .demobar__exit { border-radius: 6px; transition: background .15s, color .15s; }
+.hgallery__item img { transition: transform .25s ease; }
+@media (hover: hover) {
+  .logo:hover, .desk__brand:hover, .logo:focus-visible, .desk__brand:focus-visible { background: color-mix(in srgb, var(--mustard) 32%, transparent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--mustard) 32%, transparent); }
+  .demobar__switch button:hover:not(.is-active), .demobar__switch button:focus-visible:not(.is-active) { background: var(--mg-soft); color: var(--ink); }
+  .demobar__exit:hover, .demobar__exit:focus-visible, .login__back:hover, .login__back:focus-visible, .msg__contact a:hover, .msg__contact a:focus-visible, .sumblock .list__row > a:hover, .sumblock .list__row > a:focus-visible {
+    color: var(--ink); text-decoration: none; background: color-mix(in srgb, var(--mustard) 45%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mustard) 45%, transparent); }
+  .sumblock .list__row > a:hover .muted, .sumblock .list__row > a:focus-visible .muted { color: var(--ink); }
+  .day:hover:not(.is-active):not(:disabled), .day:focus-visible:not(.is-active):not(:disabled) { background: var(--mg-soft); border-color: var(--mustard); opacity: 1; color: var(--ink); }
+  .wgrid__class:hover, .wgrid__class:focus-visible { background: var(--mg-soft); box-shadow: inset 0 0 0 1px var(--mustard); }
+  .wgrid__class:hover span, .wgrid__class:focus-visible span { color: var(--ink); }
+  .hgallery__item:hover img, .hgallery__item:focus-visible img { transform: scale(1.05); }
+  .hgallery__item:hover, .hgallery__item:focus-visible, .hgallery__add:hover, .hgallery__add:focus-visible { box-shadow: 0 0 0 3px var(--mustard); }
+  .hgallery__add:hover, .hgallery__add:focus-visible { background: var(--mg-soft); border-color: var(--mustard); color: var(--ink); }
+  .nextdates__tap:hover, .nextdates__tap:focus-visible, .healthrow__tap:hover:not(:disabled), .healthrow__tap:focus-visible:not(:disabled) { background: var(--mg-soft); border-radius: 10px; box-shadow: 0 0 0 4px var(--mg-soft); }
+  .login__btn:hover, .login__btn:focus-visible { background: var(--mg); transform: translateY(-2px); box-shadow: 0 16px 30px -16px color-mix(in srgb, var(--mustard) 80%, transparent); }
+  .login__btn:hover small, .login__btn:focus-visible small { color: var(--ink); }
+  .btn--muted:hover:not(:disabled), .btn--muted:focus-visible { opacity: 1; }
+}
+.login__btn:focus-visible, .wgrid__class:focus-visible, .day:focus-visible, .hgallery__item:focus-visible, .hgallery__add:focus-visible { outline: none; }
+@media (prefers-reduced-motion: reduce) { .login__btn:hover, .hgallery__item:hover img { transform: none; } }
+/* Switches, checkboxes and day chips (Ajustes, horse edit): the same hover. */
+.check, .switch, .reminders__switch, .daychip:not(:disabled) { cursor: pointer; }
+.check, .reminders__switch { border-radius: 8px; transition: background .15s; }
+@media (hover: hover) {
+  .check:hover, .reminders__switch:hover, .reminders__switch:focus-within, .check:focus-within { background: var(--mg-soft); box-shadow: 0 0 0 6px var(--mg-soft); }
+  .switch:hover .switch__track, .switch:focus-within .switch__track, .switch:hover > span:first-of-type { box-shadow: 0 0 0 3px var(--mg-soft); }
+  .daychip:hover:not(.is-active):not(:disabled), .daychip:focus-visible:not(.is-active):not(:disabled) { background: var(--mg-soft); border-color: var(--mustard); color: var(--ink); }
+}

@@ -178,35 +178,35 @@ export default function FamilyHome() {
     </>
   )
 
+  // A slim band: only the greeting and the rider chips on one row. The plan card sits under it, light, on its own.
   const head = (
-    <section className="homehead">
+    <section className="homehead homehead--slim">
       <div className="hello">
         <p className="hello__eyebrow">{t(`family.greeting.${greetingKey()}`)}</p>
         <h1>{family.contact.split(' ')[0]} <GreetingMark time={greetingKey()} /></h1>
       </div>
       <RiderPicker />
-      {planBlock}
     </section>
   )
 
   const tiles = <QuickTiles s={s} rider={rider} familyId={family.id} dueCount={dueSoon.length} />
-  // Desktop: the green card, then next class and payments due side by side, then the quick tiles, then the rest in a
-  // 2-column grid filled from the left (an odd last card spans the width: no lone block in a corner).
-  // Phone: the green card, the quick tiles, then the rest.
+  // Desktop: the band, then the plan (7/12) and the next class (5/12) side by side, then payments due and the rest in a
+  // 2-column grid filled from the left (an odd last card spans the width: no lone block in a corner), the quick tiles last.
+  // Phone: the band, the plan card, the quick tiles, then the rest.
   return (
     <div className="page">
       {desk ? (
         <>
           {head}
           {cancelledBlock}
-          <div className="homepair">{nextBlock}{dueBlock}</div>
-          {tiles}
+          <div className="homerow">{planBlock}{nextBlock}</div>
           <div className="homegrid">
-            {[upcoming.length > 1 && upcomingBlock, receipts.length > 0 && receiptsBlock, boardingBlock].filter(Boolean).map((block, i) => <div key={i}>{block}</div>)}
+            {[dueSoon.length > 0 && dueBlock, upcoming.length > 1 && upcomingBlock, receipts.length > 0 && receiptsBlock, boardingBlock].filter(Boolean).map((block, i) => <div key={i}>{block}</div>)}
           </div>
+          {tiles}
         </>
       ) : (
-        <>{head}{tiles}{cancelledBlock}{nextBlock}{dueBlock}{upcomingBlock}{receiptsBlock}{boardingBlock}</>
+        <>{head}{planBlock}{tiles}{cancelledBlock}{nextBlock}{dueBlock}{upcomingBlock}{receiptsBlock}{boardingBlock}</>
       )}
     </div>
   )

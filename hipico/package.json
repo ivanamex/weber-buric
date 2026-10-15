@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "node scripts/migrate.mjs && vite build",
     "preview": "vite preview",
-    "migrate": "MIGRATE=1 node scripts/migrate.mjs"
+    "migrate": "MIGRATE=1 node scripts/migrate.mjs",
+    "check:hover": "node scripts/hover-audit.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

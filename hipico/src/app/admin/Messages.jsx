@@ -41,8 +41,10 @@ export default function AdminMessages() {
     <div className="page">
       {!desk && <h1 className="page__title">{t('messages.title')}</h1>}
       <p className="small muted">{t('messages.intro')}</p>
-      <div className="dtoolbar">
-        <Segmented small value={shown} onChange={setShown} options={VIEWS.map((v) => ({ value: v, label: `${t(`messages.${v}`)}${counts[v] ? ` (${counts[v]})` : ''}` }))} />
+      <div className={desk ? 'drows' : 'dtoolbar'}>
+        <div className="drows__tabs">
+          <Segmented small value={shown} onChange={setShown} options={VIEWS.map((v) => ({ value: v, label: `${t(`messages.${v}`)}${counts[v] ? ` (${counts[v]})` : ''}` }))} />
+        </div>
       </div>
       {desk ? (
         <DataTable columns={columns} rows={rows} onRow={(m) => setOpen(m.id)} selected={open} defaultSort={{ key: 'date', dir: -1 }} empty={empty} />

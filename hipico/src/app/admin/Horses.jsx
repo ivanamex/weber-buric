@@ -8,7 +8,7 @@ import { Badge } from '../../components/ui.jsx'
 import { HorsePhoto } from '../../components/HorseCare.jsx'
 import { useSave } from './useSave.js'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { DataTable, exportCsv, useDesktop, useDeskAction, useDeskSearch } from '../../components/Desk.jsx'
+import { DataTable, exportCsv, useDesktop, useDeskAction, useDeskSearch, FilterRow } from '../../components/Desk.jsx'
 import { Sheet } from '../../components/EditKit.jsx'
 import HorseProfile from './HorseProfile.jsx'
 import { SaveBar, useFormState } from '../../components/EditKit.jsx'
@@ -66,14 +66,14 @@ function HorsesDesk() {
   ], [rows.length, status, q])
   return (
     <>
-      <div className="dtoolbar">
-        <div className="chips-scroll chips-scroll--wrap grow" role="group">
+      <div className="drows">
+        <FilterRow label={t('desk.status')}>
           {['all', ...statuses].map((st) => (
             <button key={st} type="button" className={`chip ${status === st ? 'is-active' : ''}`} aria-pressed={status === st} onClick={() => setStatus(st)}>
               {st === 'all' ? t('desk.all') : t(`horses.group.${st}`)}
             </button>
           ))}
-        </div>
+        </FilterRow>
       </div>
       <DataTable columns={columns} rows={rows} onRow={(h) => setOpen(h.id)} selected={open} defaultSort={{ key: 'name', dir: 1 }} />
       {open && (

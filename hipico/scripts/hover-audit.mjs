@@ -1,0 +1,191 @@
+#!/usr/bin/env node
+/**
+ * Hover audit: every interactive element in the app, the panel and the website must change on hover.
+ *
+ * Opens the demo (both roles, every route, every tab, the first side panel of each table) plus the website and the
+ * download page at 1440×900, collects every button, link, tab, option, switch, summary, clickable row and card, reads
+ * its computed style, hovers it, reads again, and lists the ones where nothing changed (disabled elements are skipped;
+ * a selected tab or pressed pill only needs the pointer).
+ *
+ *   npm run check:hover            (expects a preview on http://localhost:4173, or starts one from dist/)
+ *   HOVER_BASE=http://localhost:5173 node scripts/hover-audit.mjs
+ *
+ * Exit code 1 when any element has no hover.
+ */
+import { createRequire } from 'node:module'
+import { spawn } from 'node:child_process'
+import { existsSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
+const BASE = process.env.HOVER_BASE || 'http://localhost:4173'
+const require = createRequire(import.meta.url)
+
+function loadPlaywright() {
+  const candidates = [process.env.PLAYWRIGHT_MODULE, 'playwright', '/opt/node22/lib/node_modules/playwright', '/usr/lib/node_modules/playwright', '/usr/local/lib/node_modules/playwright'].filter(Boolean)
+  for (const c of candidates) {
+    try { return require(c) } catch { /* next */ }
+  }
+  throw new Error('Playwright not found: npm i -g playwright, or set PLAYWRIGHT_MODULE to its folder')
+}
+
+async function reachable(url) {
+  try { const r = await fetch(url); return r.ok } catch { return false }
+}
+
+async function ensureServer() {
+  if (await reachable(`${BASE}/demo`)) return null
+  if (!existsSync(join(ROOT, 'dist', 'index.html'))) throw new Error(`Nothing answers at ${BASE} and there is no dist/: run "npm run build" (or "npx vite build") first`)
+  const port = new URL(BASE).port || '4173'
+  const child = spawn('npx', ['vite', 'preview', '--port', port, '--strictPort'], { cwd: ROOT, stdio: 'ignore' })
+  for (let i = 0; i < 50; i++) {
+    await new Promise((r) => setTimeout(r, 200))
+    if (await reachable(`${BASE}/demo`)) return child
+  }
+  child.kill()
+  throw new Error(`The preview did not start on ${BASE}`)
+}
+
+// Family and management screens, then the website and the download page.
+const FAMILY = ['', 'reservar', 'plan', 'caballo', 'pagos', 'eventos', 'perfil', 'instalar', 'ajustes', 'mas'].map((p) => `/demo/familia${p ? `/${p}` : ''}`)
+const ADMIN = ['', 'hoy', 'horario', 'horario?vista=caballos', 'cobros', 'familias', 'mensajes', 'nomina', 'rentabilidad', 'reportes', 'ajustes'].map((p) => `/demo/direccion${p ? `/${p}` : ''}`)
+const SITE = ['/', '/en', '/descargar']
+
+const PICK = [
+  'button', 'a[href]', '[role="tab"]', '[role="button"]', '[role="link"]', '[role="option"]', '[role="switch"]', 'summary',
+  'label:has(input[type="checkbox"]), label:has(input[type="radio"]), label:has(input[type="file"])', '[tabindex="0"]', 'tr.is-clickable', '.ctile', '.scard', '.sbox', '.feature', '.stat--link',
+].join(', ')
+
+/** Runs in the page: a style snapshot of the element, its ::before/::after and its first descendants. */
+const SNAPSHOT = (el) => {
+  const props = ['background-color', 'background-image', 'color', 'border-color', 'box-shadow', 'transform', 'text-decoration-line', 'outline-color', 'outline-style', 'opacity', 'filter', 'background-position', 'background-size', 'fill', 'stroke']
+  const read = (node, pseudo) => { const c = getComputedStyle(node, pseudo); return props.map((p) => c.getPropertyValue(p)).join('|') }
+  const parts = [read(el), read(el, '::before'), read(el, '::after')]
+  const kids = el.querySelectorAll('*')
+  for (let i = 0; i < Math.min(kids.length, 12); i++) parts.push(read(kids[i]), read(kids[i], '::before'))
+  return parts.join('\n')
+}
+
+const DESCRIBE = (el) => {
+  const text = (el.innerText || el.getAttribute('aria-label') || el.getAttribute('title') || '').trim().replace(/\s+/g, ' ').slice(0, 40)
+  const cls = (typeof el.className === 'string' ? el.className : '').trim().split(/\s+/).filter(Boolean).slice(0, 3).join('.')
+  return el.tagName.toLowerCase() + (cls ? '.' + cls : '') + (text ? ' "' + text + '"' : '')
+}
+
+async function auditPage(page, route, seen, out) {
+  const handles = await page.$$(PICK)
+  let checked = 0
+  for (const h of handles) {
+    const info = await h.evaluate((el) => {
+      const r = el.getBoundingClientRect()
+      const cs = getComputedStyle(el)
+      const disabled = el.disabled || el.getAttribute('aria-disabled') === 'true' || el.closest('[disabled], [aria-disabled="true"]') !== null
+      const selected = el.classList.contains('is-active') || el.classList.contains('is-on') || el.getAttribute('aria-selected') === 'true' || el.getAttribute('aria-pressed') === 'true' || el.getAttribute('aria-current') !== null || el.classList.contains('is-selected')
+      const visible = r.width > 2 && r.height > 2 && cs.visibility !== 'hidden' && cs.display !== 'none' && Number(cs.opacity) > 0 && cs.pointerEvents !== 'none'
+      const scrim = /scrim|visually-hidden|hoof|canvas/.test(el.className || '') || el.tabIndex === -1 && el.tagName === 'BUTTON' && /scrim/.test(el.className)
+      return { visible, disabled, selected, scrim, cursor: cs.cursor, w: Math.round(r.width), h: Math.round(r.height) }
+    }).catch(() => null)
+    if (!info || !info.visible || info.disabled || info.scrim) continue
+    const key = await h.evaluate((el) => { const path = []; let n = el; while (n && n.nodeType === 1 && path.length < 6) { path.unshift(n.tagName + (n.className && typeof n.className === 'string' ? '.' + n.className.trim().split(/\s+/).slice(0, 2).join('.') : '')); n = n.parentElement } return path.join('>') + '#' + (el.innerText || el.getAttribute('aria-label') || '').trim().slice(0, 30) })
+    if (seen.has(key)) continue
+    seen.add(key)
+    checked++
+    await h.evaluate((el) => el.scrollIntoView({ block: 'center', inline: 'nearest' }))
+    await page.mouse.move(0, 0)
+    await page.waitForTimeout(60)
+    const box = await h.boundingBox()
+    if (!box) continue
+    const cx = box.x + box.width / 2
+    const cy = box.y + box.height / 2
+    const onTop = await page.evaluate(({ x, y }) => { const t = document.elementFromPoint(x, y); return t ? [t, ...(t.getRootNode() === document ? [] : [])] : null }, { x: cx, y: cy }).catch(() => null)
+    const covered = await h.evaluate((el, pt) => { const t = document.elementFromPoint(pt.x, pt.y); return !t || !(el === t || el.contains(t) || t.contains(el)) }, { x: cx, y: cy }).catch(() => true)
+    if (covered || !onTop) continue
+    const before = await h.evaluate(SNAPSHOT)
+    await page.mouse.move(cx, cy)
+    await page.waitForTimeout(80)
+    const after = await h.evaluate(SNAPSHOT).catch(() => before)
+    await page.mouse.move(0, 0)
+    if (before === after && !(info.selected && info.cursor === 'pointer')) {
+      out.push({ route, what: await h.evaluate(DESCRIBE), cursor: info.cursor, selected: info.selected })
+    }
+  }
+  return checked
+}
+
+/** Every tab on the page (segmented controls, view toggles), then the first clickable row's side panel. */
+async function variants(page) {
+  const list = []
+  const tabs = await page.$$('[role="tab"]:not(.is-active):not(.demobar__switch *), .segmented button:not(.is-active)')
+  for (const t of tabs.slice(0, 12)) list.push({ name: 'tab', act: () => t.click({ timeout: 1000 }).catch(() => {}) })
+  list.push({ name: 'row', act: () => page.click('tr.is-clickable >> nth=0', { timeout: 1000 }).catch(() => {}) })
+  list.push({ name: 'edit', act: () => page.click('button:has-text("Editar") >> nth=0', { timeout: 1000 }).catch(() => {}) })
+  return list
+}
+
+async function main() {
+  const { chromium } = loadPlaywright()
+  const server = await ensureServer()
+  const browser = await chromium.launch()
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+  const out = []
+  let total = 0
+  // No smooth scrolling and no transitions while auditing: the box is where the element is, and a hover state is read in its final form.
+  const settle = () => page.addStyleTag({ content: 'html { scroll-behavior: auto !important } *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important }' }).catch(() => {})
+  const go = async (path) => { await page.evaluate((p) => { history.pushState({}, '', p); dispatchEvent(new PopStateEvent('popstate')) }, path); await page.waitForTimeout(500) }
+  const enter = async (role) => {
+    await page.goto(`${BASE}/demo?reset=1`, { waitUntil: 'networkidle' })
+    await page.waitForTimeout(300)
+    await page.getByRole('button', { name: role === 'family' ? /familia/i : /dirección/i }).first().click()
+    await page.waitForTimeout(600)
+    await page.evaluate(() => { try { localStorage.setItem('hipico.installOffered', '1') } catch { /* no storage */ } })
+    await settle()
+  }
+  try {
+    for (const [role, routes] of [['family', FAMILY], ['admin', ADMIN]]) {
+      await enter(role)
+      for (const route of routes) {
+        await go(route)
+        await page.evaluate(() => document.querySelector('.installcard .link, .installcard button[aria-label]')?.click()).catch(() => {})
+        const seen = new Set()
+        total += await auditPage(page, route, seen, out)
+        for (const v of await variants(page)) {
+          await v.act()
+          await page.waitForTimeout(400)
+          total += await auditPage(page, `${route} (${v.name})`, seen, out)
+          await page.keyboard.press('Escape').catch(() => {})
+          await page.waitForTimeout(150)
+        }
+      }
+    }
+    for (const route of SITE) {
+      await page.goto(`${BASE}${route}`, { waitUntil: 'networkidle' })
+      await page.waitForTimeout(600)
+      await settle()
+      const seen = new Set()
+      total += await auditPage(page, route, seen, out)
+      // the service lightboxes
+      for (let i = 0; i < 4 && route !== '/descargar'; i++) {
+        const cards = await page.$$('.scard')
+        if (!cards[i]) break
+        await cards[i].click().catch(() => {})
+        await page.waitForTimeout(500)
+        total += await auditPage(page, `${route} (lightbox ${i + 1})`, seen, out)
+        await page.keyboard.press('Escape')
+        await page.waitForTimeout(300)
+      }
+    }
+  } finally {
+    await browser.close()
+    server?.kill()
+  }
+  const byRoute = out.reduce((m, x) => ((m[x.route] ||= []).push(x), m), {})
+  console.log(`Checked ${total} interactive elements. Without hover: ${out.length}.`)
+  for (const [route, items] of Object.entries(byRoute)) {
+    console.log(`\n${route}`)
+    for (const x of items) console.log(`  - ${x.what}${x.cursor !== 'pointer' ? ` (cursor: ${x.cursor})` : ''}`)
+  }
+  process.exit(out.length ? 1 : 0)
+}
+
+main().catch((e) => { console.error(e.message || e); process.exit(2) })
