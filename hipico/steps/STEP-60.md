@@ -51,3 +51,21 @@ Ivana (screenshot, hovering "Ver clases y precios"): both hero buttons turn must
 In the same screenshot (scrolled about 300 px), the transparent bar overlaps "CLUB HÍPICO EN LA SELVA DE PAAMUL": the nav links run through the title, and the logo sits on the "C".
 - The bar gets its background (olivewood glass with blur, white text) **as soon as the page scrolls past 8 px**, not only after the hero. It stays fully transparent only at the very top.
 - Check it at 1280, 1440 and 1920 px while scrolling slowly through the hero: the links are never drawn over the title.
+
+## Website payment step (Clases lightbox → "¿Cómo quieres pagar?")
+Ivana's screenshots: the buttons have no hierarchy, and their colors and transparency look random. "Transferencia" is a dark pill that doesn't read as a choice, "Subir comprobante" doesn't say it uploads a file, "Lo subo después desde la app" is an unstyled native button, and **card payment is missing**.
+
+**Same pattern as the app's `PayDialog` (STEP-58), so the site and the app match:**
+1. **Payment method as option cards** (radio cards, not pills): one row of three on a computer, stacked on phones.
+   - Each card has an icon, a title and one line: **Transferencia** ("Desde tu banco, subes el comprobante"), **Tarjeta** ("Crédito o débito con Mercado Pago"), **En el club** ("Efectivo o tarjeta en la oficina").
+   - Rest: warm white, hairline border. Hover: level 2. Selected: mustard 2 px border, light mustard tint and a check in the corner.
+2. **Card missing:** it's hidden because the Mercado Pago keys aren't in Vercel yet. Until they are, the Tarjeta card still shows, disabled and greyed, with a "Muy pronto" pill. That way Mara and visitors see that card payment is coming. Once the keys are in, it works (STEP-53 flow).
+3. **Transferencia → upload as a drop zone, not a button:**
+   - a dashed-border box (sand) with an upload icon, "Sube tu comprobante" and "Foto o PDF · hasta 10 MB · toca o arrastra";
+   - after choosing a file, it shows the file name with a thumbnail and a "Cambiar" link;
+   - then the main mustard button **Enviar comprobante**, disabled until a file is chosen;
+   - **"Lo subo después desde la app"** becomes a level 1 text link under it, with no box. Today it's an unstyled native button.
+4. **En el club:** one line ("Paga en la oficina del club; tu lugar queda apartado") + **Apartar mi lugar**. This creates the charge with `meta.payAtClub` (as in STEP-58).
+5. **Hierarchy in the whole panel:** one mustard button per screen (the main action). Everything else is an option card, a drop zone or a text link. The ¿Dudas? pills stay sage.
+6. The summary line capitalizes names: "12 clases al mes · Ivana · $6,900" (today it shows "ivana").
+- The app's `PayDialog` uses the same option cards and the same drop zone.
