@@ -34,3 +34,9 @@ Ivana (15 Oct, the site's nav): "VISÍTANOS" on hover turns into a full mustard 
 - At 1440 px, on `/` over the video and after scrolling: hovering each nav link shows only the color + underline, never a pill.
 - In the app: the sidebar, tables, tabs and tiles each at their level.
 - Screenshot pairs (rest / hover) for 6 examples in the report.
+
+## Bug: "ENTRAR" on hover over the hero (Ivana's screenshot)
+On hover, ENTRAR turns dark olivewood on the dark video, so it becomes unreadable, and a line runs **through the middle of the letters**. It looks struck through. The underline's `::after` is placed at the vertical center (or the scroll-spy/sheen bar sits in the wrong spot), and the pill background is probably clipped by `overflow: hidden`.
+- Fix: ENTRAR follows level 1. Over the video and the dark bar, the text is light mustard `#E9C27A` with the underline **under** the baseline (`bottom: -6px`, 2 px), never across the letters. Over the parchment bar after scrolling, the text is deep mustard `#A9781F` with the same underline.
+- Check every nav link and the ES/EN toggle in both bar states (over the hero / after scrolling) for the same bug: text color vs background, and where the line sits.
+- Add a screenshot pair of ENTRAR (rest / hover) in both bar states to the report.
