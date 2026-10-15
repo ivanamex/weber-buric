@@ -6,8 +6,9 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 1. **STEP-57**: Ivana's panel and app round: Cobros order and spacing, hovering and clickable tiles, visible sort arrows, the bank details card (empty/filled, unstyled Editar), space under section headings, a hover audit across the app and site (`npm run check:hover`), family Inicio with a slim greeting band and a light plan card
 2. **STEP-58**: Resumen rows: every block a card (empty too), equal heights, no inner scrollbars (5 lines + "Ver todos"), no empty side; one payment lightbox for every Pagar (Transferencia · Tarjeta · En el club)
-3. **STEP-55 (on hold until Ivana says the screens are final)**: two video guides the El Árbol way (real recording, camera follows the action, Alejandro Garcia voice): "El club desde la app" (1920×1080) and "Clases en el Hípico" (vertical, for WhatsApp)
-4. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
+3. **STEP-59**: Spanish copy round 2: slogan "Tu lugar feliz tiene caballos." (not "a caballo"), 13 more strings, a sweep of Spanish outside es.json
+4. **STEP-55 (on hold until Ivana says the screens are final)**: two video guides the El Árbol way (real recording, camera follows the action, Alejandro Garcia voice): "El club desde la app" (1920×1080) and "Clases en el Hípico" (vertical, for WhatsApp)
+5. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
 
