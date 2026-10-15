@@ -6,9 +6,10 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 1. **STEP-60**: hovers with a fine line (3 levels; ENTRAR and logo bugs; hero secondary back to green glass; bar background once scrolled), website payment step (option cards, upload drop zone, Tarjeta "Muy pronto"), Hoy and every fraction in words. The Clases choice section waits for the approved draft
 2. **STEP-61**: /descargar with STEP-60's hovers (logo without mask, Entrar text level, Abrir la app mustard, Ver cómo funciona green glass, bar background on scroll)
-3. **Draft** of the Clases choice (chat Claude), then its section of STEP-60 once Ivana approves
-4. **STEP-55 (on hold until Ivana says the screens are final)**: two video guides the El Árbol way (real recording, camera follows the action, Alejandro Garcia voice): "El club desde la app" (1920×1080) and "Clases en el Hípico" (vertical, for WhatsApp)
-5. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
+3. **STEP-62**: the footer course: the horse at fence scale, hooves on the line, real jumps over each fence; slogan 56 px with room around it
+4. **Draft** of the Clases choice: `steps/drafts/step-60-clases.png` waiting for Ivana's ok, then its section of STEP-60
+5. **STEP-55 (on hold until Ivana says the screens are final)**: two video guides the El Árbol way (real recording, camera follows the action, Alejandro Garcia voice): "El club desde la app" (1920×1080) and "Clases en el Hípico" (vertical, for WhatsApp)
+6. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
 
