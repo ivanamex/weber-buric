@@ -32,7 +32,7 @@ Ivana (15 Oct, the Pensión card on Inicio): "Pagar pensión" should open a ligh
 - **Transferencia:** the bank details (copy buttons for CLABE, amount and reference), then "Sube tu comprobante" (photo or file), then **Enviar comprobante**. The charge goes to Por revisar. If the club has no bank details yet: "El club te enviará los datos para pagar" (STEP-57).
 - **Tarjeta:** "Pagas con tarjeta de crédito o débito en Mercado Pago, de forma segura", then **Pagar $9,500 con tarjeta**, which goes to Checkout Pro (`payByCard`), and back to `/pago/…`. Shown only when `cardEnabled()`.
   - In `/demo` it is shown and simulated: a short "Procesando…", then "Pago recibido" and the charge marked paid, labelled "Simulación de demo".
-- **En el club:** "Paga en efectivo o con tarjeta en la oficina del club. Cuando paguemos, lo verás como Pagado." Then **Avisar que pago en el club**, which stores `meta.payAtClub = date` on the charge. Cobros shows "Paga en el club" on that line, and the club marks it paid as usual. The reminders skip it for 3 days.
+- **En el club:** "Paga en efectivo o con tarjeta en la oficina del club. Cuando el club registre tu pago, aquí lo verás como Pagado." Then **Avisar que pago en el club**, which stores `meta.payAtClub = date` on the charge. Cobros shows "Paga en el club" on that line, and the club marks it paid as usual. The reminders skip it for 3 days.
 - The method chosen last is remembered per device.
 
 **After paying:** the dialog shows the result (Por revisar / Pagado / Aviso enviado), with **Listo** to close. The card on Inicio updates without reloading.
