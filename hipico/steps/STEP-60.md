@@ -96,3 +96,9 @@ Ivana: the "1/4", "2/3" pill on each class card is not understandable ("if I str
   - the rider's tag "Plan" becomes **"Del plan"** (vs "Muestra", "Suelta", "Adicional");
   - "Plan al corriente · quedan 0" becomes **"Plan pagado · 0 clases restantes"**, plus a small terracotta "Renovar" hint when it's 0;
   - the horse line keeps "Zafiro · propio" on one line ("propio" as a small pill after the name).
+
+## Logo hover in the app header
+Ivana's screenshot: hovering the logo puts a brown/mustard box over it, like a mask, and the browser's "Inicio" tooltip covers "RIVIERA MAYA".
+- The logo gets **no background and no box** on hover. Its only hover: opacity .85 and the pointer. Same on the site bar and the desk sidebar logo.
+- Remove the `title="Inicio"` tooltip. Keep `aria-label` ("Hípico Riviera Maya, inicio") for screen readers.
+- `check:hover` accepts an opacity change as a hover, so the logo passes without a background.
