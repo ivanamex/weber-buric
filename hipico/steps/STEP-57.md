@@ -40,6 +40,7 @@ Today the card shows only the labels Banco, Titular and CLABE with nothing next 
 - **Empty (no bank details yet):** heading "Datos para transferencia", then one line: "Aún no hay datos bancarios. Mientras tanto, las familias ven «El club te enviará los datos para pagar»." Then a mustard main button **Agregar datos**. Also a small terracotta pill "Falta" next to the heading, because without these details nobody can pay by transfer.
 - **Filled:** heading plus three rows. Each row has the label in small caps (bark) above the value in olivewood, 16 px semibold. The CLABE is grouped in blocks (`0121 8000 1234 5678 90`) in tabular numbers, with a copy icon. **Editar** sits top-right of the card as a small slate button.
 - Same padding as the other cards (24 px), and 16 px between rows.
+- The current Editar looks like it's missing its CSS: an unstyled outline pill, out of line with the text. Find why (a class name that has no style, or a style that's in a file not loaded on that page), give it the app's button class and size (44 px), and check the other cards in Cobros and Ajustes for the same bug.
 - Check what the family sees in the transfer panel and the website's Transferencia step when the details are empty: the same "El club te enviará los datos para pagar" line, never empty labels.
 
 ## Same order elsewhere
