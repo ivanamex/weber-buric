@@ -152,7 +152,6 @@ export default function FamilyPlan() {
         <PendingPayments familyId={familyId} openId={openId} onOpen={openTransfer} />
       </div>
       </div>
-      <p className="sample-note">{t('common.samplePrices')}</p>
     </div>
   )
 }

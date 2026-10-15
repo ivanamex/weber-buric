@@ -1491,9 +1491,7 @@
       "cta": "Descargar la app"
     },
     "visit": {
-      "title": "Te esperamos en Paamul",
-      "write": "Escríbenos",
-      "orWhatsapp": "o por WhatsApp"
+      "title": "Te esperamos en Paamul"
     },
     "footer": {
       "place": "Paamul, Riviera Maya",
@@ -1664,9 +1662,9 @@
       "customPrefill": "Me interesa: A tu medida"
     },
     "info": {
-      "whatsapp": "Escríbenos por WhatsApp",
-      "message": "Envíanos un mensaje",
-      "title": "Más información"
+      "whatsapp": "WhatsApp",
+      "message": "Mensaje",
+      "title": "¿Dudas?"
     },
     "enroll": {
       "pick": "Elige una opción y paga en línea",

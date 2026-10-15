@@ -1,12 +1,12 @@
-// *Precios de ejemplo — placeholder prices in MXN, used by the demo.
-// Live mode (Supabase) replaces them at sign-in with the `prices` table, which management edits
-// in Supabase → Table Editor. Keep the keys below in sync with that table.
+// Prices in MXN. Classes and plans are the club's real prices (15 Oct); the pensión, rides, camps and parties are still
+// example prices. Live mode replaces them at sign-in with the `prices` table (management edits the class prices in
+// Cobros → Precios de clases, the rest in Supabase → Table Editor). Keep the keys below in sync with that table.
 export const CURRENCY = 'MXN'
 
 export const PLANS = [
-  { classes: 4, price: 2200 },
-  { classes: 8, price: 3900, popular: true },
-  { classes: 12, price: 5400 },
+  { classes: 4, price: 2900 },
+  { classes: 8, price: 4900, popular: true },
+  { classes: 12, price: 6900 },
 ]
 export const planPrice = (classes) => PLANS.find((p) => p.classes === classes)?.price ?? 0
 
@@ -18,7 +18,7 @@ export const RENTAL_HOURS = [1, 2]
 export const CAMP = { price: 12500, deposit: 3000 }
 
 // Classes outside the packages: Clase muestra (one per rider), Clase suelta (no plan), Clase adicional (plan used up)
-export const CLASS_PRICES = { trial: 400, single: 650, extra: 600 }
+export const CLASS_PRICES = { trial: 500, single: 750, extra: 750 }
 export const CLASS_KINDS = ['trial', 'single', 'extra']
 
 // "Desde" prices for quote-based services

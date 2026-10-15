@@ -4,6 +4,7 @@ import { SiteIcon } from '../components/site/Icons.jsx'
 import { AppButton } from './SiteLayout.jsx'
 import { planList } from './siteData.js'
 import { cardCheckout, cardEnabled, enroll, sendReceipt, RECEIPT_MAX } from './enroll.js'
+import { DateField } from './DateField.jsx'
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 const ACCEPT = 'image/jpeg,image/png,image/heic,image/heif,application/pdf,.heic,.heif,.pdf,.jpg,.jpeg,.png'
@@ -115,7 +116,7 @@ export function Enroll({ data, onCustom }) {
             {!errors.email && <small className="cform__hint">{t('site.enroll.emailHint')}</small>}</label>
         </div>
         <label className="cfield cfield--date"><span>{t(isClass ? 'site.enroll.startClass' : 'site.enroll.start')}</span>
-          <input name="start" type="date" min={todayKey()} value={f.start} onChange={set('start')} aria-invalid={Boolean(errors.start)} /><Err k="start" />
+          <DateField name="start" min={todayKey()} value={f.start} onChange={set('start')} invalid={Boolean(errors.start)} /><Err k="start" />
           {isClass && !errors.start && <small className="cform__hint">{t('site.enroll.startHint')}</small>}</label>
         <div className="cform__hp" aria-hidden="true"><label>{t('site.contact.website')}<input name="website" tabIndex={-1} autoComplete="off" value={f.website} onChange={set('website')} /></label></div>
         <div className="cform__foot">

@@ -61,17 +61,7 @@ export function ServiceSheet({ service, onClose }) {
   const [back, setBack] = useState(false) // coming back from the form: the text slides in from the left
   const write = (what = true) => { setWriting(what); setBack(true) }
   // "Más información": WhatsApp with a ready message, or the contact form. The same pair in every lightbox.
-  const info = (
-    <div className="ssheet2__info">
-      <span className="ssheet2__infolabel">{t('site.info.title')}</span>
-      <div className="ssheet2__ctas">
-        <a className="sbtn sbtn--sage" {...wa(t(`site.wa.${{ classes: 'classes', competitions: 'competitions', boarding: 'boarding', early: 'early' }[service.key] || 'general'}`))}>
-          <span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.info.whatsapp')}</span>
-        </a>
-        <button type="button" className="sbtn sbtn--sage" onClick={() => write()}><span className="sbtn__in"><SiteIcon name="mail" size={20} /> {t('site.info.message')}</span></button>
-      </div>
-    </div>
-  )
+  const info = <InfoPills waText={t(`site.wa.${{ classes: 'classes', competitions: 'competitions', boarding: 'boarding', early: 'early' }[service.key] || 'general'}`)} onMessage={() => write()} />
 
   const price = (n) => (n > 0 ? fmtMoney(n) : t('site.sheet.ask'))
   const Row = ({ name, note, value }) => (
@@ -131,7 +121,21 @@ export function ServiceSheet({ service, onClose }) {
   )
 }
 
-/** "Escríbenos" from Visítanos: the same lightbox with only the contact form. */
+/** "¿Dudas?": two compact pills side by side, WhatsApp with a ready message and the contact form. The same pair everywhere. */
+export function InfoPills({ waText, onMessage }) {
+  const { t } = useI18n()
+  return (
+    <div className="ssheet2__info">
+      <span className="ssheet2__infolabel">{t('site.info.title')}</span>
+      <div className="ipills">
+        <a className="sbtn sbtn--sage sbtn--pill" {...wa(waText)}><span className="sbtn__in"><SiteIcon name="whatsapp" size={18} /> {t('site.info.whatsapp')}</span></a>
+        <button type="button" className="sbtn sbtn--sage sbtn--pill" onClick={onMessage}><span className="sbtn__in"><SiteIcon name="mail" size={18} /> {t('site.info.message')}</span></button>
+      </div>
+    </div>
+  )
+}
+
+/** "Mensaje" from Visítanos: the same lightbox with only the contact form. */
 export function ContactSheet({ onClose }) {
   const { t } = useI18n()
   const photo = BIG.nose

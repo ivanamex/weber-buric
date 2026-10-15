@@ -327,7 +327,7 @@ export function createSeed() {
   })
 
   return {
-    version: 3,
+    version: 4,
     seededAt: new Date().toISOString(),
     session: null,
     instructors,

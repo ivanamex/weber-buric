@@ -93,7 +93,6 @@ export default function AdminPayments() {
           ))}
         </ul>
       ) : <p className="muted small">{t('admin.payments.noneRecent')}</p>}
-      <p className="sample-note">{t('common.samplePrices')}</p>
       {viewing && (
         <ReceiptViewer payment={viewing} title={`${byId(s.families, viewing.familyId)?.name} · ${describe(viewing)}`} onClose={() => setViewing(null)} />
       )}

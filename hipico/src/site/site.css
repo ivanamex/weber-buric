@@ -620,3 +620,28 @@
 .sfooter__slogan { margin: 0; padding: 48px 0 0; text-align: center; font-family: var(--site-font); font-stretch: 66%; font-weight: 800; line-height: .95; letter-spacing: -0.005em; font-size: clamp(2.2rem, 6vw, 5rem); color: var(--deep); }
 .sgallop { height: 230px; }
 @media (min-width: 600px) { .sgallop { height: 300px; } }
+
+/* ───────── Fields pressed into the card (one token for the site and the app) ───────── */
+.site {
+  --field-bg: #EFE6D3; --field-border: #D5C7AD; --field-radius: 14px;
+  --field-shadow: inset 0 2px 4px rgba(51,53,42,.14), inset 0 -1px 0 rgba(255,255,255,.7);
+  --field-focus-bg: #FFFBF5; --field-ring: 0 0 0 3px color-mix(in srgb, var(--mustard) 35%, transparent);
+  --field-ph: color-mix(in srgb, var(--bark) 70%, transparent);
+}
+.cfield input, .cfield textarea, .cdate__shown {
+  background: var(--field-bg); border: 1px solid var(--field-border); border-radius: var(--field-radius); box-shadow: var(--field-shadow);
+}
+.cfield input::placeholder, .cfield textarea::placeholder { color: var(--field-ph); opacity: 1; }
+.cfield input:focus, .cfield textarea:focus, .cdate:focus-within .cdate__shown { outline: none; background: var(--field-focus-bg); border-color: var(--mustard); box-shadow: var(--field-ring); }
+.cfield input[aria-invalid="true"], .cfield textarea[aria-invalid="true"], .cdate:has(.cdate__native[aria-invalid="true"]) .cdate__shown { border-color: var(--terracotta); }
+@supports not (color: color-mix(in srgb, red, blue)) { .site { --field-ring: 0 0 0 3px rgba(217,164,65,.35); --field-ph: #8E8672; } }
+/* the date field: the shown date in the page's language, the native picker on top and invisible */
+.cdate { position: relative; display: block; width: 100%; max-width: 240px; }
+.cdate__native { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; font-size: 16px; -webkit-appearance: none; appearance: none; }
+.cdate__shown { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px; padding: 0 14px; color: var(--ink); font-family: var(--text-font); font-size: 1rem; white-space: nowrap; }
+.cdate__shown .sicon { color: var(--soft); }
+.cfield--date input { max-width: none; }
+/* ¿Dudas?: two compact pills side by side (they fit at 360 px) */
+.ssheet2__infolabel { text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; }
+.ipills { display: flex; flex-wrap: wrap; gap: 10px; }
+.sbtn--pill { min-height: 44px; padding: 0 16px; font-size: .92rem; }
