@@ -1,6 +1,8 @@
 # STEP-55: two video guides, made the El Árbol way
 
-Run after STEP-54. Same method as El Árbol's office video (Arbol-portal STEP-32): the demo is **recorded for real while it runs**, the camera moves in on each action, and a Spanish voice says what to do. Each step lasts exactly as long as its sentence. There are two short videos instead of one long one: one for the club, one for families.
+**On hold: no recording until Ivana says the screens are final.** Every change to the website or the app before that would make the video outdated. When she says go, record from the live state of `main`.
+
+Same method as El Árbol's office video (Arbol-portal STEP-32): the demo is **recorded for real while it runs**, the camera moves in on each action, and a Spanish voice says what to do. Each step lasts exactly as long as its sentence. There are two short videos instead of one long one: one for the club, one for families.
 
 ## Video 1: "El club desde la app" (for Mara and the office)
 - 1920×1080, about 40 s. Recorded at 1280×720 and kept sharp at 2× (`deviceScaleFactor: 2`). Dirección, desktop.
