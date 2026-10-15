@@ -286,9 +286,9 @@
     radial-gradient(40% 50% at 95% 40%, rgba(138,142,117,.25) 0%, transparent 70%),
     var(--mist); }
 .sfooter::after { content: ''; position: absolute; inset: 0; z-index: -1; opacity: .18; mix-blend-mode: overlay; pointer-events: none; background-image: var(--grain); }
-.sgallop { position: relative; height: 190px; }
+.sgallop { position: relative; height: 180px; }
 .sgallop .runhorse { position: absolute; inset: 0; height: 100%; }
-@media (min-width: 600px) { .sgallop { height: 230px; } }
+@media (min-width: 600px) { .sgallop { height: 260px; } }
 .sfooter__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding-top: 8px; padding-bottom: 24px; }
 .sfooter__social { display: flex; gap: 10px; }
 .sfooter__social a { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%; background: rgba(51,53,42,.08); transition: background .2s, color .2s; }
@@ -580,9 +580,8 @@
 .spay__mark--pending { background: var(--slate-t, #D3DDE4); color: #3F586A; }
 .spay__mark--rejected { background: var(--terracotta-t, #EFD2C2); color: #7E4529; }
 /* the footer course: the slogan above the band */
-.sfooter__slogan { margin: 0; padding: 48px 0 0; text-align: center; font-family: var(--site-font); font-stretch: 66%; font-weight: 800; line-height: .95; letter-spacing: -0.005em; font-size: clamp(2.2rem, 6vw, 5rem); color: var(--deep); }
-.sgallop { height: 230px; }
-@media (min-width: 600px) { .sgallop { height: 300px; } }
+.sfooter__slogan { margin: 0 auto 32px; padding: 96px 20px 0; max-width: 1200px; text-align: center; font-family: var(--site-font); font-stretch: 66%; font-weight: 800; line-height: 1.05; letter-spacing: -0.005em; font-size: 40px; color: var(--deep); }
+@media (min-width: 600px) { .sfooter__slogan { font-size: 56px; } }
 
 /* ───────── Fields pressed into the card (one token for the site and the app) ───────── */
 .site {

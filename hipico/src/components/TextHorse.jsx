@@ -15,10 +15,17 @@ const POSES = [
 ]
 const HIP = { fN: [130, 70], fF: [124, 69], hN: [70, 68], hF: [64, 67] }
 
+// The footer course's jump, one pose per phase. rot tilts the whole horse (− = nose up).
+const STAND = { dy: 0, tail: [14, 74], legs: { fN: [5, -2], fF: [-4, 1], hN: [-7, 5], hF: [4, -2] } }
+const TAKEOFF = { dy: 0, rot: -17, tail: [4, 62], legs: { fN: [52, -78], fF: [40, -96], hN: [-48, -38], hF: [-34, -24] } } // head up, front legs folded, hind legs pushing
+const TUCK = { dy: 0, rot: -2, tail: [4, 46], legs: { fN: [62, -84], fF: [50, -100], hN: [56, -42], hF: [46, -52] } } // legs tucked over the poles
+const LAND = { dy: 0, rot: 13, tail: [6, 44], legs: { fN: [64, 50], fF: [46, 34], hN: [-58, -84], hF: [-46, -72] } } // front legs reaching for the ground
+
 function drawHorse(ctx, pose) {
-  const { dy, tail, legs } = pose
+  const { dy, tail, legs, rot } = pose
   ctx.save()
   ctx.translate(0, dy)
+  if (rot) { ctx.translate(100, 62); ctx.rotate((rot * Math.PI) / 180); ctx.translate(-100, -62) }
   ctx.fillStyle = '#000'
   ctx.strokeStyle = '#000'
   ctx.lineCap = 'round'
@@ -63,15 +70,19 @@ function drawHorse(ctx, pose) {
   ctx.restore()
 }
 
-/** Cells of one pose: [{ c, r, a }] where a is coverage 0..1. */
-function rasterise(pose, cols) {
-  const rows = Math.round((cols * 120) / 200 / CHAR_RATIO)
+/** Cells of one pose: [{ c, r, a }] where a is coverage 0..1, plus the silhouette's edges in cells. pad = room
+ * around the 200 × 120 box for tilted poses. */
+function rasterise(pose, cols, pad = 0) {
+  const bw = 200 + pad * 2
+  const bh = 120 + pad * 2
+  const rows = Math.round((cols * bh) / bw / CHAR_RATIO)
   const k = 4
   const cv = document.createElement('canvas')
   cv.width = cols * k
   cv.height = rows * k
   const ctx = cv.getContext('2d', { willReadFrequently: true })
-  ctx.scale(cv.width / 200, cv.height / 120)
+  ctx.scale(cv.width / bw, cv.height / bh)
+  ctx.translate(pad, pad)
   drawHorse(ctx, pose)
   const data = ctx.getImageData(0, 0, cv.width, cv.height).data
   const cells = []
@@ -83,7 +94,8 @@ function rasterise(pose, cols) {
       if (a > 0.3) cells.push({ c, r, a, ch: TEXT[(r * 7 + c) % TEXT.length], heat: 0 })
     }
   }
-  return { cells, rows }
+  const edge = (f, k2) => cells.reduce((m, cell) => f(m, cell[k2]), cells[0]?.[k2] ?? 0)
+  return { cells, rows, top: edge(Math.min, 'r'), bottom: edge(Math.max, 'r') + 1, left: edge(Math.min, 'c'), right: edge(Math.max, 'c') + 1 }
 }
 
 const mixer = (from, to) => (h) => from.map((v, i) => Math.round(v + (to[i] - v) * h)).join(',')
@@ -101,8 +113,8 @@ function setupCanvas(canvas, w, h) {
   return ctx
 }
 
-function paint(ctx, cells, cw, ch, ox, oy, alpha, tint = mix) {
-  ctx.font = `600 ${Math.round(ch * 0.82)}px "Archivo Variable", sans-serif`
+function paint(ctx, cells, cw, ch, ox, oy, alpha, tint = mix, weight = 600) {
+  ctx.font = `${weight} ${Math.round(ch * 0.82)}px "Archivo Variable", sans-serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   for (const cell of cells) {
@@ -112,10 +124,11 @@ function paint(ctx, cells, cw, ch, ox, oy, alpha, tint = mix) {
   }
 }
 
-// A small course for the footer: 3 numbered fences (posts + striped poles) on a dotted ground line.
-const FENCES = [0.24, 0.5, 0.76]
+// A small course for the footer: numbered fences (posts + striped poles) on a dotted ground line. Three on a
+// computer, two on phones.
+const fencesFor = (w) => (w < 900 ? [0.27, 0.73] : [0.22, 0.5, 0.78])
 const INK = 'rgba(51,53,42,'
-function drawCourse(ctx, w, ground, fh) {
+function drawCourse(ctx, w, ground, fh, fences) {
   ctx.save()
   ctx.lineCap = 'round'
   ctx.strokeStyle = `${INK}.5)`
@@ -123,7 +136,7 @@ function drawCourse(ctx, w, ground, fh) {
   ctx.setLineDash([2, 7])
   ctx.beginPath(); ctx.moveTo(16, ground + 0.5); ctx.lineTo(w - 16, ground + 0.5); ctx.stroke()
   const half = Math.max(22, fh * 0.55)
-  FENCES.forEach((fx, i) => {
+  fences.forEach((fx, i) => {
     const cx = Math.round(fx * w)
     ctx.setLineDash([])
     ctx.strokeStyle = `${INK}.72)`
@@ -149,10 +162,20 @@ function drawCourse(ctx, w, ground, fh) {
   ctx.restore()
 }
 
+// Course timing and shape: 9 s across, a 2 s pause, then again from the left. The horse is 1.4× a fence tall; a jump
+// starts about one horse-length before the fence and lands one after, its lowest hoof peaking 20 % over the top pole.
+const RUN = 9000
+const PAUSE = 2000
+const PAD = 26
+const HORSE_TO_FENCE = 1.4
+const PEAK = 1.2
+const CELL = 4.2 // px per letter column
+
 /**
- * The closing band's horse: gallops across in about 14 s, three frames for the legs. With `course`, three numbered
- * fences stand on a dotted ground line and the horse jumps each one (a smooth arc, stretched out in the air), then
- * loops. Reduced motion: the horse stands still at the start line; the fences stay.
+ * The closing band's horse: gallops across in about 12 s, three frames for the legs.
+ * With `course`, the footer course: the horse canters on the dotted line and jumps each fence (take-off with the
+ * head up, legs tucked over the poles, front legs reaching to land); it starts from the left whenever the band comes
+ * on screen. Reduced motion: the horse stands at the start line; the fences stay.
  * colors: [from, to] as [r, g, b]; the app's sage → light sage by default.
  */
 export function RunningHorse({ colors, course = false }) {
@@ -161,58 +184,89 @@ export function RunningHorse({ colors, course = false }) {
   useEffect(() => {
     const canvas = ref.current
     let frames = []
+    let jump = null
+    let stand = null
     let cw = 6
     let chH = 9
     let hw = 0
+    let fh = 0
     let ctx = null
     let raf = 0
     let alive = true
     let visible = false
-    const LAP = course ? 14000 : 12000
+    let start = null
+    let elapsed = 0
+    const LAP = 12000
     const STEP = 110
     const layout = () => {
       const w = canvas.parentElement.clientWidth
       const h = canvas.parentElement.clientHeight
-      const cols = w < 600 ? 50 : 64
-      hw = course ? Math.min(w * 0.5, w < 600 ? 200 : 300) : Math.min(w * 0.62, w < 600 ? 230 : 330)
-      cw = hw / cols
-      chH = cw * CHAR_RATIO
-      frames = POSES.map((p) => rasterise(p, cols))
+      if (course) {
+        fh = w < 600 ? 40 : 66
+        // Size the horse from its standing height: rows × cell height covers (120 + 2·PAD) box units.
+        const probe = rasterise(STAND, 100, PAD)
+        const share = (probe.bottom - probe.top) / probe.rows
+        hw = (HORSE_TO_FENCE * fh) / share * ((200 + PAD * 2) / (120 + PAD * 2))
+        const cols = Math.max(30, Math.round(hw / CELL))
+        cw = hw / cols
+        chH = cw * CHAR_RATIO
+        frames = POSES.map((p) => rasterise(p, cols, PAD))
+        jump = { takeoff: rasterise(TAKEOFF, cols, PAD), tuck: rasterise(TUCK, cols, PAD), land: rasterise(LAND, cols, PAD) }
+        stand = rasterise(STAND, cols, PAD)
+      } else {
+        const cols = w < 600 ? 50 : 64
+        hw = Math.min(w * 0.62, w < 600 ? 230 : 330)
+        cw = hw / cols
+        chH = cw * CHAR_RATIO
+        frames = POSES.map((p) => rasterise(p, cols))
+      }
       ctx = setupCanvas(canvas, w, h)
+    }
+    const drawCourseFrame = (t, w, h) => {
+      const ground = h - 22
+      const fences = fencesFor(w)
+      drawCourse(ctx, w, ground, fh, fences)
+      // Place a pose so its lowest cell sits `lift` px above the ground and its left edge at `left`.
+      const put = (f, left, lift) => paint(ctx, f.cells, cw, chH, left - f.left * cw, ground - f.bottom * chH - lift + 1, 0.9, tint, 800)
+      if (reducedMotion()) return put(stand, 18, 0)
+      const p = t % (RUN + PAUSE)
+      if (p >= RUN) return
+      const f0 = frames[0]
+      const len = (f0.right - f0.left) * cw
+      const left = -len + (p / RUN) * (w + len)
+      const mid = left + len / 2
+      const reach = len * 0.85
+      for (const fx of fences) {
+        const d = (mid - fx * w) / reach
+        if (Math.abs(d) >= 1) continue
+        const f = d < -0.45 ? jump.takeoff : d < 0.4 ? jump.tuck : jump.land
+        // Keep the silhouette centred on the same point whatever the pose.
+        return put(f, mid - ((f.right - f.left) * cw) / 2, PEAK * fh * (1 - d * d))
+      }
+      put(frames[Math.floor(t / STEP) % frames.length], left, 0)
     }
     const draw = (t) => {
       const w = canvas.clientWidth
       const h = canvas.clientHeight
-      const still = reducedMotion()
       ctx.clearRect(0, 0, w, h)
-      const ground = h - 14
-      const fh = course ? Math.min(70, frames[0].rows * chH * 0.42) : 0
-      if (course) drawCourse(ctx, w, ground, fh)
-      let lift = 0
-      const x = still ? (course ? 12 : (w - hw) / 2) : ((t % LAP) / LAP) * (w + hw) - hw
-      if (course && !still) {
-        const nose = x + hw * 0.55
-        const span = hw * 0.78
-        for (const fx of FENCES) {
-          const d = (nose - fx * w) / span
-          if (Math.abs(d) < 1) lift = Math.max(lift, (fh + 18) * (1 - d * d))
-        }
-      }
-      const inAir = lift > (fh + 18) * 0.25
-      const f = frames[still || inAir ? 0 : Math.floor(t / STEP) % frames.length]
-      const y = ground - f.rows * chH + 2 - lift
-      paint(ctx, f.cells, cw, chH, x, y, 0.62, tint)
+      if (course) return drawCourseFrame(t, w, h)
+      const still = reducedMotion()
+      const x = still ? (w - hw) / 2 : ((t % LAP) / LAP) * (w + hw) - hw
+      const f = frames[still ? 0 : Math.floor(t / STEP) % frames.length]
+      paint(ctx, f.cells, cw, chH, x, h - f.rows * chH + 2, 0.62, tint)
     }
     const loop = (t) => {
       if (!alive || !visible) { raf = 0; return }
-      draw(t)
+      if (start === null) start = t - (course ? 0 : elapsed)
+      elapsed = t - start
+      draw(elapsed)
       raf = requestAnimationFrame(loop)
     }
     const io = new IntersectionObserver(([e]) => {
       visible = e.isIntersecting
-      if (visible && !raf && !reducedMotion()) raf = requestAnimationFrame(loop)
+      if (visible && !raf && !reducedMotion()) { start = null; raf = requestAnimationFrame(loop) }
     })
-    const ro = new ResizeObserver(() => { if (alive) { layout(); draw(performance.now()) } })
+    const ro = new ResizeObserver(() => { if (alive) { layout(); draw(elapsed) } })
     fontReady().then(() => {
       if (!alive) return
       layout()
