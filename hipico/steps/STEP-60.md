@@ -40,3 +40,14 @@ On hover, ENTRAR turns dark olivewood on the dark video, so it becomes unreadabl
 - Fix: ENTRAR follows level 1. Over the video and the dark bar, the text is light mustard `#E9C27A` with the underline **under** the baseline (`bottom: -6px`, 2 px), never across the letters. Over the parchment bar after scrolling, the text is deep mustard `#A9781F` with the same underline.
 - Check every nav link and the ES/EN toggle in both bar states (over the hero / after scrolling) for the same bug: text color vs background, and where the line sits.
 - Add a screenshot pair of ENTRAR (rest / hover) in both bar states to the report.
+
+## Hero buttons: one mustard, one green glass
+Ivana (screenshot, hovering "Ver clases y precios"): both hero buttons turn mustard, so the hero has two yellow buttons.
+- "Agenda una clase muestra" stays the mustard main button (level 3).
+- "Ver clases y precios" goes back to the **green glass** it had before STEP-53/54 (sage → olive glass, white text, `backdrop-filter`, white edge, the light sweep on hover). Its hover stays green: a slightly brighter glass + the sweep + 1 px lift, **never mustard**.
+- The same rule applies everywhere: a secondary glass button keeps its own color on hover. Only level 2 elements get the mustard tint.
+
+## Bug: the nav bar sits on top of the hero title while scrolling
+In the same screenshot (scrolled about 300 px), the transparent bar overlaps "CLUB HÍPICO EN LA SELVA DE PAAMUL": the nav links run through the title, and the logo sits on the "C".
+- The bar gets its background (olivewood glass with blur, white text) **as soon as the page scrolls past 8 px**, not only after the hero. It stays fully transparent only at the very top.
+- Check it at 1280, 1440 and 1920 px while scrolling slowly through the hero: the links are never drawn over the title.
