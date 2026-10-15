@@ -16,7 +16,7 @@ export const optionName = (option) => (option === 'trial' || option === 'single'
 export function invitation({ contact, rider, option, amount, start, bank, familyName }) {
   const first = String(contact || '').split(/\s+/)[0]
   const what = `${optionName(option)} · ${rider}`
-  const clabe = bank?.clabe ? bank.clabe.replace(/(\d{3})(\d{3})(\d{11})(\d)/, '$1 $2 $3 $4') : null
+  const clabe = bank?.clabe ? String(bank.clabe).replace(/\s+/g, '').replace(/(\d{4})(?=\d)/g, '$1 ') : null
   return {
     subject: `Tu lugar en el ${CLUB}: ${what}`,
     text: [
@@ -28,7 +28,7 @@ export function invitation({ contact, rider, option, amount, start, bank, family
       bank?.accountHolder ? `  Titular: ${bank.accountHolder}` : null,
       clabe ? `  CLABE: ${clabe}` : null,
       `  Concepto: ${familyName}`,
-      `Sube tu comprobante en la app y el club lo revisa: ${APP_URL}/app/familia/plan`,
+      `Sube tu comprobante en la app y el club lo revisa: ${APP_URL}/app/familia/pagos`,
       '',
       `Entra a la app con este mismo correo (te llega un código de 6 dígitos): ${APP_URL}/app`,
       `Instálala en tu celular: ${APP_URL}/descargar`,

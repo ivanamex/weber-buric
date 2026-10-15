@@ -15,7 +15,7 @@ const instructors = [
 
 const horses = [
   { id: 'h1', name: 'Canela', type: 'school', birthYear: 2014, sex: 'mare', breed: 'Cuarto de milla', coat: 'Alazán', heightCm: 150, level: 'beginner', photos: ['/img/club/horse-fence.webp'] },
-  { id: 'h2', name: 'Lucero', type: 'school', birthYear: 2012, sex: 'gelding', breed: 'Criollo mexicano', coat: 'Tordillo', heightCm: 148, level: 'beginner', photos: ['/img/club/jump-grey.webp'] },
+  { id: 'h2', name: 'Lucero', type: 'school', birthYear: 2012, sex: 'gelding', breed: 'Criollo mexicano', coat: 'Tordo', heightCm: 148, level: 'beginner', photos: ['/img/club/jump-grey.webp'] },
   { id: 'h3', name: 'Tornado', type: 'school', birthYear: 2015, sex: 'gelding', breed: 'Pura sangre', coat: 'Negro', heightCm: 163, level: 'advanced', photos: ['/img/club/jump-bay.webp'] },
   { id: 'h4', name: 'Brisa', type: 'school', birthYear: 2013, sex: 'mare', breed: 'Árabe', coat: 'Bayo', heightCm: 152, level: 'intermediate', photos: ['/img/club/horse-blaze-800.webp'] },
   { id: 'h5', name: 'Cacao', type: 'school', status: 'for_sale', salePrice: 165000, age: 9, birthYear: 2017, sex: 'gelding', breed: 'Cuarto de milla', coat: 'Castaño', heightCm: 155, level: 'intermediate', description: 'Noble y tranquilo, ideal para salto bajo y paseos.', photos: ['/img/club/rider-buckskin.webp'] },
@@ -43,14 +43,14 @@ function horseSample(today) {
   let n = 0
   const e = (horseId, kind, done, next, note = '') => ({ id: `hh${++n}`, horseId, kind, doneOn: d(done), nextDue: next == null ? null : d(next), note })
   const horseHealth = [
-    e('h1', 'vaccine', -170, 10, 'Influenza y tétanos'), e('h1', 'farrier', -38, 4, 'Herraje completo'), e('h1', 'deworming', -60, 30, 'Ivermectina'),
+    e('h1', 'vaccine', -170, 10, 'Influenza y tétanos'), e('h1', 'farrier', -38, 4, 'Herrado completo'), e('h1', 'deworming', -60, 30, 'Ivermectina'),
     e('h2', 'vaccine', -120, 60, 'Influenza y tétanos'), e('h2', 'farrier', -30, 12, 'Solo recorte'), e('h2', 'vet', -20, null, 'Revisión de dientes'),
-    e('h3', 'farrier', -45, -3, 'Herraje completo'), e('h3', 'deworming', -85, 5, 'Ivermectina'),
-    e('h4', 'vaccine', -30, 150, 'Encefalitis'), e('h4', 'farrier', -20, 22, 'Herraje delantero'),
-    e('h5', 'vet', -10, null, 'Revisión para venta: sano'), e('h5', 'farrier', -25, 17, 'Herraje completo'),
-    e('h6', 'vaccine', -175, 8, 'Influenza, tétanos y rinoneumonitis'), e('h6', 'farrier', -35, 7, 'Herraje de competencia'), e('h6', 'deworming', -40, 50, 'Pamoato de pirantel'), e('h6', 'vet', -15, null, 'Revisión de tendones: bien'),
+    e('h3', 'farrier', -45, -3, 'Herrado completo'), e('h3', 'deworming', -85, 5, 'Ivermectina'),
+    e('h4', 'vaccine', -30, 150, 'Encefalitis'), e('h4', 'farrier', -20, 22, 'Herrado de manos'),
+    e('h5', 'vet', -10, null, 'Revisión para venta: sano'), e('h5', 'farrier', -25, 17, 'Herrado completo'),
+    e('h6', 'vaccine', -175, 8, 'Influenza, tétanos y rinoneumonitis'), e('h6', 'farrier', -35, 7, 'Herrado de competencia'), e('h6', 'deworming', -40, 50, 'Pamoato de pirantel'), e('h6', 'vet', -15, null, 'Revisión de tendones: bien'),
     e('h7', 'vaccine', -60, 120, 'Influenza y tétanos'), e('h7', 'farrier', -28, 14, 'Solo recorte'),
-    e('h8', 'deworming', -80, 10, 'Ivermectina'), e('h8', 'farrier', -30, 12, 'Herraje completo'),
+    e('h8', 'deworming', -80, 10, 'Ivermectina'), e('h8', 'farrier', -30, 12, 'Herrado completo'),
   ]
   return { horseCare, horseHealth }
 }
@@ -327,7 +327,7 @@ export function createSeed() {
   })
 
   return {
-    version: 4,
+    version: 5,
     seededAt: new Date().toISOString(),
     session: null,
     instructors,

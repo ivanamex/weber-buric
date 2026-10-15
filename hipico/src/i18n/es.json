@@ -15,7 +15,7 @@
   "landing": {
     "openShort": "Abrir la app",
     "eyebrow": "Hípico Riviera Maya · Paamul",
-    "headline": "Tu club, en tu bolsillo",
+    "headline": "Tu club, en tu celular",
     "subline": "Confirma tus clases, lleva tu plan mensual, la pensión de tu caballo y los pagos de la escuela de equitación — todo desde el celular, sin llamadas ni hojas de cálculo.",
     "ctaOpen": "Abrir la app",
     "ctaHow": "Ver cómo funciona",
@@ -33,7 +33,7 @@
       },
       "pay": {
         "title": "Paga desde el celular",
-        "text": "Planes, pensión y eventos en un solo lugar. Tarjeta muy pronto; efectivo o transferencia en el club."
+        "text": "Planes, pensión y eventos en un solo lugar. Paga por transferencia desde la app, con tarjeta o en el club."
       }
     },
     "features": {
@@ -159,7 +159,7 @@
       "nextClass": "Próxima clase",
       "noClassTitle": "{name} aún no tiene clases confirmadas",
       "bookNow": "Confirmar clase",
-      "moreBooked": "+{count} clase(s) más confirmada(s)",
+      "moreBooked": "+{count} clases confirmadas más",
       "cancel": "Cancelar clase",
       "cancelClosed": "Ya no se puede cancelar (menos de {hours} h)",
       "monthlyPlan": "Plan mensual",
@@ -169,7 +169,8 @@
       "cancelAsk": "¿Cancelar esta clase?",
       "cancelYes": "Sí, cancelar",
       "cancelNo": "No",
-      "seeDetail": "Ver detalle"
+      "seeDetail": "Ver detalle",
+      "moreBooked_one": "+1 clase confirmada más"
     },
     "book": {
       "title": "Clases",
@@ -471,7 +472,7 @@
     "cancelled": "Clase cancelada. Regresó a tu plan.",
     "cardSoon": "Disponible próximamente — Mercado Pago",
     "planPending": "Plan de {n} clases para {name} ({month}). Pago pendiente en el club.",
-    "boardingPending": "Pago de pensión registrado. Págalo en el club.",
+    "boardingPending": "Pensión pendiente de pago. Puedes pagarla desde la app o en el club.",
     "campRegistered": "{name} inscrito(a). Anticipo de {amount} pendiente en el club.",
     "rentalBooked": "Paseo reservado con {horse}: {date}, {time}.",
     "reset": "Demo reiniciada con datos de ejemplo",
@@ -638,7 +639,7 @@
     "capacity": "Lugares",
     "activeClass": "Clase activa",
     "activeLabel": "Activo",
-    "off": "Apagada",
+    "off": "Inactiva",
     "booked": "{n} de {cap} confirmados",
     "cancelDate": "Cancelar esta fecha",
     "cancelReason": "Motivo (lo verán las familias)",
@@ -755,7 +756,7 @@
     "clashTitle": "Ojo: se cruza con otras clases",
     "clashInstructor": "{day} {time}: {who} ya da {class} a las {other}",
     "clashArena": "{day} {time}: la pista {who} ya tiene {class} a las {other}",
-    "clashSelf": "{day}: {a} y {b} se enciman",
+    "clashSelf": "{day}: {a} y {b} se empalman",
     "clashMore": "y {n} más",
     "cancelHint_one": "1 clase confirmada se cancelará y regresará a su plan.",
     "classesCount_one": "1 clase",
@@ -879,7 +880,7 @@
     "nobodyOwes": "Nadie tiene pagos atrasados.",
     "daysLate": "{n} días de atraso",
     "remind": "Recordar a {name} por WhatsApp",
-    "waReminder": "Hola {contact}, te escribimos del Hípico Riviera Maya. Te recordamos amablemente {what}: {amount}. Puedes pagar por transferencia desde la app o en el club. ¡Gracias!",
+    "waReminder": "Hola {contact}, te escribimos del Hípico Riviera Maya. Te recordamos {what}: {amount}. Puedes pagar desde la app o en el club. ¡Gracias!",
     "showAll": "Ver los {n}",
     "showLess": "Ver menos",
     "renewing": "Por renovar (7 días)",
@@ -936,7 +937,7 @@
     "name": "Nombre",
     "role": "Puesto",
     "salary": "Sueldo (MXN)",
-    "frequency": "Pago",
+    "frequency": "Frecuencia de pago",
     "freq": {
       "quincenal": "Quincenal",
       "mensual": "Mensual"
@@ -994,7 +995,7 @@
   },
   "modules": {
     "title": "Ajustes",
-    "intro": "Enciende solo lo que el club usa. Se puede cambiar cuando quieras.",
+    "intro": "Activa solo lo que el club usa. Puedes cambiarlo cuando quieras.",
     "turnedOn": "{name}: activado",
     "turnedOff": "{name}: desactivado",
     "payroll": {
@@ -1038,7 +1039,7 @@
     "photosAfterSave": "Guarda el caballo y luego agrega fotos.",
     "inClasses": "Disponible para clases",
     "years": "{n} años",
-    "sell": "Vendido",
+    "sell": "Registrar venta",
     "sellText": "Registra la venta: el ingreso cuenta en Rentabilidad y el caballo sale de las listas.",
     "salePriceFinal": "Precio de venta (MXN)",
     "buyer": "Comprador (opcional)",
@@ -1145,7 +1146,7 @@
   },
   "closed": {
     "title": "Días cerrados",
-    "intro": "Nadie puede reservar esos días y las clases nuevas se los saltan.",
+    "intro": "Esos días nadie puede reservar y no se programan clases.",
     "weekdays": "Cada semana",
     "dates": "Fechas (feriados, eventos)",
     "none": "Ninguna fecha cerrada.",
@@ -1540,7 +1541,7 @@
     "enjoy": {
       "word": "Disfruta",
       "gallery": "Fotos del club",
-      "title": "Galería del club."
+      "title": "Galería del club"
     },
     "gallery": {
       "label": "Fotos y videos del club",
@@ -1730,7 +1731,7 @@
         "contact": "Escribe tu nombre.",
         "email": "Escribe un correo válido.",
         "phone": "Revisa el número: faltan dígitos.",
-        "age": "Edad entre 2 y 99.",
+        "age": "Escribe una edad entre 2 y 99 años.",
         "date": "Elige una fecha de hoy en adelante."
       }
     },

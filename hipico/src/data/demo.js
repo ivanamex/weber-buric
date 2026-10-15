@@ -71,7 +71,7 @@ export function activate(setState, inMemory = false) {
   if (!state.settings?.closedWeekdays && !memoryOnly) state = persist(createSeed())
   // Demo states from before the sample data was corrected (dates, horses by level, bank details) or before the real class
   // and plan prices: start again once.
-  if ((state.version || 1) < 4 && !memoryOnly) state = persist({ ...createSeed(), session: state.session })
+  if ((state.version || 1) < 5 && !memoryOnly) state = persist({ ...createSeed(), session: state.session })
   // Demo states saved before the website's contact form: add the sample messages once.
   if (!state.contactMessages && !memoryOnly) { state.contactMessages = createSeed().contactMessages; persist(state) }
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))

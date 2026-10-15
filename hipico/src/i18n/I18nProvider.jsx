@@ -28,7 +28,7 @@ export function I18nProvider({ children }) {
 
   const t = useCallback((key, vars) => {
     // One of something: "<key>_one" when it exists ("1 día", "te queda 1").
-    const one = vars && Number(vars.n) === 1 ? (lookup(DICTS[lang], `${key}_one`) ?? lookup(DICTS.es, `${key}_one`)) : null
+    const one = vars && Number(vars.n ?? vars.count) === 1 ? (lookup(DICTS[lang], `${key}_one`) ?? lookup(DICTS.es, `${key}_one`)) : null
     let s = one ?? lookup(DICTS[lang], key) ?? lookup(DICTS.es, key) ?? key
     if (typeof s === 'string' && vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m))
     return s

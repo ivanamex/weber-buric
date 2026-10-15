@@ -15,7 +15,7 @@
   "landing": {
     "openShort": "Open the app",
     "eyebrow": "Hípico Riviera Maya · Paamul",
-    "headline": "Your club, in your pocket",
+    "headline": "Your club, on your phone",
     "subline": "Confirm your classes, track your monthly plan, your horse's boarding and riding-school payments — all from your phone, no calls or spreadsheets.",
     "ctaOpen": "Open the app",
     "ctaHow": "See how it works",
@@ -33,7 +33,7 @@
       },
       "pay": {
         "title": "Pay from your phone",
-        "text": "Plans, boarding and events in one place. Cards coming soon; cash or transfer at the club."
+        "text": "Plans, boarding and events in one place. Pay by transfer in the app, by card or at the club."
       }
     },
     "features": {
@@ -159,7 +159,7 @@
       "nextClass": "Next class",
       "noClassTitle": "{name} doesn't have any classes confirmed yet",
       "bookNow": "Confirm class",
-      "moreBooked": "+{count} more class(es) confirmed",
+      "moreBooked": "+{count} more confirmed classes",
       "cancel": "Cancel class",
       "cancelClosed": "Can no longer be cancelled (less than {hours} h)",
       "monthlyPlan": "Monthly plan",
@@ -169,7 +169,8 @@
       "cancelAsk": "Cancel this class?",
       "cancelYes": "Yes, cancel",
       "cancelNo": "No",
-      "seeDetail": "See details"
+      "seeDetail": "See details",
+      "moreBooked_one": "+1 more confirmed class"
     },
     "book": {
       "title": "Classes",
@@ -471,7 +472,7 @@
     "cancelled": "Class cancelled. It's back in your plan.",
     "cardSoon": "Coming soon — Mercado Pago",
     "planPending": "{n}-class plan for {name} ({month}). Payment pending at the club.",
-    "boardingPending": "Boarding payment registered. Pay at the club.",
+    "boardingPending": "Boarding payment pending. You can pay it in the app or at the club.",
     "campRegistered": "{name} registered. {amount} deposit pending at the club.",
     "rentalBooked": "Ride booked with {horse}: {date}, {time}.",
     "reset": "Demo reset with sample data",
@@ -638,7 +639,7 @@
     "capacity": "Spots",
     "activeClass": "Class active",
     "activeLabel": "Active",
-    "off": "Off",
+    "off": "Inactive",
     "booked": "{n} of {cap} confirmed",
     "cancelDate": "Cancel this date",
     "cancelReason": "Reason (families will see it)",
@@ -879,7 +880,7 @@
     "nobodyOwes": "Nobody is behind on payments.",
     "daysLate": "{n} days late",
     "remind": "Remind {name} on WhatsApp",
-    "waReminder": "Hi {contact}, this is Hípico Riviera Maya. A friendly reminder about {what}: {amount}. You can pay by transfer in the app or at the club. Thank you!",
+    "waReminder": "Hi {contact}, this is Hípico Riviera Maya. Just a reminder about {what}: {amount}. You can pay in the app or at the club. Thank you!",
     "showAll": "See all {n}",
     "showLess": "See less",
     "renewing": "Renewing (7 days)",
@@ -936,7 +937,7 @@
     "name": "Name",
     "role": "Role",
     "salary": "Salary (MXN)",
-    "frequency": "Paid",
+    "frequency": "Pay frequency",
     "freq": {
       "quincenal": "Twice a month",
       "mensual": "Monthly"
@@ -1038,7 +1039,7 @@
     "photosAfterSave": "Save the horse, then add photos.",
     "inClasses": "Available for classes",
     "years": "{n} years",
-    "sell": "Sold",
+    "sell": "Record sale",
     "sellText": "Record the sale: the income counts in Profitability and the horse leaves the lists.",
     "salePriceFinal": "Sale price (MXN)",
     "buyer": "Buyer (optional)",
@@ -1145,7 +1146,7 @@
   },
   "closed": {
     "title": "Closed days",
-    "intro": "Nobody can book on those days, and new classes skip them.",
+    "intro": "Nobody can book on those days and no classes are scheduled.",
     "weekdays": "Every week",
     "dates": "Dates (holidays, events)",
     "none": "No closed dates.",
@@ -1540,7 +1541,7 @@
     "enjoy": {
       "word": "Enjoy",
       "gallery": "Club photos",
-      "title": "Club gallery."
+      "title": "Club gallery"
     },
     "gallery": {
       "label": "Photos and videos of the club",
@@ -1730,7 +1731,7 @@
         "contact": "Enter your name.",
         "email": "Enter a valid email.",
         "phone": "Check the number: some digits are missing.",
-        "age": "Age between 2 and 99.",
+        "age": "Enter an age between 2 and 99.",
         "date": "Pick a date from today on."
       }
     },

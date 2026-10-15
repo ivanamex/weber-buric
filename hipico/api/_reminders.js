@@ -2,6 +2,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import pg from 'pg'
+import { mpEnabled } from './_mp.js'
 
 const APP_URL = (process.env.APP_URL || 'https://hipico-riviera-maya.vercel.app').replace(/\/$/, '')
 const CLUB = 'Hípico Riviera Maya'
@@ -44,14 +45,14 @@ export function message(r) {
     `Hola ${first}:`,
     '',
     line,
-    `Puedes pagar por transferencia y subir tu comprobante en la app: ${APP_URL}/app/familia/plan`,
-    'O paga en el club en tu próxima visita.',
-    r.note ? `\n${r.note}` : '',
+    `Paga desde la app, ${mpEnabled() ? 'por transferencia o con tarjeta' : 'por transferencia'}: ${APP_URL}/app/familia/pagos`,
+    'También puedes pagar en el club en tu próxima visita.',
+    r.note ? `\n${r.note}` : null,
     '',
     `Gracias,\n${CLUB}`,
     '',
     'Si ya pagaste, ignora este mensaje.',
-  ].join('\n')
+  ].filter((l) => l != null).join('\n')
   return { subject, text }
 }
 
