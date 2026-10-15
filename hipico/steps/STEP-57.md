@@ -55,6 +55,18 @@ Ivana keeps finding elements with no hover (latest: the Nuevos · Contestados ·
 4. Re-run the audit until the list is empty, except disabled elements. Put the before and after counts and the elements fixed (by screen) in the report.
 - Add the audit as `npm run check:hover` (`scripts/hover-audit.mjs`), so every future step can run it before pushing. Add one line to `steps/README.md`: "Run `npm run check:hover`; a new interactive element without hover is a bug."
 
+## Family Inicio on a computer: lighter top
+Today the dark header card is about 650 px tall and full width, with the plan card boxed inside it. Above the fold the family sees only dark green and one number.
+- **Slim greeting band:** the dark gradient keeps only the greeting ("Buenas tardes, Paola" + mark) and the rider chips on one row. About 140 px tall, 24 px padding.
+- **The plan card comes out of the dark band** and becomes its own light card: warm white, sage 5 px edge (`edge-c c-sage`), 24 px padding.
+  - "2 de 4 clases" at 32 px (the documented plan count size, not the current ~48 px).
+  - The horseshoes bigger (28 px): they are the visual, not the number.
+  - Pagado pill top-right; "Te quedan 2 · Se renueva el 1 nov" on one line.
+  - Confirmar clase (mustard) + Cambiar plan (outline).
+- **First row under the band:** Plan activo (7/12) and Próxima clase (5/12) side by side. Pagos por vencer and the rest follow in the 2-column grid. Above the fold at 1440×900: the greeting, the plan, the next class and the start of the payments.
+- Management's Resumen header gets the same slim band if it is taller than ~180 px.
+- Phones: the plan card also sits under the band (light, not inside the green). Rider chips scroll sideways if needed.
+
 ## Same order elsewhere
 Apply the same rows (tabs row, then filter row, with the same spacing) to the other desktop pages that have tabs plus filter pills: Familias, Caballos and Mensajes, if their rows run into each other too.
 
