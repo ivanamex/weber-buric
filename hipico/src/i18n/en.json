@@ -208,7 +208,7 @@
     "title": "My plan",
     "classesPlan": "{n}-class plan",
     "usedOf": "{used} of {total} classes",
-    "shortUsed": "{used}/{total}",
+    "shortUsed": "{used} of {total} classes",
     "remaining": "{n} left",
     "expires": "Expires {date}",
     "paid": "Paid",
@@ -349,12 +349,17 @@
       "came": "Came",
       "noshow": "No-show",
       "own": "own",
-      "planOk": "Plan up to date · {n} left",
+      "planOk": "Plan paid · {n} classes left",
       "emptyTitle": "No confirmed classes this day",
       "rule": "Both “Came” and “No-show” count the class as used.",
       "allCame": "All came",
       "seeSchedule": "See schedule",
-      "planOk_one": "Plan up to date · 1 left"
+      "planOk_one": "Plan paid · 1 class left",
+      "renew": "Renew",
+      "seats": "{n} of {cap} spots",
+      "seatsFree": "{n} free",
+      "seatsFree_one": "1 free",
+      "seatsFull": "Full · {n} of {cap}"
     },
     "payments": {
       "title": "Payments",
@@ -767,7 +772,8 @@
     "cancelRangeDone_one": "1 class cancelled. Families can see it now.",
     "copyPreview_one": "1 class will be copied.",
     "copyBtn_one": "Copy 1 class",
-    "copied_one": "1 class copied"
+    "copied_one": "1 class copied",
+    "gridTaken": "{n} of {cap} spots"
   },
   "install": {
     "iphone": "Download for iPhone",
@@ -825,7 +831,7 @@
     "single": "Single class",
     "extra": "Extra class",
     "tag": {
-      "plan": "Plan",
+      "plan": "From plan",
       "trial": "Trial",
       "single": "Single",
       "extra": "Extra"
@@ -892,7 +898,7 @@
     "open": "Open",
     "more": "More",
     "horsesDue": "Horses: coming up",
-    "ridersN": "{n}/{cap} riders",
+    "ridersN": "{n} of {cap} spots",
     "daysLate_one": "1 day late",
     "tiles": {
       "reports": "Income, occupancy and Excel",
@@ -1733,7 +1739,22 @@
         "phone": "Check the number: some digits are missing.",
         "age": "Enter an age between 2 and 99.",
         "date": "Pick a date from today on."
-      }
+      },
+      "methodTransfer": "From your bank, then upload the receipt",
+      "methodCard": "Credit or debit with Mercado Pago",
+      "club": "At the club",
+      "methodClub": "Cash or card at the office",
+      "soon": "Coming soon",
+      "dropTitle": "Upload your receipt",
+      "dropHint": "Photo or PDF · up to 10 MB · tap or drag",
+      "change": "Change",
+      "send": "Send receipt",
+      "sending": "Sending…",
+      "cardPay": "Pay {amount} by card",
+      "cardSoon": "Card payments are coming soon. Meanwhile, pay by transfer or at the club.",
+      "clubLine": "Pay at the club's office; your spot is held.",
+      "clubBtn": "Hold my spot",
+      "clubDone": "Your spot is held. Pay at the club's office; once the club records it, it shows as Paid in the app."
     },
     "pay": {
       "received": {
@@ -1858,6 +1879,12 @@
     "done": "Done",
     "atClubTag": "Pays at the club",
     "pay": "Pay",
-    "payDeposit": "Pay the deposit"
+    "payDeposit": "Pay the deposit",
+    "optTransfer": "From your bank, then upload the receipt",
+    "optCard": "Credit or debit with Mercado Pago",
+    "optClub": "Cash or card at the office",
+    "soon": "Coming soon",
+    "dropHint": "Photo or PDF · up to 10 MB · tap or drag",
+    "change": "Change"
   }
 }

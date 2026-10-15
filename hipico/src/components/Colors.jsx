@@ -50,7 +50,7 @@ export function HorseTag({ horse, own = false }) {
   return (
     <span className="horsetag">
       <HorseAvatar horse={horse} />
-      <span><span className="horsetag__label">{t('horses.assigned')}</span><strong>{horse.name}</strong>{own ? ` · ${t('admin.today.own')}` : ''}</span>
+      <span><span className="horsetag__label">{t('horses.assigned')}</span><span className="horsetag__name"><strong>{horse.name}</strong>{own && <em className="ownpill">{t('admin.today.own')}</em>}</span></span>
     </span>
   )
 }

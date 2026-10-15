@@ -5,6 +5,9 @@ export const HORSESHOE_D = 'M3.4 3.2H8.6L8 11A4 4 0 0 0 16 11L15.4 3.2H20.6L20 1
 const shoe = <path d={HORSESHOE_D} fill="currentColor" stroke="none" fillRule="evenodd" />
 
 const P = {
+  bank: <><path d="M3.5 9.5 12 4.5l8.5 5" /><path d="M5 10v7.5M9.5 10v7.5M14.5 10v7.5M19 10v7.5" /><path d="M3.5 20h17" /></>,
+  upload: <><path d="M12 15.5V4.5M7.5 9 12 4.5 16.5 9" /><path d="M4 14.5v3.5A2.5 2.5 0 0 0 6.5 20.5h11a2.5 2.5 0 0 0 2.5-2.5v-3.5" /></>,
+  file: <><path d="M7 3.5h7l4.5 4.5v10.5a2 2 0 0 1-2 2h-9.5a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2z" /><path d="M14 3.5V8h4.5M8.5 13h7M8.5 16.5h5" /></>,
   home: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V20h14V9.5" /><path d="M10 20v-6h4v6" /></>,
   calendar: <><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></>,
   plan: <><rect x="4" y="3.5" width="16" height="17" rx="2.5" /><path d="M8 8.5h8M8 12.5h8M8 16.5h5" /></>,

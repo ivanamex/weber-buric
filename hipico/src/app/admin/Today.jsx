@@ -70,7 +70,11 @@ export default function AdminToday() {
                   <p className="small muted">{o.instructor.name} · {t(`arenas.${o.slot.arena}`)}</p>
                 </div>
                 <div className="classcard__side">
-                  <Badge tone={o.spotsLeft === 0 ? 'accent' : 'neutral'}>{o.bookings.length}/{o.slot.capacity}</Badge>
+                  <span className={`seats ${o.spotsLeft === 0 ? 'seats--full' : ''}`} title={o.spotsLeft > 0 ? t('admin.today.seatsFree', { n: o.spotsLeft }) : undefined}>
+                    <Icon name="user" size={15} />
+                    <span>{o.spotsLeft === 0 ? t('admin.today.seatsFull', { n: o.bookings.length, cap: o.slot.capacity }) : t('admin.today.seats', { n: o.bookings.length, cap: o.slot.capacity })}
+                      {o.spotsLeft > 0 && <small>{t('admin.today.seatsFree', { n: o.spotsLeft })}</small>}</span>
+                  </span>
                   {o.bookings.some((b) => b.status !== 'attended') && (
                     <button type="button" className="pill pill--sage" onClick={() => onAll(o)}><Icon name="check" size={15} /> {t('admin.today.allCame')}</button>
                   )}
@@ -92,7 +96,10 @@ export default function AdminToday() {
                           {(b.kind || 'plan') !== 'plan'
                             ? <StatusPill status={byId(s.payments, b.paymentId)?.status === 'paid' ? 'paid' : 'pending'}>{t(byId(s.payments, b.paymentId)?.status === 'paid' ? 'plan.paid' : 'plan.pendingPay')}</StatusPill>
                             : plan
-                            ? <StatusPill status={plan.paid ? 'paid' : 'pending'}>{plan.paid ? t('admin.today.planOk', { n: planRemaining(plan) }) : t('plan.pendingPay')}</StatusPill>
+                            ? <>
+                                <StatusPill status={plan.paid ? 'paid' : 'pending'}>{plan.paid ? t('admin.today.planOk', { n: planRemaining(plan) }) : t('plan.pendingPay')}</StatusPill>
+                                {plan.paid && planRemaining(plan) === 0 && <span className="renewhint">{t('admin.today.renew')}</span>}
+                              </>
                             : <StatusPill status="overdue">{t('plan.none')}</StatusPill>}
                         </p>
                       </div>

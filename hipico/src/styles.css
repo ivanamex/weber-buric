@@ -1494,66 +1494,26 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .msg__contact a { color: var(--green); font-weight: 600; }
 .msg .btn { text-decoration: none; }
 
-/* ───────── Every hover in the app and the panel: mustard glass with olivewood text (edges and icon tints stay) ───────── */
-:root { --mg: linear-gradient(180deg, color-mix(in srgb, var(--mustard) 70%, white) 0%, color-mix(in srgb, var(--mustard) 90%, transparent) 100%); --mg-soft: color-mix(in srgb, var(--mustard) 28%, white); }
-@supports not (color: color-mix(in srgb, red, blue)) { :root { --mg: var(--mustard); --mg-soft: #F6E3B4; } }
-@media (hover: hover) {
-  /* buttons with another color turn mustard; the mustard ones keep their sheen; danger stays red */
-  .btn--outline:hover:not(:disabled), .btn--ghost-light:hover:not(:disabled), .btn--whatsapp:hover:not(:disabled), .dlbtn:hover:not(.is-yours) {
-    color: var(--ink); border-color: transparent; background: var(--mg); box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 12px 24px -12px color-mix(in srgb, var(--mustard) 70%, transparent); filter: none; }
-  :is(.btn--slate, .btn--sage):hover:not(:disabled) { --cg: var(--mustard); --gtop: 70%; --gop: 88%; color: var(--ink); }
-  :is(.btn--slate, .btn--sage):hover:not(:disabled) .riderdot, :is(.btn--slate, .btn--sage):hover:not(:disabled) svg { color: var(--ink); }
-  .iconbtn:hover:not(:disabled), .iconbtn--light:hover:not(:disabled), .appbar .iconbtn:hover, .iconbtn--card:hover:not(:disabled) { color: var(--ink); background: var(--mg); }
-  /* tiles and feature cards: mustard glass instead of their own color */
-  .ctile:hover, .feature:hover { --cg: var(--mustard); --c: var(--mustard); --cx: var(--ink); --gtop: 72%; }
-  .ctile:hover::before, .feature:hover::before { background: linear-gradient(180deg, color-mix(in srgb, var(--mustard) 72%, white) 0%, color-mix(in srgb, var(--mustard) 94%, transparent) 100%); }
-  .ctile:hover .ctile__count { background: var(--ink); color: #fff; }
-  /* sidebars, tabs and crumbs */
-  .desk__link:hover:not(.is-active) { background: var(--mg); color: var(--ink); }
-  .desk__link:hover:not(.is-active) .desk__icon { color: var(--ink); }
-  .fdesk__link:hover:not(.is-active) { background: var(--mg); color: var(--ink); }
-  .tabbar__item:hover:not(.is-active) { color: var(--ink); }
-  .tabbar__item:hover:not(.is-active) .tabbar__icon { background: var(--mg-soft); border-radius: 12px; }
-  .crumbs a:hover, .link:hover, .lheader__login:hover, .slinkarrow:hover, .dtable__sort:hover { color: var(--ink); text-decoration: none; background: color-mix(in srgb, var(--mustard) 45%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mustard) 45%, transparent); border-radius: 6px; }
-  /* rows: tables, lists that open something, messages */
-  .dtable tr.is-clickable:hover td { background: var(--mg-soft); }
-  .msgrow__btn:hover, .list__row.is-link:hover, .stat--link:hover { background: var(--mg); color: var(--ink); }
-  /* chips, pills, segmented tabs, plan packages, calendar days, new-class cells, scopes */
-  .chip:hover:not(.is-active), .pill:hover:not(.is-on), .pill--sage:not(.is-on):hover, .pill--danger:not(.is-on):hover { border-color: transparent; background: var(--mg); color: var(--ink); }
-  .segmented button:hover:not(.is-active) { background: var(--mg-soft); color: var(--ink); }
-  .package:hover:not(.is-active), .scope:hover, .mcal__day:hover:not(:disabled), .eopt:hover:not(.is-active) { border-color: var(--mustard); background: var(--mg-soft); }
-  .wgrid__add:hover, .wgrid__add:focus-visible { border-color: var(--mustard); color: var(--ink); background: var(--mg-soft); }
-  .homehead .chip:hover:not(.is-active) { background: var(--mg); border-color: transparent; color: var(--ink); }
-  .homehead .chip:hover:not(.is-active) .chip__avatar { background: rgba(255,255,255,.5); color: var(--ink); }
-}
-
 /* ───────── Resumen: every number opens its source ───────── */
 .stat--link { position: relative; isolation: isolate; text-decoration: none; color: inherit; cursor: pointer; transition: background .2s, color .2s, transform .2s; }
 .stat--link small { font-size: .68rem; line-height: 1.3; }
 .stat__go { display: none; position: absolute; right: 8px; top: 8px; font-size: .72rem; font-weight: 700; color: var(--ink); }
 @media (hover: hover) {
   .stat--link:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -14px color-mix(in srgb, var(--mustard) 80%, transparent); }
-  .stat--link:hover strong, .stat--link:hover span, .stat--link:hover small { color: var(--ink); }
   .stat--link:hover .stat__go { display: inline-flex; align-items: center; gap: 2px; }
   .homehead .stats .stat--link:hover { border-color: transparent; }
 }
 .stat__split { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 8px; margin-top: 4px; }
 .stat__split a { font-size: .68rem; font-weight: 600; color: rgba(255,255,255,.85); text-decoration: underline; text-underline-offset: 2px; border-radius: 4px; padding: 0 2px; }
-.stat__split a:hover { background: var(--mg); color: var(--ink); text-decoration: none; }
-.stat--link:hover .stat__split a { color: var(--ink); }
 .money3 a { display: grid; gap: 2px; padding: 8px; margin: -8px; border-radius: 12px; color: inherit; text-decoration: none; position: relative; transition: background .2s; }
 .money3 a .stat__go { right: 6px; top: 6px; }
-.money3 a:hover { background: var(--mg); }
-.money3 a:hover strong, .money3 a:hover span { color: var(--ink); }
 .money3 a:hover .stat__go { display: inline-flex; }
 .money3 small { font-size: .68rem; color: var(--muted); }
 .expected__link { display: block; color: inherit; text-decoration: none; border-radius: 10px; padding: 6px 8px; margin: 6px -8px 0; transition: background .2s; }
-.expected__link:hover { background: var(--mg); color: var(--ink); }
 .daylabel--live { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
 .daylabel__updated { font-size: .78rem; opacity: .85; }
 .daylabel__refresh { width: 28px; height: 28px; display: inline-grid; place-items: center; border: 0; border-radius: 50%; background: rgba(255,255,255,.14); color: #fff; cursor: pointer; }
 .daylabel__refresh.is-busy svg { animation: spin .8s linear infinite; }
-.daylabel__refresh:hover { background: var(--mg); color: var(--ink); }
 .homehead .daylabel { color: rgba(255,255,255,.85); }
 .filterline { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; margin: 0; }
 
@@ -1602,7 +1562,6 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
   .duegroups--desk .duegroup--overdue:not(.is-empty):hover { background: color-mix(in srgb, var(--danger) 22%, var(--card)); }
   .duegroups--desk .duegroup--today:not(.is-empty):hover { background: color-mix(in srgb, var(--terracotta) 30%, var(--card)); }
   .duegroups--desk .duegroup--soon:not(.is-empty):hover { background: color-mix(in srgb, var(--mustard) 40%, var(--card)); }
-  .duegroups--desk .duegroup.is-empty:hover, .duegroups--desk .duegroup--later:hover { background: var(--mg); border-color: transparent; }
   .duegroups--desk .duegroup.is-empty:hover :is(.duegroup__label, .duegroup__sum, .duegroup__n), .duegroups--desk .duegroup--later:hover :is(.duegroup__label, .duegroup__sum, .duegroup__n) { color: var(--ink); }
   .duegroups--desk .duegroup:hover .duegroup__go { display: inline-flex; }
 }
@@ -1630,7 +1589,6 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .dtable__sort.is-sorted { background: var(--mustard-t); color: var(--ink); font-weight: 800; }
 .dtable__sort.is-sorted .dtable__arrow { color: var(--ink); }
 @media (hover: hover) {
-  .dtable__sort:hover { background: var(--mg); color: var(--ink); box-shadow: none; border-radius: 999px; }
   .dtable__sort:hover .dtable__arrow { color: var(--ink); transform: translateY(-1px); }
 }
 .dtable__sort:focus-visible { outline: 2px solid var(--mustard); outline-offset: 1px; }
@@ -1693,38 +1651,6 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
   .desk__content .homehead .stats .stat { padding: 10px 8px; }
 }
 
-/* Every interactive element gets a hover (found by `npm run check:hover`): mustard tokens, pointer, and the keyboard focus matches. */
-.logo, .desk__brand, .demobar__switch button, .demobar__exit, .day:not(:disabled), .wgrid__class, .hgallery__item, .hgallery__add, .nextdates__tap, .healthrow__tap:not(:disabled), .login__btn, .login__back, .msg__contact a, .sumblock .list__row > a { cursor: pointer; }
-.logo, .desk__brand { border-radius: 12px; transition: background .15s, transform .15s; }
-.msg__contact a, .sumblock .list__row > a, .login__back, .demobar__exit { border-radius: 6px; transition: background .15s, color .15s; }
-.hgallery__item img { transition: transform .25s ease; }
-@media (hover: hover) {
-  .logo:hover, .desk__brand:hover, .logo:focus-visible, .desk__brand:focus-visible { background: color-mix(in srgb, var(--mustard) 32%, transparent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--mustard) 32%, transparent); }
-  .demobar__switch button:hover:not(.is-active), .demobar__switch button:focus-visible:not(.is-active) { background: var(--mg-soft); color: var(--ink); }
-  .demobar__exit:hover, .demobar__exit:focus-visible, .login__back:hover, .login__back:focus-visible, .msg__contact a:hover, .msg__contact a:focus-visible, .sumblock .list__row > a:hover, .sumblock .list__row > a:focus-visible {
-    color: var(--ink); text-decoration: none; background: color-mix(in srgb, var(--mustard) 45%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mustard) 45%, transparent); }
-  .sumblock .list__row > a:hover .muted, .sumblock .list__row > a:focus-visible .muted { color: var(--ink); }
-  .day:hover:not(.is-active):not(:disabled), .day:focus-visible:not(.is-active):not(:disabled) { background: var(--mg-soft); border-color: var(--mustard); opacity: 1; color: var(--ink); }
-  .wgrid__class:hover, .wgrid__class:focus-visible { background: var(--mg-soft); box-shadow: inset 0 0 0 1px var(--mustard); }
-  .wgrid__class:hover span, .wgrid__class:focus-visible span { color: var(--ink); }
-  .hgallery__item:hover img, .hgallery__item:focus-visible img { transform: scale(1.05); }
-  .hgallery__item:hover, .hgallery__item:focus-visible, .hgallery__add:hover, .hgallery__add:focus-visible { box-shadow: 0 0 0 3px var(--mustard); }
-  .hgallery__add:hover, .hgallery__add:focus-visible { background: var(--mg-soft); border-color: var(--mustard); color: var(--ink); }
-  .nextdates__tap:hover, .nextdates__tap:focus-visible, .healthrow__tap:hover:not(:disabled), .healthrow__tap:focus-visible:not(:disabled) { background: var(--mg-soft); border-radius: 10px; box-shadow: 0 0 0 4px var(--mg-soft); }
-  .login__btn:hover, .login__btn:focus-visible { background: var(--mg); transform: translateY(-2px); box-shadow: 0 16px 30px -16px color-mix(in srgb, var(--mustard) 80%, transparent); }
-  .login__btn:hover small, .login__btn:focus-visible small { color: var(--ink); }
-  .btn--muted:hover:not(:disabled), .btn--muted:focus-visible { opacity: 1; }
-}
-.login__btn:focus-visible, .wgrid__class:focus-visible, .day:focus-visible, .hgallery__item:focus-visible, .hgallery__add:focus-visible { outline: none; }
-@media (prefers-reduced-motion: reduce) { .login__btn:hover, .hgallery__item:hover img { transform: none; } }
-/* Switches, checkboxes and day chips (Ajustes, horse edit): the same hover. */
-.check, .switch, .reminders__switch, .daychip:not(:disabled) { cursor: pointer; }
-.check, .reminders__switch { border-radius: 8px; transition: background .15s; }
-@media (hover: hover) {
-  .check:hover, .reminders__switch:hover, .reminders__switch:focus-within, .check:focus-within { background: var(--mg-soft); box-shadow: 0 0 0 6px var(--mg-soft); }
-  .switch:hover .switch__track, .switch:focus-within .switch__track, .switch:hover > span:first-of-type { box-shadow: 0 0 0 3px var(--mg-soft); }
-  .daychip:hover:not(.is-active):not(:disabled), .daychip:focus-visible:not(.is-active):not(:disabled) { background: var(--mg-soft); border-color: var(--mustard); color: var(--ink); }
-}
 
 /* One payment lightbox (Transferencia · Tarjeta · En el club): centered on a computer, a bottom sheet on phones. */
 .paydlg { position: fixed; inset: 0; z-index: 96; display: flex; align-items: flex-end; justify-content: center; }
@@ -1750,7 +1676,6 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .paydlg__restitle { font-family: var(--font-head); font-weight: 700; font-size: 1.3rem; color: var(--green-dark); }
 .paydlg__demo { font-size: .74rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-ink); padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); }
 .paydlg__result .btn { margin-top: 8px; }
-@media (hover: hover) { .paydlg__method:hover:not(.is-active) { background: var(--mg-soft); border-color: var(--mustard); } }
 @media (min-width: 700px) {
   .paydlg { align-items: center; padding: 16px; }
   .paydlg__panel { border-radius: 24px; max-height: 90vh; padding: 24px; animation: pop .2s ease; }
@@ -1790,3 +1715,133 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
   .homegrid { align-items: stretch; }
   .homegrid > div { display: flex; flex-direction: column; }
 }
+
+/* How to pay: option cards and the receipt drop zone (the website's payment step and the app's PayDialog). */
+.paycards { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 700px) { .paycards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.paycard { position: relative; display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 12px; row-gap: 2px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--border); background: var(--card); color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: background .2s, border-color .2s, transform .2s, box-shadow .2s; }
+.paycard__icon { grid-row: span 2; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--sage-t); color: var(--sage-i); }
+.paycard__title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 700; font-size: 1rem; line-height: 1.2; }
+.paycard__text { font-size: .84rem; color: var(--muted); line-height: 1.3; }
+.paycard__badge { font-style: normal; font-size: .7rem; font-weight: 700; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; background: var(--slate-t); color: var(--slate-i); }
+.paycard__check { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--mustard); color: var(--ink); }
+.paycard.is-active { border: 2px solid var(--mustard); padding: 13px 15px; background: color-mix(in srgb, var(--mustard) 12%, var(--card)); }
+.paycard.is-active .paycard__icon { background: var(--mustard-t); color: var(--mustard-i); }
+.paycard.is-off { cursor: not-allowed; background: color-mix(in srgb, var(--border) 30%, var(--card)); }
+.paycard.is-off :is(.paycard__title, .paycard__text) { color: var(--muted); }
+.paycard.is-off .paycard__icon { background: #E9E4D8; color: #8E877A; }
+.paycard:focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }
+@media (min-width: 700px) {
+  .paycard { grid-template-columns: 1fr; justify-items: start; padding: 16px; row-gap: 4px; align-content: start; }
+  .paycard.is-active { padding: 15px; }
+  .paycard__icon { grid-row: auto; margin-bottom: 6px; }
+}
+.dropzone { position: relative; border: 2px dashed #CDBE9F; border-radius: 16px; background: color-mix(in srgb, #D5C7AD 18%, var(--card)); transition: background .2s, border-color .2s; }
+.dropzone.is-over { border-color: var(--mustard); background: color-mix(in srgb, var(--mustard) 12%, var(--card)); }
+.dropzone__input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.dropzone__pick { display: grid; justify-items: center; gap: 4px; width: 100%; padding: 22px 16px; border: 0; background: none; font: inherit; color: var(--ink); text-align: center; cursor: pointer; border-radius: 14px; }
+.dropzone__icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--card); color: var(--accent-ink); margin-bottom: 4px; box-shadow: 0 2px 8px rgba(51,53,42,.08); }
+.dropzone__title { font-weight: 700; }
+.dropzone__hint { font-size: .84rem; color: var(--muted); }
+.dropzone__file { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.dropzone.has-file { border-style: solid; border-color: var(--border); background: var(--card); }
+.dropzone__thumb { flex: none; width: 48px; height: 48px; border-radius: 10px; object-fit: cover; background: var(--sage-t); color: var(--sage-i); display: grid; place-items: center; }
+.dropzone__name { flex: 1; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+.dropzone__change { flex: none; border: 0; background: none; padding: 4px 2px; font: inherit; font-weight: 600; color: var(--green); cursor: pointer; }
+.dropzone__pick:focus-visible, .dropzone__change:focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }
+
+/* ───────── Hovers with a fine line: three levels. A hover never makes an element look like more than it is at rest. ─────────
+   1 · text: links, table headers, unselected tabs, sidebar items: the text turns deep mustard (light mustard on dark)
+       and a 2 px underline grows from the centre; no background, no pill.
+   2 · soft: pills, chips, rows, cards, tiles, outline and secondary buttons: a mustard tint, the edge mustard at 40 %,
+       the text stays; tiles and cards lift 2 px. No glass, no full mustard.
+   3 · button: only the real main buttons (already mustard): the sheen sweep, 1 px lift, a deeper shadow; the color stays.
+   Secondary glass buttons (slate, sage, WhatsApp) keep their own color: a little brighter, the sweep and the lift. */
+:root {
+  --hover-text: #866114; /* deep mustard, 4.7:1 on parchment */
+  --hover-text-dark: #E9C27A; /* light mustard, over the video and dark green */
+  --hover-soft: rgba(217, 164, 65, .14);
+  --hover-soft-row: rgba(217, 164, 65, .08);
+  --hover-line: rgba(217, 164, 65, .4);
+  --hover-btn: 0 16px 30px -10px rgba(51, 53, 42, .38);
+}
+/* level 1: the underline that grows from the centre (background-image only, so no background color ever) */
+.link, .crumbs a, .lheader__login, .dtable__sort, .segmented button:not(.is-active), .demobar__switch button:not(.is-active), .demobar__exit, .login__back, .msg__contact a, .sumblock .list__row > a, .stat__split a, .tlink, .tabbar__item {
+  background-image: linear-gradient(currentColor, currentColor); background-repeat: no-repeat; background-position: 50% 100%; background-size: 0 2px;
+  transition: background-size .2s ease, color .2s ease; text-decoration: none; }
+.segmented button:not(.is-active), .demobar__switch button:not(.is-active) { background-position: 50% calc(100% - 4px); }
+.dtable__sort.is-sorted { background-image: none; }
+@media (hover: hover) {
+  :is(.link, .crumbs a, .dtable__sort, .segmented button:not(.is-active), .demobar__exit, .login__back, .msg__contact a, .sumblock .list__row > a, .tlink):hover { color: var(--hover-text); background-size: 100% 2px; text-decoration: none; box-shadow: none; }
+  :is(.segmented button, .demobar__switch button):not(.is-active):hover { color: var(--hover-text); background-color: transparent; background-size: calc(100% - 24px) 2px; }
+  :is(.lheader__login, .stat__split a):hover { color: var(--hover-text-dark); background-size: 100% 2px; opacity: 1; }
+  .dtable__sort:hover .dtable__arrow { color: currentColor; transform: translateY(-1px); }
+  .dtable__sort.is-sorted:hover { color: var(--ink); }
+  .sumblock .list__row > a:hover .muted { color: var(--hover-text); }
+  .tabbar__item:hover:not(.is-active) { color: var(--hover-text); }
+  /* sidebars: the text in mustard and a 3 px mustard bar on the left; the active item keeps its fill */
+  .desk__link:hover:not(.is-active) { color: var(--hover-text-dark); background: none; box-shadow: inset 3px 0 0 var(--mustard); }
+  .desk__link:hover:not(.is-active) .desk__icon { color: var(--hover-text-dark); }
+  .fdesk__link:hover:not(.is-active) { color: var(--hover-text); background: none; box-shadow: inset 3px 0 0 var(--mustard); }
+}
+:is(.link, .crumbs a, .dtable__sort, .segmented button, .demobar__exit, .login__back, .msg__contact a, .tlink):focus-visible { outline: 2px solid var(--mustard); outline-offset: 2px; background-size: 100% 2px; }
+
+/* the logo: no box, no tooltip; only a little lighter */
+.applogo, .desk__brand, .logo { transition: opacity .2s ease; }
+@media (hover: hover) { :is(.applogo, .desk__brand):hover { opacity: .85; background: none; box-shadow: none; } }
+.applogo:focus-visible, .desk__brand:focus-visible { outline: 2px solid var(--mustard); outline-offset: 4px; border-radius: 8px; }
+
+/* level 2: soft */
+.btn:not(.btn--primary):not(.btn--accent):not(.btn--save):not(.btn--slate):not(.btn--sage):not(.btn--whatsapp):not(.btn--danger):not(.btn--ghost-light),
+.iconbtn, .chip, .pill, .package, .scope, .mcal__day, .day, .daychip, .wgrid__class, .wgrid__add, .hgallery__add, .nextdates__tap, .healthrow__tap,
+.check, .reminders__switch, .login__btn, .paycard, .dropzone__pick, .ctile, .feature, .stat--link, .money3 a, .expected__link, .daylabel__refresh, .msgrow__btn, .list__row.is-link, .dlbtn:not(.is-yours) {
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease; }
+@media (hover: hover) {
+  :is(.btn:not(.btn--primary):not(.btn--accent):not(.btn--save):not(.btn--slate):not(.btn--sage):not(.btn--whatsapp):not(.btn--danger):not(.btn--ghost-light), .dlbtn:not(.is-yours)):hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--mustard) 14%, var(--card)); border-color: var(--hover-line); color: var(--ink); box-shadow: none; filter: none; }
+  :is(.iconbtn, .iconbtn--card):hover:not(:disabled) { background-color: var(--hover-soft); color: var(--ink); box-shadow: inset 0 0 0 1px var(--hover-line); }
+  :is(.appbar, .homehead, .lheader) .iconbtn:hover:not(:disabled), .iconbtn--light:hover:not(:disabled) { background-color: rgba(217, 164, 65, .2); color: #fff; box-shadow: inset 0 0 0 1px rgba(233, 194, 122, .6); }
+  :is(.chip, .pill, .daychip):hover:not(.is-active):not(.is-on):not(:disabled) { background-color: color-mix(in srgb, var(--mustard) 14%, var(--card)); border-color: var(--hover-line); color: var(--ink); }
+  .homehead .chip:hover:not(.is-active) { background-color: rgba(217, 164, 65, .2); border-color: rgba(233, 194, 122, .6); color: #fff; }
+  .homehead .chip:hover:not(.is-active) .chip__avatar { background: rgba(255, 255, 255, .25); color: #fff; }
+  :is(.package, .scope, .mcal__day, .day, .wgrid__add, .hgallery__add, .paycard):hover:not(.is-active):not(:disabled) { background-color: color-mix(in srgb, var(--mustard) 14%, var(--card)); border-color: var(--hover-line); color: var(--ink); opacity: 1; }
+  .wgrid__class:hover { background-image: linear-gradient(var(--hover-soft), var(--hover-soft)); box-shadow: inset 0 0 0 1px var(--hover-line); }
+  .wgrid__class:hover span { color: var(--ink); }
+  :is(.nextdates__tap, .healthrow__tap:not(:disabled), .check, .reminders__switch, .dropzone__pick):hover { background-color: var(--hover-soft); border-radius: 10px; box-shadow: 0 0 0 4px var(--hover-soft); }
+  .switch:hover > span:first-of-type { box-shadow: 0 0 0 3px var(--hover-soft); }
+  .hgallery__item:hover, .hgallery__item:focus-visible { box-shadow: 0 0 0 3px var(--hover-line); }
+  /* rows: a lighter tint */
+  .dtable tr.is-clickable:hover td, .msgrow__btn:hover, .list__row.is-link:hover { background-color: var(--hover-soft-row); color: inherit; }
+  /* cards and tiles lift 2 px */
+  :is(.login__btn, .paycard:not(.is-off), .money3 a, .expected__link):hover { background-color: color-mix(in srgb, var(--mustard) 14%, var(--card)); }
+  :is(.login__btn, .paycard:not(.is-off)):hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba(51, 53, 42, .35); }
+  .login__btn:hover small { color: var(--muted); }
+  :is(.ctile, .feature):hover { transform: translateY(-2px); color: var(--ink); border-color: var(--hover-line); background-color: color-mix(in srgb, var(--mustard) 14%, var(--card)); box-shadow: 0 14px 28px -18px rgba(51, 53, 42, .4); }
+  :is(.ctile, .feature):hover::before { opacity: 0; }
+  :is(.ctile, .feature):hover .ctile__text { color: var(--muted); }
+  .ctile:hover .ctile__icon { background: var(--ct); color: var(--ci); }
+  .stat--link:hover { background-color: rgba(217, 164, 65, .2); border-color: rgba(233, 194, 122, .6); transform: translateY(-2px); box-shadow: none; }
+  .daylabel__refresh:hover { background-color: rgba(217, 164, 65, .3); color: #fff; }
+  /* the $0 total tiles: soft; the ones with money keep their color and deepen */
+  .duegroups--desk .duegroup.is-empty:hover, .duegroups--desk .duegroup--later:hover { background-color: color-mix(in srgb, var(--mustard) 14%, var(--card)); border-color: var(--hover-line); }
+  .duegroups--desk .duegroup.is-empty:hover :is(.duegroup__label, .duegroup__sum, .duegroup__n), .duegroups--desk .duegroup--later:hover :is(.duegroup__label, .duegroup__sum, .duegroup__n) { color: var(--ink); }
+  /* level 3 and colored secondaries: the color stays */
+  :is(.btn--slate, .btn--sage):hover:not(:disabled) { filter: brightness(1.06); }
+  .btn--whatsapp:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--hover-btn); }
+  .btn--ghost-light:hover:not(:disabled) { background-color: rgba(217, 164, 65, .2); border-color: rgba(233, 194, 122, .6); color: #fff; }
+}
+:is(.btn, .iconbtn, .chip, .pill, .package, .day, .daychip, .paycard, .ctile, .feature, .stat--link, .login__btn):focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .link, .crumbs a, .dtable__sort, .segmented button, .demobar__exit, .login__back, .msg__contact a, .tlink, .lheader__login, .stat__split a { transition: color .2s ease; }
+  :is(.ctile, .feature, .stat--link, .login__btn, .paycard, .btn--whatsapp):hover { transform: none; }
+}
+
+/* Hoy: what the numbers mean, in words */
+.seats { display: inline-flex; align-items: flex-start; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); font-size: .8rem; font-weight: 700; line-height: 1.25; white-space: nowrap; }
+.seats .icon { margin-top: 1px; flex: none; }
+.seats small { display: block; font-weight: 500; color: var(--muted); font-size: .72rem; }
+.seats--full { background: var(--terracotta-t); color: var(--terracotta-i); }
+.renewhint { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: .72rem; font-weight: 700; color: var(--terracotta-i); background: var(--terracotta-t); }
+.horsetag__name { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.ownpill { font-style: normal; font-size: .68rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--sage-t); color: var(--sage-i); }
+@media (hover: hover) { .duegroups--desk .duegroup.is-empty:hover, .duegroups--desk .duegroup--later:hover { box-shadow: 0 14px 28px -18px rgba(51, 53, 42, .4); } }

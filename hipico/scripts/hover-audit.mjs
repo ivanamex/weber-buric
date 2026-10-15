@@ -10,7 +10,10 @@
  *   npm run check:hover            (expects a preview on http://localhost:4173, or starts one from dist/)
  *   HOVER_BASE=http://localhost:5173 node scripts/hover-audit.mjs
  *
- * Exit code 1 when any element has no hover.
+ * It also lists text-level elements (nav and text links, table headers, unselected tabs, sidebar items) whose hover
+ * adds a background or a pill: the "too strong" case. They should only change color and grow an underline.
+ *
+ * Exit code 1 when any element has no hover, or a text-level one gets a background.
  */
 import { createRequire } from 'node:module'
 import { spawn } from 'node:child_process'
@@ -58,6 +61,25 @@ const PICK = [
 ].join(', ')
 
 /** Runs in the page: a style snapshot of the element, its ::before/::after and its first descendants. */
+// Level 1 (text): these may change color, grow an underline (background-image) or show a side bar, never a background.
+const LEVEL1 = [
+  '.sbar__nav a', '.sbar__login', '.link', '.crumbs a', '.lheader__login', '.dtable__sort', '.segmented button:not(.is-active)', '.demobar__switch button:not(.is-active)',
+  '.demobar__exit', '.login__back', '.msg__contact a', '.desk__link:not(.is-active)', '.fdesk__link:not(.is-active)', '.tabbar__item:not(.is-active)', '.slinkarrow',
+  '.sfooter__links a', '.sfooter__legal a', '.svisit2__wa', '.sback', '.slist a', '.ebank__copy', '.tlink', '.stat__split a',
+].join(', ')
+
+/** The background colors an element shows (itself and its ::before/::after): a level-1 hover must not add one.
+ *  A pseudo-element 3 px tall or less is the underline, which is allowed. */
+const BACKGROUNDS = (el) => {
+  const own = getComputedStyle(el).backgroundColor
+  const pseudo = ['::before', '::after'].map((p) => {
+    const c = getComputedStyle(el, p)
+    if (c.content === 'none' || c.display === 'none' || parseFloat(c.height) <= 3) return 'line'
+    return `${c.backgroundColor}|${c.opacity}`
+  })
+  return [own, ...pseudo].join(' ')
+}
+
 const SNAPSHOT = (el) => {
   const props = ['background-color', 'background-image', 'color', 'border-color', 'box-shadow', 'transform', 'text-decoration-line', 'outline-color', 'outline-style', 'opacity', 'filter', 'background-position', 'background-size', 'fill', 'stroke']
   const read = (node, pseudo) => { const c = getComputedStyle(node, pseudo); return props.map((p) => c.getPropertyValue(p)).join('|') }
@@ -72,6 +94,8 @@ const DESCRIBE = (el) => {
   const cls = (typeof el.className === 'string' ? el.className : '').trim().split(/\s+/).filter(Boolean).slice(0, 3).join('.')
   return el.tagName.toLowerCase() + (cls ? '.' + cls : '') + (text ? ' "' + text + '"' : '')
 }
+
+const strong = []
 
 async function auditPage(page, route, seen, out) {
   const handles = await page.$$(PICK)
@@ -102,12 +126,17 @@ async function auditPage(page, route, seen, out) {
     const covered = await h.evaluate((el, pt) => { const t = document.elementFromPoint(pt.x, pt.y); return !t || !(el === t || el.contains(t) || t.contains(el)) }, { x: cx, y: cy }).catch(() => true)
     if (covered || !onTop) continue
     const before = await h.evaluate(SNAPSHOT)
+    const level1 = await h.evaluate((el, sel) => el.matches(sel), LEVEL1).catch(() => false)
+    const bgBefore = level1 ? await h.evaluate(BACKGROUNDS) : null
     await page.mouse.move(cx, cy)
     await page.waitForTimeout(80)
     const after = await h.evaluate(SNAPSHOT).catch(() => before)
+    const bgAfter = level1 ? await h.evaluate(BACKGROUNDS).catch(() => bgBefore) : null
     await page.mouse.move(0, 0)
     if (before === after && !(info.selected && info.cursor === 'pointer')) {
       out.push({ route, what: await h.evaluate(DESCRIBE), cursor: info.cursor, selected: info.selected })
+    } else if (level1 && bgBefore !== bgAfter) {
+      strong.push({ route, what: await h.evaluate(DESCRIBE) })
     }
   }
   return checked
@@ -180,12 +209,14 @@ async function main() {
     server?.kill()
   }
   const byRoute = out.reduce((m, x) => ((m[x.route] ||= []).push(x), m), {})
-  console.log(`Checked ${total} interactive elements. Without hover: ${out.length}.`)
+  console.log(`Checked ${total} interactive elements. Without hover: ${out.length}. Text-level with a background on hover: ${strong.length}.`)
   for (const [route, items] of Object.entries(byRoute)) {
     console.log(`\n${route}`)
     for (const x of items) console.log(`  - ${x.what}${x.cursor !== 'pointer' ? ` (cursor: ${x.cursor})` : ''}`)
   }
-  process.exit(out.length ? 1 : 0)
+  if (strong.length) console.log('\nToo strong (text level, but the hover adds a background):')
+  for (const x of strong) console.log(`  - ${x.route}: ${x.what}`)
+  process.exit(out.length || strong.length ? 1 : 0)
 }
 
 main().catch((e) => { console.error(e.message || e); process.exit(2) })

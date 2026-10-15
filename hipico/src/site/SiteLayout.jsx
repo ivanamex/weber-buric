@@ -94,7 +94,7 @@ function useHead(lang, t) {
 
 /* ───────── The scroll: which section is on screen, how far down the page, dark or light under the bar ───────── */
 function useScrollState(lang) {
-  const [state, setState] = useState({ active: null, dark: true, heroGone: false, nearEnd: false })
+  const [state, setState] = useState({ active: null, dark: true, heroGone: false, nearEnd: false, scrolled: false })
   const progress = useRef(null)
   useEffect(() => {
     let raf = 0
@@ -116,7 +116,9 @@ function useScrollState(lang) {
       const visit = document.getElementById(sectionId('visit', lang))
       const heroGone = hero ? hero.getBoundingClientRect().bottom < 80 : true
       const nearEnd = visit ? visit.getBoundingClientRect().top < vh * 0.9 : false
-      setState((p) => (p.active === active && p.dark === dark && p.heroGone === heroGone && p.nearEnd === nearEnd ? p : { active, dark, heroGone, nearEnd }))
+      // Past 8 px the bar gets its background (olivewood glass over dark sections): its links never sit on the hero title.
+      const scrolled = window.scrollY > 8
+      setState((p) => (p.active === active && p.dark === dark && p.heroGone === heroGone && p.nearEnd === nearEnd && p.scrolled === scrolled ? p : { active, dark, heroGone, nearEnd, scrolled }))
     }
     const on = () => { if (!raf) raf = requestAnimationFrame(move) }
     window.addEventListener('scroll', on, { passive: true })
@@ -172,7 +174,7 @@ function SiteBar({ scroll, progress }) {
   }, [open])
   return (
     <>
-      <header className={`sbar ${scroll.dark ? 'is-dark' : ''}`}>
+      <header className={`sbar ${scroll.dark ? 'is-dark' : ''} ${scroll.scrolled ? 'is-solid' : ''}`}>
         <div className="sbar__inner">
           <a href={`${homePath(lang)}#top`} className="sbar__logo" aria-label={t('site.homeLabel')}><BrandLogo variant={scroll.dark ? 'white' : 'green'} height={40} /></a>
           <nav className="sbar__nav" ref={nav} aria-label={t('site.navLabel')}>

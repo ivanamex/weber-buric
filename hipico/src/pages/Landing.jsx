@@ -82,7 +82,7 @@ export default function Landing() {
     <div className="landing" ref={root}>
       <header className="lheader">
         <div className="container lheader__inner">
-          <Link to="/" aria-label="Hípico Riviera Maya"><Logo light compact /></Link>
+          <Link to="/" className="applogo" aria-label="Hípico Riviera Maya"><Logo light compact /></Link>
           <div className="lheader__actions">
             <LangToggle light />
             <Link to="/app" className="lheader__login">{t('landing.signIn')}</Link>

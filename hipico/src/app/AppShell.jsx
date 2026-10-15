@@ -128,7 +128,7 @@ function DeskShell({ onLogout, toReview, demoBar }) {
     <DeskContext.Provider value={ctx}>
       <div className={`desk ${small ? 'is-small' : ''}`}>
         <aside className="desk__side" aria-label={t('app.nav')}>
-          <Link to={`${base}/direccion`} className="desk__brand" title={t('tabs.summary')}><Logo light compact /></Link>
+          <Link to={`${base}/direccion`} className="desk__brand applogo" aria-label={t('site.homeLabel')}><Logo light compact /></Link>
           <nav className="desk__nav">
             {items.map((i) => {
               const active = i.match ? i.match(pathname, q) : undefined
@@ -208,7 +208,7 @@ function FamilyDeskShell({ onLogout, demoBar, family, outletContext }) {
     <div className="fdesk">
       <div className="apptop">
         <header className="appbar">
-          <Link to={`${base}/familia`} title={t('tabs.home')}><Logo light compact /></Link>
+          <Link to={`${base}/familia`} className="applogo" aria-label={t('site.homeLabel')}><Logo light compact /></Link>
           <div className="appbar__right">
             <LangToggle light />
             <button type="button" className="iconbtn" onClick={onLogout} aria-label={t('app.logout')} title={t('app.logout')}><Icon name="logout" size={20} /></button>
@@ -313,7 +313,7 @@ export default function AppShell({ role }) {
     <div className={`app app--${role}`}>
       <div className="apptop">
       <header className="appbar">
-        <Link to={`${base}/${role === 'admin' ? 'direccion' : 'familia'}`} title={t(role === 'admin' ? 'tabs.summary' : 'tabs.home')}><Logo light compact /></Link>
+        <Link to={`${base}/${role === 'admin' ? 'direccion' : 'familia'}`} className="applogo" aria-label={t('site.homeLabel')}><Logo light compact /></Link>
         <div className="appbar__right">
           <LangToggle light />
           <button type="button" className="iconbtn" onClick={onLogout} aria-label={t('app.logout')} title={t('app.logout')}>

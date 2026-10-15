@@ -1161,6 +1161,17 @@ export function webReceipt(paymentId, file) {
   })
 }
 
+/** "En el club" on the website (demo): the web charge is marked to be paid at the office. */
+export function webPayAtClub(paymentId) {
+  if (!state) state = load() || persist(createSeed())
+  return mutate((s) => {
+    const p = byId(s.payments, paymentId)
+    if (!p || p.status !== 'pending' || !p.meta?.web) return fail('notFound')
+    p.meta = { ...(p.meta || {}), payAtClub: todayKey() }
+    return { ok: true }
+  })
+}
+
 /** Management: a message answered (or back to new). */
 function markContactMessage(id, status) {
   return mutate((s) => {

@@ -2,6 +2,10 @@ import { HORSESHOE_D } from '../Icon.jsx'
 
 // The website's pictograms: line drawings on a 24×24 grid, same stroke as the app's icons.
 const P = {
+  bank: <><path d="M3.5 9.5 12 4.5l8.5 5" /><path d="M5 10v7.5M9.5 10v7.5M14.5 10v7.5M19 10v7.5" /><path d="M3.5 20h17" /></>,
+  upload: <><path d="M12 15.5V4.5M7.5 9 12 4.5 16.5 9" /><path d="M4 14.5v3.5A2.5 2.5 0 0 0 6.5 20.5h11a2.5 2.5 0 0 0 2.5-2.5v-3.5" /></>,
+  file: <><path d="M7 3.5h7l4.5 4.5v10.5a2 2 0 0 1-2 2h-9.5a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2z" /><path d="M14 3.5V8h4.5M8.5 13h7M8.5 16.5h5" /></>,
+  home: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V20h14V9.5" /><path d="M10 20v-6h4v6" /></>,
   card: <><rect x="3" y="5.5" width="18" height="13" rx="2.5" /><path d="M3 10h18M7 15h4" /></>,
   helmet: <><path d="M4 16c0-5.6 3.6-9.6 8.3-9.6 4.4 0 7.6 3.4 7.7 7.6l2.2 1.6c.3.3.1.6-.3.6H4z" /><path d="M5 12.6h14.4" /><path d="M6.5 16.4c0 2.4 1.7 4.1 4.1 4.1" /><circle cx="12.3" cy="6.4" r=".75" fill="currentColor" stroke="none" /></>,
   horseshoe: <path d={HORSESHOE_D} fill="currentColor" stroke="none" fillRule="evenodd" />,

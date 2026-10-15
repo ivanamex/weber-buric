@@ -3,13 +3,16 @@ import { useI18n } from '../i18n/I18nProvider.jsx'
 import { SiteIcon } from '../components/site/Icons.jsx'
 import { AppButton } from './SiteLayout.jsx'
 import { planList } from './siteData.js'
-import { cardCheckout, cardEnabled, enroll, sendReceipt, RECEIPT_MAX } from './enroll.js'
+import { cardCheckout, cardEnabled, enroll, payAtClubWeb, sendReceipt, RECEIPT_MAX } from './enroll.js'
+import { DropZone, MethodCards } from '../components/PayOptions.jsx'
 import { DateField } from './DateField.jsx'
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 const ACCEPT = 'image/jpeg,image/png,image/heic,image/heif,application/pdf,.heic,.heif,.pdf,.jpg,.jpeg,.png'
 const todayKey = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Cancun', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
 const FIELD_OF = { missing: 'contact', badEmail: 'email', badPhone: 'phone' }
+/** "ivana lópez" → "Ivana López" (a name typed all in lowercase); anything already capitalized stays as typed. */
+export const nameCase = (s) => { const v = String(s || '').trim(); return v === v.toLowerCase() ? v.replace(/(^|[\s'-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()) : v }
 
 /**
  * Clases on the website: pick Clase muestra · Clase suelta · 4 · 8 · 12 clases al mes (A tu medida asks instead),
@@ -62,7 +65,7 @@ export function Enroll({ data, onCustom }) {
     const e = check()
     if (Object.keys(e).length) { setErrors(e); return }
     setBusy(true)
-    const res = await enroll({ option, rider: { name: f.rider.trim(), age: f.age === '' ? null : Number(f.age) }, contact: f.contact.trim(), phone: f.phone.trim(), email: f.email.trim(), start: f.start, lang, website: f.website })
+    const res = await enroll({ option, rider: { name: nameCase(f.rider), age: f.age === '' ? null : Number(f.age) }, contact: nameCase(f.contact), phone: f.phone.trim(), email: f.email.trim(), start: f.start, lang, website: f.website })
     setBusy(false)
     if (!res.ok) { setErrors({ [FIELD_OF[res.code] || 'general']: t(`errors.${res.code}`) }); return }
     if (res.bot) { setDone('later'); setStep('done'); return }
@@ -132,18 +135,18 @@ export function Enroll({ data, onCustom }) {
   if (step === 'pay') {
     return (
       <div className="enroll" ref={top}>
-        <p className="enroll__chosen"><strong>{chosen?.name} · {f.rider.trim()}</strong> · {fmtMoney(order.amount)}</p>
+        <p className="enroll__chosen"><strong>{chosen?.name} · {nameCase(f.rider)}</strong> · {fmtMoney(order.amount)}</p>
         <PayStep order={order} card={card} lang={lang} bank={data?.bank} onDone={(how) => { setDone(how); setStep('done') }} />
       </div>
     )
   }
 
-  const first = f.contact.trim().split(/\s+/)[0]
+  const first = nameCase(f.contact).split(/\s+/)[0]
   return (
     <div className="cform__done enroll" ref={top} tabIndex={-1}>
       <span className="cform__check" aria-hidden="true"><SiteIcon name="check" size={28} /></span>
       <p className="cform__thanks">{t('site.enroll.doneTitle', { name: first })}</p>
-      <p className="slead">{t(done === 'receipt' ? 'site.enroll.transferDone' : 'site.enroll.laterDone')}</p>
+      <p className="slead">{t(done === 'receipt' ? 'site.enroll.transferDone' : done === 'club' ? 'site.enroll.clubDone' : 'site.enroll.laterDone')}</p>
       <p className="small">{t('site.enroll.appLine', { email: f.email.trim() })}{isClass ? ` ${t('site.enroll.startHint')}` : ''}</p>
       <div className="ssheet2__ctas">
         <AppButton>{t('site.enroll.appBtn')}</AppButton>
@@ -154,21 +157,23 @@ export function Enroll({ data, onCustom }) {
   )
 }
 
-/** Transferencia (bank details + the receipt) or Tarjeta (Mercado Pago, when it's on). */
+/**
+ * How to pay, as option cards (the same as the app's PayDialog): Transferencia (bank details + the receipt as a drop
+ * zone), Tarjeta (Mercado Pago; shown greyed with "Muy pronto" until the club's keys are in) or En el club ("Apartar
+ * mi lugar" marks the charge to be paid at the office). One mustard button per screen; the rest are cards and links.
+ */
 function PayStep({ order, card, lang, bank, onDone }) {
   const { t, fmtMoney } = useI18n()
   const [method, setMethod] = useState('transfer')
+  const [file, setFile] = useState(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   const [copied, setCopied] = useState(false)
-  const input = useRef(null)
   const clabe = bank?.clabe ? String(bank.clabe).replace(/\s+/g, '').replace(/(\d{4})(?=\d)/g, '$1 ') : null
   const copy = async () => { try { await navigator.clipboard.writeText(bank.clabe); setCopied(true); setTimeout(() => setCopied(false), 2000) } catch { /* ignore */ } }
-  const onFile = async (e) => {
-    const file = e.target.files?.[0]
-    e.target.value = ''
+  const pick = (f) => { if (f.size > RECEIPT_MAX) return setError(t('errors.fileTooBig')); setError(null); setFile(f) }
+  const send = async () => {
     if (!file) return
-    if (file.size > RECEIPT_MAX) return setError(t('errors.fileTooBig'))
     setBusy(true); setError(null)
     const res = await sendReceipt(order.payment_id, file)
     setBusy(false)
@@ -181,21 +186,24 @@ function PayStep({ order, card, lang, bank, onDone }) {
     if (!res.ok) { setBusy(false); return setError(t(`errors.${res.code}`)) }
     window.location.assign(res.url)
   }
+  const atClub = async () => {
+    setBusy(true); setError(null)
+    const res = await payAtClubWeb(order.payment_id)
+    setBusy(false)
+    if (!res.ok) return setError(t(`errors.${res.code}`))
+    onDone('club')
+  }
+  const methods = [
+    { key: 'transfer', title: t('site.enroll.transfer'), text: t('site.enroll.methodTransfer'), icon: <SiteIcon name="bank" size={22} /> },
+    { key: 'card', title: t('site.enroll.card'), text: t('site.enroll.methodCard'), icon: <SiteIcon name="card" size={22} />, disabled: !card, badge: card ? null : t('site.enroll.soon') },
+    { key: 'club', title: t('site.enroll.club'), text: t('site.enroll.methodClub'), icon: <SiteIcon name="home" size={22} /> },
+  ]
+  const busyLabel = (k) => <span className="sbtn__in">{busy && <span className="sspin" aria-hidden="true" />}{k}</span>
   return (
     <>
-      <p className="cfield"><span>{t('site.enroll.howPay')}</span></p>
-      <div className="cpills">
-        <button type="button" role="radio" aria-checked={method === 'transfer'} className={`cpill ${method === 'transfer' ? 'is-active' : ''}`} onClick={() => setMethod('transfer')}><SiteIcon name="check" size={18} /> {t('site.enroll.transfer')}</button>
-        {card && <button type="button" role="radio" aria-checked={method === 'card'} className={`cpill ${method === 'card' ? 'is-active' : ''}`} onClick={() => setMethod('card')}><SiteIcon name="card" size={18} /> {t('site.enroll.card')}</button>}
-      </div>
-      {method === 'card' ? (
-        <div className="enroll__box">
-          <p>{t('site.enroll.cardNote')}</p>
-          <button type="button" className={`sbtn sbtn--deep ${busy ? 'is-busy' : ''}`} disabled={busy} onClick={goCard}>
-            <span className="sbtn__in">{busy && <span className="sspin" aria-hidden="true" />}{t(busy ? 'site.enroll.cardWait' : 'site.enroll.cardGo')}</span>
-          </button>
-        </div>
-      ) : (
+      <p className="enroll__how">{t('site.enroll.howPay')}</p>
+      <MethodCards methods={methods} value={method} onChange={(m) => { setMethod(m); setError(null) }} label={t('site.enroll.howPay')} check={<SiteIcon name="check" size={14} />} />
+      {method === 'transfer' && (
         <div className="enroll__box">
           <p><strong>{t('site.enroll.transferTitle', { amount: fmtMoney(order.amount) })}</strong></p>
           {bank?.clabe ? (
@@ -206,14 +214,28 @@ function PayStep({ order, card, lang, bank, onDone }) {
             </dl>
           ) : <p className="small">{t('site.enroll.bankPending')}</p>}
           <p className="small">{t('site.enroll.concept', { ref: order.family_name })}</p>
-          <input ref={input} type="file" accept={ACCEPT} className="cform__hp" onChange={onFile} tabIndex={-1} />
-          <div className="ssheet2__ctas">
-            <button type="button" className={`sbtn sbtn--deep ${busy ? 'is-busy' : ''}`} disabled={busy} onClick={() => input.current?.click()}>
-              <span className="sbtn__in">{busy && <span className="sspin" aria-hidden="true" />}{t(busy ? 'site.enroll.uploading' : 'site.enroll.upload')}</span>
-            </button>
-            <button type="button" className="slinkarrow" onClick={() => onDone('later')}>{t('site.enroll.later')}</button>
+          <DropZone file={file} onFile={pick} accept={ACCEPT} disabled={busy} title={t('site.enroll.dropTitle')} hint={t('site.enroll.dropHint')} changeLabel={t('site.enroll.change')}
+            icon={<SiteIcon name="upload" size={26} />} fileIcon={<SiteIcon name="file" size={22} />} />
+          <div className="enroll__actions">
+            <button type="button" className={`sbtn sbtn--deep ${busy ? 'is-busy' : ''}`} disabled={busy || !file} onClick={send}>{busyLabel(t(busy ? 'site.enroll.sending' : 'site.enroll.send'))}</button>
+            <button type="button" className="tlink" onClick={() => onDone('later')}>{t('site.enroll.later')}</button>
           </div>
-          <p className="small">{t('site.enroll.formats')}</p>
+        </div>
+      )}
+      {method === 'card' && card && (
+        <div className="enroll__box">
+          <p>{t('site.enroll.cardNote')}</p>
+          <div className="enroll__actions">
+            <button type="button" className={`sbtn sbtn--deep ${busy ? 'is-busy' : ''}`} disabled={busy} onClick={goCard}>{busyLabel(t(busy ? 'site.enroll.cardWait' : 'site.enroll.cardPay', { amount: fmtMoney(order.amount) }))}</button>
+          </div>
+        </div>
+      )}
+      {method === 'club' && (
+        <div className="enroll__box">
+          <p>{t('site.enroll.clubLine')}</p>
+          <div className="enroll__actions">
+            <button type="button" className={`sbtn sbtn--deep ${busy ? 'is-busy' : ''}`} disabled={busy} onClick={atClub}>{busyLabel(t('site.enroll.clubBtn'))}</button>
+          </div>
         </div>
       )}
       {error && <small className="cform__err" role="alert">{error}</small>}

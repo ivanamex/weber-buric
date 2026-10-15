@@ -61,4 +61,18 @@ export async function sendReceipt(paymentId, file) {
   }
 }
 
+/** "Apartar mi lugar": the visitor will pay at the club; the charge shows "Paga en el club" in Cobros. */
+export async function payAtClubWeb(paymentId) {
+  if (!LIVE_CONFIGURED) {
+    const { webPayAtClub } = await import('../data/demo.js')
+    return webPayAtClub(paymentId)
+  }
+  try {
+    return (await post(`${URL}/rest/v1/rpc/web_pay_at_club`, { p_payment: paymentId }, headers)) || { ok: false, code: 'network' }
+  } catch (err) {
+    console.error('[enroll] pay at club failed', err.message)
+    return { ok: false, code: 'network' }
+  }
+}
+
 export { cardEnabled, cardCheckout } from '../lib/card.js'

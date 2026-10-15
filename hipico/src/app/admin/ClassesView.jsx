@@ -464,7 +464,7 @@ function WeekGrid({ days, onOpen, onAdd }) {
                   return (
                     <button key={sl.id} type="button" className={`wgrid__class level--${sl.level} ${cx ? 'is-cancelled' : ''} ${sl.active === false ? 'is-off' : ''}`} onClick={() => onOpen(sl, date)}>
                       <strong>{fmtTime(sl.time)}</strong> {t(`disciplines.${sl.discipline}`)}
-                      <span>{cx ? t('schedule.cancelledShort') : `${taken}/${sl.capacity}`}</span>
+                      <span>{cx ? t('schedule.cancelledShort') : t('schedule.gridTaken', { n: taken, cap: sl.capacity })}</span>
                     </button>
                   )
                 })}

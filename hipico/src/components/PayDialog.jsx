@@ -7,6 +7,7 @@ import { StatusPill, HorseAvatar } from './Colors.jsx'
 import { BankDetails, RECEIPT_ACCEPT, fmtClabe, hasBank } from './Transfer.jsx'
 import { concept } from './PaymentHistory.jsx'
 import { payByCard, useCardEnabled } from '../lib/card.js'
+import { DropZone, MethodCards } from './PayOptions.jsx'
 
 const METHOD_KEY = 'hipico.payMethod'
 const MAX_BYTES = 10 * 1024 * 1024
@@ -36,6 +37,7 @@ export function PayDialog({ paymentId, onClose }) {
   const p = byId(s.payments, paymentId)
   const family = byId(s.families, s.session?.familyId)
   const horse = p?.service === 'boarding' && p.meta?.horseId ? byId(s.horses, p.meta.horseId) : null
+  // Tarjeta always shows; before the club's Mercado Pago keys are in it is greyed with "Muy pronto" (the demo simulates it).
   const methods = ['transfer', ...(card ? ['card'] : []), 'club']
   const [method, setMethod] = useState(() => { const m = readMethod(); return methods.includes(m) ? m : 'transfer' })
   const [file, setFile] = useState(null)
@@ -44,7 +46,6 @@ export function PayDialog({ paymentId, onClose }) {
   const [result, setResult] = useState(null) // 'review' | 'paid' | 'club'
   const panel = useRef(null)
   const closeRef = useRef(null)
-  const input = useRef(null)
   const close = useRef(onClose)
   close.current = onClose
 
@@ -72,15 +73,12 @@ export function PayDialog({ paymentId, onClose }) {
   const copy = async (key, value) => {
     try { await navigator.clipboard.writeText(String(value)); setCopied(key); setTimeout(() => setCopied(null), 1800) } catch { toast(String(value), 'info') }
   }
-  const onFile = (e) => {
-    const f = e.target.files?.[0]
-    e.target.value = ''
-    if (!f) return
+  const onFile = (f) => {
     if (f.size > MAX_BYTES) return toast(t('errors.fileTooBig'), 'error')
     setFile(f)
   }
   const send = async () => {
-    if (!file) return input.current?.click()
+    if (!file) return
     setBusy(true)
     const res = await uploadReceipt(p.id, file)
     setBusy(false)
@@ -111,7 +109,11 @@ export function PayDialog({ paymentId, onClose }) {
   const statusPill = paid ? <StatusPill status="paid">{t('plan.paid')}</StatusPill>
     : waiting ? <StatusPill status="review">{t('receipt.status.review')}</StatusPill>
       : <StatusPill status={state === 'overdue' ? 'overdue' : state === 'today' ? 'pending' : 'neutral'}>{t(`familyDue.${state === 'later' ? 'soon' : state}`, { date: fmtDate(due, { day: 'numeric', month: 'short' }) })}</StatusPill>
-  const icons = { transfer: 'share', card: 'card', club: 'home' }
+  const cards = [
+    { key: 'transfer', title: t('pay.transfer'), text: t('pay.optTransfer'), icon: <Icon name="bank" size={22} /> },
+    { key: 'card', title: t('pay.card'), text: t('pay.optCard'), icon: <Icon name="card" size={22} />, disabled: !card, badge: card ? null : t('pay.soon') },
+    { key: 'club', title: t('pay.club'), text: t('pay.optClub'), icon: <Icon name="home" size={22} /> },
+  ]
   const shownResult = result || (paid ? 'paid' : null)
 
   return (
@@ -144,13 +146,7 @@ export function PayDialog({ paymentId, onClose }) {
         ) : (
           <>
             <p className="paydlg__how">{t('pay.how')}</p>
-            <div className="paydlg__methods" role="tablist" aria-label={t('pay.how')}>
-              {methods.map((m) => (
-                <button key={m} type="button" role="tab" aria-selected={method === m} className={`paydlg__method ${method === m ? 'is-active' : ''}`} onClick={() => pick(m)}>
-                  <Icon name={icons[m]} size={20} /> {t(`pay.${m}`)}
-                </button>
-              ))}
-            </div>
+            <MethodCards methods={cards} value={method} onChange={pick} label={t('pay.how')} check={<Icon name="check" size={14} />} />
 
             {method === 'transfer' && (
               <div className="paydlg__body">
@@ -169,18 +165,11 @@ export function PayDialog({ paymentId, onClose }) {
                 ) : (
                   <>
                     {p.receiptStatus === 'rejected' && <p className="transfer__note"><Icon name="alert" size={16} /> {p.receiptNote || t('pay.rejected')}</p>}
-                    <p className="paydlg__sub">{t('pay.uploadTitle')}</p>
-                    <input ref={input} id={`receipt-${p.id}`} type="file" accept={RECEIPT_ACCEPT} className="visually-hidden" onChange={onFile} />
-                    <div className="paydlg__file">
-                      <button type="button" className="btn btn--outline" onClick={() => input.current?.click()} disabled={busy}>
-                        <Icon name={file ? 'refresh' : 'share'} size={18} /> {t(file ? 'pay.changeFile' : 'pay.chooseFile')}
-                      </button>
-                      {file && <span className="small paydlg__filename">{file.name}</span>}
-                    </div>
+                    <DropZone file={file} onFile={onFile} accept={RECEIPT_ACCEPT} disabled={busy} title={t('pay.uploadTitle')} hint={t('pay.dropHint')} changeLabel={t('pay.change')}
+                      icon={<Icon name="upload" size={26} />} fileIcon={<Icon name="file" size={22} />} />
                     <button type="button" className="btn btn--primary btn--block" onClick={send} disabled={busy || !file}>
                       <Icon name="check" size={18} /> {busy ? t('pay.sending') : t('pay.send')}
                     </button>
-                    <p className="small muted center">{t('receipt.formats')}</p>
                   </>
                 )}
               </div>

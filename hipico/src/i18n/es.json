@@ -208,7 +208,7 @@
     "title": "Mi plan",
     "classesPlan": "Plan {n} clases",
     "usedOf": "{used} de {total} clases",
-    "shortUsed": "{used}/{total}",
+    "shortUsed": "{used} de {total} clases",
     "remaining": "Te quedan {n}",
     "expires": "Vence el {date}",
     "paid": "Pagado",
@@ -349,12 +349,17 @@
       "came": "Vino",
       "noshow": "No vino",
       "own": "propio",
-      "planOk": "Plan al corriente · quedan {n}",
+      "planOk": "Plan pagado · {n} clases restantes",
       "emptyTitle": "Sin clases confirmadas este día",
       "rule": "“Vino” y “No vino” cuentan la clase como usada.",
       "allCame": "Todos vinieron",
       "seeSchedule": "Ver horario",
-      "planOk_one": "Plan al corriente · queda 1"
+      "planOk_one": "Plan pagado · 1 clase restante",
+      "renew": "Renovar",
+      "seats": "{n} de {cap} lugares",
+      "seatsFree": "{n} libres",
+      "seatsFree_one": "1 libre",
+      "seatsFull": "Llena · {n} de {cap}"
     },
     "payments": {
       "title": "Cobros",
@@ -767,7 +772,8 @@
     "cancelRangeDone_one": "1 clase cancelada. Las familias ya lo ven.",
     "copyPreview_one": "Se copiará 1 clase.",
     "copyBtn_one": "Copiar 1 clase",
-    "copied_one": "1 clase copiada"
+    "copied_one": "1 clase copiada",
+    "gridTaken": "{n} de {cap} lugares"
   },
   "install": {
     "iphone": "Descargar para iPhone",
@@ -825,7 +831,7 @@
     "single": "Clase suelta",
     "extra": "Clase adicional",
     "tag": {
-      "plan": "Plan",
+      "plan": "Del plan",
       "trial": "Muestra",
       "single": "Suelta",
       "extra": "Adicional"
@@ -892,7 +898,7 @@
     "open": "Abrir",
     "more": "Más",
     "horsesDue": "Caballos: próximos pendientes",
-    "ridersN": "{n}/{cap} jinetes",
+    "ridersN": "{n} de {cap} lugares",
     "daysLate_one": "1 día de atraso",
     "tiles": {
       "reports": "Ingresos, ocupación y Excel",
@@ -1733,7 +1739,22 @@
         "phone": "Revisa el número: faltan dígitos.",
         "age": "Escribe una edad entre 2 y 99 años.",
         "date": "Elige una fecha de hoy en adelante."
-      }
+      },
+      "methodTransfer": "Desde tu banco, subes el comprobante",
+      "methodCard": "Crédito o débito con Mercado Pago",
+      "club": "En el club",
+      "methodClub": "Efectivo o tarjeta en la oficina",
+      "soon": "Muy pronto",
+      "dropTitle": "Sube tu comprobante",
+      "dropHint": "Foto o PDF · hasta 10 MB · toca o arrastra",
+      "change": "Cambiar",
+      "send": "Enviar comprobante",
+      "sending": "Enviando…",
+      "cardPay": "Pagar {amount} con tarjeta",
+      "cardSoon": "El pago con tarjeta llega muy pronto. Mientras tanto, paga por transferencia o en el club.",
+      "clubLine": "Paga en la oficina del club; tu lugar queda apartado.",
+      "clubBtn": "Apartar mi lugar",
+      "clubDone": "Tu lugar está apartado. Paga en la oficina del club; cuando el club lo registre, lo verás como Pagado en la app."
     },
     "pay": {
       "received": {
@@ -1858,6 +1879,12 @@
     "done": "Listo",
     "atClubTag": "Paga en el club",
     "pay": "Pagar",
-    "payDeposit": "Pagar anticipo"
+    "payDeposit": "Pagar anticipo",
+    "optTransfer": "Desde tu banco, subes el comprobante",
+    "optCard": "Crédito o débito con Mercado Pago",
+    "optClub": "Efectivo o tarjeta en la oficina",
+    "soon": "Muy pronto",
+    "dropHint": "Foto o PDF · hasta 10 MB · toca o arrastra",
+    "change": "Cambiar"
   }
 }
