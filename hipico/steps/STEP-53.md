@@ -7,4 +7,8 @@
    - **Payment methods:** card through **Mercado Pago** (needs the club's verified Mercado Pago account, still pending from Mara; until then the card option shows "Próximamente") and **transferencia** (shows the club's bank details + upload the receipt; it lands in Cobros → Por revisar, as in the app).
 3. **"Más información": two buttons, two different jobs:** **"Escríbenos por WhatsApp"** (opens WhatsApp with a ready message) and **"Envíanos un mensaje"** (opens the contact form dialog from STEP-52). The same pair in every service lightbox.
 
+4. **Footer band with the letter-horse (now only a horse on empty sand):** turn it into a small **course**. 3–4 show-jumping fences drawn in the same thin line style (posts + striped poles, numbered 1 · 2 · 3 like a course plan) spread across the band; the letter-horse **gallops along and jumps each fence** (a smooth arc over each one), then loops. A faint dotted course line on the ground connects the fences.
+   - **A slogan** above the course, big condensed type: **"Tu lugar feliz, a caballo."** (EN: "Your happy place, on horseback."), with the alternatives "Aquí los caballos son el plan." and "Un salto a la vez." listed in the report so Ivana can swap it in `content.js`.
+   - Reduced motion: the horse stands still at the start line, the fences and slogan stay.
+
 (more notes coming)
