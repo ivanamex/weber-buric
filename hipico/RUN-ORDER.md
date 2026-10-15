@@ -6,7 +6,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 1. **STEP-53** (website): hovers in mustard, choose and pay in the Clases lightbox (transfer now, Mercado Pago built and switched on by its keys), two info buttons (WhatsApp / message), footer course with the jumping horse and a slogan
 2. **STEP-54** (app): hovers in mustard, card payments wired, Pensión card in the grid (no lone blocks), Resumen tiles and figures clickable to their source
-3. **STEP-55**: the instruction video for Mara (script by chat Claude, recorded from `/demo`, Spanish voice-over)
+3. **STEP-55**: two video guides the El Árbol way (real recording, camera follows the action, Alejandro Garcia voice): "El club desde la app" (1920×1080) and "Clases en el Hípico" (vertical, for WhatsApp)
 4. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
