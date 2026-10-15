@@ -43,6 +43,18 @@ Today the card shows only the labels Banco, Titular and CLABE with nothing next 
 - The current Editar looks like it's missing its CSS: an unstyled outline pill, out of line with the text. Find why (a class name that has no style, or a style that's in a file not loaded on that page), give it the app's button class and size (44 px), and check the other cards in Cobros and Ajustes for the same bug.
 - Check what the family sees in the transfer panel and the website's Transferencia step when the details are empty: the same "El club te enviará los datos para pagar" line, never empty labels.
 
+## Hover everywhere: one sweep, not screenshot by screenshot
+Ivana keeps finding elements with no hover (latest: the Nuevos · Contestados · Todos tabs in Mensajes). Find them all at once:
+1. **Audit script** (scratchpad, not committed): Playwright at 1440×900 on `/demo?reset=1`, both roles. Visit every route of Familia and Dirección, every tab and open sheet, plus `/`, `/en` and `/descargar`. Collect every interactive element: `button`, `a[href]`, `[role=tab|button|link|option|switch]`, `summary`, `label` wrapping a control, `[tabindex="0"]`, clickable table rows and cards.
+2. For each one, read its computed style (background, color, border, box-shadow, transform, text-decoration, outline). Hover it, read again, and list every element where **nothing changes**.
+3. Fix them all with the existing tokens:
+   - unselected segmented tabs (`--mg-soft`), with a mustard tint fill and olivewood text;
+   - the selected tab, which keeps its white pill and only gets the pointer;
+   - pills, chips, icon buttons, rows, cards and links: `--mg` / `--mg-soft` as in STEP-54.
+   - Pointer cursor on all of them, and `:focus-visible` matching the hover for the keyboard.
+4. Re-run the audit until the list is empty, except disabled elements. Put the before and after counts and the elements fixed (by screen) in the report.
+- Add the audit as `npm run check:hover` (`scripts/hover-audit.mjs`), so every future step can run it before pushing. Add one line to `steps/README.md`: "Run `npm run check:hover`; a new interactive element without hover is a bug."
+
 ## Same order elsewhere
 Apply the same rows (tabs row, then filter row, with the same spacing) to the other desktop pages that have tabs plus filter pills: Familias, Caballos and Mensajes, if their rows run into each other too.
 
