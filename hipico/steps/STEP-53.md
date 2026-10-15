@@ -16,4 +16,6 @@
    - **A slogan** above the course, big condensed type: **"Tu lugar feliz, a caballo."** (EN: "Your happy place, on horseback."), with the alternatives "Aquí los caballos son el plan." and "Un salto a la vez." listed in the report so Ivana can swap it in `content.js`.
    - Reduced motion: the horse stands still at the start line, the fences and slogan stay.
 
+5. **App Inicio (family, desktop): the Pensión block sits alone in the bottom-right corner** with the whole left side empty. Put it in the grid: the **Pensión card spans the full content width** (or takes the left column next to another card), with the horse's photo, "Pensión de octubre · $9,500", the status pill and **"Pagar pensión" as a mustard glass button inside the card** (not floating under it). Rule for every page of the app: no lone block in a corner; cards fill the 2-column grid from the left, and a single card spans the full width.
+
 (more notes coming)
