@@ -76,11 +76,19 @@ export default function Landing() {
   const { t } = useI18n()
   const root = useRef(null)
   useScrollEffects(root)
+  // The header is transparent only at the very top; past 8 px it turns olivewood glass.
+  const [solid, setSolid] = useState(false)
+  useEffect(() => {
+    const on = () => setSolid(window.scrollY > 8)
+    on()
+    window.addEventListener('scroll', on, { passive: true })
+    return () => window.removeEventListener('scroll', on)
+  }, [])
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
   return (
     <div className="landing" ref={root}>
-      <header className="lheader">
+      <header className={`lheader ${solid ? 'is-solid' : ''}`}>
         <div className="container lheader__inner">
           <Link to="/" className="applogo" aria-label="Hípico Riviera Maya"><Logo light compact /></Link>
           <div className="lheader__actions">
@@ -108,7 +116,7 @@ export default function Landing() {
               <Link to="/app" className="btn btn--accent btn--lg">
                 {t('landing.ctaOpen')} <Icon name="arrowRight" size={20} className="nudge" />
               </Link>
-              <button type="button" className="btn btn--ghost-light btn--lg" onClick={() => scrollTo('features')}>
+              <button type="button" className="btn btn--sage btn--lg" onClick={() => scrollTo('features')}>
                 {t('landing.ctaHow')} <Icon name="arrowDown" size={20} className="nudge nudge--down" />
               </button>
             </div>

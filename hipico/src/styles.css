@@ -91,9 +91,6 @@ p.center { display: block; }
   -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 8px 24px rgba(0, 0, 0, .16);
 }
-:is(.hero, .lheader, .closing, .pband, .lfooter, .card--green, .appbar, .homehead) :is(.btn--primary, .btn--accent, .dlbtn.is-yours):is(:hover, :active) {
-  background: rgba(255, 255, 255, .28); border-color: rgba(255, 255, 255, .7);
-}
 .btn--outline { background: transparent; border-color: var(--accent-strong); color: var(--green-dark); }
 .btn--outline:hover { background: var(--accent-soft); }
 .btn--ghost-light { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.35); color: #fff; }
@@ -129,7 +126,10 @@ p.center { display: block; }
 /* ───────── Landing ───────── */
 .landing { background: var(--cream); overflow-x: clip; }
 .app, .login { overflow-x: clip; }
-.lheader { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--green-dark) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.lheader { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: transparent; transition: background .3s ease; }
+/* like the site bar: transparent only at the very top, olivewood glass as soon as the page scrolls */
+.lheader.is-solid { background: rgba(43, 45, 35, .72); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); }
+.landing > .hero { padding-top: calc(44px + 66px); }
 .lheader__inner { display: flex; align-items: center; justify-content: space-between; height: 66px; gap: 12px; }
 .lheader__actions { display: flex; align-items: center; gap: 10px; }
 
@@ -314,6 +314,7 @@ p.center { display: block; }
 
 @media (min-width: 760px) {
   .hero { padding: 64px 0 56px; }
+  .landing > .hero { padding-top: calc(64px + 66px); }
   .steps { grid-template-columns: repeat(3, 1fr); }
   .features { grid-template-columns: repeat(2, 1fr); }
 }
@@ -1845,3 +1846,14 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .horsetag__name { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .ownpill { font-style: normal; font-size: .68rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--sage-t); color: var(--sage-i); }
 @media (hover: hover) { .duegroups--desk .duegroup.is-empty:hover, .duegroups--desk .duegroup--later:hover { box-shadow: 0 14px 28px -18px rgba(51, 53, 42, .4); } }
+
+/* /descargar on the three hover levels */
+@media (hover: hover) {
+  .lheader__login:hover { text-decoration: none; }
+  .lang button:hover:not(.is-active) { background-color: var(--hover-soft); color: var(--ink); box-shadow: inset 0 0 0 1px var(--hover-line); }
+  .lang--light button:hover:not(.is-active) { background-color: rgba(217, 164, 65, .22); color: #fff; box-shadow: inset 0 0 0 1px rgba(233, 194, 122, .6); }
+  .feature:hover .feature__icon { background: var(--ct); color: var(--ci); }
+  :is(.hero, .closing) .dlbtn:not(.is-yours):hover { background-color: color-mix(in srgb, var(--mustard) 14%, var(--card)); }
+  .hero .btn--sage:hover:not(:disabled) { filter: brightness(1.08) saturate(1.05); }
+}
+.lang button:focus-visible { outline: 2px solid var(--mustard); outline-offset: 2px; }
