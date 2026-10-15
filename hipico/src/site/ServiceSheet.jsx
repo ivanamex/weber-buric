@@ -15,7 +15,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([t
  * The website's lightbox: photo on the left, content on the right (stacked and scrolling inside on phones).
  * Esc and the close button close it; Tab stays inside while it's open.
  */
-export function SiteDialog({ photo, alt, position, labelledBy, onClose, children }) {
+export function SiteDialog({ photo, alt, position, labelledBy, onClose, children, variant }) {
   const { t } = useI18n()
   const panel = useRef(null)
   const closeBtn = useRef(null)
@@ -38,7 +38,7 @@ export function SiteDialog({ photo, alt, position, labelledBy, onClose, children
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prev; before?.focus?.() }
   }, [onClose])
   return createPortal(
-    <div className="ssheet2" role="dialog" aria-modal="true" aria-labelledby={labelledBy}>
+    <div className={`ssheet2 ${variant ? `ssheet2--${variant}` : ''}`} role="dialog" aria-modal="true" aria-labelledby={labelledBy}>
       <button type="button" className="ssheet2__scrim" aria-hidden="true" tabIndex={-1} onClick={onClose} />
       <div className="ssheet2__panel" ref={panel}>
         <button ref={closeBtn} type="button" className="ssheet2__close" aria-label={t('site.sheet.close')} onClick={onClose}><SiteIcon name="x" size={22} /></button>
@@ -71,10 +71,7 @@ export function ServiceSheet({ service, onClose }) {
   let body
   if (service.key === 'classes') {
     body = (
-      <>
-        <Enroll data={data} onCustom={() => write('custom')} />
-        {info}
-      </>
+      <Enroll data={data} onCustom={() => write('custom')} info={info} />
     )
   } else if (service.key === 'boarding') {
     body = (
@@ -105,13 +102,13 @@ export function ServiceSheet({ service, onClose }) {
   }
 
   return (
-    <SiteDialog photo={service.photo} alt={service.alt} position={service.position} labelledBy="ssheet2-title" onClose={onClose}>
+    <SiteDialog photo={service.photo} alt={service.alt} position={service.position} labelledBy="ssheet2-title" onClose={onClose} variant={service.key === 'classes' ? 'classes' : null}>
       {writing ? (
         <div key="form" className="ssheet2__body ssheet2__body--in">
           <ContactForm service={service.key} prefill={writing === 'custom' ? t('site.contact.customPrefill') : null} titleId="ssheet2-title" onBack={() => setWriting(false)} />
         </div>
       ) : (
-        <div key="info" className={`ssheet2__body ${back ? 'ssheet2__body--back' : ''}`}>
+        <div key="info" className={`ssheet2__body ${service.key === 'classes' ? 'ssheet2__body--enroll' : ''} ${back ? 'ssheet2__body--back' : ''}`}>
           <h2 id="ssheet2-title" className="kinetic is-in">{t(`site.sheet.${service.key}.title`)}</h2>
           <p className="slead">{t(`site.sheet.${service.key}.text`)}</p>
           {body}

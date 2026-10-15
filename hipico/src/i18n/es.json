@@ -1604,7 +1604,7 @@
       "write": "Escríbenos",
       "classes": {
         "title": "Clases",
-        "text": "De principiante a avanzado, por edad y nivel, desde los 2 años. Eliges tu plan y confirmas tus clases desde la app.",
+        "text": "De principiante a avanzado, desde los 2 años.",
         "trial": "Clase muestra",
         "trialNote": "Para conocer el club",
         "plans": "{list} clases al mes",
@@ -1692,14 +1692,10 @@
       "title": "¿Dudas?"
     },
     "enroll": {
-      "pick": "Elige una opción y paga en línea",
-      "customHint": "Cuéntanos días, horarios y nivel, y armamos tu plan.",
       "popular": "Más elegido",
       "perClass": "{price} por clase",
       "continue": "Continuar",
-      "request": "Pedir mi plan",
       "back": "Volver",
-      "chosen": "Elegiste: {option}",
       "riderName": "Nombre del jinete",
       "riderAge": "Edad",
       "contact": "Nombre de mamá, papá o tutor",
@@ -1754,7 +1750,24 @@
       "cardSoon": "El pago con tarjeta llega muy pronto. Mientras tanto, paga por transferencia o en el club.",
       "clubLine": "Paga en la oficina del club; tu lugar queda apartado.",
       "clubBtn": "Apartar mi lugar",
-      "clubDone": "Tu lugar está apartado. Paga en la oficina del club; cuando el club lo registre, lo verás como Pagado en la app."
+      "clubDone": "Tu lugar está apartado. Paga en la oficina del club; cuando el club lo registre, lo verás como Pagado en la app.",
+      "tabPlan": "Plan mensual",
+      "tabSingle": "Sin plan",
+      "howMany": "¿Cuántas clases al mes?",
+      "perWeek": "{n} por semana",
+      "planLine1": "{n} clases por semana, tú eliges día y hora en la app",
+      "planLine1_one": "1 clase por semana, tú eliges día y hora en la app",
+      "planLine2": "El plan corre de fecha a fecha",
+      "planLine3": "Si cancelas a tiempo, la clase regresa",
+      "save": "Ahorras {pct}% vs. clase suelta",
+      "singleLabel": "Una clase, sin plan",
+      "trialName": "Clase muestra",
+      "trialNote": "Para conocer el club · una por jinete",
+      "singleName": "Clase suelta",
+      "singleNote": "Cuando quieras, sin plan",
+      "customAsk": "¿Necesitas días u horarios a tu medida?",
+      "customLink": "Escríbenos →",
+      "youChose": "Elegiste"
     },
     "pay": {
       "received": {

@@ -15,38 +15,45 @@ const FIELD_OF = { missing: 'contact', badEmail: 'email', badPhone: 'phone' }
 export const nameCase = (s) => { const v = String(s || '').trim(); return v === v.toLowerCase() ? v.replace(/(^|[\s'-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()) : v }
 
 /**
- * Clases on the website: pick Clase muestra · Clase suelta · 4 · 8 · 12 clases al mes (A tu medida asks instead),
- * give the rider's and the parent's details, then pay by transfer (receipt → Cobros → Por revisar) or by card
- * (Mercado Pago, only when the club's keys are in). The family then enters the app with that email.
+ * Clases on the website, as in the approved draft: Plan mensual (4 · 8 · 12 cards, 8 preselected, a summary card with
+ * the price per class and the saving worked out from the live prices) or Sin plan (Clase muestra · Clase suelta),
+ * "A tu medida" as a link to the contact form; then the rider's and the parent's details, then the payment
+ * (transfer with the receipt, card when the club's keys are in, or at the club). One footer stays at the bottom of
+ * the sheet through the three steps: what was chosen on the left, the one main button on the right.
  */
-export function Enroll({ data, onCustom }) {
+export function Enroll({ data, onCustom, info }) {
   const { t, fmtMoney, fmtDate, lang } = useI18n()
   const [step, setStep] = useState('pick') // pick → form → pay → done
-  const [option, setOption] = useState(null)
+  const [tab, setTab] = useState('plan') // plan | single
+  const [planN, setPlanN] = useState(8)
+  const [single, setSingle] = useState('trial')
   const [f, setF] = useState({ rider: '', age: '', contact: '', phone: '', email: '', start: todayKey(), website: '' })
   const [errors, setErrors] = useState({})
   const [busy, setBusy] = useState(false)
   const [order, setOrder] = useState(null) // the charge: { payment_id, amount, family_name, … }
   const [card, setCard] = useState(false)
-  const [done, setDone] = useState(null) // 'receipt' | 'later'
+  const [done, setDone] = useState(null) // 'receipt' | 'later' | 'club'
   const top = useRef(null)
   useEffect(() => { top.current?.scrollIntoView?.({ block: 'nearest' }) }, [step])
   useEffect(() => { if (step === 'pay') cardEnabled().then(setCard) }, [step])
 
   const prices = data?.prices || {}
-  const plans = planList(prices)
+  const listed = planList(prices)
+  const plans = listed.length ? listed : [4, 8, 12].map((classes) => ({ classes, price: 0 }))
+  const plan = plans.find((p) => p.classes === planN) || plans[Math.min(1, plans.length - 1)]
   const price = (n) => (n > 0 ? fmtMoney(n) : t('site.sheet.ask'))
-  const options = [
-    { key: 'trial', name: t('site.sheet.classes.trial'), note: t('site.sheet.classes.trialNote'), amount: prices.class_trial },
-    { key: 'single', name: t('site.sheet.classes.single'), note: t('site.sheet.classes.singleNote'), amount: prices.class_single },
-    ...(plans.length ? plans : [4, 8, 12].map((classes) => ({ classes, price: 0 }))).map((p) => ({
-      key: String(p.classes), name: t('site.sheet.classes.plan', { n: p.classes }), note: p.price ? t('site.enroll.perClass', { price: fmtMoney(Math.round(p.price / p.classes)) }) : t('site.sheet.classes.plansNote'),
-      amount: p.price, popular: p.classes === 8,
-    })),
-    { key: 'custom', name: t('site.sheet.classes.custom'), note: t('site.sheet.classes.customNote'), amount: null, ask: true },
+  const singles = [
+    { key: 'trial', name: t('site.enroll.trialName'), note: t('site.enroll.trialNote'), amount: prices.class_trial },
+    { key: 'single', name: t('site.enroll.singleName'), note: t('site.enroll.singleNote'), amount: prices.class_single },
   ]
-  const chosen = options.find((o) => o.key === option)
-  const isClass = option === 'trial' || option === 'single'
+  const option = tab === 'plan' ? String(plan.classes) : single
+  const chosen = tab === 'plan'
+    ? { name: t('site.sheet.classes.plan', { n: plan.classes }), amount: plan.price }
+    : singles.find((o) => o.key === single)
+  const isClass = tab === 'single'
+  // The price per class and the saving against a single class, from the live prices.
+  const each = plan.price > 0 ? plan.price / plan.classes : 0
+  const saving = each > 0 && prices.class_single > 0 ? Math.round((1 - each / prices.class_single) * 100) : 0
 
   const set = (k) => (e) => { setF({ ...f, [k]: e.target.value }); if (errors[k] || errors.general) setErrors({}) }
   const check = () => {
@@ -72,37 +79,83 @@ export function Enroll({ data, onCustom }) {
     setOrder(res)
     setStep('pay')
   }
-  const reset = () => { setStep('pick'); setOption(null); setOrder(null); setDone(null); setErrors({}); setF({ ...f, rider: '', age: '', website: '' }) }
+  const reset = () => { setStep('pick'); setOrder(null); setDone(null); setErrors({}); setF({ ...f, rider: '', age: '', website: '' }) }
   const Err = ({ k }) => (errors[k] ? <small className="cform__err" role="alert">{errors[k]}</small> : null)
+  const summary = (amount = chosen?.amount) => `${chosen?.name} · ${price(amount)}`
+  const arrow = <span className="efoot__arrow" aria-hidden="true">→</span>
 
   if (step === 'pick') {
     return (
-      <div className="enroll" ref={top}>
-        <p className="enroll__lead">{t('site.enroll.pick')}</p>
-        <div className="enroll__options" role="radiogroup" aria-label={t('site.enroll.pick')}>
-          {options.map((o) => (
-            <button key={o.key} type="button" role="radio" aria-checked={option === o.key} className={`eopt ${option === o.key ? 'is-active' : ''}`} onClick={() => setOption(o.key)}>
-              <span className="eopt__name">{o.name}{o.popular && <em className="eopt__tag">{t('site.enroll.popular')}</em>}</span>
-              <span className="eopt__note">{o.note}</span>
-              <span className="eopt__price">{o.ask ? t('site.sheet.ask') : price(o.amount)}</span>
-            </button>
-          ))}
+      <>
+        <div className="enroll enroll--pick" ref={top}>
+          <div className="etabs" role="tablist" aria-label={t('site.sheet.classes.title')}>
+            {['plan', 'single'].map((k) => (
+              <button key={k} type="button" role="tab" aria-selected={tab === k} className={`etab ${tab === k ? 'is-on' : ''}`} onClick={() => setTab(k)}>
+                {t(k === 'plan' ? 'site.enroll.tabPlan' : 'site.enroll.tabSingle')}
+              </button>
+            ))}
+          </div>
+          {tab === 'plan' ? (
+            <div className="epane" role="tabpanel">
+              <p className="elabel" id="enroll-howmany">{t('site.enroll.howMany')}</p>
+              <div className="eplans" role="radiogroup" aria-labelledby="enroll-howmany">
+                {plans.map((p) => (
+                  <button key={p.classes} type="button" role="radio" aria-checked={plan.classes === p.classes} className={`eplan ${plan.classes === p.classes ? 'is-on' : ''}`} onClick={() => setPlanN(p.classes)}>
+                    {p.classes === 8 && <em className="eplan__tag">{t('site.enroll.popular')}</em>}
+                    <b>{p.classes}</b>
+                    <span>{t('site.enroll.perWeek', { n: Math.max(1, Math.round(p.classes / 4)) })}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="esum">
+                {/* Every plan's text sits in the same cell (only the chosen one visible), so the card keeps its height. */}
+                <div className="esum__text">
+                  {plans.map((p) => (
+                    <div key={p.classes} className={p === plan ? '' : 'is-ghost'} aria-hidden={p === plan ? undefined : 'true'}>
+                      <p className="esum__title">{t('site.sheet.classes.plan', { n: p.classes })}</p>
+                      <ul className="esum__list">
+                        <li>{t('site.enroll.planLine1', { n: Math.max(1, Math.round(p.classes / 4)) })}</li>
+                        <li>{t('site.enroll.planLine2')}</li>
+                        <li>{t('site.enroll.planLine3')}</li>
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+                <div className="esum__price">
+                  <b>{price(plan.price)}</b>
+                  {each > 0 && <span>{t('site.enroll.perClass', { price: fmtMoney(Math.round(each)) })}</span>}
+                  {saving > 0 && <em className="esum__save">{t('site.enroll.save', { pct: saving })}</em>}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="epane" role="tabpanel">
+              <p className="elabel" id="enroll-single">{t('site.enroll.singleLabel')}</p>
+              <div className="erows" role="radiogroup" aria-labelledby="enroll-single">
+                {singles.map((o) => (
+                  <button key={o.key} type="button" role="radio" aria-checked={single === o.key} className={`erow ${single === o.key ? 'is-on' : ''}`} onClick={() => setSingle(o.key)}>
+                    <span className="erow__radio" aria-hidden="true" />
+                    <span className="erow__text"><b>{o.name}</b><span>{o.note}</span></span>
+                    <span className="erow__price">{price(o.amount)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="ecustom">{t('site.enroll.customAsk')} <button type="button" className="tlink" onClick={onCustom}>{t('site.enroll.customLink')}</button></p>
+          <div className="eduds">{info}</div>
         </div>
-        {option === 'custom' && <p className="small enroll__hint">{t('site.enroll.customHint')}</p>}
-        <div className="ssheet2__ctas">
-          {option === 'custom'
-            ? <button type="button" className="sbtn sbtn--deep" onClick={onCustom}>{t('site.enroll.request')}</button>
-            : <button type="button" className="sbtn sbtn--deep" disabled={!option} onClick={() => setStep('form')}>{t('site.enroll.continue')}</button>}
-        </div>
-      </div>
+        <EnrollFoot label={t('site.enroll.youChose')} what={summary()}>
+          <button type="button" className="sbtn sbtn--deep efoot__btn" onClick={() => setStep('form')}>{t('site.enroll.continue')} {arrow}</button>
+        </EnrollFoot>
+      </>
     )
   }
 
   if (step === 'form') {
     return (
-      <form className="cform enroll" ref={top} onSubmit={submit} noValidate>
+      <form className="cform enroll enroll--form" ref={top} onSubmit={submit} noValidate>
         <button type="button" className="sback" onClick={() => setStep('pick')}><span aria-hidden="true">←</span> {t('site.enroll.back')}</button>
-        <p className="enroll__chosen"><strong>{t('site.enroll.chosen', { option: chosen?.name })}</strong> · {price(chosen?.amount)}</p>
         <div className="cform__pair cform__pair--age">
           <label className="cfield"><span>{t('site.enroll.riderName')}</span>
             <input name="rider" autoComplete="off" value={f.rider} onChange={set('rider')} aria-invalid={Boolean(errors.rider)} /><Err k="rider" /></label>
@@ -122,22 +175,21 @@ export function Enroll({ data, onCustom }) {
           <DateField name="start" min={todayKey()} value={f.start} onChange={set('start')} invalid={Boolean(errors.start)} /><Err k="start" />
           {isClass && !errors.start && <small className="cform__hint">{t('site.enroll.startHint')}</small>}</label>
         <div className="cform__hp" aria-hidden="true"><label>{t('site.contact.website')}<input name="website" tabIndex={-1} autoComplete="off" value={f.website} onChange={set('website')} /></label></div>
-        <div className="cform__foot">
-          <button type="submit" className={`sbtn sbtn--deep ${busy ? 'is-busy' : ''}`} disabled={busy} aria-busy={busy}>
+        {errors.general && <small className="cform__err" role="alert">{errors.general}</small>}
+        <EnrollFoot label={t('site.enroll.youChose')} what={summary()}>
+          <button type="submit" className={`sbtn sbtn--deep efoot__btn ${busy ? 'is-busy' : ''}`} disabled={busy} aria-busy={busy}>
             <span className="sbtn__in">{busy && <span className="sspin" aria-hidden="true" />}{t(busy ? 'site.enroll.paying' : 'site.enroll.pay', { amount: price(chosen?.amount) })}</span>
           </button>
-          {errors.general && <small className="cform__err" role="alert">{errors.general}</small>}
-        </div>
+        </EnrollFoot>
       </form>
     )
   }
 
   if (step === 'pay') {
     return (
-      <div className="enroll" ref={top}>
-        <p className="enroll__chosen"><strong>{chosen?.name} · {nameCase(f.rider)}</strong> · {fmtMoney(order.amount)}</p>
-        <PayStep order={order} card={card} lang={lang} bank={data?.bank} onDone={(how) => { setDone(how); setStep('done') }} />
-      </div>
+      <PayStep order={order} card={card} lang={lang} bank={data?.bank} top={top}
+        foot={(button) => <EnrollFoot label={t('site.enroll.youChose')} what={summary(order.amount)}>{button}</EnrollFoot>}
+        onDone={(how) => { setDone(how); setStep('done') }} />
     )
   }
 
@@ -157,12 +209,22 @@ export function Enroll({ data, onCustom }) {
   )
 }
 
+/** The sheet's footer through the three steps: "Elegiste" + the option and price, the main button on the right. */
+function EnrollFoot({ label, what, children }) {
+  return (
+    <div className="efoot">
+      <p className="efoot__what"><span>{label}</span><b>{what}</b></p>
+      {children}
+    </div>
+  )
+}
+
 /**
  * How to pay, as option cards (the same as the app's PayDialog): Transferencia (bank details + the receipt as a drop
  * zone), Tarjeta (Mercado Pago; shown greyed with "Muy pronto" until the club's keys are in) or En el club ("Apartar
  * mi lugar" marks the charge to be paid at the office). One mustard button per screen; the rest are cards and links.
  */
-function PayStep({ order, card, lang, bank, onDone }) {
+function PayStep({ order, card, lang, bank, onDone, foot, top }) {
   const { t, fmtMoney } = useI18n()
   const [method, setMethod] = useState('transfer')
   const [file, setFile] = useState(null)
@@ -199,46 +261,37 @@ function PayStep({ order, card, lang, bank, onDone }) {
     { key: 'club', title: t('site.enroll.club'), text: t('site.enroll.methodClub'), icon: <SiteIcon name="home" size={22} /> },
   ]
   const busyLabel = (k) => <span className="sbtn__in">{busy && <span className="sspin" aria-hidden="true" />}{k}</span>
+  const main = method === 'transfer'
+    ? <button type="button" className={`sbtn sbtn--deep efoot__btn ${busy ? 'is-busy' : ''}`} disabled={busy || !file} onClick={send}>{busyLabel(t(busy ? 'site.enroll.sending' : 'site.enroll.send'))}</button>
+    : method === 'card'
+      ? <button type="button" className={`sbtn sbtn--deep efoot__btn ${busy ? 'is-busy' : ''}`} disabled={busy} onClick={goCard}>{busyLabel(t(busy ? 'site.enroll.cardWait' : 'site.enroll.cardPay', { amount: fmtMoney(order.amount) }))}</button>
+      : <button type="button" className={`sbtn sbtn--deep efoot__btn ${busy ? 'is-busy' : ''}`} disabled={busy} onClick={atClub}>{busyLabel(t('site.enroll.clubBtn'))}</button>
   return (
     <>
-      <p className="enroll__how">{t('site.enroll.howPay')}</p>
-      <MethodCards methods={methods} value={method} onChange={(m) => { setMethod(m); setError(null) }} label={t('site.enroll.howPay')} check={<SiteIcon name="check" size={14} />} />
-      {method === 'transfer' && (
-        <div className="enroll__box">
-          <p><strong>{t('site.enroll.transferTitle', { amount: fmtMoney(order.amount) })}</strong></p>
-          {bank?.clabe ? (
-            <dl className="ebank">
-              {bank.bankName && <><dt>{t('receipt.bank')}</dt><dd>{bank.bankName}</dd></>}
-              {bank.accountHolder && <><dt>{t('receipt.holder')}</dt><dd>{bank.accountHolder}</dd></>}
-              <dt>CLABE</dt><dd className="ebank__clabe">{clabe} <button type="button" className="ebank__copy" onClick={copy}>{t(copied ? 'site.enroll.copied' : 'site.enroll.copy')}</button></dd>
-            </dl>
-          ) : <p className="small">{t('site.enroll.bankPending')}</p>}
-          <p className="small">{t('site.enroll.concept', { ref: order.family_name })}</p>
-          <DropZone file={file} onFile={pick} accept={ACCEPT} disabled={busy} title={t('site.enroll.dropTitle')} hint={t('site.enroll.dropHint')} changeLabel={t('site.enroll.change')}
-            icon={<SiteIcon name="upload" size={26} />} fileIcon={<SiteIcon name="file" size={22} />} />
-          <div className="enroll__actions">
-            <button type="button" className={`sbtn sbtn--deep ${busy ? 'is-busy' : ''}`} disabled={busy || !file} onClick={send}>{busyLabel(t(busy ? 'site.enroll.sending' : 'site.enroll.send'))}</button>
-            <button type="button" className="tlink" onClick={() => onDone('later')}>{t('site.enroll.later')}</button>
+      <div className="enroll enroll--pay" ref={top}>
+        <p className="enroll__how">{t('site.enroll.howPay')}</p>
+        <MethodCards methods={methods} value={method} onChange={(m) => { setMethod(m); setError(null) }} label={t('site.enroll.howPay')} check={<SiteIcon name="check" size={14} />} />
+        {method === 'transfer' && (
+          <div className="enroll__box">
+            <p><strong>{t('site.enroll.transferTitle', { amount: fmtMoney(order.amount) })}</strong></p>
+            {bank?.clabe ? (
+              <dl className="ebank">
+                {bank.bankName && <><dt>{t('receipt.bank')}</dt><dd>{bank.bankName}</dd></>}
+                {bank.accountHolder && <><dt>{t('receipt.holder')}</dt><dd>{bank.accountHolder}</dd></>}
+                <dt>CLABE</dt><dd className="ebank__clabe">{clabe} <button type="button" className="ebank__copy" onClick={copy}>{t(copied ? 'site.enroll.copied' : 'site.enroll.copy')}</button></dd>
+              </dl>
+            ) : <p className="small">{t('site.enroll.bankPending')}</p>}
+            <p className="small">{t('site.enroll.concept', { ref: order.family_name })}</p>
+            <DropZone file={file} onFile={pick} accept={ACCEPT} disabled={busy} title={t('site.enroll.dropTitle')} hint={t('site.enroll.dropHint')} changeLabel={t('site.enroll.change')}
+              icon={<SiteIcon name="upload" size={26} />} fileIcon={<SiteIcon name="file" size={22} />} />
+            <button type="button" className="tlink enroll__later" onClick={() => onDone('later')}>{t('site.enroll.later')}</button>
           </div>
-        </div>
-      )}
-      {method === 'card' && card && (
-        <div className="enroll__box">
-          <p>{t('site.enroll.cardNote')}</p>
-          <div className="enroll__actions">
-            <button type="button" className={`sbtn sbtn--deep ${busy ? 'is-busy' : ''}`} disabled={busy} onClick={goCard}>{busyLabel(t(busy ? 'site.enroll.cardWait' : 'site.enroll.cardPay', { amount: fmtMoney(order.amount) }))}</button>
-          </div>
-        </div>
-      )}
-      {method === 'club' && (
-        <div className="enroll__box">
-          <p>{t('site.enroll.clubLine')}</p>
-          <div className="enroll__actions">
-            <button type="button" className={`sbtn sbtn--deep ${busy ? 'is-busy' : ''}`} disabled={busy} onClick={atClub}>{busyLabel(t('site.enroll.clubBtn'))}</button>
-          </div>
-        </div>
-      )}
-      {error && <small className="cform__err" role="alert">{error}</small>}
+        )}
+        {method === 'card' && card && <div className="enroll__box"><p>{t('site.enroll.cardNote')}</p></div>}
+        {method === 'club' && <div className="enroll__box"><p>{t('site.enroll.clubLine')}</p></div>}
+        {error && <small className="cform__err" role="alert">{error}</small>}
+      </div>
+      {foot(main)}
     </>
   )
 }

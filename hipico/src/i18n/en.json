@@ -1604,7 +1604,7 @@
       "write": "Message us",
       "classes": {
         "title": "Lessons",
-        "text": "Beginner to advanced, by age and level, from age 2. Choose your plan and confirm your lessons in the app.",
+        "text": "Beginner to advanced, from age 2.",
         "trial": "Trial lesson",
         "trialNote": "To get to know the club",
         "plans": "{list} lessons a month",
@@ -1692,14 +1692,10 @@
       "title": "Questions?"
     },
     "enroll": {
-      "pick": "Pick an option and pay online",
-      "customHint": "Tell us your days, times and level, and we'll put your plan together.",
-      "popular": "Most popular",
+      "popular": "Most chosen",
       "perClass": "{price} per class",
       "continue": "Continue",
-      "request": "Request my plan",
       "back": "Back",
-      "chosen": "You chose: {option}",
       "riderName": "Rider's name",
       "riderAge": "Age",
       "contact": "Parent or guardian's name",
@@ -1754,7 +1750,24 @@
       "cardSoon": "Card payments are coming soon. Meanwhile, pay by transfer or at the club.",
       "clubLine": "Pay at the club's office; your spot is held.",
       "clubBtn": "Hold my spot",
-      "clubDone": "Your spot is held. Pay at the club's office; once the club records it, it shows as Paid in the app."
+      "clubDone": "Your spot is held. Pay at the club's office; once the club records it, it shows as Paid in the app.",
+      "tabPlan": "Monthly plan",
+      "tabSingle": "No plan",
+      "howMany": "How many classes a month?",
+      "perWeek": "{n} a week",
+      "planLine1": "{n} classes a week, you pick the day and time in the app",
+      "planLine1_one": "1 class a week, you pick the day and time in the app",
+      "planLine2": "The plan runs date to date",
+      "planLine3": "Cancel in time and the class comes back",
+      "save": "You save {pct}% vs. a single class",
+      "singleLabel": "One class, no plan",
+      "trialName": "Trial class",
+      "trialNote": "To get to know the club · one per rider",
+      "singleName": "Single class",
+      "singleNote": "Whenever you want, no plan",
+      "customAsk": "Need your own days or times?",
+      "customLink": "Write to us →",
+      "youChose": "You chose"
     },
     "pay": {
       "received": {
