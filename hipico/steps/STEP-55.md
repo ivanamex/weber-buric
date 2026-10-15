@@ -1,6 +1,6 @@
 # STEP-55: two video guides, made the El Árbol way
 
-**On hold: no recording until Ivana says the screens are final.** Every change to the website or the app before that would make the video outdated. When she says go, record from the live state of `main`.
+**Go after STEP-63 (Ivana, 15 Oct): the screens are final once STEP-61, 62 and 63 are checked.** Every change to the website or the app before that would make the video outdated. When she says go, record from the live state of `main`.
 
 Same method as El Árbol's office video (Arbol-portal STEP-32): the demo is **recorded for real while it runs**, the camera moves in on each action, and a Spanish voice says what to do. Each step lasts exactly as long as its sentence. There are two short videos instead of one long one: one for the club, one for families.
 
