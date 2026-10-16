@@ -4,8 +4,10 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-55 (on hold: Ivana sends more notes after STEP-64/65 and says "done" first)**: two video guides the El Árbol way (real recording, camera follows the action, Alejandro Garcia voice): "El club desde la app" (1920×1080) and "Clases en el Hípico" (vertical, for WhatsApp)
-2. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
+1. **STEP-66**: the footer course: the horse runs (canter cycle + bob) and jumps Ivana's 3 fence silhouettes
+2. **STEP-67**: plan cards 4·8·12 with own accent + pictogram, 12 preselected ("Mejor precio por clase"), no "Más elegido"; pay-at-club reminders + "Ya pagué en el club"; colored tiles hover in their own color; Pensión title inside its card + the horse photo
+3. **STEP-55 (go after STEP-67 is checked)**: two video guides the El Árbol way (real recording, camera follows the action, Alejandro Garcia voice): "El club desde la app" (1920×1080) and "Clases en el Hípico" (vertical, for WhatsApp)
+4. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
 
