@@ -4,7 +4,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. **STEP-55 (in progress)**: script `scripts/guides/guide.mjs` done, silent cut of the Mara video (45 s, WebM) delivered; the MP4 needs an ffmpeg with H.264 and the voice take from ElevenLabs. one ~60 s video for Mara the El Árbol way: website → App del club → Ver la demo → Dirección panel → Familia, "todo se adapta" (family WhatsApp video after the meeting)
+1. **STEP-55 (in progress)**: one ~45–60 s video for Mara (website → Entrar → Ver la demo → Dirección panel → Familia on a phone → "todo se adapta"). The script `scripts/guides/guide.mjs` is done and the silent cut is delivered as WebM; the MP4 needs an ffmpeg with H.264, then the voice take from ElevenLabs (`--voice`). The family WhatsApp video comes after the meeting.
 2. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
