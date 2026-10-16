@@ -48,4 +48,8 @@ Ivana (screenshot): after Continuar, "Pagar $6,900" seems to do nothing. It only
 
 ## Footer horse: bigger, then the illustrated poses
 Ivana: the horse is small and cute, but now it's half the fence height. Make it bigger: **the horse's withers sit about 1.1× the fence height** (the head reaches about 1.4×). Hooves stay on the dotted line, and the jump arc clears each top pole.
-- Ivana is generating a 4-pose illustration (canter · take-off · over the fence · landing) in Gemini/ChatGPT. When she uploads it, chat Claude adds it to `public/img/course/` (one transparent PNG/SVG per pose) and the course switches poses by jump phase instead of the letter-horse. Until then, keep the letter-horse at the new size.
+- **The letter-horse is replaced by Ivana's silhouettes** (approved 15 Oct), already cut into `public/img/course/`: `horse-canter.png`, `horse-takeoff.png`, `horse-over.png`, `horse-landing.png`. They're transparent and olivewood `#33352A`, and all four share one frame height (415 px) so the ground line matches: hooves at the bottom edge for canter, take-off and landing.
+- Pose by phase: canter on the ground → take-off one horse-length before the fence → over at the top of the arc → landing one horse-length after it → canter again. Swap the poses with a 120 ms cross-fade (no flicker), and keep the canter alive with a tiny 2 px bob.
+- Size: frame height = about 1.9× the fence height (that puts the withers at about 1.1× the fence). Phones use the same ratio.
+- Reduced motion: the canter pose standing at the start line.
+- Keep `TextHorse` for `/descargar`; only the footer course changes.
