@@ -24,6 +24,7 @@ Con las *credenciales de prueba* (`TEST-…`) y un usuario comprador de prueba (
 
 ## Cómo funciona
 
-- `api/mp-checkout.js` crea la preferencia de Checkout Pro para un cobro (precio desde la base de datos, `external_reference` = el id del cobro) y manda a la persona a Mercado Pago. Al volver, cae en `/pago/recibido`, `/pago/pendiente` o `/pago/rechazado`.
+- La tarjeta se captura **dentro de la página** con el formulario de tarjeta de Mercado Pago (necesita `MP_PUBLIC_KEY`); `api/mp-pay.js` crea el pago en el servidor con `MP_ACCESS_TOKEN`, por el monto del cobro guardado en la base de datos, y lo registra al momento.
+- Si solo está `MP_ACCESS_TOKEN` (sin la Public Key), `api/mp-checkout.js` crea la preferencia de Checkout Pro para el cobro (`external_reference` = el id del cobro) y manda a la persona a Mercado Pago. Al volver, cae en `/pago/recibido`, `/pago/pendiente` o `/pago/rechazado`.
 - `api/mp-webhook.js` recibe la notificación, verifica la firma (`x-signature` con `MP_WEBHOOK_SECRET`), lee el pago desde la API de Mercado Pago y marca el cobro como pagado con tarjeta (el plan se activa y la familia recibe un correo). La misma notificación dos veces no cambia nada.
 - Vercel: `MP_ACCESS_TOKEN`, `MP_PUBLIC_KEY`, `MP_WEBHOOK_SECRET`. Nunca van en el código.

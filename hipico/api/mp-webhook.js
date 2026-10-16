@@ -23,6 +23,28 @@ export function confirmation(p) {
   }
 }
 
+/**
+ * Record what Mercado Pago says about a charge (once: the same answer twice changes nothing) and, when it has just
+ * become paid, email the family. Shared by the notification and the card form's own payment call.
+ */
+export async function settle(client, paymentId, mp) {
+  const { rows } = await client.query('select card_payment_result($1, $2, $3) as r', [paymentId, String(mp.id), String(mp.status || '')])
+  const r = rows[0]?.r || {}
+  if (r.ok && r.changed && r.status === 'paid') {
+    const send = await makeSender()
+    if (send) {
+      const { rows: prow } = await client.query(
+        `select p.service, p.amount, p.meta, f.email, f.contact, r.name as rider_name from payments p join families f on f.id = p.family_id
+           left join riders r on r.id::text = p.meta ->> 'riderId' where p.id = $1`, [paymentId])
+      const p = prow[0]
+      if (p?.email) {
+        try { await send({ to: p.email, ...confirmation({ ...p, riderName: p.rider_name }) }) } catch (err) { console.error('[mp] email failed', err.message) }
+      }
+    }
+  }
+  return r
+}
+
 const dataIdOf = (req, body) => String(req.query?.['data.id'] || req.query?.id || body?.data?.id || '')
 const topicOf = (req, body) => String(req.query?.type || req.query?.topic || body?.type || body?.action || '')
 
@@ -44,20 +66,7 @@ export default async function handler(req, res) {
     if (!paymentId) return res.status(200).json({ ok: true, ignored: true })
     client = await connect()
     if (!client) return res.status(503).json({ ok: false })
-    const { rows } = await client.query('select card_payment_result($1, $2, $3) as r', [paymentId, String(mp.id), String(mp.status || '')])
-    const r = rows[0]?.r || {}
-    if (r.ok && r.changed && r.status === 'paid') {
-      const send = await makeSender()
-      if (send) {
-        const { rows: prow } = await client.query(
-          `select p.service, p.amount, p.meta, f.email, f.contact, r.name as rider_name from payments p join families f on f.id = p.family_id
-             left join riders r on r.id::text = p.meta ->> 'riderId' where p.id = $1`, [paymentId])
-        const p = prow[0]
-        if (p?.email) {
-          try { await send({ to: p.email, ...confirmation({ ...p, riderName: p.rider_name }) }) } catch (err) { console.error('[mp-webhook] email failed', err.message) }
-        }
-      }
-    }
+    const r = await settle(client, paymentId, mp)
     return res.status(200).json({ ok: true, ...r })
   } catch (err) {
     console.error('[mp-webhook] failed', err)

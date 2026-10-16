@@ -6,10 +6,12 @@ import { useToast } from './Toast.jsx'
 import { StatusPill, HorseAvatar } from './Colors.jsx'
 import { BankDetails, RECEIPT_ACCEPT, fmtClabe, hasBank } from './Transfer.jsx'
 import { concept } from './PaymentHistory.jsx'
-import { payByCard, useCardEnabled } from '../lib/card.js'
+import { payByCard, payCard, useCardInfo } from '../lib/card.js'
+import { CardForm, cardMode } from './CardForm.jsx'
 import { DropZone, MethodCards } from './PayOptions.jsx'
 
 const METHOD_KEY = 'hipico.payMethod'
+const RESULT = { paid: 'Paid', club: 'Club', review: 'Review', pending: 'Pending' }
 const MAX_BYTES = 10 * 1024 * 1024
 const readMethod = () => { try { return localStorage.getItem(METHOD_KEY) } catch { return null } }
 const keepMethod = (m) => { try { localStorage.setItem(METHOD_KEY, m) } catch { /* private mode */ } }
@@ -24,26 +26,27 @@ export function paymentTitle(t, s, p, fmtDate) {
 }
 
 /**
- * One payment lightbox for every "Pagar" in the family app: what you're paying, then how (Transferencia · Tarjeta ·
- * En el club), then the result. A centered dialog on a computer, a bottom sheet on phones; focus stays inside, Esc closes.
+ * One payment lightbox for every "Pagar" in the family app: what you're paying, then how (Tarjeta · Transferencia ·
+ * En el club, the same cards as the website; the chosen one opens its part under them), then the result. A centered dialog on a computer, a bottom sheet on phones; focus stays inside, Esc closes.
  */
 export function PayDialog({ paymentId, onClose }) {
   const { t, fmtMoney, fmtDate, lang } = useI18n()
   const s = useStore()
   const toast = useToast()
   const demo = s.mode === 'demo'
-  const cardLive = useCardEnabled()
-  const card = cardLive || demo
+  const cardInfo = useCardInfo()
+  const mode = cardMode({ demo, ...cardInfo })
+  const cardApi = useRef(null)
   const p = byId(s.payments, paymentId)
   const family = byId(s.families, s.session?.familyId)
   const horse = p?.service === 'boarding' && p.meta?.horseId ? byId(s.horses, p.meta.horseId) : null
-  // Tarjeta always shows; before the club's Mercado Pago keys are in it is greyed with "Muy pronto" (the demo simulates it).
-  const methods = ['transfer', ...(card ? ['card'] : []), 'club']
+  // Tarjeta always shows; before the club's Mercado Pago keys are in it says "muy pronto" (the demo simulates it).
+  const methods = ['card', 'transfer', 'club']
   const [method, setMethod] = useState(() => { const m = readMethod(); return methods.includes(m) ? m : 'transfer' })
   const [file, setFile] = useState(null)
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState(null)
-  const [result, setResult] = useState(null) // 'review' | 'paid' | 'club'
+  const [result, setResult] = useState(null) // 'review' | 'paid' | 'club' | 'pending'
   const panel = useRef(null)
   const closeRef = useRef(null)
   const close = useRef(onClose)
@@ -94,8 +97,18 @@ export function PayDialog({ paymentId, onClose }) {
       if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
       return setResult('paid')
     }
-    const res = await payByCard(p.id, lang)
-    if (!res.ok) { setBusy(false); toast(t(`errors.${res.code}`), 'error') }
+    const data = await cardApi.current?.getData()
+    if (!data) { setBusy(false); return toast(t('errors.cardInvalid'), 'error') }
+    if (data.redirect) {
+      const res = await payByCard(p.id, lang)
+      if (!res.ok) { setBusy(false); toast(t(`errors.${res.code}`), 'error') }
+      return
+    }
+    const res = await payCard(p.id, data)
+    setBusy(false)
+    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    if (res.status === 'rejected') return toast(t('errors.cardRejected'), 'error', { sticky: true })
+    setResult(res.status === 'approved' ? 'paid' : 'pending')
   }
   const onClub = async () => {
     setBusy(true)
@@ -110,8 +123,8 @@ export function PayDialog({ paymentId, onClose }) {
     : waiting ? <StatusPill status="review">{t('receipt.status.review')}</StatusPill>
       : <StatusPill status={state === 'overdue' ? 'overdue' : state === 'today' ? 'pending' : 'neutral'}>{t(`familyDue.${state === 'later' ? 'soon' : state}`, { date: fmtDate(due, { day: 'numeric', month: 'short' }) })}</StatusPill>
   const cards = [
+    { key: 'card', title: t('pay.card'), text: t('pay.optCard'), icon: <Icon name="card" size={22} /> },
     { key: 'transfer', title: t('pay.transfer'), text: t('pay.optTransfer'), icon: <Icon name="bank" size={22} /> },
-    { key: 'card', title: t('pay.card'), text: t('pay.optCard'), icon: <Icon name="card" size={22} />, disabled: !card, badge: card ? null : t('pay.soon') },
     { key: 'club', title: t('pay.club'), text: t('pay.optClub'), icon: <Icon name="home" size={22} /> },
   ]
   const shownResult = result || (paid ? 'paid' : null)
@@ -137,9 +150,9 @@ export function PayDialog({ paymentId, onClose }) {
 
         {shownResult ? (
           <div className="paydlg__result" role="status">
-            <span className="paydlg__resicon"><Icon name={shownResult === 'paid' ? 'check' : shownResult === 'club' ? 'home' : 'receipt'} size={28} /></span>
-            <p className="paydlg__restitle">{t(`pay.result${shownResult === 'paid' ? 'Paid' : shownResult === 'club' ? 'Club' : 'Review'}`)}</p>
-            <p className="small muted">{t(`pay.result${shownResult === 'paid' ? 'Paid' : shownResult === 'club' ? 'Club' : 'Review'}Text`)}</p>
+            <span className="paydlg__resicon"><Icon name={shownResult === 'paid' ? 'check' : shownResult === 'club' ? 'home' : shownResult === 'pending' ? 'clock' : 'receipt'} size={28} /></span>
+            <p className="paydlg__restitle">{t(`pay.result${RESULT[shownResult]}`)}</p>
+            <p className="small muted">{t(`pay.result${RESULT[shownResult]}Text`)}</p>
             {shownResult === 'paid' && p.meta?.demoCard && <span className="paydlg__demo">{t('pay.cardDemo')}</span>}
             <button type="button" className="btn btn--primary" onClick={() => onClose()}>{t('pay.done')}</button>
           </div>
@@ -149,7 +162,7 @@ export function PayDialog({ paymentId, onClose }) {
             <MethodCards methods={cards} value={method} onChange={pick} label={t('pay.how')} check={<Icon name="check" size={14} />} />
 
             {method === 'transfer' && (
-              <div className="paydlg__body">
+              <div className="paydlg__body paydlg__acc" key="transfer">
                 {hasBank(s.settings) ? (
                   <>
                     <BankDetails />
@@ -176,17 +189,18 @@ export function PayDialog({ paymentId, onClose }) {
             )}
 
             {method === 'card' && (
-              <div className="paydlg__body">
-                <p>{t('pay.cardText')}</p>
-                <button type="button" className="btn btn--primary btn--block" onClick={onCard} disabled={busy}>
-                  <Icon name={busy ? 'refresh' : 'card'} size={18} /> {busy ? t('pay.cardProcessing') : t('pay.cardBtn', { amount: fmtMoney(p.amount) })}
-                </button>
-                <p className="small muted center">{t('plan.cardSecure')}{demo ? ` · ${t('pay.cardDemo')}` : ''}</p>
+              <div className="paydlg__body paydlg__acc" key="card">
+                <CardForm mode={mode} amount={p.amount} email={family?.email} publicKey={cardInfo.publicKey} api={cardApi} />
+                {mode !== 'off' && (
+                  <button type="button" className="btn btn--primary btn--block" onClick={onCard} disabled={busy}>
+                    <Icon name={busy ? 'refresh' : 'card'} size={18} /> {busy ? t('pay.cardProcessing') : t('pay.cardBtn', { amount: fmtMoney(p.amount) })}
+                  </button>
+                )}
               </div>
             )}
 
             {method === 'club' && (
-              <div className="paydlg__body">
+              <div className="paydlg__body paydlg__acc" key="club">
                 <p>{t('pay.clubText')}</p>
                 {p.meta?.payAtClub ? (
                   <p className="small transfer__wait"><Icon name="check" size={16} /> {t('pay.clubSaid', { date: fmtDate(p.meta.payAtClub, { day: 'numeric', month: 'short' }) })}</p>

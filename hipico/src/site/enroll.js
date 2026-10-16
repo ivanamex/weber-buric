@@ -1,7 +1,7 @@
 // Choosing and paying on the website. Live: the serverless function creates the family, the rider, the plan or class
 // and the charge (and emails the family); if it's unreachable the browser calls the database function itself. The
 // receipt goes to the receipts bucket under web/<charge>/ and is attached with submit_web_receipt(). Card payments
-// go through /api/mp-checkout (`lib/card.js`; hidden while the club's Mercado Pago keys aren't in Vercel). Without a database
+// go through the card form inside the page and /api/mp-pay, or /api/mp-checkout (`lib/card.js`; "muy pronto" while the club's Mercado Pago keys aren't in Vercel). Without a database
 // (local build) everything lands in the demo's data, so /demo → Dirección → Cobros shows it.
 const URL = __SUPABASE_URL__
 const KEY = __SUPABASE_KEY__
@@ -75,4 +75,13 @@ export async function payAtClubWeb(paymentId) {
   }
 }
 
-export { cardEnabled, cardCheckout } from '../lib/card.js'
+/** The website's own card simulation when there's no database (the demo's data). */
+export async function cardDemoWeb(paymentId) {
+  const { webCardDemo } = await import('../data/demo.js')
+  return webCardDemo(paymentId)
+}
+
+/** No database behind the website (a local build): payments land in the demo's data. */
+export const SITE_DEMO = !LIVE_CONFIGURED
+
+export { cardInfo, cardCheckout, payCard } from '../lib/card.js'

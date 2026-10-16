@@ -45,6 +45,10 @@
     "api/mp-webhook.js": {
       "includeFiles": "scripts/supabase-ca.crt",
       "maxDuration": 30
+    },
+    "api/mp-pay.js": {
+      "includeFiles": "scripts/supabase-ca.crt",
+      "maxDuration": 30
     }
   },
   "crons": [

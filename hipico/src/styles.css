@@ -449,7 +449,7 @@ p.center { display: block; }
 .package { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 22px 6px 14px; border-radius: var(--radius); border: 1.5px solid var(--border); background: var(--card); text-align: center; transition: border-color .2s ease, transform .12s ease; }
 .package.is-active { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
 .package:active { transform: scale(.98); }
-.package__tag { position: absolute; top: -10px; padding: 2px 8px; border-radius: 999px; background: var(--accent-strong); color: #fff; font-size: .66rem; font-weight: 700; white-space: nowrap; }
+.package__tag { top: -10px; }
 .package__n { font-family: var(--font-head); font-weight: 700; font-size: 2.1rem; color: var(--green-dark); line-height: 1; }
 .package__label { font-size: .72rem; color: var(--muted); }
 .package__price { font-family: var(--font-head); font-weight: 600; font-size: 1.02rem; margin-top: 8px; }
@@ -689,7 +689,7 @@ p.center { display: block; }
 .changeplan { display: grid; gap: 12px; }
 .changeplan .packages { margin-top: 0; }
 .changeplan__info { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--green-soft); color: var(--green-dark); }
-.package__tag--mine { background: var(--green); color: #fff; }
+.package__tag--mine { position: absolute; padding: 2px 8px; border-radius: 999px; background: var(--green); color: #fff; font-size: .66rem; font-weight: 700; white-space: nowrap; }
 .package__save { margin-top: 4px; font-size: .72rem; font-weight: 600; color: var(--green); }
 .history .right { text-align: right; }
 .history__receipt { display: inline-flex; align-items: center; gap: 4px; justify-self: start; font-size: .82rem; }
@@ -1857,3 +1857,22 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
   .hero .btn--sage:hover:not(:disabled) { filter: brightness(1.08) saturate(1.05); }
 }
 .lang button:focus-visible { outline: 2px solid var(--mustard); outline-offset: 2px; }
+
+/* "Más elegido": olivewood pill, parchment caps, a mustard horseshoe; the same on a selected card (website and app). */
+.poptag { position: absolute; z-index: 1; display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 7px; border-radius: 999px; background: #33352A; color: #F1EAD8; font-family: 'Archivo Variable', 'Archivo', system-ui, sans-serif; font-stretch: 80%; font-style: normal; font-size: 11px; font-weight: 700; line-height: 1.2; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; box-shadow: 0 2px 6px rgba(51,53,42,.18); }
+.poptag__shoe { flex: none; color: #D9A441; }
+
+/* The "Tarjeta" part of a payment (website and app): Mercado Pago's card form inside the page, the demo's pretend
+   form, or one line when card payments aren't on yet. */
+.cardform { position: relative; display: grid; gap: 10px; }
+.cardform__note { margin: 0; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, #D5C7AD 22%, #FFFBF5); color: #33352A; font-size: .92rem; line-height: 1.45; }
+.cardform__brick { min-height: 0; }
+.cardform__secure { margin: 0; font-size: .8rem; color: #6B6258; }
+.cardform__demo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.cardform__field { display: grid; gap: 4px; font-size: 13px; color: #6B6258; }
+.cardform__field--wide { grid-column: 1 / -1; }
+.cardform__field input { width: 100%; height: 44px; padding: 0 14px; border-radius: 14px; border: 1px solid #D5C7AD; background: #EFE6D3; color: #33352A; font: inherit; font-size: 1rem; letter-spacing: .04em; box-shadow: inset 0 1px 2px rgba(51,53,42,.06); }
+.cardform__tag { justify-self: start; padding: 3px 10px; border-radius: 999px; background: #E3EAEF; color: #3E5868; font-size: .75rem; font-weight: 700; }
+.paydlg__acc { animation: paydlgAcc .2s ease both; }
+@keyframes paydlgAcc { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .paydlg__acc { animation: none; } }

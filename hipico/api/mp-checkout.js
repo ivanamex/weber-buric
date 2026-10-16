@@ -1,4 +1,5 @@
-// Card payments: GET says whether they're on (the club's Mercado Pago keys are in Vercel);
+// Card payments: GET says whether they're on (the club's Mercado Pago keys are in Vercel) and gives the public key
+// for the card form inside the page;
 // POST { paymentId } creates the Checkout Pro preference for that charge and returns where to send the visitor.
 import { connect } from './_reminders.js'
 import { createPreference, mpEnabled } from './_mp.js'
@@ -18,7 +19,7 @@ export function titleFor(p) {
 }
 
 export default async function handler(req, res) {
-  if (req.method === 'GET') return res.status(200).json({ enabled: mpEnabled() })
+  if (req.method === 'GET') return res.status(200).json({ enabled: mpEnabled(), publicKey: mpEnabled() ? process.env.MP_PUBLIC_KEY || null : null })
   if (req.method !== 'POST') return res.status(405).json({ ok: false, code: 'network' })
   if (!mpEnabled()) return res.status(200).json({ ok: false, code: 'cardOff' })
   let body = req.body

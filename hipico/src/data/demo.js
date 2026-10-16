@@ -1172,6 +1172,18 @@ export function webPayAtClub(paymentId) {
   })
 }
 
+/** "Tarjeta" on the website (demo): no Mercado Pago here, so the web charge is simply marked paid by card. */
+export function webCardDemo(paymentId) {
+  if (!state) state = load() || persist(createSeed())
+  return mutate((s) => {
+    const p = byId(s.payments, paymentId)
+    if (!p || p.status !== 'pending' || !p.meta?.web) return fail('notFound')
+    Object.assign(p, { status: 'paid', method: 'card', paidAt: now(), meta: { ...(p.meta || {}), demoCard: 'true' } })
+    applyPlanPayment(s, p)
+    return { ok: true }
+  })
+}
+
 /** Management: a message answered (or back to new). */
 function markContactMessage(id, status) {
   return mutate((s) => {

@@ -16,6 +16,7 @@ import { ActivePlanCard, ChangePlan } from './ActivePlan.jsx'
 import { UpcomingList } from './Upcoming.jsx'
 import { PaymentHistory, concept } from '../../components/PaymentHistory.jsx'
 import { StatusPill } from '../../components/Colors.jsx'
+import { PopularTag } from '../../components/PopularTag.jsx'
 
 export default function FamilyPlan() {
   const { t, fmtDate, fmtMoney } = useI18n()
@@ -90,7 +91,7 @@ export default function FamilyPlan() {
           <div className="packages" id="elegir">
             {PLANS.map((p) => (
               <button key={p.classes} type="button" className={`package ${selected === p.classes ? 'is-active' : ''}`} onClick={() => setSelected(p.classes)} aria-pressed={selected === p.classes}>
-                {p.popular && <span className="package__tag">{t('plan.popular')}</span>}
+                {p.popular && <PopularTag className="package__tag">{t('plan.popular')}</PopularTag>}
                 <span className="package__n">{p.classes}</span>
                 <span className="package__label">{t('plan.classesMonth')}</span>
                 <span className="package__price">{fmtMoney(p.price)}</span>

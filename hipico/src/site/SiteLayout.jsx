@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom'
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { BrandLogo, Logo } from '../components/Logo.jsx'
-import { RunningHorse } from '../components/TextHorse.jsx'
+import { CourseHorse } from './Course.jsx'
 import { SiteIcon } from '../components/site/Icons.jsx'
 import { waLink } from '../components/ui.jsx'
 import { isStandalone } from '../lib/install.js'
@@ -13,7 +13,6 @@ import { reducedMotion, useReveal } from './motion.jsx'
 import './site.css'
 
 const LANG_KEY = 'hipico.lang'
-const HORSE_COLORS = [[36, 80, 63], [110, 150, 118]] // jungle → sage letters on the light footer
 // An English visitor coming back to "/" goes to "/en" (only on the first page they open, never after a click).
 const initialPath = typeof window === 'undefined' ? '' : window.location.pathname
 let redirected = false
@@ -224,7 +223,7 @@ function SiteFooter() {
   return (
     <footer className="sfooter" data-tone="light">
       <p className="sfooter__slogan">{SLOGAN[lang] || SLOGAN.es}</p>
-      <div className="sgallop" aria-hidden="true"><RunningHorse colors={HORSE_COLORS} course /></div>
+      <div className="sgallop" aria-hidden="true"><CourseHorse /></div>
       <div className="scontainer sfooter__row">
         <a href={`${homePath(lang)}#top`} aria-label={t('site.homeLabel')}><Logo /></a>
         <div className="sfooter__social">

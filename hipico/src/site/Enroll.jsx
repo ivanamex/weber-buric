@@ -3,39 +3,54 @@ import { useI18n } from '../i18n/I18nProvider.jsx'
 import { SiteIcon } from '../components/site/Icons.jsx'
 import { AppButton } from './SiteLayout.jsx'
 import { planList } from './siteData.js'
-import { cardCheckout, cardEnabled, enroll, payAtClubWeb, sendReceipt, RECEIPT_MAX } from './enroll.js'
+import { cardCheckout, cardDemoWeb, cardInfo, enroll, payAtClubWeb, payCard, sendReceipt, RECEIPT_MAX, SITE_DEMO } from './enroll.js'
 import { DropZone, MethodCards } from '../components/PayOptions.jsx'
+import { CardForm, cardMode } from '../components/CardForm.jsx'
 import { DateField } from './DateField.jsx'
+import { PopularTag } from '../components/PopularTag.jsx'
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 const ACCEPT = 'image/jpeg,image/png,image/heic,image/heif,application/pdf,.heic,.heif,.pdf,.jpg,.jpeg,.png'
 const todayKey = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Cancun', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
 const FIELD_OF = { missing: 'contact', badEmail: 'email', badPhone: 'phone' }
+const FIELDS = ['rider', 'age', 'contact', 'phone', 'email', 'start']
+const METHOD_KEY = 'hipico.webPayMethod'
+const readMethod = () => { try { const m = localStorage.getItem(METHOD_KEY); return ['card', 'transfer', 'club'].includes(m) ? m : null } catch { return null } }
+const keepMethod = (m) => { try { localStorage.setItem(METHOD_KEY, m) } catch { /* private mode */ } }
 /** "ivana lópez" → "Ivana López" (a name typed all in lowercase); anything already capitalized stays as typed. */
 export const nameCase = (s) => { const v = String(s || '').trim(); return v === v.toLowerCase() ? v.replace(/(^|[\s'-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()) : v }
+/** The reference for a transfer, the way the club names the family: "Familia López". */
+const familyRef = (contact) => { const last = nameCase(contact).split(/\s+/).filter(Boolean).pop(); return last ? `Familia ${last}` : '' }
 
 /**
  * Clases on the website, as in the approved draft: Plan mensual (4 · 8 · 12 cards, 8 preselected, a summary card with
  * the price per class and the saving worked out from the live prices) or Sin plan (Clase muestra · Clase suelta),
- * "A tu medida" as a link to the contact form; then the rider's and the parent's details, then the payment
- * (transfer with the receipt, card when the club's keys are in, or at the club). One footer stays at the bottom of
- * the sheet through the three steps: what was chosen on the left, the one main button on the right.
+ * "A tu medida" as a link to the contact form. Then one screen: the rider's and the parent's details and how to pay
+ * (Tarjeta with the card form inside, Transferencia with the receipt, En el club), opened as an accordion. One press
+ * of the footer's button checks the details, creates the family, rider and charge, and pays, uploads or saves the
+ * spot. The footer stays at the bottom of the sheet: what was chosen on the left, the one main button on the right.
  */
 export function Enroll({ data, onCustom, info }) {
   const { t, fmtMoney, fmtDate, lang } = useI18n()
-  const [step, setStep] = useState('pick') // pick → form → pay → done
+  const [step, setStep] = useState('pick') // pick → details → done
   const [tab, setTab] = useState('plan') // plan | single
   const [planN, setPlanN] = useState(8)
   const [single, setSingle] = useState('trial')
   const [f, setF] = useState({ rider: '', age: '', contact: '', phone: '', email: '', start: todayKey(), website: '' })
   const [errors, setErrors] = useState({})
+  const [tried, setTried] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [order, setOrder] = useState(null) // the charge: { payment_id, amount, family_name, … }
-  const [card, setCard] = useState(false)
-  const [done, setDone] = useState(null) // 'receipt' | 'later' | 'club'
+  const [order, setOrder] = useState(null) // the charge once created: { payment_id, amount, family_name, key }
+  const [card, setCard] = useState({ enabled: false, publicKey: null })
+  const [method, setMethod] = useState(readMethod)
+  const [file, setFile] = useState(null)
+  const [later, setLater] = useState(false)
+  const [pulse, setPulse] = useState(0)
+  const [done, setDone] = useState(null) // 'receipt' | 'later' | 'club' | 'paid' | 'cardPending'
   const top = useRef(null)
+  const cardApi = useRef(null)
   useEffect(() => { top.current?.scrollIntoView?.({ block: 'nearest' }) }, [step])
-  useEffect(() => { if (step === 'pay') cardEnabled().then(setCard) }, [step])
+  useEffect(() => { if (step === 'details') cardInfo().then(setCard) }, [step])
 
   const prices = data?.prices || {}
   const listed = planList(prices)
@@ -54,35 +69,80 @@ export function Enroll({ data, onCustom, info }) {
   // The price per class and the saving against a single class, from the live prices.
   const each = plan.price > 0 ? plan.price / plan.classes : 0
   const saving = each > 0 && prices.class_single > 0 ? Math.round((1 - each / prices.class_single) * 100) : 0
+  const summary = `${chosen?.name} · ${price(chosen?.amount)}`
+  const arrow = <span className="efoot__arrow" aria-hidden="true">→</span>
+  const mode = cardMode({ demo: SITE_DEMO, ...card })
 
-  const set = (k) => (e) => { setF({ ...f, [k]: e.target.value }); if (errors[k] || errors.general) setErrors({}) }
-  const check = () => {
+  const check = (v = f) => {
     const e = {}
-    if (!f.rider.trim()) e.rider = t('site.enroll.errors.riderName')
-    if (f.age !== '' && !(Number(f.age) >= 2 && Number(f.age) <= 99)) e.age = t('site.enroll.errors.age')
-    if (!f.contact.trim()) e.contact = t('site.enroll.errors.contact')
-    if (!EMAIL_RE.test(f.email.trim())) e.email = t('site.enroll.errors.email')
-    if (f.phone.trim() && f.phone.replace(/\D/g, '').length < 8) e.phone = t('site.enroll.errors.phone')
-    if (!f.start || f.start < todayKey()) e.start = t('site.enroll.errors.date')
+    if (!v.rider.trim()) e.rider = t('site.enroll.errors.riderName')
+    if (v.age !== '' && !(Number(v.age) >= 2 && Number(v.age) <= 99)) e.age = t('site.enroll.errors.age')
+    if (!v.contact.trim()) e.contact = t('site.enroll.errors.contact')
+    if (!EMAIL_RE.test(v.email.trim())) e.email = t('site.enroll.errors.email')
+    if (v.phone.trim() && v.phone.replace(/\D/g, '').length < 8) e.phone = t('site.enroll.errors.phone')
+    if (!v.start || v.start < todayKey()) e.start = t('site.enroll.errors.date')
     return e
   }
+  // Errors show after the first press, then follow the typing field by field.
+  const set = (k) => (e) => { const v = { ...f, [k]: e.target.value }; setF(v); if (tried) setErrors((old) => ({ ...check(v), ...(old.pay ? { pay: old.pay } : {}) })) }
+  const pick = (m) => { setMethod(m); keepMethod(m); setErrors(({ pay, general, ...rest }) => rest) }
+  const onFile = (picked) => { if (picked.size > RECEIPT_MAX) { setErrors((e) => ({ ...e, pay: t('errors.fileTooBig') })); return } setFile(picked); setLater(false); setErrors(({ pay, ...rest }) => rest) }
+  const focusFirst = (e) => {
+    const k = FIELDS.find((x) => e[x])
+    const el = k && top.current?.querySelector(`[name="${k}"]`)
+    if (el) { el.scrollIntoView?.({ block: 'center', behavior: 'smooth' }); el.focus({ preventScroll: true }) }
+  }
+  const nudgePay = () => { setPulse((n) => n + 1); top.current?.querySelector('.epay')?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' }) }
+
   const submit = async (ev) => {
     ev.preventDefault()
     if (busy) return
+    setTried(true)
     const e = check()
-    if (Object.keys(e).length) { setErrors(e); return }
+    const usable = method && !(method === 'card' && mode === 'off')
+    if (method === 'transfer' && !later && !file) e.pay = t('site.enroll.needReceipt')
+    setErrors(e)
+    if (Object.keys(e).some((k) => k !== 'pay')) { focusFirst(e); if (!usable) setPulse((n) => n + 1); return }
+    if (!usable) { nudgePay(); return }
+    if (e.pay) { nudgePay(); return }
     setBusy(true)
-    const res = await enroll({ option, rider: { name: nameCase(f.rider), age: f.age === '' ? null : Number(f.age) }, contact: nameCase(f.contact), phone: f.phone.trim(), email: f.email.trim(), start: f.start, lang, website: f.website })
-    setBusy(false)
-    if (!res.ok) { setErrors({ [FIELD_OF[res.code] || 'general']: t(`errors.${res.code}`) }); return }
-    if (res.bot) { setDone('later'); setStep('done'); return }
-    setOrder(res)
-    setStep('pay')
+    try {
+      let cardData = null
+      if (method === 'card') {
+        cardData = await cardApi.current?.getData()
+        if (!cardData) { setErrors({ pay: t('errors.cardInvalid') }); return }
+      }
+      // The same choice and email pressed again (a declined card, a failed upload) reuses the charge already made.
+      const key = `${option}|${f.email.trim().toLowerCase()}|${nameCase(f.rider)}`
+      let o = order?.key === key ? order : null
+      if (!o) {
+        const res = await enroll({ option, rider: { name: nameCase(f.rider), age: f.age === '' ? null : Number(f.age) }, contact: nameCase(f.contact), phone: f.phone.trim(), email: f.email.trim(), start: f.start, lang, website: f.website })
+        if (!res.ok) { const k = FIELD_OF[res.code]; setErrors({ [k || 'general']: t(`errors.${res.code}`) }); if (k) focusFirst({ [k]: true }); return }
+        if (res.bot) { setDone('later'); setStep('done'); return }
+        o = { ...res, key }
+        setOrder(o)
+      }
+      let res
+      if (method === 'club') res = await payAtClubWeb(o.payment_id)
+      else if (method === 'transfer') res = later ? { ok: true } : await sendReceipt(o.payment_id, file)
+      else if (cardData.demo) res = await cardDemoWeb(o.payment_id)
+      else if (cardData.redirect) {
+        const r = await cardCheckout(o.payment_id, lang)
+        if (r.ok) { window.location.assign(r.url); return }
+        res = r
+      } else {
+        const r = await payCard(o.payment_id, cardData)
+        if (r.ok && r.status === 'rejected') { setErrors({ pay: t('errors.cardRejected') }); return }
+        res = r.ok ? { ok: true, pending: r.status !== 'approved' } : r
+      }
+      if (!res.ok) { setErrors({ pay: t(`errors.${res.code}`) }); return }
+      setDone(method === 'club' ? 'club' : method === 'transfer' ? (later ? 'later' : 'receipt') : res.pending ? 'cardPending' : 'paid')
+      setStep('done')
+    } finally {
+      setBusy(false)
+    }
   }
-  const reset = () => { setStep('pick'); setOrder(null); setDone(null); setErrors({}); setF({ ...f, rider: '', age: '', website: '' }) }
-  const Err = ({ k }) => (errors[k] ? <small className="cform__err" role="alert">{errors[k]}</small> : null)
-  const summary = (amount = chosen?.amount) => `${chosen?.name} · ${price(amount)}`
-  const arrow = <span className="efoot__arrow" aria-hidden="true">→</span>
+  const reset = () => { setStep('pick'); setOrder(null); setDone(null); setErrors({}); setTried(false); setFile(null); setLater(false); setF({ ...f, rider: '', age: '', website: '' }) }
 
   if (step === 'pick') {
     return (
@@ -101,7 +161,7 @@ export function Enroll({ data, onCustom, info }) {
               <div className="eplans" role="radiogroup" aria-labelledby="enroll-howmany">
                 {plans.map((p) => (
                   <button key={p.classes} type="button" role="radio" aria-checked={plan.classes === p.classes} className={`eplan ${plan.classes === p.classes ? 'is-on' : ''}`} onClick={() => setPlanN(p.classes)}>
-                    {p.classes === 8 && <em className="eplan__tag">{t('site.enroll.popular')}</em>}
+                    {p.classes === 8 && <PopularTag className="eplan__tag">{t('site.enroll.popular')}</PopularTag>}
                     <b>{p.classes}</b>
                     <span>{t('site.enroll.perWeek', { n: Math.max(1, Math.round(p.classes / 4)) })}</span>
                   </button>
@@ -142,54 +202,74 @@ export function Enroll({ data, onCustom, info }) {
               </div>
             </div>
           )}
-          <p className="ecustom">{t('site.enroll.customAsk')} <button type="button" className="tlink" onClick={onCustom}>{t('site.enroll.customLink')}</button></p>
-          <div className="eduds">{info}</div>
+          <div className="emore">
+            <p className="ecustom">{t('site.enroll.customAsk')} <button type="button" className="tlink" onClick={onCustom}>{t('site.enroll.customLink')}</button></p>
+            <div className="eduds">{info}</div>
+          </div>
         </div>
-        <EnrollFoot label={t('site.enroll.youChose')} what={summary()}>
-          <button type="button" className="sbtn sbtn--deep efoot__btn" onClick={() => setStep('form')}>{t('site.enroll.continue')} {arrow}</button>
+        <EnrollFoot label={t('site.enroll.youChose')} what={summary}>
+          <button type="button" className="sbtn sbtn--deep efoot__btn" onClick={() => setStep('details')}>{t('site.enroll.continue')} {arrow}</button>
         </EnrollFoot>
       </>
     )
   }
 
-  if (step === 'form') {
+  if (step === 'details') {
+    const inv = (k) => (errors[k] ? true : undefined)
+    const button = !method || (method === 'card' && mode === 'off') ? t('site.enroll.chooseHow')
+      : method === 'card' ? t('site.enroll.pay', { amount: price(chosen?.amount) })
+        : method === 'transfer' && !later ? t('site.enroll.send') : t('site.enroll.clubBtn')
+    const methods = [
+      { key: 'card', title: t('site.enroll.card'), text: t('site.enroll.methodCard'), icon: <SiteIcon name="card" size={22} /> },
+      { key: 'transfer', title: t('site.enroll.transfer'), text: t('site.enroll.methodTransfer'), icon: <SiteIcon name="bank" size={22} /> },
+      { key: 'club', title: t('site.enroll.club'), text: t('site.enroll.methodClub'), icon: <SiteIcon name="home" size={22} /> },
+    ]
     return (
-      <form className="cform enroll enroll--form" ref={top} onSubmit={submit} noValidate>
-        <button type="button" className="sback" onClick={() => setStep('pick')}><span aria-hidden="true">←</span> {t('site.enroll.back')}</button>
-        <div className="cform__pair cform__pair--age">
-          <label className="cfield"><span>{t('site.enroll.riderName')}</span>
-            <input name="rider" autoComplete="off" value={f.rider} onChange={set('rider')} aria-invalid={Boolean(errors.rider)} /><Err k="rider" /></label>
-          <label className="cfield"><span>{t('site.enroll.riderAge')}</span>
-            <input name="age" type="number" inputMode="numeric" min={2} max={99} value={f.age} onChange={set('age')} aria-invalid={Boolean(errors.age)} /><Err k="age" /></label>
+      <form className="cform enroll enroll--details" ref={top} onSubmit={submit} noValidate>
+        <p className="eback"><button type="button" className="sback" onClick={() => setStep('pick')}><span aria-hidden="true">←</span> {t('site.enroll.back')}</button><b>{summary}</b></p>
+        <div className="edetails">
+          <Field error={errors.rider} label={t('site.enroll.riderName')}><input name="rider" autoComplete="off" value={f.rider} onChange={set('rider')} aria-invalid={inv('rider')} /></Field>
+            <Field error={errors.age} label={t('site.enroll.riderAge')} className="efield--age"><input name="age" type="number" inputMode="numeric" min={2} max={99} value={f.age} onChange={set('age')} aria-invalid={inv('age')} /></Field>
+          <Field error={errors.contact} label={t('site.enroll.contact')}><input name="contact" autoComplete="name" value={f.contact} onChange={set('contact')} aria-invalid={inv('contact')} /></Field>
+          <Field error={errors.phone} label={t('site.enroll.phone')}><input name="phone" type="tel" inputMode="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} aria-invalid={inv('phone')} /></Field>
+          <Field error={errors.email} label={t('site.enroll.email')} hint={t('site.enroll.emailHint')}><input name="email" type="email" inputMode="email" autoComplete="email" value={f.email} onChange={set('email')} aria-invalid={inv('email')} /></Field>
+          <Field error={errors.start} label={t(isClass ? 'site.enroll.startClass' : 'site.enroll.start')} hint={isClass ? t('site.enroll.startHint') : ''}>
+            <DateField name="start" min={todayKey()} value={f.start} onChange={set('start')} invalid={Boolean(errors.start)} />
+          </Field>
         </div>
-        <label className="cfield"><span>{t('site.enroll.contact')}</span>
-          <input name="contact" autoComplete="name" value={f.contact} onChange={set('contact')} aria-invalid={Boolean(errors.contact)} /><Err k="contact" /></label>
-        <div className="cform__pair">
-          <label className="cfield"><span>{t('site.enroll.phone')}</span>
-            <input name="phone" type="tel" inputMode="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} aria-invalid={Boolean(errors.phone)} /><Err k="phone" /></label>
-          <label className="cfield"><span>{t('site.enroll.email')}</span>
-            <input name="email" type="email" inputMode="email" autoComplete="email" value={f.email} onChange={set('email')} aria-invalid={Boolean(errors.email)} /><Err k="email" />
-            {!errors.email && <small className="cform__hint">{t('site.enroll.emailHint')}</small>}</label>
-        </div>
-        <label className="cfield cfield--date"><span>{t(isClass ? 'site.enroll.startClass' : 'site.enroll.start')}</span>
-          <DateField name="start" min={todayKey()} value={f.start} onChange={set('start')} invalid={Boolean(errors.start)} /><Err k="start" />
-          {isClass && !errors.start && <small className="cform__hint">{t('site.enroll.startHint')}</small>}</label>
         <div className="cform__hp" aria-hidden="true"><label>{t('site.contact.website')}<input name="website" tabIndex={-1} autoComplete="off" value={f.website} onChange={set('website')} /></label></div>
-        {errors.general && <small className="cform__err" role="alert">{errors.general}</small>}
-        <EnrollFoot label={t('site.enroll.youChose')} what={summary()}>
+
+        <div className={`epay ${pulse ? 'is-pulse' : ''}`} key={`pulse${pulse}`}>
+          <p className="elabel">{t('site.enroll.howPay')}</p>
+          <MethodCards methods={methods} value={method} onChange={pick} label={t('site.enroll.howPay')} check={<SiteIcon name="check" size={14} />} />
+        </div>
+        {method && (
+          <div className="eacc" key={method}>
+            {method === 'card' && <CardForm mode={mode} amount={chosen?.amount} email={EMAIL_RE.test(f.email.trim()) ? f.email.trim() : ''} publicKey={card.publicKey} api={cardApi} />}
+            {method === 'transfer' && (
+              <div className="eacc__transfer">
+                <BankLines bank={data?.bank} amount={chosen?.amount} reference={familyRef(f.contact)} />
+                {later ? (
+                  <p className="small eacc__later">{t('site.enroll.laterOn')} <button type="button" className="tlink" onClick={() => setLater(false)}>{t('site.enroll.uploadNow')}</button></p>
+                ) : (
+                  <>
+                    <DropZone file={file} onFile={onFile} accept={ACCEPT} disabled={busy} title={t('site.enroll.dropTitle')} hint={t('site.enroll.dropHint')} changeLabel={t('site.enroll.change')}
+                      icon={<SiteIcon name="upload" size={26} />} fileIcon={<SiteIcon name="file" size={22} />} />
+                    <button type="button" className="tlink enroll__later" onClick={() => { setLater(true); setFile(null); setErrors(({ pay, ...rest }) => rest) }}>{t('site.enroll.later')}</button>
+                  </>
+                )}
+              </div>
+            )}
+            {method === 'club' && <p className="eacc__club">{t('site.enroll.clubLine')}</p>}
+          </div>
+        )}
+        {(errors.pay || errors.general) && <p className="cform__err" role="alert">{errors.pay || errors.general}</p>}
+        <EnrollFoot label={t('site.enroll.youChose')} what={summary}>
           <button type="submit" className={`sbtn sbtn--deep efoot__btn ${busy ? 'is-busy' : ''}`} disabled={busy} aria-busy={busy}>
-            <span className="sbtn__in">{busy && <span className="sspin" aria-hidden="true" />}{t(busy ? 'site.enroll.paying' : 'site.enroll.pay', { amount: price(chosen?.amount) })}</span>
+            <span className="sbtn__in">{busy && <span className="sspin" aria-hidden="true" />}{busy ? t('site.enroll.paying') : button}</span>
           </button>
         </EnrollFoot>
       </form>
-    )
-  }
-
-  if (step === 'pay') {
-    return (
-      <PayStep order={order} card={card} lang={lang} bank={data?.bank} top={top}
-        foot={(button) => <EnrollFoot label={t('site.enroll.youChose')} what={summary(order.amount)}>{button}</EnrollFoot>}
-        onDone={(how) => { setDone(how); setStep('done') }} />
     )
   }
 
@@ -198,7 +278,7 @@ export function Enroll({ data, onCustom, info }) {
     <div className="cform__done enroll" ref={top} tabIndex={-1}>
       <span className="cform__check" aria-hidden="true"><SiteIcon name="check" size={28} /></span>
       <p className="cform__thanks">{t('site.enroll.doneTitle', { name: first })}</p>
-      <p className="slead">{t(done === 'receipt' ? 'site.enroll.transferDone' : done === 'club' ? 'site.enroll.clubDone' : 'site.enroll.laterDone')}</p>
+      <p className="slead">{t({ receipt: 'site.enroll.transferDone', club: 'site.enroll.clubDone', paid: 'site.enroll.paidDone', cardPending: 'site.enroll.cardPendingDone' }[done] || 'site.enroll.laterDone')}</p>
       <p className="small">{t('site.enroll.appLine', { email: f.email.trim() })}{isClass ? ` ${t('site.enroll.startHint')}` : ''}</p>
       <div className="ssheet2__ctas">
         <AppButton>{t('site.enroll.appBtn')}</AppButton>
@@ -209,7 +289,16 @@ export function Enroll({ data, onCustom, info }) {
   )
 }
 
-/** The sheet's footer through the three steps: "Elegiste" + the option and price, the main button on the right. */
+/** One detail field: label, the field, and a line kept for its error (or hint) so an error never moves the row. */
+function Field({ error, label, hint, children, className = '' }) {
+  return (
+    <label className={`cfield efield ${className}`}><span>{label}</span>{children}
+      <small className={error ? 'efield__err' : 'efield__hint'} role={error ? 'alert' : undefined}>{error || hint || ''}</small>
+    </label>
+  )
+}
+
+/** The sheet's footer through the steps: "Elegiste" + the option and price, the main button on the right. */
 function EnrollFoot({ label, what, children }) {
   return (
     <div className="efoot">
@@ -219,79 +308,21 @@ function EnrollFoot({ label, what, children }) {
   )
 }
 
-/**
- * How to pay, as option cards (the same as the app's PayDialog): Transferencia (bank details + the receipt as a drop
- * zone), Tarjeta (Mercado Pago; shown greyed with "Muy pronto" until the club's keys are in) or En el club ("Apartar
- * mi lugar" marks the charge to be paid at the office). One mustard button per screen; the rest are cards and links.
- */
-function PayStep({ order, card, lang, bank, onDone, foot, top }) {
+/** The club's bank details for a transfer, each line with its copy button: CLABE, amount, reference. */
+function BankLines({ bank, amount, reference }) {
   const { t, fmtMoney } = useI18n()
-  const [method, setMethod] = useState('transfer')
-  const [file, setFile] = useState(null)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState(null)
-  const [copied, setCopied] = useState(false)
-  const clabe = bank?.clabe ? String(bank.clabe).replace(/\s+/g, '').replace(/(\d{4})(?=\d)/g, '$1 ') : null
-  const copy = async () => { try { await navigator.clipboard.writeText(bank.clabe); setCopied(true); setTimeout(() => setCopied(false), 2000) } catch { /* ignore */ } }
-  const pick = (f) => { if (f.size > RECEIPT_MAX) return setError(t('errors.fileTooBig')); setError(null); setFile(f) }
-  const send = async () => {
-    if (!file) return
-    setBusy(true); setError(null)
-    const res = await sendReceipt(order.payment_id, file)
-    setBusy(false)
-    if (!res.ok) return setError(t(`errors.${res.code}`))
-    onDone('receipt')
-  }
-  const goCard = async () => {
-    setBusy(true); setError(null)
-    const res = await cardCheckout(order.payment_id, lang)
-    if (!res.ok) { setBusy(false); return setError(t(`errors.${res.code}`)) }
-    window.location.assign(res.url)
-  }
-  const atClub = async () => {
-    setBusy(true); setError(null)
-    const res = await payAtClubWeb(order.payment_id)
-    setBusy(false)
-    if (!res.ok) return setError(t(`errors.${res.code}`))
-    onDone('club')
-  }
-  const methods = [
-    { key: 'transfer', title: t('site.enroll.transfer'), text: t('site.enroll.methodTransfer'), icon: <SiteIcon name="bank" size={22} /> },
-    { key: 'card', title: t('site.enroll.card'), text: t('site.enroll.methodCard'), icon: <SiteIcon name="card" size={22} />, disabled: !card, badge: card ? null : t('site.enroll.soon') },
-    { key: 'club', title: t('site.enroll.club'), text: t('site.enroll.methodClub'), icon: <SiteIcon name="home" size={22} /> },
-  ]
-  const busyLabel = (k) => <span className="sbtn__in">{busy && <span className="sspin" aria-hidden="true" />}{k}</span>
-  const main = method === 'transfer'
-    ? <button type="button" className={`sbtn sbtn--deep efoot__btn ${busy ? 'is-busy' : ''}`} disabled={busy || !file} onClick={send}>{busyLabel(t(busy ? 'site.enroll.sending' : 'site.enroll.send'))}</button>
-    : method === 'card'
-      ? <button type="button" className={`sbtn sbtn--deep efoot__btn ${busy ? 'is-busy' : ''}`} disabled={busy} onClick={goCard}>{busyLabel(t(busy ? 'site.enroll.cardWait' : 'site.enroll.cardPay', { amount: fmtMoney(order.amount) }))}</button>
-      : <button type="button" className={`sbtn sbtn--deep efoot__btn ${busy ? 'is-busy' : ''}`} disabled={busy} onClick={atClub}>{busyLabel(t('site.enroll.clubBtn'))}</button>
+  const [copied, setCopied] = useState(null)
+  const copy = async (k, v) => { try { await navigator.clipboard.writeText(String(v)); setCopied(k); setTimeout(() => setCopied(null), 1800) } catch { /* ignore */ } }
+  if (!bank?.clabe) return <p className="small">{t('site.enroll.bankPending')}</p>
+  const clabe = String(bank.clabe).replace(/\s+/g, '').replace(/(\d{4})(?=\d)/g, '$1 ')
+  const Copy = ({ k, v }) => <button type="button" className="ebank__copy" onClick={() => copy(k, v)}>{t(copied === k ? 'site.enroll.copiedShort' : 'site.enroll.copy')}</button>
   return (
-    <>
-      <div className="enroll enroll--pay" ref={top}>
-        <p className="enroll__how">{t('site.enroll.howPay')}</p>
-        <MethodCards methods={methods} value={method} onChange={(m) => { setMethod(m); setError(null) }} label={t('site.enroll.howPay')} check={<SiteIcon name="check" size={14} />} />
-        {method === 'transfer' && (
-          <div className="enroll__box">
-            <p><strong>{t('site.enroll.transferTitle', { amount: fmtMoney(order.amount) })}</strong></p>
-            {bank?.clabe ? (
-              <dl className="ebank">
-                {bank.bankName && <><dt>{t('receipt.bank')}</dt><dd>{bank.bankName}</dd></>}
-                {bank.accountHolder && <><dt>{t('receipt.holder')}</dt><dd>{bank.accountHolder}</dd></>}
-                <dt>CLABE</dt><dd className="ebank__clabe">{clabe} <button type="button" className="ebank__copy" onClick={copy}>{t(copied ? 'site.enroll.copied' : 'site.enroll.copy')}</button></dd>
-              </dl>
-            ) : <p className="small">{t('site.enroll.bankPending')}</p>}
-            <p className="small">{t('site.enroll.concept', { ref: order.family_name })}</p>
-            <DropZone file={file} onFile={pick} accept={ACCEPT} disabled={busy} title={t('site.enroll.dropTitle')} hint={t('site.enroll.dropHint')} changeLabel={t('site.enroll.change')}
-              icon={<SiteIcon name="upload" size={26} />} fileIcon={<SiteIcon name="file" size={22} />} />
-            <button type="button" className="tlink enroll__later" onClick={() => onDone('later')}>{t('site.enroll.later')}</button>
-          </div>
-        )}
-        {method === 'card' && card && <div className="enroll__box"><p>{t('site.enroll.cardNote')}</p></div>}
-        {method === 'club' && <div className="enroll__box"><p>{t('site.enroll.clubLine')}</p></div>}
-        {error && <small className="cform__err" role="alert">{error}</small>}
-      </div>
-      {foot(main)}
-    </>
+    <dl className="ebank">
+      {bank.bankName && <><dt>{t('receipt.bank')}</dt><dd>{bank.bankName}</dd></>}
+      {bank.accountHolder && <><dt>{t('receipt.holder')}</dt><dd>{bank.accountHolder}</dd></>}
+      <dt>CLABE</dt><dd className="ebank__clabe">{clabe} <Copy k="clabe" v={String(bank.clabe).replace(/\s+/g, '')} /></dd>
+      {amount > 0 && <><dt>{t('site.enroll.amountLabel')}</dt><dd>{fmtMoney(amount)} <Copy k="amount" v={amount} /></dd></>}
+      {reference && <><dt>{t('site.enroll.refLabel')}</dt><dd>{reference} <Copy k="ref" v={reference} /></dd></>}
+    </dl>
   )
 }

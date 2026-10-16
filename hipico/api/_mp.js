@@ -1,4 +1,5 @@
-// Mercado Pago (Checkout Pro) shared bits: the keys in Vercel, the API calls and the notification signature.
+// Mercado Pago shared bits: the keys in Vercel, the API calls (Checkout Pro preference, a card payment from the card
+// form inside the page) and the notification signature.
 import crypto from 'node:crypto'
 
 const API = 'https://api.mercadopago.com'
@@ -29,6 +30,33 @@ export async function createPreference({ paymentId, title, amount, email, lang =
   if (!res.ok) throw new Error(`mercadopago ${res.status}`)
   const d = await res.json()
   return { id: d.id, url: d.init_point || d.sandbox_init_point }
+}
+
+/**
+ * A card payment from the card form inside the page: the form gives a one-time card token, the amount always comes
+ * from the charge. Returns Mercado Pago's payment ({ id, status, status_detail }); a declined card is status "rejected".
+ */
+export async function createPayment({ paymentId, title, amount, token, installments, paymentMethodId, issuerId, payer }, env = process.env, fetchFn = fetch) {
+  const res = await fetchFn(`${API}/v1/payments`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.MP_ACCESS_TOKEN}`, 'Content-Type': 'application/json', 'X-Idempotency-Key': `pay-${paymentId}-${String(token).slice(-24)}` },
+    body: JSON.stringify({
+      transaction_amount: amount,
+      token,
+      description: title,
+      installments: Math.max(1, Number(installments) || 1),
+      payment_method_id: paymentMethodId,
+      issuer_id: issuerId || undefined,
+      payer,
+      external_reference: paymentId,
+      metadata: { payment_id: paymentId },
+      notification_url: `${SITE_URL}/api/mp-webhook`,
+      statement_descriptor: 'HIPICO RIVIERA MAYA',
+    }),
+  })
+  const d = await res.json().catch(() => ({}))
+  if (!res.ok) return { id: null, status: 'rejected', status_detail: d?.cause?.[0]?.code || d?.message || `http_${res.status}` }
+  return d
 }
 
 /** A payment as Mercado Pago sees it: { id, status, external_reference, transaction_amount }. */
