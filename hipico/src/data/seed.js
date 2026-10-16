@@ -344,7 +344,7 @@ export function createSeed() {
     campRegistrations,
     rentals,
     // Sample bank details for transfers (the real club fills in its own in Cobros).
-    settings: { bankName: 'BBVA México', accountHolder: 'Hípico Riviera Maya S.A. de C.V.', clabe: '012180001234567895', modulePayroll: true, moduleProfit: true, moduleSales: true, closedWeekdays: [1], remindersOn: true, boardingDueDay: 1, reminderNote: null },
+    settings: { bankName: 'BBVA México', accountHolder: 'Hípico Riviera Maya S.A. de C.V.', clabe: '012180001234567895', modulePayroll: true, moduleProfit: true, moduleSales: true, closedWeekdays: [1], remindersOn: true, boardingDueDay: 1, reminderNote: null, promoteDemo: true },
     closedDates: [{ id: 'cd1', startsOn: holiday, endsOn: holiday, note: 'Día de Muertos' }],
     ...ownerSample(today),
     cancellations: [], // single class dates cancelled by the club

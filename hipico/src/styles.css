@@ -1907,3 +1907,25 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .card__eyebrow { display: inline-flex; align-items: center; gap: 6px; margin: 0; }
 .card__eyebrow .icon { flex: none; color: var(--ci, var(--muted)); }
 .boardcard { display: grid; gap: 12px; }
+
+/* Sign-in: while the club presents the app, a demo card in sage glass leads (the one mustard button on the screen). */
+.democard { box-sizing: border-box; width: 100%; margin-top: 28px; display: grid; gap: 10px; text-align: left; padding: 20px; border-radius: var(--radius);
+  background: linear-gradient(165deg, color-mix(in srgb, var(--sage-t) 55%, #fff) 0%, color-mix(in srgb, var(--sage-t) 85%, transparent) 100%);
+  border: 1px solid color-mix(in srgb, var(--sage) 35%, #fff);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), 0 16px 32px -20px color-mix(in srgb, var(--sage) 80%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
+.democard__title { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--font-head); font-weight: 600; font-size: 1.25rem; color: var(--green-dark); }
+.democard__title .icon { color: var(--sage-i); }
+.democard p { margin: 0; color: var(--ink); }
+.democard .btn { margin-top: 6px; gap: 8px; text-decoration: none; }
+.democard + .login__panel { margin-top: 16px; }
+/* "← Volver al sitio": a text link at level 1, at the bottom of Más, Resumen (phones) and above Salir in the sidebars */
+.backsite { display: inline-flex; align-items: center; gap: 6px; justify-self: start; margin-top: 8px; font-weight: 600; }
+@media (min-width: 1024px) { .backsite--phone { display: none; } }
+.desk__site { text-decoration: none; }
+.fdesk__site { margin-top: auto; text-decoration: none; }
+.fdesk__site + .fdesk__logout { margin-top: 0; }
+.demobar__site { margin-left: auto; text-decoration: none; }
+.demobar__site + .demobar__exit { margin-left: 14px; }
+.demobar__short { display: none; }
+@media (max-width: 479px) { .demobar__long { display: none; } .demobar__short { display: inline; } }

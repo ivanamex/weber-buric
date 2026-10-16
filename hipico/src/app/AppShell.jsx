@@ -5,6 +5,7 @@ import { familyRiders, login, logout, useStore, byId, moduleOn, newMessages } fr
 import { Logo } from '../components/Logo.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
 import { Icon } from '../components/Icon.jsx'
+import { BackToSite } from '../components/BackToSite.jsx'
 import { useToast } from '../components/Toast.jsx'
 import { useBase } from './Backend.jsx'
 import { InstallPrompt, PasswordNudge } from '../components/Install.jsx'
@@ -144,6 +145,9 @@ function DeskShell({ onLogout, toReview, demoBar }) {
           <div className="desk__foot">
             <p className="desk__who" title={s.session?.email || ''}><Icon name="user" size={18} /> <span className="desk__label">{s.mode === 'demo' ? t('app.roleAdmin') : s.session?.email}</span></p>
             <div className="desk__label"><LangToggle light /></div>
+            <BackToSite className="desk__link desk__site">
+              <span className="desk__icon"><Icon name="arrowLeft" size={20} /></span><span className="desk__label">{t('app.backToSite')}</span>
+            </BackToSite>
             <button type="button" className="desk__link" onClick={onLogout} title={t('app.logout')}><span className="desk__icon"><Icon name="logout" size={20} /></span><span className="desk__label">{t('app.logout')}</span></button>
             <button type="button" className="desk__link desk__collapse" onClick={toggle} title={t(small ? 'desk.expand' : 'desk.collapse')} aria-pressed={small}>
               <span className="desk__icon"><Icon name="panel" size={20} /></span><span className="desk__label">{t('desk.collapse')}</span>
@@ -225,6 +229,7 @@ function FamilyDeskShell({ onLogout, demoBar, family, outletContext }) {
               </NavLink>
             ))}
           </nav>
+          <BackToSite className="fdesk__link fdesk__site" iconSize={20} />
           <button type="button" className="fdesk__link fdesk__logout" onClick={onLogout}><Icon name="logout" size={20} /> <span>{t('app.logout')}</span></button>
         </aside>
         <main className="fdesk__content">
@@ -267,7 +272,9 @@ function DemoBar({ role }) {
           </button>
         ))}
       </div>
-      <button type="button" className="demobar__exit" onClick={leave}>{t('demoBar.exit')}</button>
+      {/* On phones the two links read "Sitio" and "Salir", so the bar stays one line. */}
+      <BackToSite className="demobar__exit demobar__site"><span className="demobar__long">{t('demoBar.site')}</span><span className="demobar__short">{t('demoBar.siteShort')}</span></BackToSite>
+      <button type="button" className="demobar__exit" onClick={leave}><span className="demobar__long">{t('demoBar.exit')}</span><span className="demobar__short">{t('demoBar.exitShort')}</span></button>
     </div>
   )
 }

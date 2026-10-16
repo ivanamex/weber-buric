@@ -101,7 +101,8 @@
     "loggedOut": "Sesión cerrada",
     "roleAdmin": "Dirección del club",
     "demo": "Demo",
-    "nav": "Navegación principal"
+    "nav": "Navegación principal",
+    "backToSite": "Volver al sitio"
   },
   "tabs": {
     "home": "Inicio",
@@ -590,7 +591,12 @@
     "continueAs": "Continuar como {email}",
     "havePassword": "Ya tengo contraseña",
     "passwordLabel": "Contraseña",
-    "forgot": "¿La olvidaste? Entra con un código"
+    "forgot": "¿La olvidaste? Entra con un código",
+    "demoCard": {
+      "title": "Conoce la app",
+      "text": "Recorre la app con datos de ejemplo, como familia o como dirección. No necesitas cuenta.",
+      "button": "Ver la demo"
+    }
   },
   "receipt": {
     "status": {
@@ -1138,7 +1144,10 @@
     "switch": "Ver la demo como",
     "family": "Familia",
     "admin": "Dirección",
-    "exit": "Salir de la demo"
+    "exit": "Salir de la demo",
+    "site": "Ver el sitio",
+    "siteShort": "Sitio",
+    "exitShort": "Salir"
   },
   "edit": {
     "save": "Guardar",
@@ -1920,5 +1929,12 @@
     "steady": "Constancia",
     "more": "Para avanzar más",
     "best": "Mejor precio por clase"
+  },
+  "promoteDemo": {
+    "section": "Entrada a la app",
+    "title": "Mostrar la demo primero al entrar",
+    "text": "Mientras presentas la app, quien la abre ve primero «Ver la demo». Apágalo cuando las familias empiecen a usarla: entonces el correo para entrar aparece primero.",
+    "on": "La demo aparece primero al entrar",
+    "off": "Al entrar aparece primero el correo"
   }
 }

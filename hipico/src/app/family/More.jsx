@@ -18,6 +18,7 @@ import { Navigate } from 'react-router-dom'
 import { useBase } from '../Backend.jsx'
 import { todayKey, addDays, hoursUntil } from '../../lib/time.js'
 import { StatusPill, LevelPill } from '../../components/Colors.jsx'
+import { BackToSite } from '../../components/BackToSite.jsx'
 
 const RENTAL_TIMES = ['07:00', '08:00', '09:00', '10:00', '11:00', '16:00', '17:00']
 const QUOTES = [
@@ -264,6 +265,7 @@ export default function FamilyMore() {
       <ProfileSection />
       <SettingsSection />
       <p className="sample-note">{t('common.samplePrices')}</p>
+      <BackToSite />
     </div>
   )
 }

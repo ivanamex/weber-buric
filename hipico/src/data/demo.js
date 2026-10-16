@@ -847,6 +847,10 @@ function saveModules(mods) {
   })
 }
 
+function savePromoteDemo(on) {
+  return mutate((s) => { s.settings = { ...s.settings, promoteDemo: Boolean(on) } })
+}
+
 function cancelClassDate(slotId, date, reason) {
   return mutate((s) => {
     const slot = byId(s.slots, slotId)
@@ -1215,7 +1219,7 @@ export const actions = {
   setPassword, resume: liveOnly, signInPassword: liveOnly,
   uploadReceipt, reviewReceipt, receiptUrl, saveSettings, bookSingleClass, saveClassPrices, payAtClub, saidPaidAtClub, simulateCardPayment,
   saveHorseCare, addHealth, updateHealth, deleteHealth,
-  sellHorse, uploadHorsePhoto, removeHorsePhoto, addOwnHorsePhoto, setHorsePhotoHidden, horsePhotoUrl, saveEmployee, paySalary, saveExpense, deleteExpense, saveCategory, saveModules,
+  sellHorse, uploadHorsePhoto, removeHorsePhoto, addOwnHorsePhoto, setHorsePhotoHidden, horsePhotoUrl, saveEmployee, paySalary, saveExpense, deleteExpense, saveCategory, saveModules, savePromoteDemo,
   saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,
   createClasses, editClass, cancelClassRange, copyWeek, saveClosedWeekdays, saveReminderSettings, addClosedDates, deleteClosedDate,
 }

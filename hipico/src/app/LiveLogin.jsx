@@ -35,6 +35,8 @@ export default function LiveLogin() {
     return () => clearInterval(id)
   }, [step, wait])
 
+  // While the club presents the app, the demo comes first (Ajustes → "Mostrar la demo primero al entrar").
+  const promote = s.status === 'signedOut' && step === 'email' && s.promoteDemo !== false
   if (s.session) return <Navigate to={`${base}/${s.session.role === 'admin' ? 'direccion' : 'familia'}`} replace />
 
   const onSend = async (e) => {
@@ -181,12 +183,13 @@ export default function LiveLogin() {
   } else {
     body = (
       <form className="login__panel" onSubmit={onSend}>
+        {promote && <p className="login__panelTitle">{t('live.subtitle')}</p>}
         <label className="field" htmlFor="login-email">
           <span>{t('live.emailLabel')}</span>
           <input id="login-email" className="input" type="email" inputMode="email" autoComplete="email"
             placeholder="nombre@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </label>
-        <button type="submit" className="btn btn--accent btn--block" disabled={busy}>{busy ? '…' : t('live.sendLink')}</button>
+        <button type="submit" className={`btn ${promote ? 'btn--outline' : 'btn--accent'} btn--block`} disabled={busy}>{busy ? '…' : t('live.sendLink')}</button>
         <p className="small">{t('live.emailHint')}</p>
         <button type="button" className="link link--light" onClick={() => setStep('password')}>{t('live.havePassword')}</button>
       </form>
@@ -202,9 +205,16 @@ export default function LiveLogin() {
       <div className="login__body">
         <Mark size={64} />
         <h1>Hípico Riviera Maya</h1>
-        <p>{t('live.subtitle')}</p>
+        {!promote && <p>{t('live.subtitle')}</p>}
+        {promote && (
+          <section className="democard" aria-labelledby="democard-title">
+            <p className="democard__title" id="democard-title"><Icon name="sparkle" size={20} /> {t('live.demoCard.title')}</p>
+            <p>{t('live.demoCard.text')}</p>
+            <Link to="/demo" className="btn btn--primary btn--block btn--lg">{t('live.demoCard.button')} <Icon name="arrowRight" size={18} /></Link>
+          </section>
+        )}
         {body}
-        <Link to="/demo" className="login__note"><Icon name="sparkle" size={16} /> {t('live.seeDemo')}</Link>
+        {!promote && <Link to="/demo" className="login__note"><Icon name="sparkle" size={16} /> {t('live.seeDemo')}</Link>}
       </div>
     </div>
   )

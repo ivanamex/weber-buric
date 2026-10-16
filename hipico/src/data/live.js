@@ -58,6 +58,11 @@ function keepStorage() {
   try { navigator.storage?.persist?.().catch(() => {}) } catch { /* ignore */ }
 }
 
+// Whether the sign-in screen leads with the demo (Ajustes → "Mostrar la demo primero al entrar"); on when unknown.
+async function readPromoteDemo() {
+  try { const res = await sb.rpc('promote_demo'); return res.error ? true : res.data !== false } catch { return true }
+}
+
 export function refresh() {
   loading ||= load().finally(() => { loading = null })
   return loading
@@ -66,7 +71,7 @@ export function refresh() {
 async function load() {
   try {
     const { data: { session } } = await sb.auth.getSession()
-    if (!session) return publish({ ...empty, status: 'signedOut' })
+    if (!session) return publish({ ...empty, status: 'signedOut', promoteDemo: await readPromoteDemo() })
     const paused = readPaused()
     if (paused && paused === session.user?.email) return publish({ ...empty, status: 'paused', email: paused })
     if (paused) setPaused(null)
@@ -430,6 +435,12 @@ async function saveModules(m) {
   await refresh()
   return { ok: true }
 }
+async function savePromoteDemo(on) {
+  const res = await sb.from('club_settings').update({ promote_demo: Boolean(on) }).eq('id', 1)
+  if (res.error) { console.error('[hipico] settings save failed', res.error); return { ok: false, code: 'network' } }
+  await refresh()
+  return { ok: true }
+}
 const bookSingleClass = ({ riderId, slotId, date, kind }) => call('book_single_class', { p_rider: riderId, p_slot: slotId, p_date: date, p_kind: kind })
 async function saveClassPrices(prices) {
   const rowsToSave = []
@@ -588,6 +599,7 @@ export const actions = {
   deleteExpense,
   saveCategory,
   saveModules,
+  savePromoteDemo,
   markContactMessage: (id, status) => call('mark_contact_message', { p_id: id, p_status: status }),
   refreshData: async () => { await refresh(); return { ok: true } },
 }

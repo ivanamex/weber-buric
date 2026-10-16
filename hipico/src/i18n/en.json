@@ -101,7 +101,8 @@
     "loggedOut": "Signed out",
     "roleAdmin": "Club management",
     "demo": "Demo",
-    "nav": "Main navigation"
+    "nav": "Main navigation",
+    "backToSite": "Back to the website"
   },
   "tabs": {
     "home": "Home",
@@ -590,7 +591,12 @@
     "continueAs": "Continue as {email}",
     "havePassword": "I have a password",
     "passwordLabel": "Password",
-    "forgot": "Forgot it? Sign in with a code"
+    "forgot": "Forgot it? Sign in with a code",
+    "demoCard": {
+      "title": "Get to know the app",
+      "text": "Explore the app with sample data, as a family or as the club. No account needed.",
+      "button": "See the demo"
+    }
   },
   "receipt": {
     "status": {
@@ -1138,7 +1144,10 @@
     "switch": "See the demo as",
     "family": "Family",
     "admin": "Management",
-    "exit": "Leave the demo"
+    "exit": "Leave the demo",
+    "site": "See the website",
+    "siteShort": "Website",
+    "exitShort": "Exit"
   },
   "edit": {
     "save": "Save",
@@ -1920,5 +1929,12 @@
     "steady": "Steady progress",
     "more": "To progress faster",
     "best": "Best price per class"
+  },
+  "promoteDemo": {
+    "section": "Opening the app",
+    "title": "Show the demo first on the sign-in screen",
+    "text": "While you present the app, anyone who opens it sees «See the demo» first. Turn it off once families start using it, so signing in comes first.",
+    "on": "The demo now comes first on the sign-in screen",
+    "off": "Signing in now comes first"
   }
 }

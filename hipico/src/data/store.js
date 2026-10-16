@@ -62,6 +62,7 @@ export const saveExpense = act('saveExpense')
 export const deleteExpense = act('deleteExpense')
 export const saveCategory = act('saveCategory')
 export const saveModules = act('saveModules') // Nómina / Rentabilidad / Caballos en venta on or off
+export const savePromoteDemo = act('savePromoteDemo') // the sign-in screen leads with the demo, or not
 export const cancelBooking = act('cancelBooking')
 export const markAttendance = act('markAttendance')
 export const choosePlan = act('choosePlan')

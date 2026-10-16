@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { DateInput } from '../../components/DateInput.jsx'
-import { useStore, saveModules, closedWeekdays, saveClosedWeekdays, addClosedDates, deleteClosedDate, saveReminderSettings, closingImpact } from '../../data/store.js'
+import { useStore, saveModules, savePromoteDemo, closedWeekdays, saveClosedWeekdays, addClosedDates, deleteClosedDate, saveReminderSettings, closingImpact } from '../../data/store.js'
 import { weekdayOf } from '../../lib/time.js'
 import { Icon } from '../../components/Icon.jsx'
 import { SectionTitle } from '../../components/ui.jsx'
@@ -169,6 +169,7 @@ export default function AdminModules() {
   const { t } = useI18n()
   const s = useStore()
   const [run, busy] = useSave()
+  const promote = s.settings?.promoteDemo !== false
   const current = Object.fromEntries(MODULES.map((m) => [m.key, Boolean(s.settings?.[m.key])]))
   const toggle = (key) => {
     const next = { ...current, [key]: !current[key] }
@@ -193,6 +194,22 @@ export default function AdminModules() {
             </label>
           </li>
         ))}
+      </ul>
+
+      <SectionTitle icon="sparkle">{t('promoteDemo.section')}</SectionTitle>
+      <ul className="list card" id="entrada">
+        <li className="list__row">
+          <span className="tile-icon"><Icon name="sparkle" size={20} /></span>
+          <div className="grow">
+            <p className="list__title">{t('promoteDemo.title')}</p>
+            <p className="small muted">{t('promoteDemo.text')}</p>
+          </div>
+          <label className="switch">
+            <input type="checkbox" role="switch" checked={promote} disabled={busy} aria-label={t('promoteDemo.title')}
+              onChange={() => run(() => savePromoteDemo(!promote), t(promote ? 'promoteDemo.off' : 'promoteDemo.on'))} />
+            <span aria-hidden="true" />
+          </label>
+        </li>
       </ul>
 
       <SectionTitle icon="receipt">{t('reminders.title')}</SectionTitle>

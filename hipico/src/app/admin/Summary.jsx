@@ -11,6 +11,7 @@ import { concept, paymentSentence } from '../../components/PaymentHistory.jsx'
 import { todayKey, addDays, currentMonthKey } from '../../lib/time.js'
 import IncomeChart from './IncomeChart.jsx'
 import { LevelPill } from '../../components/Colors.jsx'
+import { BackToSite } from '../../components/BackToSite.jsx'
 
 /** WhatsApp link to a family's phone (Mexican numbers get +52), with a friendly reminder. */
 export function familyWaLink(phone, text) {
@@ -228,6 +229,7 @@ export default function AdminSummary() {
           </Link>
         ))}
       </nav>
+      <BackToSite className="link backsite backsite--phone" />
     </div>
   )
 }
