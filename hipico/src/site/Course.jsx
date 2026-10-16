@@ -1,56 +1,26 @@
 import { useEffect, useRef } from 'react'
 
-// The footer course: numbered fences (posts + striped poles) on a dotted ground line, three on a computer and two on
-// phones, and Ivana's silhouettes (rider and horse, olivewood) that canter on the line and jump each fence.
-const fencesFor = (w) => (w < 900 ? [0.27, 0.73] : [0.22, 0.5, 0.78])
-const INK = 'rgba(51,53,42,'
-function drawCourse(ctx, w, ground, fh, fences) {
-  ctx.save()
-  ctx.lineCap = 'round'
-  ctx.strokeStyle = `${INK}.5)`
-  ctx.lineWidth = 1.5
-  ctx.setLineDash([2, 7])
-  ctx.beginPath(); ctx.moveTo(16, ground + 0.5); ctx.lineTo(w - 16, ground + 0.5); ctx.stroke()
-  const half = Math.max(22, fh * 0.55)
-  fences.forEach((fx, i) => {
-    const cx = Math.round(fx * w)
-    ctx.setLineDash([])
-    ctx.strokeStyle = `${INK}.72)`
-    ctx.lineWidth = 2
-    for (const px of [cx - half, cx + half]) { // posts with a small cap
-      ctx.beginPath(); ctx.moveTo(px, ground); ctx.lineTo(px, ground - fh - 6); ctx.stroke()
-      ctx.beginPath(); ctx.moveTo(px - 4, ground - fh - 6); ctx.lineTo(px + 4, ground - fh - 6); ctx.stroke()
-    }
-    ctx.lineWidth = 3
-    ctx.setLineDash([10, 7]) // striped poles
-    for (let k = 1; k <= 3; k++) {
-      const y = ground - (fh * k) / 3
-      ctx.beginPath(); ctx.moveTo(cx - half + 3, y); ctx.lineTo(cx + half - 3, y); ctx.stroke()
-    }
-    ctx.setLineDash([])
-    ctx.lineWidth = 1.5 // the number, like a course plan
-    ctx.beginPath(); ctx.arc(cx - half - 12, ground - fh - 14, 9, 0, Math.PI * 2); ctx.stroke()
-    ctx.fillStyle = `${INK}.85)`
-    ctx.font = '700 11px "Archivo Variable", sans-serif'
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.fillText(String(i + 1), cx - half - 12, ground - fh - 13.5)
-  })
-  ctx.restore()
-}
-
-const POSES = ['canter', 'takeoff', 'over', 'landing']
+// The footer course: Ivana's fence illustrations (a vertical, an oxer, a wall with flower boxes) standing on a dotted
+// ground line, three on a computer and two on phones, and her rider-and-horse silhouettes running and jumping them.
+const fencesFor = (w) => (w < 900 ? [0.25, 0.75] : [0.22, 0.5, 0.78])
+const HORSE = ['canter', 'takeoff', 'over', 'landing'] // public/img/course/horse-<pose>.png
+const FENCES = ['fence-1', 'fence-2', 'fence-3']
 const RUN = 9000 // across the band
 const PAUSE = 2000 // then again from the left
-const FRAME_TO_FENCE = 1.9 // the image's height ÷ the fence's: the withers sit about 1.1× the fence
+const FRAME_TO_FENCE = 1.9 // the horse image's height ÷ the fence's: the withers sit about 1.1× the fence
 const PEAK = 1.2 // the lowest hoof at the top of the arc, × the fence (20 % over the top pole)
-const REACH = 0.85 // take-off and landing, in horse-lengths from the fence
+const REACH = 0.85 // take-off and landing, in horse-lengths from the fence's middle…
+const CLEAR = 1.9 // …or this many half-fence-widths, whichever is longer, so the legs clear a wide oxer
 const BODY = 0.58 // the horse's middle, from the tail end of the silhouette (the tail makes the image longer behind)
-const FADE = 120 // ms to cross-fade between poses
+const STRIDE = 160 // ms per canter frame: canter and landing poses alternate, both with hooves on the line
+const BOB = 3 // px up and down, in step
+const FADE = 120 // ms to cross-fade into and out of the jump poses
+const INK = 'rgba(51,53,42,.5)'
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-/** Each silhouette with the edges of its opaque part (in image pixels): left, right, bottom. */
-function loadPoses() {
-  return Promise.all(POSES.map((name) => new Promise((resolve, reject) => {
+/** An image with the edges of its opaque part (in image pixels): left, right, bottom. */
+function load(src) {
+  return new Promise((resolve, reject) => {
     const img = new Image()
     img.onload = () => {
       const c = document.createElement('canvas')
@@ -67,24 +37,25 @@ function loadPoses() {
           if (d[(y * c.width + x) * 4 + 3] > 128) { if (x < left) left = x; if (x > right) right = x; if (y > bottom) bottom = y }
         }
       }
-      resolve([name, { img, w: c.width, h: c.height, left, right: right + 1, bottom: bottom + 1 }])
+      resolve({ img, w: c.width, h: c.height, left, right: right + 1, bottom: bottom + 1 })
     }
     img.onerror = reject
-    img.src = `/img/course/horse-${name}.png`
-  }))).then(Object.fromEntries)
+    img.src = src
+  })
 }
+const loadAll = (names) => Promise.all(names.map((n) => load(`/img/course/${n.startsWith('fence') ? n : `horse-${n}`}.png`).then((v) => [n, v]))).then(Object.fromEntries)
 
 /**
- * The course in the footer band: the horse canters in from the left with its hooves on the dotted line and a 2 px bob,
- * takes off about a horse-length before each fence, is over it at the top of the arc, lands a horse-length after and
- * canters on; 9 s across, a 2 s pause, and again from the left whenever the band is on screen. Poses cross-fade in
- * 120 ms. Reduced motion: the horse stands at the start line.
+ * The course in the footer band: the horse runs in from the left on the dotted line (canter and landing poses
+ * alternating every 160 ms with a 3 px bob, at a steady speed), takes off before each fence, is over it at the top of
+ * the arc, lands after it and runs on; 9 s across, a 2 s pause, and again from the left whenever the band is on screen.
+ * Jump poses cross-fade in 120 ms. Reduced motion: the canter pose standing at the start line.
  */
 export function CourseHorse() {
   const ref = useRef(null)
   useEffect(() => {
     const canvas = ref.current
-    let poses = null
+    let art = null
     let ctx = null
     let w = 0
     let h = 0
@@ -98,7 +69,7 @@ export function CourseHorse() {
     const layout = () => {
       w = canvas.parentElement.clientWidth
       h = canvas.parentElement.clientHeight
-      fh = w < 600 ? 40 : 66
+      fh = w < 600 ? 34 : 66
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
       canvas.width = Math.round(w * dpr)
       canvas.height = Math.round(h * dpr)
@@ -106,11 +77,28 @@ export function CourseHorse() {
       ctx = canvas.getContext('2d')
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.imageSmoothingQuality = 'high'
-      if (poses) scale = (FRAME_TO_FENCE * fh) / poses.canter.h
+      if (art) scale = (FRAME_TO_FENCE * fh) / art.canter.h
+    }
+    // Each fence scaled by its own height (so the three are the same height), its bottom edge on the line.
+    const fenceBox = (name) => { const f = art[name]; const k = fh / f.bottom; return { f, k, half: ((f.right - f.left) * k) / 2 } }
+    const drawFences = (ground, fences) => {
+      ctx.save()
+      ctx.strokeStyle = INK
+      ctx.lineWidth = 1.5
+      ctx.lineCap = 'round'
+      ctx.setLineDash([2, 7])
+      ctx.beginPath(); ctx.moveTo(16, ground + 0.5); ctx.lineTo(w - 16, ground + 0.5); ctx.stroke()
+      ctx.restore()
+      if (!art) return
+      fences.forEach((fx, i) => {
+        const { f, k } = fenceBox(FENCES[i])
+        const x = fx * w - ((f.left + f.right) / 2) * k
+        ctx.drawImage(f.img, x, ground - f.bottom * k + 1, f.w * k, f.h * k)
+      })
     }
     // One pose with the horse's middle on `mid` and its lowest point `lift` px over the ground.
     const put = (name, mid, lift, ground, alpha) => {
-      const p = poses[name]
+      const p = art[name]
       const x = mid - (p.left + (p.right - p.left) * BODY) * scale
       const y = ground - p.bottom * scale - lift
       ctx.globalAlpha = alpha
@@ -121,27 +109,35 @@ export function CourseHorse() {
       ctx.clearRect(0, 0, w, h)
       const ground = h - 22
       const fences = fencesFor(w)
-      drawCourse(ctx, w, ground, fh, fences)
-      if (!poses) return
-      const c = poses.canter
+      drawFences(ground, fences)
+      if (!art) return
+      const c = art.canter
       const len = (c.right - c.left) * scale
       if (reducedMotion()) { put('canter', 18 + len * BODY, 0, ground, 1); return }
       const p = t % (RUN + PAUSE)
       if (p >= RUN) return
-      const mid = -len * (1 - BODY) + (p / RUN) * (w + len)
-      let pose = 'canter'
-      let lift = 2 * Math.abs(Math.sin(t / 150)) // the canter's small bob
-      for (const fx of fences) {
-        const d = (mid - fx * w) / (len * REACH)
-        if (Math.abs(d) >= 1) continue
+      const mid = -len * (1 - BODY) + (p / RUN) * (w + len) // steady speed
+      // On the ground: the canter cycle with its bob, in step.
+      const frame = Math.floor(t / STRIDE) % 2
+      let pose = frame ? 'landing' : 'canter'
+      let lift = BOB * Math.abs(Math.sin((Math.PI * t) / STRIDE))
+      let jumping = false
+      fences.forEach((fx, i) => {
+        if (jumping) return
+        const reach = Math.max(len * REACH, fenceBox(FENCES[i]).half * CLEAR)
+        const d = (mid - fx * w) / reach
+        if (Math.abs(d) >= 1) return
+        jumping = true
         pose = d < -0.35 ? 'takeoff' : d <= 0.35 ? 'over' : 'landing'
-        lift = PEAK * fh * (1 - d * d) ** 0.7 // a little flatter on top than a parabola, so the legs clear the posts
-        break
-      }
-      if (pose !== shown.pose) shown = { pose, since: t, prev: shown.pose }
+        lift = PEAK * fh * (1 - Math.abs(d) ** 2.5) // flat on top, so the legs clear the whole fence
+      })
+      // Cross-fade only into and out of the jump; the canter frames swap cleanly.
+      const key = jumping ? pose : 'run'
+      if (key !== shown.key) shown = { key, pose, since: t, prev: shown.pose }
+      shown.pose = pose
       const k = Math.min(1, (t - shown.since) / FADE)
-      if (k < 1) put(shown.prev, mid, lift, ground, 1 - k)
-      put(pose, mid, lift, ground, k)
+      if (k < 1 && shown.prev !== pose) put(shown.prev, mid, lift, ground, 1 - k)
+      put(pose, mid, lift, ground, k < 1 && shown.prev !== pose ? k : 1)
     }
     const loop = (now) => {
       if (!alive || !visible) { raf = 0; return }
@@ -151,14 +147,14 @@ export function CourseHorse() {
     }
     const io = new IntersectionObserver(([e]) => {
       visible = e.isIntersecting
-      if (visible && !raf && !reducedMotion()) { start = null; shown = { pose: 'canter', since: -1e9, prev: 'canter' }; raf = requestAnimationFrame(loop) }
+      if (visible && !raf && !reducedMotion()) { start = null; shown = { key: 'run', pose: 'canter', since: -1e9, prev: 'canter' }; raf = requestAnimationFrame(loop) }
     })
     const ro = new ResizeObserver(() => { if (alive) { layout(); if (!raf) draw(0) } })
     layout()
     draw(0)
-    loadPoses().then((loaded) => {
+    loadAll([...HORSE, ...FENCES]).then((loaded) => {
       if (!alive) return
-      poses = loaded
+      art = loaded
       layout()
       draw(0)
       ro.observe(canvas.parentElement)
