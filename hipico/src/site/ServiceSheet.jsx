@@ -21,7 +21,7 @@ export function SiteDialog({ photo, alt, position, labelledBy, onClose, children
   const closeBtn = useRef(null)
   useEffect(() => {
     const before = document.activeElement
-    closeBtn.current?.focus()
+    closeBtn.current?.focus({ preventScroll: true })
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     const onKey = (e) => {
@@ -109,8 +109,17 @@ export function ServiceSheet({ service, onClose }) {
         </div>
       ) : (
         <div key="info" className={`ssheet2__body ${service.key === 'classes' ? 'ssheet2__body--enroll' : ''} ${back ? 'ssheet2__body--back' : ''}`}>
-          <h2 id="ssheet2-title" className="kinetic is-in">{t(`site.sheet.${service.key}.title`)}</h2>
-          <p className="slead">{t(`site.sheet.${service.key}.text`)}</p>
+          {service.key === 'classes' ? (
+            <div className="ssheet2__head">
+              <h2 id="ssheet2-title" className="kinetic is-in">{t('site.sheet.classes.title')}</h2>
+              <p className="slead">{t('site.sheet.classes.text')}</p>
+            </div>
+          ) : (
+            <>
+              <h2 id="ssheet2-title" className="kinetic is-in">{t(`site.sheet.${service.key}.title`)}</h2>
+              <p className="slead">{t(`site.sheet.${service.key}.text`)}</p>
+            </>
+          )}
           {body}
         </div>
       )}

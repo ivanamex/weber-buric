@@ -49,7 +49,10 @@ export function Enroll({ data, onCustom, info }) {
   const [done, setDone] = useState(null) // 'receipt' | 'later' | 'club' | 'paid' | 'cardPending'
   const top = useRef(null)
   const cardApi = useRef(null)
-  useEffect(() => { top.current?.scrollIntoView?.({ block: 'nearest' }) }, [step])
+  // Every step opens at the top of the sheet: the column (computer) and the panel (phones) both go back to 0.
+  useEffect(() => {
+    for (let n = top.current?.parentElement; n && !n.classList.contains('ssheet2'); n = n.parentElement) n.scrollTop = 0
+  }, [step])
   useEffect(() => { if (step === 'details') cardInfo().then(setCard) }, [step])
 
   const prices = data?.prices || {}
@@ -167,8 +170,10 @@ export function Enroll({ data, onCustom, info }) {
                     <button key={p.classes} type="button" role="radio" aria-checked={plan.classes === p.classes} className={`eplan c-${look.color} ${plan.classes === p.classes ? 'is-on' : ''}`} onClick={() => setPlanN(p.classes)}>
                       <span className="eplan__icon" aria-hidden="true"><SiteIcon name={look.icon} size={24} /></span>
                       <b>{p.classes}</b>
-                      <span>{t('site.enroll.perWeek', { n: Math.max(1, Math.round(p.classes / 4)) })}</span>
-                      {fact && <span className="eplan__fact">{t(`planCard.${fact}`)}</span>}
+                      <span className="eplan__line">
+                        <span>{t('site.enroll.perWeek', { n: Math.max(1, Math.round(p.classes / 4)) })}</span>
+                        {fact && <span className="eplan__fact">{t(`planCard.${fact}`)}</span>}
+                      </span>
                     </button>
                   )
                 })}
