@@ -171,6 +171,8 @@ export function weekOccupancy(s, anchor = todayKey()) {
   return {
     start, end: addDays(start, 6), seats, taken, pct: pct(taken, seats),
     byLevel: Object.fromEntries(LEVELS.map((l) => [l, pct(byLevel[l].taken, byLevel[l].seats)])),
+    // Each level with classes this week: seats, taken, percent.
+    levels: LEVELS.filter((l) => byLevel[l].seats > 0).map((l) => ({ level: l, ...byLevel[l], pct: pct(byLevel[l].taken, byLevel[l].seats) })),
   }
 }
 export const activePlansCount = (s) => {

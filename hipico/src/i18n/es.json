@@ -935,7 +935,8 @@
     "emptyToday": "Hoy no hay clases con jinetes.",
     "emptyHorses": "Ningún caballo tiene pendientes en 14 días.",
     "emptySalaries": "Ningún sueldo vence en 15 días.",
-    "seats": "{taken} de {seats} lugares"
+    "seats": "{taken} de {seats} lugares",
+    "byLevel": "Por nivel"
   },
   "payroll": {
     "title": "Nómina",

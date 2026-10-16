@@ -13,7 +13,10 @@
  * It also lists text-level elements (nav and text links, table headers, unselected tabs, sidebar items) whose hover
  * adds a background or a pill: the "too strong" case. They should only change color and grow an underline.
  *
- * Exit code 1 when any element has no hover, or a text-level one gets a background.
+ * And it lists cards in the app and the panel with a band of more than 80 px with nothing in it (a card stretched to
+ * match a taller neighbour while its content stays short), by screen; Resumen is also checked at 1280 and 1920 px.
+ *
+ * Exit code 1 when any element has no hover, a text-level one gets a background, or a card is mostly empty.
  */
 import { createRequire } from 'node:module'
 import { spawn } from 'node:child_process'
@@ -142,6 +145,42 @@ async function auditPage(page, route, seen, out) {
   return checked
 }
 
+const EMPTY_MAX = 80
+
+/** Cards whose content ends more than EMPTY_MAX px above their bottom edge (padding excluded). */
+async function emptyCards(page, route, out) {
+  const found = await page.evaluate((max) => {
+    const LEAF = new Set(['IMG', 'SVG', 'CANVAS', 'INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'VIDEO', 'HR', 'PROGRESS', 'METER'])
+    const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && cs.opacity !== '0' }
+    const name = (el) => (el.closest('.sumblock, .homegrid > div, .reviewblock, section')?.querySelector('.section-title h2')?.textContent || el.querySelector('h2, h3, .card__label, .card__title, strong, b')?.textContent || el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 50)
+    const res = []
+    for (const card of document.querySelectorAll('.desk__content .card, .fdesk__content .card, .page .card')) {
+      if (!visible(card) || card.closest('.sheet, .paydlg, [role="dialog"]')) continue
+      const cs = getComputedStyle(card)
+      const box = card.getBoundingClientRect()
+      const top = box.top + parseFloat(cs.paddingTop) + parseFloat(cs.borderTopWidth)
+      const bottom = box.bottom - parseFloat(cs.paddingBottom) - parseFloat(cs.borderBottomWidth)
+      // The content's vertical extents; the largest band with nothing in it (between, above or below) is the gap.
+      const spans = []
+      for (const el of card.querySelectorAll('*')) {
+        const leaf = LEAF.has(el.tagName.toUpperCase()) || [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())
+        if (!leaf || el.closest('.visually-hidden') || !visible(el)) continue
+        const r = el.getBoundingClientRect()
+        spans.push([r.top, r.bottom])
+      }
+      spans.sort((a, b) => a[0] - b[0])
+      let gap = 0
+      let reach = top
+      for (const [a, b] of spans) { gap = Math.max(gap, a - reach); reach = Math.max(reach, b) }
+      gap = Math.round(Math.max(gap, bottom - reach))
+      if (gap > max) res.push(`${name(card)} — ${gap} px empty`)
+    }
+    return res
+  }, EMPTY_MAX)
+  for (const what of found) empties.push({ route, what })
+}
+const empties = []
+
 /** Every tab on the page (segmented controls, view toggles), then the first clickable row's side panel. */
 async function variants(page) {
   const list = []
@@ -177,6 +216,7 @@ async function main() {
         await go(route)
         await page.evaluate(() => document.querySelector('.installcard .link, .installcard button[aria-label]')?.click()).catch(() => {})
         const seen = new Set()
+        await emptyCards(page, route, out)
         total += await auditPage(page, route, seen, out)
         for (const v of await variants(page)) {
           await v.act()
@@ -187,6 +227,14 @@ async function main() {
         }
       }
     }
+    // Resumen at the other computer widths too: equal-height rows stretch cards differently.
+    await enter('admin')
+    for (const width of [1280, 1920]) {
+      await page.setViewportSize({ width, height: 900 })
+      await go('/demo/direccion')
+      await emptyCards(page, `/demo/direccion @${width}`, out)
+    }
+    await page.setViewportSize({ width: 1440, height: 900 })
     for (const route of SITE) {
       await page.goto(`${BASE}${route}`, { waitUntil: 'networkidle' })
       await page.waitForTimeout(600)
@@ -216,7 +264,9 @@ async function main() {
   }
   if (strong.length) console.log('\nToo strong (text level, but the hover adds a background):')
   for (const x of strong) console.log(`  - ${x.route}: ${x.what}`)
-  process.exit(out.length || strong.length ? 1 : 0)
+  console.log(`\nCards with more than ${EMPTY_MAX} px empty: ${empties.length}.`)
+  for (const x of empties) console.log(`  - ${x.route}: ${x.what}`)
+  process.exit(out.length || strong.length || empties.length ? 1 : 0)
 }
 
 main().catch((e) => { console.error(e.message || e); process.exit(2) })

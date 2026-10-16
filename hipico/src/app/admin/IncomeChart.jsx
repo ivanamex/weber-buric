@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { useDesktop } from '../../components/Desk.jsx'
 
-const PAD = { top: 10, right: 6, bottom: 22, left: 40 }
+const PAD = { top: 10, right: 6, bottom: 22, left: 58 }
 
 /** Rounded top (4 px data-end), square at the baseline. */
 function barPath(x, y, w, h) {
@@ -15,14 +15,30 @@ const niceMax = (v) => {
   return Math.ceil(v / p) * p
 }
 
-/** Daily income over the last 30 days: one series, thin columns, a tooltip per day, and a table for screen readers. */
+/**
+ * Daily income over the last 30 days: one series, thin columns, a tooltip per day, and a table for screen readers.
+ * The chart takes all the height its card gives it (at least 200 px) and redraws at its real size, so the labels
+ * keep their size and a stretched card never shows an empty band under it.
+ */
 export default function IncomeChart({ daily }) {
   const { t, fmtMoney, fmtDate } = useI18n()
   const [hover, setHover] = useState(null)
-  // Wider and flatter on a computer, so the labels keep their size.
   const wide = useDesktop()
-  const W = wide ? 760 : 330
-  const H = wide ? 170 : 132
+  const box = useRef(null)
+  const [size, setSize] = useState({ w: wide ? 760 : 330, h: 200 })
+  useEffect(() => {
+    const el = box.current
+    if (!el || typeof ResizeObserver === 'undefined') return undefined
+    const ro = new ResizeObserver(([e]) => {
+      const w = Math.round(e.contentRect.width)
+      const h = Math.round(e.contentRect.height)
+      if (w > 0 && h > 0) setSize((old) => (old.w === w && old.h === h ? old : { w, h }))
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const W = size.w
+  const H = size.h
   const max = niceMax(Math.max(...daily.map((d) => d.amount)))
   const plotW = W - PAD.left - PAD.right
   const plotH = H - PAD.top - PAD.bottom
@@ -34,8 +50,8 @@ export default function IncomeChart({ daily }) {
 
   return (
     <figure className="ichart">
-      <div className="ichart__plot">
-        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t('summary.chartTitle')} onMouseLeave={() => setHover(null)}>
+      <div className="ichart__plot" ref={box}>
+        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={t('summary.chartTitle')} onMouseLeave={() => setHover(null)}>
           {[0, max / 2, max].map((v) => (
             <g key={v}>
               <line x1={PAD.left} x2={W - PAD.right} y1={y(v)} y2={y(v)} className="ichart__grid" />

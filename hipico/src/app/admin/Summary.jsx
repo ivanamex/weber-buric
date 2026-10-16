@@ -157,6 +157,18 @@ export default function AdminSummary() {
             <p className="small muted">{t('summary.thisWeek')}</p>
           </div>
         </div>
+        {occ.levels.length > 0 && (
+          <div className="occcard__levels">
+            <p className="card__label">{t('summary.byLevel')}</p>
+            {occ.levels.map((l) => (
+              <div key={l.level} className="occlevel">
+                <span className="occlevel__name">{t(`levels.${l.level}`)}</span>
+                <span className="occlevel__track" aria-hidden="true"><span style={{ width: `${l.pct}%` }} /></span>
+                <span className="occlevel__n">{t('summary.seats', { taken: l.taken, seats: l.seats })}</span>
+              </div>
+            ))}
+          </div>
+        )}
         <Link to={`${base}/direccion/horario`} className="link card__foot">{t('summary.seeSchedule')}</Link>
       </div>
 

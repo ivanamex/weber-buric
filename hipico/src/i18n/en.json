@@ -935,7 +935,8 @@
     "emptyToday": "No classes with riders today.",
     "emptyHorses": "No horse has anything due in 14 days.",
     "emptySalaries": "No salary is due in 15 days.",
-    "seats": "{taken} of {seats} seats"
+    "seats": "{taken} of {seats} seats",
+    "byLevel": "By level"
   },
   "payroll": {
     "title": "Payroll",
