@@ -25,3 +25,9 @@ Ivana (Resumen → Más: Mensajes, Reportes, Rentabilidad, Nómina, Ajustes): ea
 - Applies to: Resumen's "Más" tiles, the family quick tiles on Inicio, the Cobros total tiles, the 4·8·12 plan cards (STEP-67), cards with a colored edge (`edge-c`), and the website's 4 colored boxes.
 - Mustard tint stays only for elements without a color of their own (rows, chips, neutral pills, outline buttons).
 - `check:hover` reports any `.c-<color>` element whose hover background isn't its own tint.
+
+## Family Inicio: every title inside its card
+Ivana: on family Inicio, every block has its title inside the card (PLAN ACTIVO…, PRÓXIMA CLASE…, PAGOS POR VENCER), except **Pensión**, whose heading sits outside, above the card.
+- Pensión gets the same small-caps eyebrow inside the card: "PENSIÓN · RELÁMPAGO" (horse icon + text), with the status pill on the same line, top-right, as in Plan activo.
+- The rule for the family app: on Inicio, Mi plan and Pagos, card titles go **inside** as the eyebrow. Headings outside cards are only for groups of several cards (e.g. "Próximas clases" over a list). Check every family screen and list what moved.
+- The round horse photo on the Pensión card still shows a person's face, not Relámpago (STEP-58's focal point didn't take). Use a photo where the horse's head is the subject, or set its focal point so the head fills the circle. Report which file it uses.
