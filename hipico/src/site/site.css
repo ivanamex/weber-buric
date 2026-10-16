@@ -399,6 +399,7 @@
 .sfilm__arrow--next { right: 24px; }
 @media (hover: hover) and (pointer: fine) { .sfilm__arrow { display: grid; } }
 
+/* The padding scale (--pad-s / --pad-m / --pad-l) comes from styles.css: nothing touches an edge. */
 /* ───────── A service's lightbox: photo left, text right (stacked and scrolling inside on phones) ───────── */
 .ssheet2 { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 16px; }
 .ssheet2__scrim { position: absolute; inset: 0; border: 0; background: rgba(51,53,42,.6); cursor: pointer; }
@@ -408,7 +409,7 @@
 @keyframes sheetIn { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: none; } }
 .ssheet2__photo { margin: 0; height: 220px; }
 .ssheet2__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ssheet2__body { display: grid; gap: 16px; align-content: start; padding: 24px 22px 28px; }
+.ssheet2__body { display: grid; gap: 16px; align-content: start; padding: var(--pad-m) var(--pad-m) calc(var(--pad-m) + 8px); }
 .ssheet2__body .kinetic { margin: 0; font-size: clamp(40px, 4.2vw, 58px); }
 .ssheet2__rows { list-style: none; margin: 0; padding: 0; }
 .ssheetrow { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
@@ -421,7 +422,7 @@
 @media (min-width: 860px) {
   .ssheet2__panel { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); overflow: hidden; }
   .ssheet2__photo { height: auto; min-height: 560px; }
-  .ssheet2__body { padding: 44px; overflow-y: auto; max-height: calc(100svh - 32px); }
+  .ssheet2__body { padding: calc(var(--pad-l) + 12px); overflow-y: auto; max-height: calc(100svh - 32px); }
 }
 @media (max-width: 859px) { .ssheet2__close { position: fixed; top: 28px; right: 28px; } }
 
@@ -618,7 +619,7 @@
 /* Clases, as in the approved draft: Plan mensual (4 · 8 · 12) or Sin plan, a summary card, "A tu medida" as a link,
    and one footer stuck to the bottom of the sheet (what was chosen + the main button) through the three steps. */
 .ssheet2--classes .ssheet2__photo { height: 110px; }
-.ssheet2__body--enroll { display: flex; flex-direction: column; gap: 0; padding: 24px 20px 0; --vgap: clamp(10px, 2.4vh, 20px); }
+.ssheet2__body--enroll { display: flex; flex-direction: column; gap: 0; padding: var(--pad-m) var(--pad-m) 0; --vgap: clamp(10px, 2.4vh, 20px); }
 .ssheet2__body--enroll .kinetic { font-size: 40px; line-height: 1; }
 .ssheet2__body--enroll .slead { margin: 8px 0 0; font-size: 15px; color: var(--bark); }
 .ssheet2__body--enroll > .enroll { margin-top: var(--vgap); }
@@ -633,7 +634,7 @@
 .epane { display: grid; gap: 12px; }
 .elabel { margin: 0; font-family: var(--site-font); font-stretch: 80%; font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--bark); }
 .eplans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.eplan { position: relative; overflow: hidden; display: grid; justify-items: start; gap: 2px; padding: 12px 12px 14px; border: 1.5px solid #DDD3BE; border-radius: 16px; background: var(--card); color: var(--ink); text-align: left; cursor: pointer; font-family: var(--text-font); }
+.eplan { position: relative; overflow: hidden; display: grid; justify-items: start; gap: 2px; padding: 14px 12px 16px; border: 1.5px solid #DDD3BE; border-radius: 16px; background: var(--card); color: var(--ink); text-align: left; cursor: pointer; font-family: var(--text-font); }
 .eplan::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--c); } /* each plan's own accent along the bottom */
 .eplan__icon { position: absolute; top: 10px; right: 10px; display: grid; color: var(--ci); }
 .eplan b { font-family: var(--site-font); font-stretch: 72%; font-weight: 800; font-size: 26px; line-height: 1; }
@@ -641,7 +642,7 @@
 .eplan .eplan__fact { font-weight: 600; color: var(--ink); }
 .eplan__line { display: grid; gap: 2px; }
 .erow.is-on { border-color: var(--mustard); box-shadow: 0 0 0 .5px var(--mustard); background: rgba(217,164,65,.14); }
-.eplan.is-on { border: 2px solid var(--c); padding: 11.5px 11.5px 13.5px; background: var(--ch); } /* selected in its own color */
+.eplan.is-on { border: 2px solid var(--c); padding: 13.5px 11.5px 15.5px; background: var(--ch); } /* selected in its own color */
 .esum { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: calc(var(--vgap) - 12px); padding: 16px; border: 1px solid #DDD3BE; border-left: 5px solid var(--sage); border-radius: 18px; background: #fff; }
 .esum__text { display: grid; }
 .esum__text > div { grid-area: 1 / 1; }
@@ -669,7 +670,7 @@
 .eduds .ipills { flex-wrap: nowrap; gap: 8px; }
 .eduds .sbtn--pill { min-height: 36px; padding: 0 14px; font-size: .86rem; }
 .eduds .ssheet2__infolabel { font-size: 13px; }
-.efoot { box-sizing: border-box; position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 72px; margin: 20px -20px 0; padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #DDD3BE; background: rgba(255,251,245,.96); }
+.efoot { box-sizing: border-box; position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 72px; margin: 20px calc(-1 * var(--pad-m)) 0; padding: calc(var(--pad-s) + 4px) var(--pad-m) calc(var(--pad-m) + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #DDD3BE; background: rgba(255,251,245,.96); }
 .efoot__what { margin: 0; min-width: 0; display: grid; font-size: 14px; color: var(--bark); line-height: 1.3; }
 .efoot__what b { font-size: 16px; color: var(--ink); }
 .efoot__btn { flex: none; min-height: 48px; padding: 0 22px; font-size: 16px; white-space: nowrap; }
@@ -685,13 +686,13 @@
   .ssheet2--classes .ssheet2__panel { width: min(1320px, 100%); height: min(820px, calc(100dvh - 48px)); max-height: calc(100dvh - 48px); grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
   .ssheet2--classes .ssheet2__photo { height: 100%; min-height: 0; }
   .ssheet2--classes .ssheet2__body { max-height: 100%; }
-  .ssheet2__body--enroll { padding: clamp(20px, 4.5vh, 44px) clamp(28px, 3.6vw, 52px) 0; --vgap: clamp(12px, 2.6vh, 22px); }
+  .ssheet2__body--enroll { padding: var(--pad-l) var(--pad-l) 0; --vgap: clamp(12px, 2.6vh, 22px); }
   .ssheet2__body--enroll .kinetic { font-size: 48px; }
   .ssheet2__body--enroll .slead { margin-top: 8px; font-size: 17px; }
 
   .eplans { gap: 10px; }
-  .eplan { box-sizing: border-box; min-height: 76px; padding: 10px 18px 14px; gap: 1px; align-content: center; }
-  .eplan.is-on { padding: 9.5px 17.5px 13.5px; }
+  .eplan { box-sizing: border-box; min-height: 76px; padding: 14px 18px 16px; gap: 1px; align-content: center; }
+  .eplan.is-on { padding: 13.5px 17.5px 15.5px; }
   .eplan__icon { top: 12px; right: 14px; }
   .eplan b { font-size: 32px; }
   .eplan span { font-size: 14px; line-height: 1.3; white-space: nowrap; }
@@ -709,22 +710,22 @@
   .ecustom { font-size: 14px; }
   .eduds .ssheet2__infolabel { font-size: 12px; }
   .eduds .sbtn--pill { padding: 0 12px; }
-  .efoot { margin: 24px calc(-1 * clamp(28px, 3.6vw, 52px)) 0; padding: 12px clamp(28px, 3.6vw, 52px); }
+  .efoot { margin: 24px calc(-1 * var(--pad-l)) 0; padding: var(--pad-s) var(--pad-l) var(--pad-m); }
   .efoot__what b { font-size: 20px; }
   .efoot__btn { padding: 0 34px; font-size: 18px; }
 }
 /* Short screens (a computer with 900 px of page or less): the same choice, denser, so it opens whole with no scroll. */
 @media (min-width: 860px) and (max-height: 900px) {
   .ssheet2--classes .ssheet2__panel { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); } /* a narrower photo, so each card's line fits */
-  .ssheet2__body--enroll { padding: 28px 28px 0; --vgap: 14px; }
+  .ssheet2__body--enroll { padding: var(--pad-l) var(--pad-l) 0; --vgap: 14px; }
   .ssheet2__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
   .ssheet2__body--enroll .kinetic { font-size: 40px; }
   .ssheet2__body--enroll .slead { margin: 0; font-size: 16px; }
   .enroll--pick .elabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .etabs { padding: 4px; }
   .etab { min-height: 36px; padding: 0 18px; font-size: 15px; }
-  .eplan { min-height: 64px; height: 64px; padding: 7px 14px 11px; gap: 2px; }
-  .eplan.is-on { padding: 6.5px 13.5px 10.5px; }
+  .eplan { min-height: 72px; height: auto; padding: 14px 14px 16px; gap: 2px; }
+  .eplan.is-on { padding: 13.5px 13.5px 15.5px; }
   .eplan__icon { top: 9px; right: 12px; }
   .eplan b { font-size: 28px; }
   .eplan__line { display: block; white-space: nowrap; }
@@ -736,7 +737,7 @@
   .esum__price b { font-size: 34px; }
   .erow { padding: 14px 18px; }
   .erow__price { font-size: 26px; }
-  .efoot { min-height: 64px; margin: 16px -28px 0; padding: 8px 28px; }
+  .efoot { min-height: 64px; margin: 16px calc(-1 * var(--pad-l)) 0; padding: var(--pad-s) var(--pad-l) var(--pad-m); }
   .efoot__btn { min-height: 46px; }
 }
 @media (min-width: 860px) and (max-width: 1199px) and (max-height: 900px) {

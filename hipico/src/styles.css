@@ -2,6 +2,12 @@
    the same club look as the website: Serene Sage (parchment, sand, sage, light sage, bark, olivewood text) and green
    glass main buttons. No apricot, no coral, no gold. */
 :root {
+  /* Nothing touches an edge: one padding scale for the app and the site (site.css reuses it). Small elements (pills,
+     chips, small tiles) at least --pad-s; cards and sheets on phones --pad-m; cards, panels and lightboxes on a computer
+     --pad-l; sticky footers add at least --pad-m under their button, plus the phone's safe area. */
+  --pad-s: 12px;
+  --pad-m: 20px;
+  --pad-l: clamp(20px, 2.2vw, 32px);
   --green: #5E6650; /* olive */
   --green-dark: #33352A; /* olivewood */
   --moss: #8A8E75;
@@ -262,7 +268,7 @@ p.center { display: block; }
 /* Install sheet */
 .isheet { position: fixed; inset: 0; z-index: 95; display: flex; align-items: flex-end; justify-content: center; }
 .isheet__scrim { position: absolute; inset: 0; border: 0; padding: 0; background: rgba(40, 38, 30, .55); animation: fade-in .2s ease; }
-.isheet__panel { position: relative; width: 100%; max-width: 520px; max-height: 92dvh; overflow: auto; display: grid; gap: 14px; padding: 18px 18px calc(22px + var(--safe-bottom)); background: var(--cream); border-radius: 24px 24px 0 0; box-shadow: 0 -8px 30px rgba(0,0,0,.18); animation: sheet-up .26s ease; }
+.isheet__panel { position: relative; width: 100%; max-width: 520px; max-height: 92dvh; overflow: auto; display: grid; gap: 14px; padding: var(--pad-m) var(--pad-m) calc(var(--pad-m) + var(--safe-bottom)); background: var(--cream); border-radius: 24px 24px 0 0; box-shadow: 0 -8px 30px rgba(0,0,0,.18); animation: sheet-up .26s ease; }
 .isheet__panel.has-arrow { padding-bottom: calc(64px + var(--safe-bottom)); }
 .isheet__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .isheet__head h2 { font-size: 1.3rem; color: var(--green-dark); }
@@ -369,7 +375,7 @@ p.center { display: block; }
 .daylabel::first-letter, .nextclass__date::first-letter, .segmented button::first-letter { text-transform: uppercase; }
 
 /* ───────── Cards ───────── */
-.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--pad-m); box-shadow: var(--shadow); }
 .card__label { font-size: .78rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .card__title { font-family: var(--font-head); font-weight: 600; font-size: 1.05rem; }
 .bignum { font-family: var(--font-head); font-weight: 700; font-size: 1.6rem; color: var(--green-dark); margin: 4px 0 10px; }
@@ -1067,7 +1073,7 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
   .desk .demobar { position: static; }
   /* Sheets open as a side panel */
   .isheet { justify-content: flex-end; align-items: stretch; }
-  .isheet__panel { max-width: 480px; height: 100vh; height: 100dvh; max-height: none; border-radius: 0; padding: 22px 24px; box-shadow: -12px 0 40px rgba(0, 0, 0, .16); animation: panel-in .22s ease; }
+  .isheet__panel { max-width: 480px; height: 100vh; height: 100dvh; max-height: none; border-radius: 0; padding: var(--pad-l); box-shadow: -12px 0 40px rgba(0, 0, 0, .16); animation: panel-in .22s ease; }
   .btn:hover:not(:disabled) { filter: brightness(1.03); }
 }
 @keyframes panel-in { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -1607,9 +1613,9 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .reviewblock, .homegrid > div, .sumblock { display: grid; gap: 12px; align-content: start; }
 @media (min-width: 1024px) {
   .desk__content .reviewblock, .fdesk__content .homegrid > div, .desk__content .sumblock { gap: 16px; }
-  .desk__content .card, .fdesk__content .card { padding: 22px 24px; }
-  .desk__content .card.list, .fdesk__content .card.list { padding: 6px 24px; }
-  .desk__content .list.card.edge-c, .fdesk__content .list.card.edge-c, .desk__content .card.row.edge-c { padding-left: 29px; }
+  .desk__content .card, .fdesk__content .card { padding: var(--pad-l); }
+  .desk__content .card.list, .fdesk__content .card.list { padding: 6px var(--pad-l); }
+  .desk__content .list.card.edge-c, .fdesk__content .list.card.edge-c, .desk__content .card.row.edge-c { padding-left: calc(var(--pad-l) + 5px); }
 }
 
 /* Datos para transferencia: the label over the value, the CLABE in blocks with a copy icon, Editar top-right. */
@@ -1660,7 +1666,7 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 /* One payment lightbox (Transferencia · Tarjeta · En el club): centered on a computer, a bottom sheet on phones. */
 .paydlg { position: fixed; inset: 0; z-index: 96; display: flex; align-items: flex-end; justify-content: center; }
 .paydlg__scrim { position: absolute; inset: 0; border: 0; padding: 0; background: rgba(40, 38, 30, .55); animation: fade-in .2s ease; }
-.paydlg__panel { position: relative; width: 100%; max-width: 560px; max-height: 92dvh; overflow: auto; display: grid; gap: 14px; padding: 18px 18px calc(18px + var(--safe-bottom, 0px)); border-radius: 24px 24px 0 0; background: var(--cream); box-shadow: 0 -10px 40px rgba(0,0,0,.2); animation: sheet-up .26s ease; }
+.paydlg__panel { position: relative; width: 100%; max-width: 560px; max-height: 92dvh; overflow: auto; display: grid; gap: 14px; padding: var(--pad-m) var(--pad-m) calc(var(--pad-m) + var(--safe-bottom, 0px)); border-radius: 24px 24px 0 0; background: var(--cream); box-shadow: 0 -10px 40px rgba(0,0,0,.2); animation: sheet-up .26s ease; }
 .paydlg__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .paydlg__what { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .paydlg__what .grow { min-width: 0; }
@@ -1683,7 +1689,7 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .paydlg__result .btn { margin-top: 8px; }
 @media (min-width: 700px) {
   .paydlg { align-items: center; padding: 16px; }
-  .paydlg__panel { border-radius: 24px; max-height: 90vh; padding: 24px; animation: pop .2s ease; }
+  .paydlg__panel { border-radius: 24px; max-height: 90vh; padding: var(--pad-l); animation: pop .2s ease; }
   .paydlg__methods { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
   .paydlg__method { justify-content: center; }
   .paydlg__body .btn--block { width: auto; justify-self: start; }

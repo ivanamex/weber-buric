@@ -18,6 +18,9 @@
  *
  * It also lists elements with a color of their own (`.c-<color>`) whose hover background isn't their own light tint (--ch).
  *
+ * And it lists text, buttons, fields and images closer than 12 px to the edge of their lightbox, sheet, card, tile or
+ * sticky footer (nothing touches an edge), by screen; the Clases lightbox is also checked at 1920×830, 1440×760 and 390×844.
+ *
  * Exit code 1 when any element has no hover, a text-level one gets a background, a colored element hovers in another
  * color, or a card is mostly empty.
  */
@@ -197,6 +200,57 @@ async function emptyCards(page, route, out) {
 }
 const empties = []
 
+const EDGE_MIN = 12
+const EDGE_BOXES = '.ssheet2__panel, .efoot, .isheet__panel, .paydlg__panel, .paydlg__body, .card, .ctile, .package, .paycard, .democard, .login__panel, .esum, .eplan, .erow, .sbox, .feature'
+
+/**
+ * Nothing touches an edge: text, buttons, fields and images inside a lightbox, sheet, card, tile or sticky footer must
+ * sit at least EDGE_MIN px from that container's edge. Photos that bleed on purpose (touching two sides) are fine.
+ * While a container scrolls, only its sides are checked (a line can be scrolled to any height).
+ */
+async function edgeCheck(page, route) {
+  const found = await page.evaluate(({ min, boxes }) => {
+    const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && Number(cs.opacity) > 0.05 }
+    const label = (el) => (el.getAttribute?.('aria-label') || el.textContent || el.getAttribute?.('alt') || el.tagName).trim().replace(/\s+/g, ' ').slice(0, 40)
+    const boxName = (b) => `.${[...b.classList].filter((c) => !c.startsWith('is-') && !c.startsWith('c-')).join('.')}`
+    const scrolls = (el, stop) => { for (let n = el.parentElement; n && n !== stop.parentElement; n = n.parentElement) { const cs = getComputedStyle(n); if (/(auto|scroll)/.test(cs.overflowY) && n.scrollHeight > n.clientHeight + 1) return true } return false }
+    const sticky = (el, stop) => { for (let n = el; n && n !== stop; n = n.parentElement) if (getComputedStyle(n).position === 'sticky') return true; return false }
+    const res = new Set()
+    for (const box of document.querySelectorAll(boxes)) {
+      if (!visible(box) || box.closest('[aria-hidden="true"]')) continue
+      const b = box.getBoundingClientRect()
+      const cs = getComputedStyle(box)
+      const inner = { left: b.left + parseFloat(cs.borderLeftWidth), right: b.right - parseFloat(cs.borderRightWidth), top: b.top + parseFloat(cs.borderTopWidth), bottom: b.bottom - parseFloat(cs.borderBottomWidth) }
+      const items = []
+      const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT)
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        if (!n.textContent.trim() || !n.parentElement || !visible(n.parentElement) || n.parentElement.closest('.visually-hidden, [aria-hidden="true"]')) continue
+        const r = document.createRange(); r.selectNodeContents(n)
+        for (const rect of r.getClientRects()) if (rect.width > 1) items.push({ el: n.parentElement, rect, what: n.textContent })
+      }
+      for (const el of box.querySelectorAll('button, a, input, select, textarea, img, svg, video')) {
+        if (!visible(el) || el.closest('.visually-hidden, [aria-hidden="true"], .ssheet2__photo') || el.matches('.ssheet2__close, .ssheet2__close *')) continue
+        const nested = el.closest(boxes); if (nested !== box && box.contains(nested) && nested !== el) continue // judged by its own container
+        items.push({ el, rect: el.getBoundingClientRect(), what: label(el) })
+      }
+      for (const { el, rect, what } of items) {
+        const nested = el.closest(boxes); if (nested && nested !== box && box.contains(nested)) continue
+        const d = { left: rect.left - inner.left, right: inner.right - rect.right, top: rect.top - inner.top, bottom: inner.bottom - rect.bottom }
+        const vertical = !scrolls(el, box) || sticky(el, box)
+        const sides = ['left', 'right'].concat(vertical ? ['top', 'bottom'] : [])
+        if (sides.some((k) => d[k] < -1)) continue // outside (scrolled away or clipped on purpose)
+        const tight = sides.filter((k) => d[k] < min - 0.5)
+        if (!tight.length) continue
+        if (el.matches('img, video, svg') && tight.length >= 2) continue // a photo that bleeds on purpose
+        res.add(`${boxName(box)} › "${String(what).trim().replace(/\s+/g, ' ').slice(0, 40)}" — ${tight.map((k) => `${k} ${Math.round(d[k])} px`).join(', ')}`)
+      }
+    }
+    return [...res]
+  }, { min: EDGE_MIN, boxes: EDGE_BOXES })
+  for (const what of found) edges.push({ route, what })
+}
+const edges = []
+
 /** Every tab on the page (segmented controls, view toggles), then the first clickable row's side panel. */
 async function variants(page) {
   const list = []
@@ -219,6 +273,8 @@ async function main() {
   const go = async (path) => { await page.evaluate((p) => { history.pushState({}, '', p); dispatchEvent(new PopStateEvent('popstate')) }, path); await page.waitForTimeout(500) }
   const enter = async (role) => {
     await page.goto(`${BASE}/demo?reset=1`, { waitUntil: 'networkidle' })
+    // Spanish names below; the English site sets the language, so put it back first.
+    if (await page.evaluate(() => { try { if (localStorage.getItem('hipico.lang') === 'es') return false; localStorage.setItem('hipico.lang', 'es'); return true } catch { return false } })) await page.reload({ waitUntil: 'networkidle' })
     await page.waitForTimeout(300)
     await page.getByRole('button', { name: role === 'family' ? /familia/i : /dirección/i }).first().click()
     await page.waitForTimeout(600)
@@ -233,10 +289,12 @@ async function main() {
         await page.evaluate(() => document.querySelector('.installcard .link, .installcard button[aria-label]')?.click()).catch(() => {})
         const seen = new Set()
         await emptyCards(page, route, out)
+        await edgeCheck(page, route)
         total += await auditPage(page, route, seen, out)
         for (const v of await variants(page)) {
           await v.act()
           await page.waitForTimeout(400)
+          await edgeCheck(page, `${route} (${v.name})`)
           total += await auditPage(page, `${route} (${v.name})`, seen, out)
           await page.keyboard.press('Escape').catch(() => {})
           await page.waitForTimeout(150)
@@ -263,11 +321,39 @@ async function main() {
         if (!cards[i]) break
         await cards[i].click().catch(() => {})
         await page.waitForTimeout(500)
+        await edgeCheck(page, `${route} (lightbox ${i + 1})`)
         total += await auditPage(page, `${route} (lightbox ${i + 1})`, seen, out)
         await page.keyboard.press('Escape')
         await page.waitForTimeout(300)
       }
     }
+    // The Clases lightbox at Ivana's sizes and on a phone (both tabs, then details + payment), and the payment window.
+    for (const [w, h] of [[1920, 830], [1440, 760], [390, 844]]) {
+      await page.setViewportSize({ width: w, height: h })
+      await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
+      await settle()
+      await page.click('.scard >> nth=0').catch(() => {})
+      await page.waitForTimeout(600)
+      await edgeCheck(page, `/ Clases ${w}×${h} (Plan mensual)`)
+      await page.click('.etab >> nth=1').catch(() => {})
+      await page.waitForTimeout(300)
+      await edgeCheck(page, `/ Clases ${w}×${h} (Sin plan)`)
+      await page.click('.efoot__btn').catch(() => {})
+      await page.waitForTimeout(500)
+      await edgeCheck(page, `/ Clases ${w}×${h} (datos y pago)`)
+      await page.click('.paycard >> nth=1').catch(() => {})
+      await page.waitForTimeout(400)
+      await edgeCheck(page, `/ Clases ${w}×${h} (transferencia)`)
+    }
+    for (const [w, h] of [[1440, 900], [390, 844]]) {
+      await page.setViewportSize({ width: w, height: h })
+      await enter('family')
+      await go('/demo/familia/pagos')
+      await page.click('.list__row button:has-text("Pagar"), button:has-text("Pagar") >> nth=0').catch(() => {})
+      await page.waitForTimeout(600)
+      await edgeCheck(page, `/demo/familia/pagos ${w}×${h} (ventana de pago)`)
+    }
+    await page.setViewportSize({ width: 1440, height: 900 })
   } finally {
     await browser.close()
     server?.kill()
@@ -284,7 +370,10 @@ async function main() {
   for (const x of colored) console.log(`  - ${x.route}: ${x.what} (hover ${x.got}, should be ${x.want})`)
   console.log(`\nCards with more than ${EMPTY_MAX} px empty: ${empties.length}.`)
   for (const x of empties) console.log(`  - ${x.route}: ${x.what}`)
-  process.exit(out.length || strong.length || empties.length || colored.length ? 1 : 0)
+  console.log(`\nText, buttons or images closer than ${EDGE_MIN} px to their container's edge: ${edges.length}.`)
+  const edgeBy = edges.reduce((m, x) => ((m[x.route] ||= []).push(x.what), m), {})
+  for (const [route, items] of Object.entries(edgeBy)) { console.log(`  ${route}`); for (const w of items) console.log(`    - ${w}`) }
+  process.exit(out.length || strong.length || empties.length || colored.length || edges.length ? 1 : 0)
 }
 
 main().catch((e) => { console.error(e.message || e); process.exit(2) })
