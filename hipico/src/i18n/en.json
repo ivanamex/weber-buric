@@ -1678,7 +1678,6 @@
       },
       "message": "Message",
       "prefill": "I'm interested in: {service}",
-      "placeholder": "How can we help?",
       "send": "Send message",
       "sending": "Sending…",
       "done": "Thanks, {name}! We'll get back to you today by {channel}.",
@@ -1697,8 +1696,7 @@
         "badPhone": "Check the number: some digits are missing.",
         "tooMany": "We've received several messages from you. Wait a while or message us on WhatsApp.",
         "network": "It couldn't be sent. Try again or message us on WhatsApp."
-      },
-      "customPrefill": "I'm interested in: A plan of my own"
+      }
     },
     "info": {
       "whatsapp": "WhatsApp",
@@ -1714,7 +1712,6 @@
       "contact": "Parent or guardian's name",
       "phone": "Phone (WhatsApp)",
       "email": "Email",
-      "emailHint": "You'll sign in to the app with this email.",
       "start": "Start date",
       "startClass": "Preferred day",
       "startHint": "The club confirms the time with you.",
@@ -1764,8 +1761,6 @@
       "trialNote": "To get to know the club · one per rider",
       "singleName": "Single class",
       "singleNote": "Whenever you want, no plan",
-      "customAsk": "Need your own days or times?",
-      "customLink": "Write to us →",
       "youChose": "You chose",
       "chooseHow": "Choose how to pay",
       "needReceipt": "Upload your receipt or choose “I'll upload it later from the app”.",
@@ -1775,7 +1770,8 @@
       "amountLabel": "Amount",
       "refLabel": "Reference",
       "paidDone": "We got your card payment. Thank you!",
-      "cardPendingDone": "Mercado Pago is reviewing your payment; we'll email you as soon as it's confirmed."
+      "cardPendingDone": "Mercado Pago is reviewing your payment; we'll email you as soon as it's confirmed.",
+      "emailMore": "you'll sign in to the app with it"
     },
     "pay": {
       "received": {

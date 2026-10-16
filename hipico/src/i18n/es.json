@@ -1678,7 +1678,6 @@
       },
       "message": "Mensaje",
       "prefill": "Me interesa: {service}",
-      "placeholder": "¿En qué te ayudamos?",
       "send": "Enviar mensaje",
       "sending": "Enviando…",
       "done": "¡Gracias, {name}! Te contestamos hoy mismo por {channel}.",
@@ -1697,8 +1696,7 @@
         "badPhone": "Revisa el número: faltan dígitos.",
         "tooMany": "Ya recibimos varios mensajes tuyos. Espera un rato o escríbenos por WhatsApp.",
         "network": "No se pudo enviar. Inténtalo de nuevo o escríbenos por WhatsApp."
-      },
-      "customPrefill": "Me interesa: A tu medida"
+      }
     },
     "info": {
       "whatsapp": "WhatsApp",
@@ -1714,7 +1712,6 @@
       "contact": "Nombre de mamá, papá o tutor",
       "phone": "Teléfono (WhatsApp)",
       "email": "Correo",
-      "emailHint": "Con este correo entras a la app.",
       "start": "Fecha de inicio",
       "startClass": "Día que prefieres",
       "startHint": "El club confirma contigo la hora.",
@@ -1764,8 +1761,6 @@
       "trialNote": "Para conocer el club · una por jinete",
       "singleName": "Clase suelta",
       "singleNote": "Cuando quieras, sin plan",
-      "customAsk": "¿Necesitas días u horarios a tu medida?",
-      "customLink": "Escríbenos →",
       "youChose": "Elegiste",
       "chooseHow": "Elige cómo pagar",
       "needReceipt": "Sube tu comprobante o elige «Lo subo después desde la app».",
@@ -1775,7 +1770,8 @@
       "amountLabel": "Monto",
       "refLabel": "Referencia",
       "paidDone": "Recibimos tu pago con tarjeta. ¡Gracias!",
-      "cardPendingDone": "Mercado Pago está revisando tu pago; te avisamos por correo en cuanto se confirme."
+      "cardPendingDone": "Mercado Pago está revisando tu pago; te avisamos por correo en cuanto se confirme.",
+      "emailMore": "con él entras a la app"
     },
     "pay": {
       "received": {

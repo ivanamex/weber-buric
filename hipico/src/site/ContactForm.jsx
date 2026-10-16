@@ -3,6 +3,7 @@ import { useI18n } from '../i18n/I18nProvider.jsx'
 import { SiteIcon } from '../components/site/Icons.jsx'
 import { waLink } from '../components/ui.jsx'
 import { sendContactMessage } from './contact.js'
+import { FloatField } from './FloatField.jsx'
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 const CHANNELS = ['whatsapp', 'email']
@@ -59,7 +60,6 @@ export function ContactForm({ service = null, prefill = null, onBack, titleId })
     setSent({ name: f.name.trim().split(/\s+/)[0], channel: f.channel })
     setF(fresh())
   }
-  const Err = ({ k }) => (errors[k] ? <small className="cform__err" role="alert">{errors[k]}</small> : null)
 
   if (sent) {
     return (
@@ -75,22 +75,16 @@ export function ContactForm({ service = null, prefill = null, onBack, titleId })
       {onBack && <button type="button" className="sback" onClick={onBack}><span aria-hidden="true">←</span> {t('site.contact.back')}</button>}
       <h2 className="kinetic is-in" id={titleId}>{t('site.contact.title')}</h2>
       <p className="slead">{t('site.contact.lead')}</p>
-      <label className="cfield">
-        <span>{t('site.contact.name')}</span>
+      <FloatField label={t('site.contact.name')} error={errors.name} keepLine={false}>
         <input ref={nameRef} name="name" autoComplete="name" value={f.name} onChange={set('name')} aria-invalid={Boolean(errors.name)} />
-        <Err k="name" />
-      </label>
+      </FloatField>
       <div className="cform__pair">
-        <label className="cfield">
-          <span>{t('site.contact.phone')}</span>
+        <FloatField label={t('site.contact.phone')} error={errors.phone} keepLine={false}>
           <input name="phone" type="tel" inputMode="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} aria-invalid={Boolean(errors.phone)} />
-          <Err k="phone" />
-        </label>
-        <label className="cfield">
-          <span>{t('site.contact.email')}</span>
+        </FloatField>
+        <FloatField label={t('site.contact.email')} error={errors.email} keepLine={false}>
           <input name="email" type="email" inputMode="email" autoComplete="email" value={f.email} onChange={set('email')} aria-invalid={Boolean(errors.email)} />
-          <Err k="email" />
-        </label>
+        </FloatField>
       </div>
       {!errors.phone && !errors.email && <small className="cform__hint">{t('site.contact.oneOf')}</small>}
       <div className="cfield" role="radiogroup" aria-labelledby="cform-channel">
@@ -104,10 +98,9 @@ export function ContactForm({ service = null, prefill = null, onBack, titleId })
           ))}
         </div>
       </div>
-      <label className="cfield">
-        <span>{t('site.contact.message')}</span>
-        <textarea name="message" rows={4} value={f.message} onChange={set('message')} placeholder={t('site.contact.placeholder')} maxLength={2000} />
-      </label>
+      <FloatField label={t('site.contact.message')} keepLine={false} className="ffield--area">
+        <textarea name="message" rows={4} value={f.message} onChange={set('message')} maxLength={2000} />
+      </FloatField>
       <div className="cform__hp" aria-hidden="true">
         <label>{t('site.contact.website')}<input name="website" tabIndex={-1} autoComplete="off" value={f.website} onChange={set('website')} /></label>
       </div>

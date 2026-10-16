@@ -57,9 +57,9 @@ export function SiteDialog({ photo, alt, position, labelledBy, onClose, children
 export function ServiceSheet({ service, onClose }) {
   const { t, fmtMoney } = useI18n()
   const data = useSiteData()
-  const [writing, setWriting] = useState(false) // false | true | 'custom' (A tu medida)
+  const [writing, setWriting] = useState(false)
   const [back, setBack] = useState(false) // coming back from the form: the text slides in from the left
-  const write = (what = true) => { setWriting(what); setBack(true) }
+  const write = () => { setWriting(true); setBack(true) }
   // "Más información": WhatsApp with a ready message, or the contact form. The same pair in every lightbox.
   const info = <InfoPills waText={t(`site.wa.${{ classes: 'classes', competitions: 'competitions', boarding: 'boarding', early: 'early' }[service.key] || 'general'}`)} onMessage={() => write()} />
 
@@ -71,7 +71,7 @@ export function ServiceSheet({ service, onClose }) {
   let body
   if (service.key === 'classes') {
     body = (
-      <Enroll data={data} onCustom={() => write('custom')} info={info} />
+      <Enroll data={data} />
     )
   } else if (service.key === 'boarding') {
     body = (
@@ -105,7 +105,7 @@ export function ServiceSheet({ service, onClose }) {
     <SiteDialog photo={service.photo} alt={service.alt} position={service.position} labelledBy="ssheet2-title" onClose={onClose} variant={service.key === 'classes' ? 'classes' : null}>
       {writing ? (
         <div key="form" className="ssheet2__body ssheet2__body--in">
-          <ContactForm service={service.key} prefill={writing === 'custom' ? t('site.contact.customPrefill') : null} titleId="ssheet2-title" onBack={() => setWriting(false)} />
+          <ContactForm service={service.key} titleId="ssheet2-title" onBack={() => setWriting(false)} />
         </div>
       ) : (
         <div key="info" className={`ssheet2__body ${service.key === 'classes' ? 'ssheet2__body--enroll' : ''} ${back ? 'ssheet2__body--back' : ''}`}>

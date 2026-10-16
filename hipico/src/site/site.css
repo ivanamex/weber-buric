@@ -625,7 +625,7 @@
 .ssheet2__head { padding-right: 48px; }
 .enroll--pick { gap: var(--vgap); }
 .enroll--details { display: flex; flex-direction: column; gap: 14px; flex: 1; }
-.enroll--details .efoot, .enroll--pick + .efoot { margin-top: auto; }
+.enroll--details .efoot, .enroll--pick + .efoot { margin-top: 18px; } /* the footer comes right after the content */
 .etabs { justify-self: start; display: inline-flex; gap: 4px; padding: 5px; border-radius: 999px; background: #EFE6D3; box-shadow: inset 0 2px 4px rgba(51,53,42,.1); }
 .etab { min-height: 40px; padding: 0 22px; border: 0; border-radius: 999px; background: transparent; color: var(--bark); font-family: var(--text-font); font-size: 16px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 .etab.is-on { background: var(--card); color: var(--ink); box-shadow: 0 2px 8px rgba(51,53,42,.12); }
@@ -838,3 +838,36 @@
   .slinkarrow, .sfooter__links a, .sfooter__legal a, .svisit2__wa, .sback, .slist a, .ebank__copy, .tlink { transition: color .2s ease; }
   .scard:hover, .shorses__ask:hover, .sfilm__item:hover img { transform: none; }
 }
+
+/* Clases lightbox: as tall as the step needs (up to the screen less 48 px), the footer right under the content.
+   The photo no longer sets the height: it fills whatever the right column takes. */
+.ssheet2--classes .ssheet2__panel { height: auto; }
+@media (max-width: 859px) { .ssheet2--classes .ssheet2__panel { grid-template-rows: 110px auto; } }
+@media (min-width: 860px) {
+  .ssheet2--classes .ssheet2__photo { position: relative; height: auto; }
+  .ssheet2--classes .ssheet2__photo img { position: absolute; inset: 0; }
+  .ssheet2--classes .ssheet2__body { max-height: calc(100dvh - 48px); }
+}
+/* "Elige cómo pagar": looks resting until a way to pay is chosen, but still answers (it points at the cards) */
+.efoot__btn.is-waiting { opacity: .62; }
+.efoot__btn.is-waiting:hover { opacity: .8; }
+
+/* Labels inside the fields: pale while empty, floating to the top edge (12 px) on focus or with a value. */
+.ffield { gap: 4px; align-content: start; }
+.ffield__box { position: relative; }
+.ffield__box input, .ffield__box .cdate__shown { box-sizing: border-box; height: 52px; min-height: 52px; padding: 21px 14px 5px; font-size: 16px; line-height: 24px; }
+.ffield__box textarea { box-sizing: border-box; min-height: 120px; padding: 26px 14px 10px; font-size: 16px; line-height: 1.45; }
+.ffield__box .cdate { max-width: none; }
+.ffield__box .cdate__shown { align-items: flex-end; }
+.ffield__box .cdate__shown .sicon { align-self: center; margin-top: -16px; }
+.ffield__label { position: absolute; left: 15px; top: 14px; z-index: 2; max-width: calc(100% - 30px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; pointer-events: none;
+  font-family: var(--text-font); font-size: 16px; line-height: 24px; font-weight: 400; color: var(--field-ph); transform-origin: left top; transition: transform .15s ease, color .15s ease; }
+.ffield__box :is(input, textarea):focus ~ .ffield__label,
+.ffield__box :is(input, textarea):not(:placeholder-shown) ~ .ffield__label,
+.ffield.is-float .ffield__label { transform: translateY(-8px) scale(.75); max-width: calc((100% - 30px) / .75); color: var(--bark); font-weight: 600; }
+.ffield__box :is(input, textarea):focus ~ .ffield__label .ffield__more,
+.ffield__box :is(input, textarea):not(:placeholder-shown) ~ .ffield__label .ffield__more { display: none; }
+.ffield__box input::placeholder, .ffield__box textarea::placeholder { color: transparent; }
+.ffield > small { min-height: 18px; font-size: 12.5px; line-height: 18px; }
+.ffield--area .ffield__label { top: 12px; }
+@media (prefers-reduced-motion: reduce) { .ffield__label { transition: none; } }
