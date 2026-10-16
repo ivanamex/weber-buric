@@ -45,3 +45,7 @@ Ivana (screenshot): after Continuar, "Pagar $6,900" seems to do nothing. It only
 
 ## Check
 - 1920×870, 1440×900, 1280×720, 390×844 (ES and EN): each of the three choices goes through to "¡Listo!" in the demo, with errors in place and no fields out of line.
+
+## Footer horse: bigger, then the illustrated poses
+Ivana: the horse is small and cute, but now it's half the fence height. Make it bigger: **the horse's withers sit about 1.1× the fence height** (the head reaches about 1.4×). Hooves stay on the dotted line, and the jump arc clears each top pole.
+- Ivana is generating a 4-pose illustration (canter · take-off · over the fence · landing) in Gemini/ChatGPT. When she uploads it, chat Claude adds it to `public/img/course/` (one transparent PNG/SVG per pose) and the course switches poses by jump phase instead of the letter-horse. Until then, keep the letter-horse at the new size.
