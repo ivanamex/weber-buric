@@ -214,23 +214,62 @@ function voiceLength(file) {
   return Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3])
 }
 
-/** Each step's length in seconds: its sentence (from the take, or estimated), at least half its recording (2× max). */
+/**
+ * Where each sentence sits in the take: the pauses (silences of 0.3 s or more) nearest to where each sentence should end
+ * by its share of the characters, taken in order. Returns [start, end] in seconds per sentence.
+ */
+function voiceCuts(file, says) {
+  const ff = findFfmpeg(true)
+  const total = voiceLength(file)
+  const r = spawnSync(ff, ['-hide_banner', '-i', file, '-af', 'silencedetect=noise=-35dB:d=0.3', '-f', 'null', '-'], { encoding: 'utf8' })
+  const starts = [...(r.stderr || '').matchAll(/silence_start: ([\d.]+)/g)].map((m) => Number(m[1]))
+  const ends = [...(r.stderr || '').matchAll(/silence_end: ([\d.]+)/g)].map((m) => Number(m[1]))
+  const gaps = starts.map((a, i) => ({ a, b: ends[i] ?? total })).filter((g) => g.b < total - 0.05) // not the trailing silence
+  const chars = says.reduce((a, x) => a + x.length, 0)
+  let acc = 0
+  let from = 0
+  const cuts = []
+  for (let i = 0; i < says.length - 1; i++) {
+    acc += says[i].length
+    const want = (total * acc) / chars
+    let best = -1
+    for (let j = from; j <= gaps.length - (says.length - 1 - i); j++) if (best < 0 || Math.abs((gaps[j].a + gaps[j].b) / 2 - want) < Math.abs((gaps[best].a + gaps[best].b) / 2 - want)) best = j
+    cuts.push(gaps[best])
+    from = best + 1
+  }
+  return says.map((_, i) => [i === 0 ? 0 : cuts[i - 1].b - 0.05, i === says.length - 1 ? total : cuts[i].a + 0.12])
+}
+
+/**
+ * Each step's length in seconds: its sentence (from the take, plus a breath, or estimated), and never under half its
+ * recording (sped up 2× at most). With a take, each sentence then starts exactly when its step starts.
+ */
 function plan(scene, log) {
   const says = scene.steps.map((s) => s.say)
   let lengths = says.map(estimate)
+  let cuts = null
   if (VOICE) {
-    const total = voiceLength(VOICE)
-    const chars = says.reduce((a, s) => a + s.length + 8, 0)
-    lengths = says.map((s) => (total * (s.length + 8)) / chars)
+    cuts = voiceCuts(VOICE, says)
+    lengths = cuts.map(([a, b]) => b - a + 0.45)
   }
+  let at = 0
   return scene.steps.map((step, i) => {
     const rec = log.steps[i] ? (log.steps[i].t1 - log.steps[i].t0) / 1000 : 0
-    const out = step.card ? lengths[i] : Math.max(lengths[i], rec / 2)
-    return { ...step, i, say: lengths[i], out, rec, src: log.steps[i] }
+    // the title card stays long enough to read (2.4 s), whatever its sentence
+    const out = step.card ? Math.max(lengths[i], step.card === 'title' ? 2.4 : 0) : Math.max(lengths[i], rec / 2)
+    const p = { ...step, i, say: lengths[i], out, rec, src: log.steps[i], at, cut: cuts?.[i] }
+    at += out
+    return p
   })
 }
 
 /* ───────── Rendering ───────── */
+
+/** Each sentence cut from the take and placed at its step's start, then the mix brought to −16 LUFS. */
+function voiceMix(steps) {
+  const parts = steps.map((s, i) => `[1:a]atrim=start=${s.cut[0].toFixed(3)}:end=${s.cut[1].toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:d=0.03,afade=t=out:st=${Math.max(0, s.cut[1] - s.cut[0] - 0.06).toFixed(3)}:d=0.06,adelay=${Math.round(s.at * 1000)}:all=1[v${i}]`)
+  return `${parts.join(';')};${steps.map((_, i) => `[v${i}]`).join('')}amix=inputs=${steps.length}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[voice]`
+}
 
 function findFfmpeg(needH264) {
   const list = [process.env.FFMPEG, 'ffmpeg'].filter(Boolean)
@@ -322,7 +361,7 @@ async function render(scene, log) {
   rmSync(FIFO, { force: true })
   spawnSync('mkfifo', [FIFO])
   const enc = h264
-    ? ['-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', FIFO, ...(VOICE ? ['-i', VOICE, '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-c:a', 'aac', '-b:a', '128k'] : []),
+    ? ['-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', FIFO, ...(VOICE ? ['-i', VOICE, '-filter_complex', voiceMix(steps), '-map', '0:v', '-map', '[voice]', '-c:a', 'aac', '-b:a', '128k'] : []),
       '-c:v', 'libx264', '-preset', 'slow', '-crf', '24', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-t', total.toFixed(2), out]
     : ['-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', FIFO, '-c:v', 'libvpx', '-b:v', '1200k', '-maxrate', '1800k', '-bufsize', '3600k', '-deadline', 'good', '-cpu-used', '4', out]
   const proc = spawn(ff, enc, { stdio: ['ignore', 'ignore', 'pipe'] })
