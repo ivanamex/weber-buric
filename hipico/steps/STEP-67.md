@@ -11,3 +11,10 @@ Ivana: the dark "Más elegido" tag is unreadable (olive text on a dark pill). An
 - **12 is preselected** (summary card and footer start on 12 · $6,900). The family can still pick 4 or 8 with one tap.
 - Selected card: the 2 px border and the tint take that card's own accent color, not always mustard.
 - In the app's plan packages (Mi plan → Cambiar plan) the same cards appear, and the same rule applies: no "Más elegido".
+
+## "En el club": reminders until it's paid
+Ivana: someone who chooses to pay cash at the club must get reminders (phone or email) until it's paid, unless they say they paid.
+- A `payAtClub` charge is **no longer quiet for 3 days** (that STEP-58 rule goes). It follows the normal reminder schedule (5 days before, the day, 3 days after, then weekly), with its own text: "Recuerda pagar {concepto} ({monto}) en la oficina del club. Si ya pagaste, avísanos desde la app." Plus a link to Pagos.
+- Where it goes: **email** (as all reminders, once SMTP is set in Vercel) and the **in-app** card "Pagos por vencer". Automatic WhatsApp needs the WhatsApp Business API, which the club doesn't have, so WhatsApp stays the club's one-tap reminder in Cobros, now with the pay-at-club text.
+- **"Ya pagué en el club"** button on that charge in the family app (and in the reminder email link). It does **not** mark the charge paid. It moves it to **Cobros → Por revisar** with the tag "Dice que pagó en el club", and the reminders stop. The club confirms (Aprobar → Pagado) or rejects with a note ("No encontramos tu pago"), and the reminders start again.
+- The demo shows it: one family with a pay-at-club charge and a reminder sent.
