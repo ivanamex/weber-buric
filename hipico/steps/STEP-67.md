@@ -18,3 +18,10 @@ Ivana: someone who chooses to pay cash at the club must get reminders (phone or 
 - Where it goes: **email** (as all reminders, once SMTP is set in Vercel) and the **in-app** card "Pagos por vencer". Automatic WhatsApp needs the WhatsApp Business API, which the club doesn't have, so WhatsApp stays the club's one-tap reminder in Cobros, now with the pay-at-club text.
 - **"Ya pagué en el club"** button on that charge in the family app (and in the reminder email link). It does **not** mark the charge paid. It moves it to **Cobros → Por revisar** with the tag "Dice que pagó en el club", and the reminders stop. The club confirms (Aprobar → Pagado) or rejects with a note ("No encontramos tu pago"), and the reminders start again.
 - The demo shows it: one family with a pay-at-club charge and a reminder sent.
+
+## Colored tiles hover in their own color
+Ivana (Resumen → Más: Mensajes, Reportes, Rentabilidad, Nómina, Ajustes): each tile has its own color stripe on top, but the hover turns them all mustard. That makes no sense.
+- Rule (it adjusts STEP-60's level 2): **a tile or card that has its own color hovers in that color**. The fill becomes its light tint (`--ct`, about 12–15%), the stripe/edge deepens to `--cg`, it lifts 2 px with a shadow in the same color, and the icon tile goes one step deeper. The text stays olivewood.
+- Applies to: Resumen's "Más" tiles, the family quick tiles on Inicio, the Cobros total tiles, the 4·8·12 plan cards (STEP-67), cards with a colored edge (`edge-c`), and the website's 4 colored boxes.
+- Mustard tint stays only for elements without a color of their own (rows, chips, neutral pills, outline buttons).
+- `check:hover` reports any `.c-<color>` element whose hover background isn't its own tint.
