@@ -5,8 +5,9 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 ## Now
 
 1. **STEP-64**: "Más elegido" as an olivewood tag with a horseshoe; Clases choice fits without scrolling; rider details + payment on one screen (Tarjeta · Transferencia · En el club as equal cards with an accordion, card form inside via Mercado Pago's Card Payment Brick); the footer course with Ivana's 4 silhouettes
-2. **STEP-55 (go after STEP-64 is checked)**: two video guides the El Árbol way (real recording, camera follows the action, Alejandro Garcia voice): "El club desde la app" (1920×1080) and "Clases en el Hípico" (vertical, for WhatsApp)
-3. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
+2. **STEP-65**: Resumen: the income chart fills its card (no empty band); no card in the panel with more than ~80 px empty
+3. **STEP-55 (go after STEP-65 is checked)**: two video guides the El Árbol way (real recording, camera follows the action, Alejandro Garcia voice): "El club desde la app" (1920×1080) and "Clases en el Hípico" (vertical, for WhatsApp)
+4. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
 
