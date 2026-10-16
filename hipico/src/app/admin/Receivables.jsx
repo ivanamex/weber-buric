@@ -85,7 +85,7 @@ function PayRow({ item, onView }) {
     setOpen(false)
     toast(res.ok ? t('toasts.paid', { amount: fmtMoney(item.amount), method: t(`methods.${method}`) }) : t('errors.notFound'), res.ok ? 'success' : 'error')
   }
-  const waText = t('summary.waReminder', { contact: family?.contact?.split(' ')[0] || '', what: paymentSentence(t, s, item), amount: fmtMoney(item.amount) })
+  const waText = t(item.meta?.payAtClub ? 'summary.waReminderClub' : 'summary.waReminder', { contact: family?.contact?.split(' ')[0] || '', what: paymentSentence(t, s, item), amount: fmtMoney(item.amount) })
   return (
     <li className={`card pay ${item.projected ? 'pay--expected' : ''}`}>
       <div className="row gap">
@@ -97,7 +97,7 @@ function PayRow({ item, onView }) {
         </div>
         <div className="right">
           <strong className="pay__amount">{fmtMoney(item.amount)}</strong>
-          <div>{item.projected ? <Badge tone="neutral">{t('collect.expected')}</Badge> : <ReceiptBadge status={item.receiptStatus} />}{item.meta?.payAtClub && item.status !== 'paid' && <Badge tone="neutral">{t('pay.atClubTag')}</Badge>}</div>
+          <div>{item.projected ? <Badge tone="neutral">{t('collect.expected')}</Badge> : <ReceiptBadge status={item.receiptStatus} />}{item.meta?.payAtClub && item.status !== 'paid' && <Badge tone="neutral">{t('pay.atClubTag')}</Badge>}{item.meta?.saidPaidAtClub && item.receiptStatus === 'review' && <Badge tone="neutral">{t('receipt.saidTag')}</Badge>}</div>
         </div>
       </div>
       {item.projected ? <p className="small muted mt8">{t(item.state === 'overdue' ? 'collect.notCharged' : 'collect.expectedHint')}</p> : (
@@ -270,6 +270,7 @@ export function ReceivablesDesk({ onView }) {
           {x.projected && <Badge tone="neutral">{t('collect.expected')}</Badge>}
           {x.receiptStatus && x.state !== 'paid' && <ReceiptBadge status={x.receiptStatus} />}
           {x.meta?.payAtClub && x.state !== 'paid' && <Badge tone="neutral">{t('pay.atClubTag')}</Badge>}
+          {x.meta?.saidPaidAtClub && x.receiptStatus === 'review' && <Badge tone="neutral">{t('receipt.saidTag')}</Badge>}
         </span>
       ) },
     { key: 'reminders', nowrap: true, label: t('collect.reminders'), value: (x) => (x.projected || x.state === 'paid' ? 0 : remindersFor(s, x).length), csv: (x) => (x.projected || x.state === 'paid' ? '' : remindersFor(s, x).length) },

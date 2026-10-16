@@ -4,7 +4,7 @@ const FOCUS = {
   'girl-horse-closeup': '50% 30%',
   'girl-horse-nose': '45% 40%',
   'horse-fence': '50% 25%',
-  'horse-blaze': '55% 30%',
+  'horse-blaze': '50% 30%', // the whole head: ears, eye, blaze and nose
   'jump-bay': '55% 35%',
   'jump-grey': '50% 30%',
   'rider-buckskin': '50% 35%',

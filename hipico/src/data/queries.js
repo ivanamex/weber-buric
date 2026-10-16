@@ -531,8 +531,6 @@ export function remindersFor(s, p, today = todayKey()) {
   const out = []
   const sent = (kind) => out.some((r) => r.kind === kind)
   for (let d = first > addDays(due, -DUE_SOON_DAYS) ? first : addDays(due, -DUE_SOON_DAYS); d <= last; d = addDays(d, 1)) {
-    // Three quiet days after "Paga en el club".
-    if (p.meta?.payAtClub && d >= p.meta.payAtClub && d < addDays(p.meta.payAtClub, 3)) continue
     let kind = null
     if (due > d) kind = sent('before') ? null : 'before'
     else if (due === d) kind = sent('due') ? null : 'due'

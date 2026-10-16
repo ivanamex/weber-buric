@@ -4,9 +4,12 @@ import { receiptUrl, reviewReceipt } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { useToast } from '../../components/Toast.jsx'
 
-/** Full-screen viewer for a transfer receipt, with Aprobar / Rechazar (with a short note) unless read-only. */
+/**
+ * Full-screen viewer for a transfer receipt, with Aprobar / Rechazar (with a short note) unless read-only. A family that
+ * said "Ya pagué en el club" sent no receipt: the viewer says so and the club approves (paid in cash) or rejects.
+ */
 export default function ReceiptViewer({ payment, title, onClose, readOnly = false }) {
-  const { t, fmtMoney } = useI18n()
+  const { t, fmtMoney, fmtDate } = useI18n()
   const toast = useToast()
   const [file, setFile] = useState(null)
   const [rejecting, setRejecting] = useState(false)
@@ -15,7 +18,8 @@ export default function ReceiptViewer({ payment, title, onClose, readOnly = fals
 
   useEffect(() => {
     let alive = true
-    receiptUrl(payment).then((res) => { if (alive) setFile(res.ok ? res : { error: true }) })
+    if (payment.meta?.saidPaidAtClub) setFile({ said: true })
+    else receiptUrl(payment).then((res) => { if (alive) setFile(res.ok ? res : { error: true }) })
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
     return () => { alive = false; window.removeEventListener('keydown', onKey) }
@@ -46,6 +50,7 @@ export default function ReceiptViewer({ payment, title, onClose, readOnly = fals
       <div className="viewer__body">
         {!file && <p className="viewer__msg">{t('live.loading')}</p>}
         {file?.error && <p className="viewer__msg">{t('errors.network')}</p>}
+        {file?.said && <p className="viewer__msg">{t('receipt.saidAtClub', { date: fmtDate(payment.meta.saidPaidAtClub, { day: 'numeric', month: 'long' }) })}</p>}
         {file?.url && isPdf && <iframe className="viewer__pdf" src={file.url} title={t('receipt.viewerTitle')} />}
         {file?.url && isHeic && (
           <p className="viewer__msg">{t('receipt.heic')}<br /><a className="btn btn--accent mt12" href={file.url} target="_blank" rel="noopener noreferrer">{t('receipt.openNew')}</a></p>

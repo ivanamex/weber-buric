@@ -119,9 +119,12 @@ export default function FamilyHome() {
       {next ? (
         <NextClassCard booking={next} s={s} rider={rider} />
       ) : (
-        <><SectionTitle icon="calendar">{t('family.home.nextClass')}</SectionTitle><Empty icon="horseHead" title={t('family.home.noClassTitle', { name: rider.name })}>
-          <Link to={`${base}/familia/reservar`} className="btn btn--primary"><Icon name="calendar" size={18} /> {t('family.home.bookNow')}</Link>
-        </Empty></>
+        <section className="card nextclass c-slate edge-c" aria-label={t('family.home.nextClass')}>
+          <p className="card__label card__eyebrow"><Icon name="calendar" size={15} /> {t('family.home.nextClass')}</p>
+          <Empty icon="horseHead" title={t('family.home.noClassTitle', { name: rider.name })}>
+            <Link to={`${base}/familia/reservar`} className="btn btn--primary"><Icon name="calendar" size={18} /> {t('family.home.bookNow')}</Link>
+          </Empty>
+        </section>
       )}
     </>
   )
@@ -162,19 +165,22 @@ export default function FamilyHome() {
 
     </>
   )
-  // The pensión as a card: the horse's photo, "Pensión de octubre · $9,500", the status and "Pagar pensión" inside it.
+  // The pensión as a card, its title inside like every card on Inicio: "PENSIÓN · RELÁMPAGO" with the status on the
+  // same line, then the horse's photo, "Pensión de octubre · $9,500" and "Pagar pensión".
   const boardingBlock = (
     <>
-      <SectionTitle icon="saddle">{t('family.home.boarding')}</SectionTitle>
       {boarding.length ? boarding.map((b) => (
         <section className="card boardcard c-sage edge-c" key={b.horse.id} aria-label={t('family.home.boarding')}>
+          <div className="row between gap">
+            <p className="card__label card__eyebrow"><Icon name="horseHead" size={15} /> {t('family.home.boarding')} · {b.horse.name}</p>
+            <StatusPill status={b.status === 'paid' ? 'paid' : 'pending'}>{t(`boarding.status.${b.status}`)}</StatusPill>
+          </div>
           <div className="boardcard__row">
             <HorseAvatar horse={b.horse} size={56} />
             <div className="grow">
-              <p className="card__title">{b.horse.name}</p>
-              <p className="small muted">{t('boarding.monthOf', { month: fmtDate(`${b.month}-01`, { month: 'long' }) })} · {fmtMoney(b.payment?.amount ?? BOARDING_MONTHLY)}</p>
+              <p className="card__title">{t('boarding.monthOf', { month: fmtDate(`${b.month}-01`, { month: 'long' }) })}</p>
+              <p className="small muted">{fmtMoney(b.payment?.amount ?? BOARDING_MONTHLY)}</p>
             </div>
-            <StatusPill status={b.status === 'paid' ? 'paid' : 'pending'}>{t(`boarding.status.${b.status}`)}</StatusPill>
           </div>
           {b.status !== 'paid' && (
             <div className="boardcard__actions">
@@ -183,9 +189,12 @@ export default function FamilyHome() {
           )}
         </section>
       )) : (
-        <Empty icon="saddle" title={t('boarding.noneTitle')}>
-          <a className="btn btn--outline" href={waLink(t('boarding.waText'))} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" size={18} /> {t('boarding.ask')}</a>
-        </Empty>
+        <section className="card boardcard" aria-label={t('family.home.boarding')}>
+          <p className="card__label card__eyebrow"><Icon name="horseHead" size={15} /> {t('family.home.boarding')}</p>
+          <Empty icon="saddle" title={t('boarding.noneTitle')}>
+            <a className="btn btn--outline" href={waLink(t('boarding.waText'))} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" size={18} /> {t('boarding.ask')}</a>
+          </Empty>
+        </section>
       )}
     </>
   )

@@ -16,7 +16,10 @@
  * And it lists cards in the app and the panel with a band of more than 80 px with nothing in it (a card stretched to
  * match a taller neighbour while its content stays short), by screen; Resumen is also checked at 1280 and 1920 px.
  *
- * Exit code 1 when any element has no hover, a text-level one gets a background, or a card is mostly empty.
+ * It also lists elements with a color of their own (`.c-<color>`) whose hover background isn't their own light tint (--ch).
+ *
+ * Exit code 1 when any element has no hover, a text-level one gets a background, a colored element hovers in another
+ * color, or a card is mostly empty.
  */
 import { createRequire } from 'node:module'
 import { spawn } from 'node:child_process'
@@ -99,6 +102,7 @@ const DESCRIBE = (el) => {
 }
 
 const strong = []
+const colored = []
 
 async function auditPage(page, route, seen, out) {
   const handles = await page.$$(PICK)
@@ -135,6 +139,18 @@ async function auditPage(page, route, seen, out) {
     await page.waitForTimeout(80)
     const after = await h.evaluate(SNAPSHOT).catch(() => before)
     const bgAfter = level1 ? await h.evaluate(BACKGROUNDS).catch(() => bgBefore) : null
+    // A colored element (.c-<color>) must hover to its own light fill (--ch), not mustard or anything else.
+    const own = info.selected ? null : await h.evaluate((el) => {
+      if (![...el.classList].some((c) => /^c-[a-z]+$/.test(c))) return null
+      const want = getComputedStyle(el).getPropertyValue('--ch').trim()
+      if (!want) return null
+      const g = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
+      const px = (c) => { g.clearRect(0, 0, 1, 1); g.fillStyle = '#000'; g.fillStyle = c; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data] }
+      const a = px(want)
+      const b = px(getComputedStyle(el).backgroundColor)
+      return { ok: a.every((v, i) => Math.abs(v - b[i]) <= 3), want: `rgb(${a.slice(0, 3)})`, got: `rgb(${b.slice(0, 3)})` }
+    }).catch(() => null)
+    if (own && !own.ok) colored.push({ route, what: await h.evaluate(DESCRIBE), got: own.got, want: own.want })
     await page.mouse.move(0, 0)
     if (before === after && !(info.selected && info.cursor === 'pointer')) {
       out.push({ route, what: await h.evaluate(DESCRIBE), cursor: info.cursor, selected: info.selected })
@@ -264,9 +280,11 @@ async function main() {
   }
   if (strong.length) console.log('\nToo strong (text level, but the hover adds a background):')
   for (const x of strong) console.log(`  - ${x.route}: ${x.what}`)
+  console.log(`\nColored elements whose hover isn't their own tint: ${colored.length}.`)
+  for (const x of colored) console.log(`  - ${x.route}: ${x.what} (hover ${x.got}, should be ${x.want})`)
   console.log(`\nCards with more than ${EMPTY_MAX} px empty: ${empties.length}.`)
   for (const x of empties) console.log(`  - ${x.route}: ${x.what}`)
-  process.exit(out.length || strong.length || empties.length ? 1 : 0)
+  process.exit(out.length || strong.length || empties.length || colored.length ? 1 : 0)
 }
 
 main().catch((e) => { console.error(e.message || e); process.exit(2) })

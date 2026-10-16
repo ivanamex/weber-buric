@@ -71,7 +71,7 @@ export function activate(setState, inMemory = false) {
   if (!state.settings?.closedWeekdays && !memoryOnly) state = persist(createSeed())
   // Demo states from before the sample data was corrected (dates, horses by level, bank details) or before the real class
   // and plan prices: start again once.
-  if ((state.version || 1) < 5 && !memoryOnly) state = persist({ ...createSeed(), session: state.session })
+  if ((state.version || 1) < 6 && !memoryOnly) state = persist({ ...createSeed(), session: state.session })
   // Demo states saved before the website's contact form: add the sample messages once.
   if (!state.contactMessages && !memoryOnly) { state.contactMessages = createSeed().contactMessages; persist(state) }
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
@@ -602,6 +602,17 @@ function payAtClub(paymentId) {
   })
 }
 
+/** "Ya pagué en el club": no receipt; the charge waits in Cobros → Por revisar ("Dice que pagó en el club") and the
+ *  reminders stop until the club approves it (paid in cash) or rejects it with a note. */
+function saidPaidAtClub(paymentId) {
+  return mutate((s) => {
+    const p = byId(s.payments, paymentId)
+    if (!p || p.status !== 'pending' || p.familyId !== s.session?.familyId || p.receiptStatus === 'review') return fail('notFound')
+    Object.assign(p, { receiptStatus: 'review', receiptPath: null, receiptNote: null, receiptUploadedAt: now(), reviewedAt: null, meta: { ...(p.meta || {}), saidPaidAtClub: todayKey() } })
+    return { ok: true }
+  })
+}
+
 /** The demo's card payment: no Mercado Pago here, so the charge is simply marked paid by card. */
 function simulateCardPayment(paymentId) {
   return mutate((s) => {
@@ -619,11 +630,12 @@ function reviewReceipt(paymentId, approve, note) {
     const p = byId(s.payments, paymentId)
     if (!p || p.status !== 'pending' || p.receiptStatus !== 'review') return fail('notFound')
     if (approve) {
-      Object.assign(p, { status: 'paid', method: 'transfer', paidAt: now(), receiptStatus: 'approved', receiptNote: null, reviewedAt: now() })
+      Object.assign(p, { status: 'paid', method: p.meta?.saidPaidAtClub ? 'cash' : 'transfer', paidAt: now(), receiptStatus: 'approved', receiptNote: null, reviewedAt: now() })
       applyPlanPayment(s, p)
     } else {
       if (!note?.trim()) return fail('noteRequired')
-      Object.assign(p, { receiptStatus: 'rejected', receiptNote: note.trim().slice(0, 280), reviewedAt: now() })
+      const { saidPaidAtClub: _said, ...meta } = p.meta || {}
+      Object.assign(p, { receiptStatus: 'rejected', receiptNote: note.trim().slice(0, 280), reviewedAt: now(), meta })
     }
     return { ok: true }
   })
@@ -1201,7 +1213,7 @@ export const actions = {
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),
   setPassword, resume: liveOnly, signInPassword: liveOnly,
-  uploadReceipt, reviewReceipt, receiptUrl, saveSettings, bookSingleClass, saveClassPrices, payAtClub, simulateCardPayment,
+  uploadReceipt, reviewReceipt, receiptUrl, saveSettings, bookSingleClass, saveClassPrices, payAtClub, saidPaidAtClub, simulateCardPayment,
   saveHorseCare, addHealth, updateHealth, deleteHealth,
   sellHorse, uploadHorsePhoto, removeHorsePhoto, addOwnHorsePhoto, setHorsePhotoHidden, horsePhotoUrl, saveEmployee, paySalary, saveExpense, deleteExpense, saveCategory, saveModules,
   saveSlot, saveInstructor, saveHorse, cancelClassDate, reopenClassDate, markClassAttended,

@@ -41,17 +41,23 @@ export function message(r) {
     after: `${what[0].toUpperCase()}${what.slice(1)} por ${amount} venció el ${when} y sigue pendiente.`,
     weekly: `${what[0].toUpperCase()}${what.slice(1)} por ${amount} venció el ${when} y sigue pendiente.`,
   }[r.kind]
+  // A family that chose to pay at the club gets its own line, and a link to say it already paid.
+  const club = r.payAtClub
+    ? [`Recuerda pagar ${what} (${amount}) en la oficina del club. Si ya pagaste, avísanos desde la app: ${APP_URL}/app/familia/pagos${r.paymentId ? `?pagar=${r.paymentId}` : ''}`]
+    : [
+      line,
+      `Paga desde la app, ${mpEnabled() ? 'por transferencia o con tarjeta' : 'por transferencia'}: ${APP_URL}/app/familia/pagos`,
+      'También puedes pagar en el club en tu próxima visita.',
+    ]
   const text = [
     `Hola ${first}:`,
     '',
-    line,
-    `Paga desde la app, ${mpEnabled() ? 'por transferencia o con tarjeta' : 'por transferencia'}: ${APP_URL}/app/familia/pagos`,
-    'También puedes pagar en el club en tu próxima visita.',
+    ...club,
     r.note ? `\n${r.note}` : null,
     '',
     `Gracias,\n${CLUB}`,
-    '',
-    'Si ya pagaste, ignora este mensaje.',
+    r.payAtClub ? null : '',
+    r.payAtClub ? null : 'Si ya pagaste, ignora este mensaje.',
   ].filter((l) => l != null).join('\n')
   return { subject, text }
 }

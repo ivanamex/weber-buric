@@ -551,6 +551,7 @@ export const actions = {
   selfSignup,
   uploadReceipt,
   payAtClub: (id) => call('pay_at_club', { p_payment: id }),
+  saidPaidAtClub: (id) => call('said_paid_at_club', { p_payment: id }),
   simulateCardPayment: async () => ({ ok: false, code: 'cardOff' }), // only the demo pretends; the real app goes to Mercado Pago
   saveSlot,
   saveInstructor,

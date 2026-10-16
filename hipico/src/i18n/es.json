@@ -220,7 +220,6 @@
     "current": "Plan de {month}",
     "packages": "Paquetes mensuales",
     "changeNote": "Ya hay un plan de {n} clases en {month}; elegir otro paquete lo cambia.",
-    "popular": "Más elegido",
     "classesMonth": "clases / mes",
     "perClass": "{price} por clase",
     "payCard": "Pagar con tarjeta",
@@ -628,7 +627,9 @@
     "rejectPh": "Ej.: el monto no coincide",
     "bankTitle": "Datos para transferencia",
     "toReview": "{n} por revisar",
-    "orTransfer": "o por transferencia"
+    "orTransfer": "o por transferencia",
+    "saidTag": "Dice que pagó en el club",
+    "saidAtClub": "La familia dice que pagó en la oficina del club el {date}. No hay comprobante: revisa lo que se cobró en la oficina y apruébalo o recházalo con una nota."
   },
   "schedule": {
     "title": "Horario",
@@ -936,7 +937,8 @@
     "emptyHorses": "Ningún caballo tiene pendientes en 14 días.",
     "emptySalaries": "Ningún sueldo vence en 15 días.",
     "seats": "{taken} de {seats} lugares",
-    "byLevel": "Por nivel"
+    "byLevel": "Por nivel",
+    "waReminderClub": "Hola {contact}, te escribimos del Hípico Riviera Maya. Te recordamos {what}: {amount}, para pagar en la oficina del club. Si ya pagaste, avísanos desde la app. ¡Gracias!"
   },
   "payroll": {
     "title": "Nómina",
@@ -1695,7 +1697,6 @@
       "title": "¿Dudas?"
     },
     "enroll": {
-      "popular": "Más elegido",
       "perClass": "{price} por clase",
       "continue": "Continuar",
       "back": "Volver",
@@ -1896,7 +1897,12 @@
     "dropHint": "Foto o PDF · hasta 10 MB · toca o arrastra",
     "change": "Cambiar",
     "resultPending": "Pago en revisión",
-    "resultPendingText": "Mercado Pago está revisando tu pago. Cuando se confirme, aquí lo verás como Pagado."
+    "resultPendingText": "Mercado Pago está revisando tu pago. Cuando se confirme, aquí lo verás como Pagado.",
+    "saidPaid": "Ya pagué en el club",
+    "saidPaidHint": "El club lo confirma y dejamos de enviarte recordatorios.",
+    "saidWaiting": "Le avisaste al club que ya pagaste. Lo confirma pronto y, mientras, no te enviamos recordatorios.",
+    "resultSaid": "Aviso enviado",
+    "resultSaidText": "El club confirma tu pago en la oficina. Mientras, no te enviamos recordatorios."
   },
   "card": {
     "number": "Número de tarjeta",
@@ -1908,5 +1914,11 @@
     "loading": "Cargando el formulario de pago…",
     "failed": "No se pudo cargar el formulario de tarjeta. Elige Transferencia o En el club, o inténtalo más tarde.",
     "secure": "Pago seguro con Mercado Pago"
+  },
+  "planCard": {
+    "start": "Para empezar",
+    "steady": "Constancia",
+    "more": "Para avanzar más",
+    "best": "Mejor precio por clase"
   }
 }

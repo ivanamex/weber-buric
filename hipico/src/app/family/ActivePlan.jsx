@@ -10,6 +10,7 @@ import { Icon } from '../../components/Icon.jsx'
 import { Badge, Horseshoes } from '../../components/ui.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { StatusPill } from '../../components/Colors.jsx'
+import { bestValue, planFact, planLook } from '../../data/planLook.js'
 
 const STATUS = { paid: ['paid', 'plan.paid'], review: ['review', 'receipt.status.review'], pending: ['pending', 'plan.statusPending'] }
 
@@ -118,16 +119,19 @@ export function ChangePlan({ riderId, onDone, onCancel }) {
       </div>
       <div className="packages">
         {PLANS.map((p) => {
+          const best = bestValue(PLANS)
           const per = Math.round(p.price / p.classes)
           const saving = Math.round((1 - p.price / p.classes / basePerClass) * 100)
           return (
-            <button key={p.classes} type="button" className={`package ${selected === p.classes ? 'is-active' : ''}`} onClick={() => setSelected(p.classes)} aria-pressed={selected === p.classes}>
+            <button key={p.classes} type="button" className={`package c-${planLook(p.classes).color} ${selected === p.classes ? 'is-active' : ''}`} onClick={() => setSelected(p.classes)} aria-pressed={selected === p.classes}>
               {p.classes === current && <span className="package__tag package__tag--mine">{t('plan.yours')}</span>}
+              <Icon name={planLook(p.classes).icon} size={24} className="package__icon" />
               <span className="package__n">{p.classes}</span>
               <span className="package__label">{t('plan.classesMonth')}</span>
               <span className="package__price">{fmtMoney(p.price)}</span>
               <span className="package__per">{t('plan.perClassShort', { price: fmtMoney(per) })}</span>
               {saving >= 1 && <span className="package__save">{t('plan.saves', { n: saving })}</span>}
+              {planFact(p.classes, best) && <span className="package__fact">{t(`planCard.${planFact(p.classes, best)}`)}</span>}
             </button>
           )
         })}

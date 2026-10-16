@@ -5,7 +5,7 @@ export const CURRENCY = 'MXN'
 
 export const PLANS = [
   { classes: 4, price: 2900 },
-  { classes: 8, price: 4900, popular: true },
+  { classes: 8, price: 4900 },
   { classes: 12, price: 6900 },
 ]
 export const planPrice = (classes) => PLANS.find((p) => p.classes === classes)?.price ?? 0

@@ -7,7 +7,7 @@ import { cardCheckout, cardDemoWeb, cardInfo, enroll, payAtClubWeb, payCard, sen
 import { DropZone, MethodCards } from '../components/PayOptions.jsx'
 import { CardForm, cardMode } from '../components/CardForm.jsx'
 import { DateField } from './DateField.jsx'
-import { PopularTag } from '../components/PopularTag.jsx'
+import { bestValue, planFact, planLook } from '../data/planLook.js'
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 const ACCEPT = 'image/jpeg,image/png,image/heic,image/heif,application/pdf,.heic,.heif,.pdf,.jpg,.jpeg,.png'
@@ -34,7 +34,7 @@ export function Enroll({ data, onCustom, info }) {
   const { t, fmtMoney, fmtDate, lang } = useI18n()
   const [step, setStep] = useState('pick') // pick → details → done
   const [tab, setTab] = useState('plan') // plan | single
-  const [planN, setPlanN] = useState(8)
+  const [planN, setPlanN] = useState(null) // null = the best price per class (12 today)
   const [single, setSingle] = useState('trial')
   const [f, setF] = useState({ rider: '', age: '', contact: '', phone: '', email: '', start: todayKey(), website: '' })
   const [errors, setErrors] = useState({})
@@ -55,7 +55,8 @@ export function Enroll({ data, onCustom, info }) {
   const prices = data?.prices || {}
   const listed = planList(prices)
   const plans = listed.length ? listed : [4, 8, 12].map((classes) => ({ classes, price: 0 }))
-  const plan = plans.find((p) => p.classes === planN) || plans[Math.min(1, plans.length - 1)]
+  const best = bestValue(plans)
+  const plan = plans.find((p) => p.classes === planN) || plans.find((p) => p.classes === best) || plans[plans.length - 1]
   const price = (n) => (n > 0 ? fmtMoney(n) : t('site.sheet.ask'))
   const singles = [
     { key: 'trial', name: t('site.enroll.trialName'), note: t('site.enroll.trialNote'), amount: prices.class_trial },
@@ -159,13 +160,18 @@ export function Enroll({ data, onCustom, info }) {
             <div className="epane" role="tabpanel">
               <p className="elabel" id="enroll-howmany">{t('site.enroll.howMany')}</p>
               <div className="eplans" role="radiogroup" aria-labelledby="enroll-howmany">
-                {plans.map((p) => (
-                  <button key={p.classes} type="button" role="radio" aria-checked={plan.classes === p.classes} className={`eplan ${plan.classes === p.classes ? 'is-on' : ''}`} onClick={() => setPlanN(p.classes)}>
-                    {p.classes === 8 && <PopularTag className="eplan__tag">{t('site.enroll.popular')}</PopularTag>}
-                    <b>{p.classes}</b>
-                    <span>{t('site.enroll.perWeek', { n: Math.max(1, Math.round(p.classes / 4)) })}</span>
-                  </button>
-                ))}
+                {plans.map((p) => {
+                  const look = planLook(p.classes)
+                  const fact = planFact(p.classes, best)
+                  return (
+                    <button key={p.classes} type="button" role="radio" aria-checked={plan.classes === p.classes} className={`eplan c-${look.color} ${plan.classes === p.classes ? 'is-on' : ''}`} onClick={() => setPlanN(p.classes)}>
+                      <span className="eplan__icon" aria-hidden="true"><SiteIcon name={look.icon} size={24} /></span>
+                      <b>{p.classes}</b>
+                      <span>{t('site.enroll.perWeek', { n: Math.max(1, Math.round(p.classes / 4)) })}</span>
+                      {fact && <span className="eplan__fact">{t(`planCard.${fact}`)}</span>}
+                    </button>
+                  )
+                })}
               </div>
               <div className="esum">
                 {/* Every plan's text sits in the same cell (only the chosen one visible), so the card keeps its height. */}

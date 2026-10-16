@@ -17,9 +17,9 @@ const horses = [
   { id: 'h1', name: 'Canela', type: 'school', birthYear: 2014, sex: 'mare', breed: 'Cuarto de milla', coat: 'Alazán', heightCm: 150, level: 'beginner', photos: ['/img/club/horse-fence.webp'] },
   { id: 'h2', name: 'Lucero', type: 'school', birthYear: 2012, sex: 'gelding', breed: 'Criollo mexicano', coat: 'Tordo', heightCm: 148, level: 'beginner', photos: ['/img/club/jump-grey.webp'] },
   { id: 'h3', name: 'Tornado', type: 'school', birthYear: 2015, sex: 'gelding', breed: 'Pura sangre', coat: 'Negro', heightCm: 163, level: 'advanced', photos: ['/img/club/jump-bay.webp'] },
-  { id: 'h4', name: 'Brisa', type: 'school', birthYear: 2013, sex: 'mare', breed: 'Árabe', coat: 'Bayo', heightCm: 152, level: 'intermediate', photos: ['/img/club/horse-blaze-800.webp'] },
+  { id: 'h4', name: 'Brisa', type: 'school', birthYear: 2013, sex: 'mare', breed: 'Árabe', coat: 'Bayo', heightCm: 152, level: 'intermediate', photos: ['/img/club/rider-buckskin.webp'] },
   { id: 'h5', name: 'Cacao', type: 'school', status: 'for_sale', salePrice: 165000, age: 9, birthYear: 2017, sex: 'gelding', breed: 'Cuarto de milla', coat: 'Castaño', heightCm: 155, level: 'intermediate', description: 'Noble y tranquilo, ideal para salto bajo y paseos.', photos: ['/img/club/rider-buckskin.webp'] },
-  { id: 'h6', name: 'Relámpago', type: 'boarded', ownerFamilyId: 'f1', birthYear: 2011, sex: 'gelding', breed: 'Warmblood', coat: 'Castaño oscuro', heightCm: 168, level: 'competition', photos: ['/img/club/girl-horse-closeup-800.webp', '/img/club/girl-horse-nose-800.webp', '/img/club/rider-buckskin.webp'], familyPhotos: ['/img/club/rider-buckskin.webp'] },
+  { id: 'h6', name: 'Relámpago', type: 'boarded', ownerFamilyId: 'f1', birthYear: 2011, sex: 'gelding', breed: 'Warmblood', coat: 'Castaño oscuro', heightCm: 168, level: 'competition', photos: ['/img/club/horse-blaze-800.webp', '/img/club/girl-horse-closeup-800.webp'], familyPhotos: ['/img/club/girl-horse-nose-800.webp'] },
   { id: 'h7', name: 'Zafiro', type: 'boarded', ownerFamilyId: 'f2', birthYear: 2016, sex: 'mare', breed: 'Andaluz', coat: 'Tordo', heightCm: 158, photos: ['/img/gallery/horse-rope-jungle.webp'] },
   { id: 'h8', name: 'Maya', type: 'boarded', ownerFamilyId: 'f3', birthYear: 2018, sex: 'mare', breed: 'Appaloosa', coat: 'Atigrado', heightCm: 150, photos: ['/img/club/paddock-herd.webp'] },
 ]
@@ -290,6 +290,8 @@ export function createSeed() {
   })
   for (const m of pastMonths) for (const [f, h] of [['f1', 'h6'], ['f2', 'h7'], ['f3', 'h8']]) boardingPay(f, h, 'paid', m)
   boardingPay('f1', 'h6', 'pending')
+  // Hernández said they'd pay October's pensión at the office: it still gets its reminders until it's paid.
+  payments[payments.length - 1].meta.payAtClub = addDays(today, -6)
   boardingPay('f2', 'h7', 'paid')
   boardingPay('f3', 'h8', 'paid')
 
@@ -327,7 +329,7 @@ export function createSeed() {
   })
 
   return {
-    version: 5,
+    version: 6,
     seededAt: new Date().toISOString(),
     session: null,
     instructors,

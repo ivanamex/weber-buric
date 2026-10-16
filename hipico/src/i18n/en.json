@@ -220,7 +220,6 @@
     "current": "{month} plan",
     "packages": "Monthly packages",
     "changeNote": "There's already a {n}-class plan in {month}; choosing another package changes it.",
-    "popular": "Most popular",
     "classesMonth": "classes / month",
     "perClass": "{price} per class",
     "payCard": "Pay by card",
@@ -628,7 +627,9 @@
     "rejectPh": "E.g. the amount doesn't match",
     "bankTitle": "Bank details for transfers",
     "toReview": "{n} to review",
-    "orTransfer": "or by bank transfer"
+    "orTransfer": "or by bank transfer",
+    "saidTag": "Says they paid at the club",
+    "saidAtClub": "The family says they paid at the club office on {date}. There’s no receipt: check what was collected at the office and approve it, or reject it with a note."
   },
   "schedule": {
     "title": "Schedule",
@@ -936,7 +937,8 @@
     "emptyHorses": "No horse has anything due in 14 days.",
     "emptySalaries": "No salary is due in 15 days.",
     "seats": "{taken} of {seats} seats",
-    "byLevel": "By level"
+    "byLevel": "By level",
+    "waReminderClub": "Hi {contact}, this is Hípico Riviera Maya. A reminder about {what}: {amount}, to pay at the club office. If you already paid, let us know in the app. Thank you!"
   },
   "payroll": {
     "title": "Payroll",
@@ -1695,7 +1697,6 @@
       "title": "Questions?"
     },
     "enroll": {
-      "popular": "Most chosen",
       "perClass": "{price} per class",
       "continue": "Continue",
       "back": "Back",
@@ -1896,7 +1897,12 @@
     "dropHint": "Photo or PDF · up to 10 MB · tap or drag",
     "change": "Change",
     "resultPending": "Payment under review",
-    "resultPendingText": "Mercado Pago is reviewing your payment. Once it's confirmed, you'll see it here as Paid."
+    "resultPendingText": "Mercado Pago is reviewing your payment. Once it's confirmed, you'll see it here as Paid.",
+    "saidPaid": "I already paid at the club",
+    "saidPaidHint": "The club confirms it and we stop sending you reminders.",
+    "saidWaiting": "You told the club you already paid. They’ll confirm it soon and, meanwhile, we won’t send you reminders.",
+    "resultSaid": "Message sent",
+    "resultSaidText": "The club confirms your payment at the office. Meanwhile, we won’t send you reminders."
   },
   "card": {
     "number": "Card number",
@@ -1908,5 +1914,11 @@
     "loading": "Loading the payment form…",
     "failed": "The card form couldn't load. Choose Bank transfer or At the club, or try again later.",
     "secure": "Secure payment with Mercado Pago"
+  },
+  "planCard": {
+    "start": "To get started",
+    "steady": "Steady progress",
+    "more": "To progress faster",
+    "best": "Best price per class"
   }
 }

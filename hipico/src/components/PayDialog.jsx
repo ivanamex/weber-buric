@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
-import { useStore, byId, uploadReceipt, payAtClub, simulateCardPayment, dueOf, dueState } from '../data/store.js'
+import { useStore, byId, uploadReceipt, payAtClub, saidPaidAtClub, simulateCardPayment, dueOf, dueState } from '../data/store.js'
 import { Icon } from './Icon.jsx'
 import { useToast } from './Toast.jsx'
 import { StatusPill, HorseAvatar } from './Colors.jsx'
@@ -11,7 +11,7 @@ import { CardForm, cardMode } from './CardForm.jsx'
 import { DropZone, MethodCards } from './PayOptions.jsx'
 
 const METHOD_KEY = 'hipico.payMethod'
-const RESULT = { paid: 'Paid', club: 'Club', review: 'Review', pending: 'Pending' }
+const RESULT = { paid: 'Paid', club: 'Club', review: 'Review', pending: 'Pending', said: 'Said' }
 const MAX_BYTES = 10 * 1024 * 1024
 const readMethod = () => { try { return localStorage.getItem(METHOD_KEY) } catch { return null } }
 const keepMethod = (m) => { try { localStorage.setItem(METHOD_KEY, m) } catch { /* private mode */ } }
@@ -42,11 +42,12 @@ export function PayDialog({ paymentId, onClose }) {
   const horse = p?.service === 'boarding' && p.meta?.horseId ? byId(s.horses, p.meta.horseId) : null
   // Tarjeta always shows; before the club's Mercado Pago keys are in it says "muy pronto" (the demo simulates it).
   const methods = ['card', 'transfer', 'club']
-  const [method, setMethod] = useState(() => { const m = readMethod(); return methods.includes(m) ? m : 'transfer' })
+  // A charge the family will pay at the office opens on "En el club" (where "Ya pagué en el club" is).
+  const [method, setMethod] = useState(() => { if (byId(s.payments, paymentId)?.meta?.payAtClub) return 'club'; const m = readMethod(); return methods.includes(m) ? m : 'transfer' })
   const [file, setFile] = useState(null)
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState(null)
-  const [result, setResult] = useState(null) // 'review' | 'paid' | 'club' | 'pending'
+  const [result, setResult] = useState(null) // 'review' | 'paid' | 'club' | 'pending' | 'said'
   const panel = useRef(null)
   const closeRef = useRef(null)
   const close = useRef(onClose)
@@ -117,10 +118,18 @@ export function PayDialog({ paymentId, onClose }) {
     if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
     setResult('club')
   }
+  const onSaidPaid = async () => {
+    setBusy(true)
+    const res = await saidPaidAtClub(p.id)
+    setBusy(false)
+    if (!res.ok) return toast(t(`errors.${res.code}`), 'error')
+    setResult('said')
+  }
   const paid = p.status === 'paid'
-  const waiting = p.receiptStatus === 'review'
+  const said = p.receiptStatus === 'review' && Boolean(p.meta?.saidPaidAtClub) // "Ya pagué en el club", waiting for the club
+  const waiting = p.receiptStatus === 'review' && !said
   const statusPill = paid ? <StatusPill status="paid">{t('plan.paid')}</StatusPill>
-    : waiting ? <StatusPill status="review">{t('receipt.status.review')}</StatusPill>
+    : waiting || said ? <StatusPill status="review">{t('receipt.status.review')}</StatusPill>
       : <StatusPill status={state === 'overdue' ? 'overdue' : state === 'today' ? 'pending' : 'neutral'}>{t(`familyDue.${state === 'later' ? 'soon' : state}`, { date: fmtDate(due, { day: 'numeric', month: 'short' }) })}</StatusPill>
   const cards = [
     { key: 'card', title: t('pay.card'), text: t('pay.optCard'), icon: <Icon name="card" size={22} /> },
@@ -150,7 +159,7 @@ export function PayDialog({ paymentId, onClose }) {
 
         {shownResult ? (
           <div className="paydlg__result" role="status">
-            <span className="paydlg__resicon"><Icon name={shownResult === 'paid' ? 'check' : shownResult === 'club' ? 'home' : shownResult === 'pending' ? 'clock' : 'receipt'} size={28} /></span>
+            <span className="paydlg__resicon"><Icon name={shownResult === 'paid' ? 'check' : shownResult === 'club' || shownResult === 'said' ? 'home' : shownResult === 'pending' ? 'clock' : 'receipt'} size={28} /></span>
             <p className="paydlg__restitle">{t(`pay.result${RESULT[shownResult]}`)}</p>
             <p className="small muted">{t(`pay.result${RESULT[shownResult]}Text`)}</p>
             {shownResult === 'paid' && p.meta?.demoCard && <span className="paydlg__demo">{t('pay.cardDemo')}</span>}
@@ -202,8 +211,17 @@ export function PayDialog({ paymentId, onClose }) {
             {method === 'club' && (
               <div className="paydlg__body paydlg__acc" key="club">
                 <p>{t('pay.clubText')}</p>
-                {p.meta?.payAtClub ? (
-                  <p className="small transfer__wait"><Icon name="check" size={16} /> {t('pay.clubSaid', { date: fmtDate(p.meta.payAtClub, { day: 'numeric', month: 'short' }) })}</p>
+                {said ? (
+                  <p className="small transfer__wait"><Icon name="clock" size={16} /> {t('pay.saidWaiting')}</p>
+                ) : p.meta?.payAtClub ? (
+                  <>
+                    <p className="small transfer__wait"><Icon name="check" size={16} /> {t('pay.clubSaid', { date: fmtDate(p.meta.payAtClub, { day: 'numeric', month: 'short' }) })}</p>
+                    {p.receiptStatus === 'rejected' && p.receiptNote && <p className="transfer__note"><Icon name="alert" size={16} /> {p.receiptNote}</p>}
+                    <button type="button" className="btn btn--primary btn--block" onClick={onSaidPaid} disabled={busy}>
+                      <Icon name="check" size={18} /> {t('pay.saidPaid')}
+                    </button>
+                    <p className="small muted">{t('pay.saidPaidHint')}</p>
+                  </>
                 ) : (
                   <button type="button" className="btn btn--primary btn--block" onClick={onClub} disabled={busy}>
                     <Icon name="home" size={18} /> {t('pay.clubBtn')}

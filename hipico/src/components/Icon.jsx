@@ -44,6 +44,7 @@ const P = {
   printer: <><path d="M7 9V4h10v5" /><rect x="3.5" y="9" width="17" height="8" rx="2" /><path d="M7 14h10v6H7z" /></>,
   download: <><path d="M12 4v11M7 10.5l5 5 5-5" /><path d="M4.5 19.5h15" /></>,
   plus: <path d="M12 5v14M5 12h14" />,
+  rosette: <><circle cx="12" cy="9" r="5.8" /><circle cx="12" cy="9" r="2.6" /><path d="M9 13.9 7.6 21.2l2.6-1.3 1.8 1.6M15 13.9l1.4 7.3-2.6-1.3-1.8 1.6" /></>,
   trophy: <><path d="M7.5 4h9v5a4.5 4.5 0 0 1-9 0z" /><path d="M7.5 6H4.5a3 3 0 0 0 3 4M16.5 6h3a3 3 0 0 1-3 4M12 13.5V17M8.5 20.5h7M9.5 17h5v3.5h-5z" /></>,
   sprout: <><path d="M12 21v-9" /><path d="M12 12c0-4-2.5-6.5-7-6.5 0 4.2 2.8 6.5 7 6.5zM12 14c0-3.5 2.2-6 6.5-6 0 3.8-2.4 6-6.5 6z" /></>,
   route: <><circle cx="6" cy="18" r="2.2" /><circle cx="18" cy="6" r="2.2" /><path d="M8.2 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8" /></>,

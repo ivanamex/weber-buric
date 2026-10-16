@@ -109,7 +109,7 @@ export default function AdminSummary() {
         <ul className="list card c-terracotta edge-c">
           {owed.slice(0, 5).map(({ payment: p, days, family }) => {
             const rider = p.meta?.riderId ? byId(s.riders, p.meta.riderId)?.name : p.meta?.horseId ? byId(s.horses, p.meta.horseId)?.name : ''
-            const text = t('summary.waReminder', { contact: family?.contact?.split(' ')[0] || '', what: paymentSentence(t, s, p), amount: fmtMoney(p.amount) })
+            const text = t(p.meta?.payAtClub ? 'summary.waReminderClub' : 'summary.waReminder', { contact: family?.contact?.split(' ')[0] || '', what: paymentSentence(t, s, p), amount: fmtMoney(p.amount) })
             return (
               <li key={p.id} className="list__row owed">
                 <div className="grow">

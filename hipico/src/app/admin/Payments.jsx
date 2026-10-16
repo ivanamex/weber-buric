@@ -49,7 +49,7 @@ export default function AdminPayments() {
               <li key={p.id} className="list__row">
                 <Icon name={SERVICE_ICON[p.service] || 'receipt'} size={18} />
                 <div className="grow">
-                  <p className="list__title">{byId(s.families, p.familyId)?.name}</p>
+                  <p className="list__title">{byId(s.families, p.familyId)?.name}{p.meta?.saidPaidAtClub && <> <Badge tone="neutral">{t('receipt.saidTag')}</Badge></>}</p>
                   <p className="small muted">{describe(p)}{p.receiptUploadedAt ? ` · ${t('admin.payments.sentOn', { date: fmtInstant(p.receiptUploadedAt) })}` : ''}</p>
                 </div>
                 <strong>{fmtMoney(p.amount)}</strong>

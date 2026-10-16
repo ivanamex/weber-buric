@@ -16,7 +16,7 @@ import { ActivePlanCard, ChangePlan } from './ActivePlan.jsx'
 import { UpcomingList } from './Upcoming.jsx'
 import { PaymentHistory, concept } from '../../components/PaymentHistory.jsx'
 import { StatusPill } from '../../components/Colors.jsx'
-import { PopularTag } from '../../components/PopularTag.jsx'
+import { bestValue, planFact, planLook } from '../../data/planLook.js'
 
 export default function FamilyPlan() {
   const { t, fmtDate, fmtMoney } = useI18n()
@@ -39,7 +39,7 @@ export default function FamilyPlan() {
     scrollToId(target)
     setParams({}, { replace: true })
   }, [])
-  const [selected, setSelected] = useState(PLANS.find((p) => p.popular)?.classes ?? PLANS[0].classes)
+  const [selected, setSelected] = useState(bestValue(PLANS) ?? PLANS[PLANS.length - 1].classes) // the best price per class
   const monthName = (m) => fmtDate(`${m}-01`, { month: 'long' })
 
   const current = getPlan(s, riderId)
@@ -90,12 +90,13 @@ export default function FamilyPlan() {
           <SectionTitle icon="horseshoe">{t('plan.packages')}</SectionTitle>
           <div className="packages" id="elegir">
             {PLANS.map((p) => (
-              <button key={p.classes} type="button" className={`package ${selected === p.classes ? 'is-active' : ''}`} onClick={() => setSelected(p.classes)} aria-pressed={selected === p.classes}>
-                {p.popular && <PopularTag className="package__tag">{t('plan.popular')}</PopularTag>}
+              <button key={p.classes} type="button" className={`package c-${planLook(p.classes).color} ${selected === p.classes ? 'is-active' : ''}`} onClick={() => setSelected(p.classes)} aria-pressed={selected === p.classes}>
+                <Icon name={planLook(p.classes).icon} size={24} className="package__icon" />
                 <span className="package__n">{p.classes}</span>
                 <span className="package__label">{t('plan.classesMonth')}</span>
                 <span className="package__price">{fmtMoney(p.price)}</span>
                 <span className="package__per">{t('plan.perClass', { price: fmtMoney(Math.round(p.price / p.classes)) })}</span>
+                {planFact(p.classes, bestValue(PLANS)) && <span className="package__fact">{t(`planCard.${planFact(p.classes, bestValue(PLANS))}`)}</span>}
               </button>
             ))}
           </div>
@@ -103,8 +104,8 @@ export default function FamilyPlan() {
         </>
       )}
 
-      <SectionTitle icon="saddle">{t('boarding.title')}</SectionTitle>
       <div className="card pricecard">
+        <p className="card__label card__eyebrow"><Icon name="horseHead" size={15} /> {t('boarding.title')}</p>
         <div className="row gap">
           <span className="tile-icon tile-icon--accent"><Icon name="saddle" /></span>
           <div className="grow">

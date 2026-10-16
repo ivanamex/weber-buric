@@ -446,10 +446,12 @@ p.center { display: block; }
 
 /* ───────── Plans ───────── */
 .packages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
-.package { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 22px 6px 14px; border-radius: var(--radius); border: 1.5px solid var(--border); background: var(--card); text-align: center; transition: border-color .2s ease, transform .12s ease; }
-.package.is-active { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+.package { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 22px 6px 14px; border-radius: var(--radius); border: 1.5px solid var(--border); background: var(--card); text-align: center; transition: border-color .2s ease, transform .12s ease; }
+.package.is-active { border-color: var(--c, var(--green)); box-shadow: 0 0 0 1.5px var(--c, var(--green)); background: var(--ch, var(--card)); } /* selected in its own color */
+.package[class*="c-"]::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--c); }
+.package__icon { position: absolute; top: 8px; right: 8px; color: var(--ci); }
+.package__fact { margin-top: 4px; font-size: .72rem; font-weight: 600; color: var(--ink); }
 .package:active { transform: scale(.98); }
-.package__tag { top: -10px; }
 .package__n { font-family: var(--font-head); font-weight: 700; font-size: 2.1rem; color: var(--green-dark); line-height: 1; }
 .package__label { font-size: .72rem; color: var(--muted); }
 .package__price { font-family: var(--font-head); font-weight: 600; font-size: 1.02rem; margin-top: 8px; }
@@ -689,7 +691,7 @@ p.center { display: block; }
 .changeplan { display: grid; gap: 12px; }
 .changeplan .packages { margin-top: 0; }
 .changeplan__info { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--green-soft); color: var(--green-dark); }
-.package__tag--mine { position: absolute; padding: 2px 8px; border-radius: 999px; background: var(--green); color: #fff; font-size: .66rem; font-weight: 700; white-space: nowrap; }
+.package__tag--mine { position: absolute; top: 8px; left: 8px; padding: 2px 8px; border-radius: 999px; background: var(--green); color: #fff; font-size: .66rem; font-weight: 700; white-space: nowrap; }
 .package__save { margin-top: 4px; font-size: .72rem; font-weight: 600; color: var(--green); }
 .history .right { text-align: right; }
 .history__receipt { display: inline-flex; align-items: center; gap: 4px; justify-self: start; font-size: .82rem; }
@@ -1333,6 +1335,8 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .c-terracotta { --c: var(--terracotta); --ct: var(--terracotta-t); --cg: var(--terracotta-g); --cx: #fff; --ci: var(--terracotta-i); }
 .c-plum { --c: var(--plum); --ct: var(--plum-t); --cg: var(--plum-g); --cx: #fff; --ci: var(--plum-i); }
 .c-sage { --c: var(--sage); --ct: var(--sage-t); --cg: var(--sage-g); --cx: #fff; --ci: var(--sage-i); }
+/* the light fill a colored tile or card takes on hover or when selected: its own color at 14 % on warm white */
+.c-mustard, .c-slate, .c-terracotta, .c-plum, .c-sage { --ch: color-mix(in srgb, var(--c) 14%, #FFFBF5); }
 
 /* The glass: color with a lighter top, blur + saturation of what's behind, a white edge and highlight, a shadow in the same color. */
 .btn--primary, .btn--accent, .btn--save, .dlbtn.is-yours { --cg: var(--mustard); --cx: var(--ink); --gtop: 70%; }
@@ -1805,7 +1809,8 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
   :is(.chip, .pill, .daychip):hover:not(.is-active):not(.is-on):not(:disabled) { background-color: color-mix(in srgb, var(--mustard) 14%, var(--card)); border-color: var(--hover-line); color: var(--ink); }
   .homehead .chip:hover:not(.is-active) { background-color: rgba(217, 164, 65, .2); border-color: rgba(233, 194, 122, .6); color: #fff; }
   .homehead .chip:hover:not(.is-active) .chip__avatar { background: rgba(255, 255, 255, .25); color: #fff; }
-  :is(.package, .scope, .mcal__day, .day, .wgrid__add, .hgallery__add, .paycard):hover:not(.is-active):not(:disabled) { background-color: color-mix(in srgb, var(--mustard) 14%, var(--card)); border-color: var(--hover-line); color: var(--ink); opacity: 1; }
+  .package[class*="c-"]:hover:not(.is-active) { background-color: var(--ch); border-color: var(--cg); transform: translateY(-2px); box-shadow: 0 8px 18px -10px var(--c); }
+  :is(.package:not([class*="c-"]), .scope, .mcal__day, .day, .wgrid__add, .hgallery__add, .paycard):hover:not(.is-active):not(:disabled) { background-color: color-mix(in srgb, var(--mustard) 14%, var(--card)); border-color: var(--hover-line); color: var(--ink); opacity: 1; }
   .wgrid__class:hover { background-image: linear-gradient(var(--hover-soft), var(--hover-soft)); box-shadow: inset 0 0 0 1px var(--hover-line); }
   .wgrid__class:hover span { color: var(--ink); }
   :is(.nextdates__tap, .healthrow__tap:not(:disabled), .check, .reminders__switch, .dropzone__pick):hover { background-color: var(--hover-soft); border-radius: 10px; box-shadow: 0 0 0 4px var(--hover-soft); }
@@ -1858,9 +1863,6 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 }
 .lang button:focus-visible { outline: 2px solid var(--mustard); outline-offset: 2px; }
 
-/* "Más elegido": olivewood pill, parchment caps, a mustard horseshoe; the same on a selected card (website and app). */
-.poptag { position: absolute; z-index: 1; display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 7px; border-radius: 999px; background: #33352A; color: #F1EAD8; font-family: 'Archivo Variable', 'Archivo', system-ui, sans-serif; font-stretch: 80%; font-style: normal; font-size: 11px; font-weight: 700; line-height: 1.2; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; box-shadow: 0 2px 6px rgba(51,53,42,.18); }
-.poptag__shoe { flex: none; color: #D9A441; }
 
 /* The "Tarjeta" part of a payment (website and app): Mercado Pago's card form inside the page, the demo's pretend
    form, or one line when card payments aren't on yet. */
@@ -1888,3 +1890,20 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .occlevel__n { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .occcard .card__foot { margin-top: auto; }
 .occcard > .occcard__row { margin-top: auto; } /* a short card splits its free space above and below the ring */
+
+/* A tile or card with its own color hovers in that color, never mustard: its light fill (--ch), the edge deepens to
+   --cg, a 2 px lift with a shadow in its color, the icon tile one step deeper; the text stays olivewood. Mustard tint is
+   only for elements without a color of their own. */
+@media (hover: hover) {
+  :is(.ctile, .feature)[class*="c-"]:hover { transform: translateY(-2px); background-color: var(--ch); border-color: color-mix(in srgb, var(--c) 35%, var(--border)); color: var(--ink);
+    box-shadow: inset 0 4px 0 var(--cg), 0 14px 28px -16px color-mix(in srgb, var(--c) 70%, transparent); }
+  :is(.ctile, .feature)[class*="c-"]:hover::before { opacity: 0; }
+  :is(.ctile, .feature)[class*="c-"]:hover :is(.ctile__text, p) { color: var(--muted); }
+  .feature[class*="c-"]:hover h3 { color: var(--ink); }
+  .ctile[class*="c-"]:hover .ctile__icon, .feature[class*="c-"]:hover .feature__icon { background: color-mix(in srgb, var(--c) 34%, #fff); color: var(--ci); }
+}
+@media (prefers-reduced-motion: reduce) { :is(.ctile, .feature)[class*="c-"]:hover { transform: none; } }
+/* A card's title inside it, as the small-caps eyebrow with an icon (Plan activo, Pensión…). */
+.card__eyebrow { display: inline-flex; align-items: center; gap: 6px; margin: 0; }
+.card__eyebrow .icon { flex: none; color: var(--ci, var(--muted)); }
+.boardcard { display: grid; gap: 12px; }
