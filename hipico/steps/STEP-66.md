@@ -10,8 +10,8 @@ Ivana (15 Oct, after STEP-64): the silhouettes are good (cute, a bit retro), but
 - Speed on the ground is steady (no easing that makes it slide). Reduced motion: the canter pose standing still, no cycle.
 
 ## 2. Illustrated fences
-- Replace the drawn fences and the numbered circles with Ivana's fence illustrations (same flat olivewood silhouette style as the horse). Chat Claude cuts them into `public/img/course/fence-1.png`, `fence-2.png`, `fence-3.png` (transparent, olivewood, a shared baseline).
-- Fence height: the horse frame is about 1.9× the fence height (as in STEP-64).
+- Replace the drawn fences and the numbered circles with Ivana's fence illustrations, already cut into `public/img/course/`: `fence-1.png` (vertical, 3 poles), `fence-2.png` (oxer), `fence-3.png` (wall with flower boxes). They're transparent and olivewood, each cropped to its own bottom: stand each one with its bottom edge on the dotted line.
+- Fence height: the horse frame is about 1.9× the fence height (as in STEP-64); scale each fence by its height so the three come out the same height. Preview of the proportions: `steps/drafts/step-66-course.png`.
 - The dotted ground line stays, and the fences stand on it.
 - Phones: 2 fences.
 
