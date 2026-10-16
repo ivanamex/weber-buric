@@ -202,18 +202,21 @@ export default function LiveLogin() {
         <Link to="/" className="login__back"><Icon name="chevronLeft" size={18} /> {t('login.back')}</Link>
         <LangToggle />
       </div>
-      <div className="login__body">
+      <div className={`login__body ${promote ? 'login__body--pair' : ''}`}>
         <Mark size={64} />
         <h1>Hípico Riviera Maya</h1>
         {!promote && <p>{t('live.subtitle')}</p>}
-        {promote && (
-          <section className="democard" aria-labelledby="democard-title">
-            <p className="democard__title" id="democard-title"><Icon name="sparkle" size={20} /> {t('live.demoCard.title')}</p>
-            <p>{t('live.demoCard.text')}</p>
-            <Link to="/demo" className="btn btn--primary btn--block btn--lg">{t('live.demoCard.button')} <Icon name="arrowRight" size={18} /></Link>
-          </section>
-        )}
-        {body}
+        {promote ? (
+          // On a computer the demo and the sign-in sit side by side, the same height; stacked on phones.
+          <div className="login__pair">
+            <section className="democard" aria-labelledby="democard-title">
+              <p className="democard__title" id="democard-title"><Icon name="sparkle" size={20} /> {t('live.demoCard.title')}</p>
+              <p>{t('live.demoCard.text')}</p>
+              <Link to="/demo" className="btn btn--primary btn--block btn--lg">{t('live.demoCard.button')} <Icon name="arrowRight" size={18} /></Link>
+            </section>
+            {body}
+          </div>
+        ) : body}
         {!promote && <Link to="/demo" className="login__note"><Icon name="sparkle" size={16} /> {t('live.seeDemo')}</Link>}
       </div>
     </div>

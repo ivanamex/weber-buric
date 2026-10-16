@@ -1929,3 +1929,13 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .demobar__site + .demobar__exit { margin-left: 14px; }
 .demobar__short { display: none; }
 @media (max-width: 479px) { .demobar__long { display: none; } .demobar__short { display: inline; } }
+/* The demo card and the sign-in side by side on a computer, the same height; stacked on phones. */
+.login__pair { display: grid; gap: 16px; width: 100%; margin-top: 28px; }
+.login__pair > .democard, .login__pair > .login__panel { margin-top: 0; }
+.democard { align-content: start; }
+@media (min-width: 860px) {
+  .login__body--pair { max-width: 920px; }
+  .login__pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+  .login__pair > .democard { display: flex; flex-direction: column; gap: 10px; }
+  .login__pair > .democard .btn { margin-top: auto; align-self: flex-start; }
+}
