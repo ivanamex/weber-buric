@@ -44,6 +44,7 @@ const P = {
   pants: <><path d="M7 3.5h10l1.6 17h-4.2L12 9.5l-2.4 11H5.4z" /><path d="M7 6.5h10M12 3.5v6" /></>,
   shirt: <><path d="M9 3.5 4 6l-1.5 4.5 3 1.2L6.5 10v10.5h11V10l1 1.7 3-1.2L20 6l-5-2.5c-.5 1.4-1.6 2.3-3 2.3s-2.5-.9-3-2.3z" /></>,
   minus: <path d="M6 12h12" />,
+  chevronDown: <path d="m6 9 6 6 6-6" />,
   plus: <path d="M12 6v12M6 12h12" />,
 }
 

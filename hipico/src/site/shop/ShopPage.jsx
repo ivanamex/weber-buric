@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Navigate, useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { SiteIcon } from '../../components/site/Icons.jsx'
-import { waLink } from '../../components/ui.jsx'
 import { homePath } from '../routes.js'
 import { shopPath } from '../SiteLayout.jsx'
 import { SiteDialog } from '../ServiceSheet.jsx'
 import { ContactForm } from '../ContactForm.jsx'
 import { BIG } from '../content.js'
-import { FRE_CATALOG, unitPrice, shopPhoto } from '../../data/shop.js'
-import { ShopBtn, ShopCatalog, CartDrawer } from './ShopParts.jsx'
+import { unitPrice, shopPhoto } from '../../data/shop.js'
+import { ShopBtn, ShopCatalog, CartDrawer, ShopQuiet } from './ShopParts.jsx'
 import { ShopCheckout } from './Checkout.jsx'
 import { openCart, useShop } from './shopApi.js'
 
@@ -76,7 +74,7 @@ export default function ShopPage() {
       </section>
       <section className="scontainer shopmain" ref={main} data-tone="light" aria-label={t('shop.nav')}>
         {data ? <ShopCatalog products={products} onAsk={ask} /> : <div className="shopempty"><span className="sspin" aria-hidden="true" /></div>}
-        <SpecialOrder />
+        <ShopQuiet />
       </section>
       <CartDrawer products={products} onBrowse={toGrid} checkout={(props) => <ShopCheckout {...props} />} />
       {asking && (
@@ -85,25 +83,5 @@ export default function ShopPage() {
         </SiteDialog>
       )}
     </div>
-  )
-}
-
-/** "¿Quieres otro modelo, color o talla?": anything from FreeRide's catalog, by sending a screenshot of the cart. */
-function SpecialOrder() {
-  const { t } = useI18n()
-  return (
-    <section className="shopspecial" aria-labelledby="special-title">
-      <h2 id="special-title">{t('shop.special.title')}</h2>
-      <p>{t('shop.special.text')}</p>
-      <ol className="shopsteps">
-        <li>{t('shop.special.step1')}</li>
-        <li>{t('shop.special.step2')}</li>
-        <li>{t('shop.special.step3')}</li>
-      </ol>
-      <div className="shopspecial__ctas">
-        <ShopBtn kind="line" as="a" href={FRE_CATALOG} target="_blank" rel="noopener noreferrer">{t('shop.special.catalog')}</ShopBtn>
-        <ShopBtn kind="sage" as="a" href={waLink(t('shop.special.waText'))} target="_blank" rel="noopener noreferrer"><SiteIcon name="whatsapp" size={20} /> {t('shop.special.wa')}</ShopBtn>
-      </div>
-    </section>
   )
 }

@@ -559,7 +559,8 @@
     "cardInvalid": "Check the card details.",
     "cardRejected": "The bank declined the card. Check the details or choose another way to pay.",
     "emptyCart": "Your cart is empty.",
-    "out_of_stock": "A size in your cart just sold out."
+    "out_of_stock": "A size in your cart just sold out.",
+    "freDown": "FreeRide didn't answer. The shop keeps the previous catalog; try again later."
   },
   "live": {
     "loading": "Loading…",
@@ -1799,6 +1800,11 @@
         "text": "Your card was declined. Try another one from the app or pay by bank transfer."
       },
       "back": "Back to the site"
+    },
+    "langLabel": "Language:",
+    "langName": {
+      "es": "Español",
+      "en": "English"
     }
   },
   "wa": {
@@ -1960,7 +1966,8 @@
       "all": "All",
       "pants": "Breeches",
       "shirts": "Shirts",
-      "accessories": "Accessories"
+      "accessories": "Accessories",
+      "jackets": "Jackets"
     },
     "emptyCat": "More {cat} are coming soon.",
     "emptyAsk": "Looking for something? Write to us →",
@@ -1970,7 +1977,8 @@
       "promo": "Sale",
       "nuevo": "New",
       "ultimas": "Last pieces",
-      "agotado": "Sold out"
+      "agotado": "Sold out",
+      "off": "−{pct}%"
     },
     "sizes": "Sizes:",
     "colors": "Colors",
@@ -2001,7 +2009,7 @@
       "browse": "See the products",
       "remove": "Remove",
       "subtotal": "Subtotal",
-      "saving": "You save {amount} with the opening price",
+      "saving": "You save {amount}",
       "today": "Today you pay {amount}",
       "todayNote": "(50% deposit on what is ordered)",
       "later": "On arrival: {amount}",
@@ -2025,19 +2033,9 @@
       "doneClub": "You pay when you pick it up at the club's office.",
       "appLine": "Follow your order in the app with {email}: you'll get a 6-digit code."
     },
-    "special": {
-      "title": "Want another model, color or size?",
-      "text": "Order anything from FreeRide's catalog: an extra 5% off (except sales), free shipping and import, a 50% deposit and the rest when it arrives.",
-      "step1": "Build your cart on shopfre.com",
-      "step2": "Take a screenshot of the cart",
-      "step3": "Send it on WhatsApp and we send you your price",
-      "catalog": "See FreeRide's catalog",
-      "wa": "Send on WhatsApp",
-      "waText": "Hi, I'd like a special FreeRide order"
-    },
     "meta": {
       "title": "FreeRide Equestrian shop · Hípico Riviera Maya",
-      "desc": "FreeRide Equestrian breeches and show shirts at opening prices. Pay online or at the club and pick up in Paamul, Riviera Maya."
+      "desc": "FreeRide Equestrian riding wear: what the club has at opening prices, and the whole catalog to order. Pay online or at the club and pick up in Paamul, Riviera Maya."
     },
     "status": {
       "nuevo": "New",
@@ -2061,7 +2059,8 @@
       "newCount_one": "1 new order",
       "tabs": {
         "orders": "Orders",
-        "products": "Products"
+        "products": "Products",
+        "fre": "FreeRide catalog"
       },
       "filters": {
         "nuevos": "New",
@@ -2167,7 +2166,70 @@
         "duplicate": "Duplicate in another color",
         "duplicateDone": "Copy ready: give it its color, photos and pieces.",
         "saved": "Product saved"
+      },
+      "toOrder": {
+        "title": "Order from FreeRide",
+        "copy": "Copy list",
+        "copied": "List copied",
+        "open": "Open at FreeRide"
+      },
+      "fre": {
+        "price": "Price in pesos",
+        "factor": "Factor (pesos per dollar)",
+        "factorHint": "Includes shipping and import. Prices round to $50.",
+        "discount": "Extra discount (%)",
+        "discountHint": "Not applied to what FreeRide already has on sale.",
+        "example": "Celestial Lux: {usd} USD → {mxn} · with {pct}%: {unit}",
+        "saved": "Prices saved",
+        "copy": "Catalog",
+        "sync": "Update catalog",
+        "syncing": "Updating…",
+        "synced": "Catalog updated: {n} products",
+        "last": "Last update: {when} · {n} products",
+        "never": "FreeRide's catalog hasn't been copied yet.",
+        "daily": "updates itself every morning",
+        "error": "FreeRide didn't answer last time ({error}). The shop keeps showing the previous catalog.",
+        "typesHint": "Product types: tap one to hide all of it from the shop.",
+        "unmapped": "No clear category ({n})",
+        "unmappedHint": "They show under Accessories; hide the ones that shouldn't be sold.",
+        "search": "Search product or type",
+        "show": "Show in the shop",
+        "showShort": "Show",
+        "usdMxn": "USD → pesos",
+        "hiddenByType": "hidden by type",
+        "empty": "No FreeRide products yet. Tap \"Update catalog\"."
       }
+    },
+    "newTag": "New",
+    "colorLabel": "Color",
+    "filters": {
+      "label": "Filters",
+      "anyColor": "Any color",
+      "girl": "Girls",
+      "boy": "Boys",
+      "clear": "Clear filters",
+      "none": "Nothing with those filters. Try another size or color."
+    },
+    "mine": {
+      "title": "Ready at the club today",
+      "line": "What we have here, ready to take home."
+    },
+    "fre": {
+      "title": "All of FreeRide · to order",
+      "line": "Arrives in 2 to 3 weeks. Shipping and import included.",
+      "none": "No FreeRide products in this view.",
+      "loading": "Loading…",
+      "more": "See more ({n})",
+      "colors": "{n} colors",
+      "gone": "This product is no longer in FreeRide's catalog.",
+      "oneSize": "One size",
+      "orderLine": "To order · arrives in 2 to 3 weeks · 50% deposit, the rest on arrival · shipping and import included"
+    },
+    "quiet": {
+      "before": "Can't find something?",
+      "link": "Message us on WhatsApp",
+      "after": "and we'll order it for you.",
+      "waText": "Hi, I'm looking for something from FreeRide I can't find in the club's shop"
     }
   },
   "update": {

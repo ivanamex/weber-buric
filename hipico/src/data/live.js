@@ -491,6 +491,52 @@ async function uploadShopPhoto(file) {
   if (up.error) { console.error('[hipico] photo upload failed', up.error); return { ok: false, code: 'uploadFailed' } }
   return { ok: true, path }
 }
+// FreeRide's catalog (the copy api/fre-sync.js keeps): management reads every row, hides some, sets the prices.
+const FRE_COLS = 'handle, title, type, category, mapped, kids, colors, sizes, price_usd, compare_usd, images, url, position, hidden, active, updated_at'
+async function loadFreCatalog() {
+  try {
+    const all = []
+    for (let from = 0; from < 20000; from += 1000) {
+      const { data, error } = await sb.from('fre_catalog').select(FRE_COLS).eq('active', true).order('position').range(from, from + 999)
+      if (error) throw error
+      all.push(...rows({ data }))
+      if (data.length < 1000) break
+    }
+    return { ok: true, rows: all }
+  } catch (err) {
+    console.error('[hipico] FreeRide catalog not loaded', err)
+    return { ok: false, code: 'network', rows: [] }
+  }
+}
+async function saveFreSettings({ factor, discount, hiddenTypes }) {
+  const patch = {}
+  if (factor !== undefined) { if (!(Number(factor) > 0)) return { ok: false, code: 'missing' }; patch.fre_mxn_factor = Number(factor) }
+  if (discount !== undefined) { if (!(Number(discount) >= 0 && Number(discount) < 100)) return { ok: false, code: 'missing' }; patch.fre_discount = Number(discount) }
+  if (hiddenTypes !== undefined) patch.fre_hidden_types = [...new Set(hiddenTypes)]
+  const res = await sb.from('club_settings').update(patch).eq('id', 1)
+  if (res.error) { console.error('[hipico] settings save failed', res.error); return { ok: false, code: 'network' } }
+  await refresh()
+  return { ok: true }
+}
+async function setFreHidden(handle, hidden) {
+  const res = await sb.from('fre_catalog').update({ hidden: Boolean(hidden) }).eq('handle', handle)
+  if (res.error) { console.error('[hipico] FreeRide product save failed', res.error); return { ok: false, code: 'network' } }
+  return { ok: true }
+}
+/** "Actualizar catálogo": the server copies FreeRide's catalog now (it checks the session belongs to management). */
+async function syncFre() {
+  try {
+    const { data } = await sb.auth.getSession()
+    const res = await fetch('/api/fre-sync', { method: 'POST', headers: { Authorization: `Bearer ${data?.session?.access_token || ''}` } })
+    const body = await res.json().catch(() => null)
+    await refresh()
+    if (body?.ok) return { ok: true, count: body.count, unmapped: body.unmapped }
+    return { ok: false, code: body?.code === 'freDown' ? 'freDown' : 'network' }
+  } catch (err) {
+    console.error('[hipico] FreeRide sync failed', err)
+    return { ok: false, code: 'network' }
+  }
+}
 const bookSingleClass = ({ riderId, slotId, date, kind }) => call('book_single_class', { p_rider: riderId, p_slot: slotId, p_date: date, p_kind: kind })
 async function saveClassPrices(prices) {
   const rowsToSave = []
@@ -655,6 +701,10 @@ export const actions = {
   saveShopProduct,
   setShopProductActive,
   uploadShopPhoto,
+  loadFreCatalog,
+  saveFreSettings,
+  setFreHidden,
+  syncFre,
   markContactMessage: (id, status) => call('mark_contact_message', { p_id: id, p_status: status }),
   refreshData: async () => { await refresh(); return { ok: true } },
 }

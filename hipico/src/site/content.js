@@ -86,4 +86,7 @@ export const TESTIMONIALS = []
 
 // The slogan above the footer's course (the horse jumps the fences under it). To swap it, change the two lines.
 // Alternatives Ivana liked: "Aquí los caballos son el plan." / "Here, the horses are the plan." · "Un salto a la vez." / "One jump at a time."
+// Tienda carries a small "Nuevo" tag in the bar until this day.
+export const SHOP_NEW_UNTIL = '2026-11-30'
+
 export const SLOGAN = { es: 'Tu lugar feliz tiene caballos.', en: 'Your happy place has horses.' }

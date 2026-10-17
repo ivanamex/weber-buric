@@ -8,7 +8,7 @@ import { SiteIcon } from '../components/site/Icons.jsx'
 import { waLink } from '../components/ui.jsx'
 import { isStandalone } from '../lib/install.js'
 import { SECTIONS, homePath, sectionId, translateHash } from './routes.js'
-import { CONTACT, SHARE_IMAGE, SLOGAN } from './content.js'
+import { CONTACT, SHARE_IMAGE, SHOP_NEW_UNTIL, SLOGAN } from './content.js'
 import { reducedMotion, useReveal } from './motion.jsx'
 import { openCart, useCart, useShop } from './shop/shopApi.js'
 import { ScreenBoundary } from '../components/ScreenError.jsx'
@@ -136,15 +136,15 @@ function useScrollState(lang) {
   return [state, progress]
 }
 
-function LangSwitch({ active, onDone }) {
-  const { lang, setLang, t } = useI18n()
+/** Switch the language, keeping the place: the same section, or the same shop category and product. */
+function useLangGo(active, onDone) {
+  const { lang, setLang } = useI18n()
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
-  const go = (l) => {
-    if (l === lang) return
+  return (l) => {
+    if (l === lang) { onDone?.(); return }
     let to
     if (isShopPath(pathname)) {
-      // The shop in the other language, with the same category and product open.
       const q = new URLSearchParams(search)
       const cat = categoryFromSlug(q.get('cat'))
       if (cat) q.set('cat', CATEGORY_SLUGS[l][cat])
@@ -155,12 +155,64 @@ function LangSwitch({ active, onDone }) {
     if (document.startViewTransition && !reducedMotion()) document.startViewTransition(swap)
     else swap()
   }
+}
+
+const LANGS = ['es', 'en']
+/** "ES ▾": a small card with Español / English (the current one checked); Esc or a click outside closes it, arrows move. */
+function LangMenu({ active, onDone, long, up }) {
+  const { lang, t } = useI18n()
+  const [open, setOpen] = useState(false)
+  const box = useRef(null)
+  const go = useLangGo(active, () => { setOpen(false); onDone?.() })
+  useEffect(() => {
+    if (!open) return undefined
+    const away = (e) => { if (!box.current?.contains(e.target)) setOpen(false) }
+    const key = (e) => {
+      if (e.key === 'Escape') { setOpen(false); box.current?.querySelector('.langm__btn')?.focus() }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        const items = [...box.current.querySelectorAll('[role="menuitemradio"]')]
+        const i = items.indexOf(document.activeElement)
+        items[(i + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length]?.focus()
+      }
+    }
+    document.addEventListener('mousedown', away)
+    document.addEventListener('keydown', key)
+    box.current?.querySelector('[aria-checked="true"]')?.focus()
+    return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', key) }
+  }, [open])
   return (
-    <div className="lang" role="group" aria-label={t('common.language')}>
-      {['es', 'en'].map((l) => (
-        <button key={l} type="button" className={lang === l ? 'is-active' : ''} aria-pressed={lang === l} onClick={() => go(l)}>{l.toUpperCase()}</button>
-      ))}
+    <div className={`langm ${up ? 'langm--up' : ''}`} ref={box}>
+      {long && <span className="langm__label">{t('site.langLabel')}</span>}
+      <button type="button" className="langm__btn" aria-haspopup="menu" aria-expanded={open} aria-label={t('common.language')} onClick={() => setOpen((o) => !o)}>
+        {long ? t(`site.langName.${lang}`) : lang.toUpperCase()}<SiteIcon name="chevronDown" size={14} />
+      </button>
+      {open && (
+        <div className="langm__card" role="menu">
+          {LANGS.map((l) => (
+            <button key={l} type="button" role="menuitemradio" aria-checked={lang === l} className={lang === l ? 'is-active' : ''} onClick={() => go(l)}>
+              <span>{t(`site.langName.${l}`)}</span>{lang === l && <SiteIcon name="check" size={16} />}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
+  )
+}
+
+/** Tienda in the bar: the bag (with the cart's count), the word in mustard, "Nuevo" for its first weeks. */
+function ShopNavLink({ onShop, onClick, sheet }) {
+  const { t, lang } = useI18n()
+  const n = useCart().reduce((a, l) => a + (l.qty || 0), 0)
+  const isNew = new Date().toISOString().slice(0, 10) <= SHOP_NEW_UNTIL
+  const go = (e) => { if (onShop && n) { e.preventDefault(); openCart() } onClick?.() }
+  return (
+    <Link to={shopPath(lang)} data-key="shop" className={`sbar__shop ${onShop ? 'is-active' : ''}`} aria-current={onShop ? 'page' : undefined}
+      aria-label={n ? `${t('shop.nav')} · ${t('shop.cart.open', { n })}` : undefined} onClick={go}>
+      <span className="sbar__shopicon"><SiteIcon name="bag" size={sheet ? 22 : 18} />{n > 0 && <span className="sbar__bagn">{n}</span>}</span>
+      {t('shop.nav')}
+      {isNew && <em className="sbar__new">{t('shop.newTag')}</em>}
+    </Link>
   )
 }
 
@@ -186,9 +238,6 @@ function SiteBar({ scroll, progress, onShop, shopOn }) {
   const sectionLink = (s, props) => (onShop
     ? <Link key={s.key} to={{ pathname: homePath(lang), hash: `#${s[lang]}` }} {...props}>{props.children}</Link>
     : <a key={s.key} href={`#${s[lang]}`} {...props}>{props.children}</a>)
-  const shopLink = (props) => (shopOn
-    ? <Link key="shop" to={shopPath(lang)} data-key="shop" className={onShop ? 'is-active' : ''} aria-current={onShop ? 'page' : undefined} {...props}>{props.children}</Link>
-    : null)
   const openBag = () => (onShop ? openCart() : navigate(`${shopPath(lang)}?carrito=1`))
   useEffect(() => {
     if (!open) return undefined
@@ -202,14 +251,13 @@ function SiteBar({ scroll, progress, onShop, shopOn }) {
         <div className="sbar__inner">
           <a href={`${homePath(lang)}#top`} className="sbar__logo" aria-label={t('site.homeLabel')}><BrandLogo variant={scroll.dark ? 'white' : 'green'} height={40} /></a>
           <nav className="sbar__nav" ref={nav} aria-label={t('site.navLabel')}>
-            {SECTIONS.flatMap((s) => [
-              sectionLink(s, { 'data-key': s.key, className: active === s.key ? 'is-active' : '', 'aria-current': active === s.key ? 'true' : undefined, children: t(`site.nav.${s.key}`) }),
-              s.key === 'community' ? shopLink({ children: t('shop.nav') }) : null,
-            ])}
+            {SECTIONS.map((s) => sectionLink(s, { 'data-key': s.key, className: active === s.key ? 'is-active' : '', 'aria-current': active === s.key ? 'true' : undefined, children: t(`site.nav.${s.key}`) }))}
+            {shopOn && <span className="sbar__div" aria-hidden="true" />}
+            {shopOn && <ShopNavLink onShop={onShop} />}
             <span className="sbar__line" style={line ? { transform: `translateX(${line.left}px)`, width: line.width } : { opacity: 0 }} aria-hidden="true" />
           </nav>
           <div className="sbar__end">
-            <span className="sbar__lang"><LangSwitch active={scroll.active} /></span>
+            <span className="sbar__lang"><LangMenu active={scroll.active} /></span>
             <Link to="/app" className="sbar__login">{t('landing.signIn')}</Link>
             <Bag onOpen={openBag} />
             <AppButton className="sbtn--sm" tone="sage" />
@@ -226,13 +274,11 @@ function SiteBar({ scroll, progress, onShop, shopOn }) {
           <div className="ssheet__panel">
             <span className="ssheet__grab" aria-hidden="true" />
             <nav className="ssheet__nav">
-              {SECTIONS.flatMap((s) => [
-                sectionLink(s, { onClick: () => setOpen(false), className: active === s.key ? 'is-active' : '', children: <><span>{s.n}</span>{t(`site.nav.${s.key}`)}</> }),
-                s.key === 'community' ? shopLink({ onClick: () => setOpen(false), children: <><span><SiteIcon name="bag" size={16} /></span>{t('shop.nav')}</> }) : null,
-              ])}
+                {shopOn && <ShopNavLink onShop={onShop} sheet onClick={() => setOpen(false)} />}
+              {SECTIONS.map((s) => sectionLink(s, { onClick: () => setOpen(false), className: active === s.key ? 'is-active' : '', children: <><span>{s.n}</span>{t(`site.nav.${s.key}`)}</> }))}
             </nav>
             <div className="ssheet__foot">
-              <LangSwitch active={scroll.active} onDone={() => setOpen(false)} />
+              <LangMenu active={scroll.active} onDone={() => setOpen(false)} long up />
               <Link to="/app" className="sbar__login">{t('landing.signIn')}</Link>
               <button type="button" className="ssheet__close" onClick={() => setOpen(false)}><SiteIcon name="x" size={20} /> {t('site.menuClose')}</button>
             </div>

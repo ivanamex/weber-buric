@@ -1,11 +1,11 @@
 // The shop's rules, shared by the website, the family app, the panel and the demo (the database applies the same ones
 // in shop_order()): prices, stock, "bajo pedido" lines with a 50 % deposit, stickers, colors grouped by model.
 
-export const CATEGORIES = ['pants', 'shirts', 'accessories']
+export const CATEGORIES = ['pants', 'shirts', 'jackets', 'accessories']
 /** The category in the address: ?cat=camisas / ?cat=shirts. */
 export const CATEGORY_SLUGS = {
-  es: { pants: 'pantalones', shirts: 'camisas', accessories: 'accesorios' },
-  en: { pants: 'breeches', shirts: 'shirts', accessories: 'accessories' },
+  es: { pants: 'pantalones', shirts: 'camisas', jackets: 'chamarras', accessories: 'accesorios' },
+  en: { pants: 'breeches', shirts: 'shirts', jackets: 'jackets', accessories: 'accessories' },
 }
 export const categoryFromSlug = (slug) => {
   for (const l of ['es', 'en']) {
@@ -23,6 +23,7 @@ export const ORDER_MAX = 3 // pieces of one size that can be ordered from FreeRi
 // FreeRide shows its size chart on each product page, above "Add to cart".
 export const SIZE_GUIDE = {
   pants: 'https://shopfre.com/collections/lux-breeches-2/products/celestial-lux-breeches-sand',
+  jackets: 'https://shopfre.com',
   shirts: 'https://shopfre.com/collections/competition-tops/products/cassidy-show-shirt-peach',
   accessories: 'https://shopfre.com',
 }
@@ -62,8 +63,31 @@ export function byModel(products) {
 }
 export const siblingsOf = (products, p) => products.filter((x) => (x.model || x.slug) === (p.model || p.slug))
 
+/* ───────── FreeRide's catalog (always "sobre pedido") ───────── */
+export const FRE_PREFIX = 'fre:'
+export const isFre = (slug) => String(slug || '').startsWith(FRE_PREFIX)
+export const FRE_DEFAULTS = { factor: 23.7, discount: 5 }
+const to50 = (n) => Math.round(n / 50) * 50
+/** Pesos, as fre_price() in SQL: USD × factor to the nearest $50; Mara's discount on top, except on FreeRide's own sales. */
+export function frePrice(usd, compare, factor = FRE_DEFAULTS.factor, discount = FRE_DEFAULTS.discount) {
+  const mxn = to50(Number(usd) * Number(factor))
+  if (Number(compare) > Number(usd)) return { unit: mxn, list: to50(Number(compare) * Number(factor)), sale: true }
+  return { unit: to50(mxn * (1 - Number(discount) / 100)), list: mxn, sale: false }
+}
+/** The colors of a FreeRide product, and the sizes of one color with whether FreeRide has them. */
+export const freColors = (item) => (item.colors?.length ? item.colors : [''])
+export const freSizes = (item, color) => (item.variants || []).filter((v) => (v.color || '') === (color || '')).map((v) => ({ size: v.size, available: Boolean(v.available) }))
+/** A FreeRide item as the shop's parts show a product (photo, name, color). */
+export const freAsProduct = (item, color) => ({ slug: `${FRE_PREFIX}${item.handle}`, name: item.title, colorName: color || '', colorHex: '#FFFFFF', category: item.category, photos: item.images || [] })
+
 /** A cart line, resolved against the catalog: { slug, size, qty } → with its product, price and whether it's ordered. */
 export function resolveLine(products, line) {
+  // A FreeRide line carries what it showed when it was added (the order recomputes the price).
+  if (isFre(line.slug)) {
+    const snap = line.snap || {}
+    return { ...line, product: { slug: line.slug, name: snap.name || '', colorName: line.color || '', colorHex: '#FFFFFF', category: snap.category, photos: snap.photo ? [snap.photo] : [] },
+      variant: { size: line.size, stock: 0 }, onOrder: true, gone: false, unit: snap.unit || 0, list: snap.list || snap.unit || 0, max: ORDER_MAX, fre: true }
+  }
   const product = products.find((p) => p.slug === line.slug)
   const variant = product?.variants?.find((v) => v.size === line.size)
   if (!product || !variant) return { ...line, missing: true }

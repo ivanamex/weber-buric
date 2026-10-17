@@ -8,7 +8,7 @@ const APP_URL = (process.env.APP_URL || 'https://hipico-riviera-maya.vercel.app'
 const CLUB = 'Hípico Riviera Maya'
 const money = (n) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
 const clientIp = (req) => String(req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || '').split(',')[0].trim() || null
-const lineText = (l) => `  ${l.name} ${l.color} · talla ${l.size}${l.qty > 1 ? ` ×${l.qty}` : ''} · ${money(l.unit * l.qty)}${l.onOrder ? ' (bajo pedido)' : ''}`
+const lineText = (l) => `  ${l.name} ${l.color} · talla ${l.size}${l.qty > 1 ? ` ×${l.qty}` : ''} · ${money(l.unit * l.qty)}${l.onOrder ? ' (bajo pedido)' : ''}${l.url ? ` · ${l.url}` : ''}`
 
 /** The buyer's email: the lines, what is paid today and how to pay by transfer. */
 export function orderEmail({ name, number, items, total, amount, bank }) {
@@ -42,7 +42,9 @@ export default async function handler(req, res) {
   if (typeof body === 'string') { try { body = JSON.parse(body) } catch { body = null } }
   if (!body || typeof body !== 'object' || !Array.isArray(body.items)) return res.status(400).json({ ok: false, code: 'missing' })
   const fields = Object.fromEntries(['name', 'phone', 'email', 'lang', 'website'].filter((k) => body[k] != null).map((k) => [k, String(body[k]).slice(0, 200)]))
-  fields.items = body.items.slice(0, 20).map((l) => ({ product: String(l?.product || '').slice(0, 80), size: String(l?.size || '').slice(0, 12), qty: Number(l?.qty) || 1 }))
+  fields.items = body.items.slice(0, 20).map((l) => (l?.fre
+    ? { fre: String(l.fre).slice(0, 120), color: String(l.color || '').slice(0, 60), size: String(l.size || '').slice(0, 20), qty: Number(l.qty) || 1 }
+    : { product: String(l?.product || '').slice(0, 80), size: String(l?.size || '').slice(0, 12), qty: Number(l?.qty) || 1 }))
   let client
   try {
     client = await connect()

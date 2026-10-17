@@ -62,7 +62,7 @@ async function ensureServer() {
 
 // Family and management screens, then the website and the download page.
 const FAMILY = ['', 'reservar', 'plan', 'caballo', 'pagos', 'eventos', 'tienda', 'perfil', 'instalar', 'ajustes', 'mas'].map((p) => `/demo/familia${p ? `/${p}` : ''}`)
-const ADMIN = ['', 'hoy', 'horario', 'horario?vista=caballos', 'cobros', 'familias', 'mensajes', 'tienda', 'tienda?vista=productos', 'nomina', 'rentabilidad', 'reportes', 'ajustes'].map((p) => `/demo/direccion${p ? `/${p}` : ''}`)
+const ADMIN = ['', 'hoy', 'horario', 'horario?vista=caballos', 'cobros', 'familias', 'mensajes', 'tienda', 'tienda?vista=productos', 'tienda?vista=freeride', 'nomina', 'rentabilidad', 'reportes', 'ajustes'].map((p) => `/demo/direccion${p ? `/${p}` : ''}`)
 const SITE = ['/', '/en', '/tienda', '/en/shop', '/descargar']
 
 const PICK = [
@@ -117,7 +117,8 @@ async function auditPage(page, route, seen, out) {
       const cs = getComputedStyle(el)
       const disabled = el.disabled || el.getAttribute('aria-disabled') === 'true' || el.closest('[disabled], [aria-disabled="true"]') !== null
       const selected = el.classList.contains('is-active') || el.classList.contains('is-on') || el.getAttribute('aria-selected') === 'true' || el.getAttribute('aria-pressed') === 'true' || el.getAttribute('aria-current') !== null || el.classList.contains('is-selected')
-      const visible = r.width > 2 && r.height > 2 && cs.visibility !== 'hidden' && cs.display !== 'none' && Number(cs.opacity) > 0 && cs.pointerEvents !== 'none'
+      const folded = Boolean(el.closest('details:not([open])')) && !el.closest('summary') // inside a closed <details>
+      const visible = !folded && r.width > 2 && r.height > 2 && cs.visibility !== 'hidden' && cs.display !== 'none' && Number(cs.opacity) > 0 && cs.pointerEvents !== 'none'
       const scrim = /scrim|visually-hidden|hoof|canvas/.test(el.className || '') || el.tabIndex === -1 && el.tagName === 'BUTTON' && /scrim/.test(el.className)
       return { visible, disabled, selected, scrim, cursor: cs.cursor, w: Math.round(r.width), h: Math.round(r.height) }
     }).catch(() => null)
@@ -202,7 +203,7 @@ async function emptyCards(page, route, out) {
 const empties = []
 
 const EDGE_MIN = 12
-const EDGE_BOXES = '.ssheet2__panel, .efoot, .isheet__panel, .paydlg__panel, .paydlg__body, .card, .ctile, .package, .paycard, .democard, .login__panel, .esum, .eplan, .erow, .sbox, .feature, .pcard, .pinfo, .pgal, .cartdrw__panel, .cartdrw__foot, .shopspecial, .shopsteps li'
+const EDGE_BOXES = '.ssheet2__panel, .efoot, .isheet__panel, .paydlg__panel, .paydlg__body, .card, .ctile, .package, .paycard, .democard, .login__panel, .esum, .eplan, .erow, .sbox, .feature, .pcard, .pinfo, .pgal, .cartdrw__panel, .cartdrw__foot, .toorder'
 
 /**
  * Nothing touches an edge: text, buttons, fields and images inside a lightbox, sheet, card, tile or sticky footer must
@@ -353,6 +354,22 @@ async function main() {
       await edgeCheck(page, `/tienda ${w}×${h} (pago)`)
       if (w === 1440) total += await auditPage(page, '/tienda (pago)', seen, out)
       await page.evaluate(() => { try { localStorage.removeItem('hipico.cart') } catch { /* no storage */ } })
+      // A FreeRide product (always to order) and the language menu.
+      await page.goto(`${BASE}/tienda`, { waitUntil: 'networkidle' })
+      await page.waitForTimeout(500)
+      await settle()
+      await page.click('.pcard--fre .pcard__photo >> nth=0').catch(() => {})
+      await page.waitForTimeout(500)
+      await edgeCheck(page, `/tienda ${w}×${h} (FreeRide)`)
+      if (w === 1440) total += await auditPage(page, '/tienda (FreeRide)', seen, out)
+      await page.keyboard.press('Escape').catch(() => {})
+      await page.waitForTimeout(300)
+      if (w === 1440) {
+        await page.click('.sbar .langm__btn').catch(() => {})
+        await page.waitForTimeout(250)
+        total += await auditPage(page, '/tienda (idioma)', seen, out)
+        await page.keyboard.press('Escape').catch(() => {})
+      }
     }
     // The Clases lightbox at Ivana's sizes and on a phone (both tabs, then details + payment), and the payment window.
     for (const [w, h] of [[1920, 830], [1440, 760], [390, 844]]) {

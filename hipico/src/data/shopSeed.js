@@ -5,6 +5,13 @@ const PANTS_EN = ['Four-way stretch fabric, not see-through', 'Full-seat silicon
 const DESC_ES = 'Pantalón de montar Celestial Lux de FreeRide Equestrian: ajuste cómodo, agarre de silicón en todo el asiento y una tela que no se transparenta.'
 const DESC_EN = 'FreeRide Equestrian Celestial Lux breeches: a comfortable fit, full-seat silicone grip and fabric that is not see-through.'
 
+// The products' own photos (cut out on white, 960×1200) in public/img/shop/.
+export const SHOP_PHOTOS = {
+  'cassidy-frambuesa': 2, 'celestial-lux-arena': 2, 'celestial-lux-blanco': 1, 'celestial-lux-azul-acero': 2,
+  'celestial-lux-azul-marino': 2, 'celestial-lux-verde-bosque': 2, 'celestial-lux-merlot': 2,
+}
+export const photosOf = (slug) => Array.from({ length: SHOP_PHOTOS[slug] || 0 }, (_, i) => `/img/shop/${slug}-${i + 1}.webp`)
+
 const LUX = [
   ['arena', 'Arena', '#D8C3A0', ['XS', 'S', 'M'], ' Tela muy fresca; color permitido los sábados en los concursos de CESQROO.', ' A very cool fabric; a color allowed on Saturdays at CESQROO shows.'],
   ['verde-bosque', 'Verde bosque', '#2F4A3A', ['XXS', 'XS', 'S', 'M']],
@@ -18,7 +25,7 @@ export function shopProductsSeed() {
   const pants = LUX.map(([slug, color, hex, sizes, extraEs = '', extraEn = ''], i) => ({
     id: `sp${i + 2}`, slug: `celestial-lux-${slug}`, model: 'celestial-lux', category: 'pants', name: 'Pantalón Celestial Lux',
     colorName: color, colorHex: hex, descriptionEs: DESC_ES + extraEs, descriptionEn: DESC_EN + extraEn,
-    features: { es: PANTS_ES, en: PANTS_EN }, price: 2250, promoPrice: 1950, sticker: 'inauguracion', photos: [],
+    features: { es: PANTS_ES, en: PANTS_EN }, price: 2250, promoPrice: 1950, sticker: 'inauguracion', photos: photosOf(`celestial-lux-${slug}`),
     takesOrders: false, active: true, sort: 11 + i,
     variants: sizes.map((size) => ({ size, stock: 1, price: null })),
   }))
@@ -32,7 +39,7 @@ export function shopProductsSeed() {
         es: ['Tela técnica que seca rápido', 'Cuello blanco en contraste', 'Media cremallera al frente', 'Puños con broche de perla', '83% nylon, 17% spandex'],
         en: ['Quick-dry technical fabric', 'Contrast white collar', 'Front half zip', 'Pearl snap cuffs', '83% nylon, 17% spandex'],
       },
-      price: 1700, promoPrice: 1450, sticker: 'inauguracion', photos: [], takesOrders: true, active: true, sort: 1,
+      price: 1700, promoPrice: 1450, sticker: 'inauguracion', photos: photosOf('cassidy-frambuesa'), takesOrders: true, active: true, sort: 1,
       variants: [['XXS', 0], ['XS', 1], ['S', 1], ['M', 1], ['L', 0], ['XL', 0], ['XXL', 0]].map(([size, stock]) => ({ size, stock, price: null })),
     },
     ...pants,

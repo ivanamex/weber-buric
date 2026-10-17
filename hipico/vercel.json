@@ -98,12 +98,20 @@
     "api/shop-order.js": {
       "includeFiles": "scripts/supabase-ca.crt",
       "maxDuration": 30
+    },
+    "api/fre-sync.js": {
+      "includeFiles": "scripts/supabase-ca.crt",
+      "maxDuration": 60
     }
   },
   "crons": [
     {
       "path": "/api/reminders",
       "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/fre-sync",
+      "schedule": "0 12 * * *"
     }
   ]
 }

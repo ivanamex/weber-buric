@@ -7,8 +7,8 @@ import { SectionTitle } from '../../components/ui.jsx'
 import { PayDialog } from '../../components/PayDialog.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { useBase } from '../Backend.jsx'
-import { ShopCatalog, CartDrawer, OrderPill, productTitle } from '../../site/shop/ShopParts.jsx'
-import { cartApi, openCart, useCart } from '../../site/shop/shopApi.js'
+import { ShopCatalog, CartDrawer, OrderPill, productTitle, ShopQuiet } from '../../site/shop/ShopParts.jsx'
+import { cartApi, openCart, orderItems, useCart } from '../../site/shop/shopApi.js'
 import { orderLine } from '../../data/shop.js'
 
 /**
@@ -32,11 +32,11 @@ export default function FamilyShop() {
   const pay = async (lines, _totals, close) => {
     setBusy(true)
     setError(null)
-    const res = await placeShopOrder({ items: lines.map((l) => ({ product: l.slug, size: l.size, qty: l.qty })), lang })
+    const res = await placeShopOrder({ items: orderItems(lines), lang })
     setBusy(false)
     if (!res.ok) {
       if (res.code === 'out_of_stock') {
-        const l = lines.find((x) => x.slug === res.line?.product && x.size === res.line?.size)
+        const l = lines.find((x) => x.slug === res.line?.product && x.size === res.line?.size && (!res.line?.color || (x.color || '') === res.line.color))
         setError(t('shop.checkout.gone', { size: res.line?.size || '', product: l?.product ? productTitle(l.product) : '' }))
       } else setError(t(`errors.${res.code}`))
       return
@@ -57,6 +57,7 @@ export default function FamilyShop() {
       </div>
       <ShopCatalog products={products} inApp />
       <MyOrders onPay={setPaying} />
+      <ShopQuiet />
       <CartDrawer products={products} inApp onPay={pay} payBusy={busy} payError={error} />
       {paying && <PayDialog paymentId={paying} onClose={() => setPaying(null)} />}
     </div>

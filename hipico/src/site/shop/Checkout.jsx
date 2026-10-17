@@ -8,7 +8,7 @@ import { FloatField } from '../FloatField.jsx'
 import { BankLines, nameCase } from '../Enroll.jsx'
 import { useSiteData } from '../siteData.js'
 import { cardCheckout, cardDemoWeb, cardInfo, payAtClubWeb, payCard, sendReceipt, RECEIPT_MAX, SITE_DEMO } from '../enroll.js'
-import { cartApi, placeOrder } from './shopApi.js'
+import { cartApi, orderItems, placeOrder } from './shopApi.js'
 import { productTitle, ShopBtn } from './ShopParts.jsx'
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
@@ -86,10 +86,10 @@ export function ShopCheckout({ lines, totals, back, body }) {
         if (!cardData) { setErrors({ pay: t('errors.cardInvalid') }); return }
       }
       // Pressed again after a declined card or a failed upload: the order already placed is reused.
-      const key = `${f.email.trim().toLowerCase()}|${lines.map((l) => `${l.slug}:${l.size}:${l.qty}`).join(',')}`
+      const key = `${f.email.trim().toLowerCase()}|${lines.map((l) => `${l.slug}:${l.color || ''}:${l.size}:${l.qty}`).join(',')}`
       let o = order?.key === key ? order : null
       if (!o) {
-        const res = await placeOrder({ items: lines.map((l) => ({ product: l.slug, size: l.size, qty: l.qty })), name: nameCase(f.name), phone: f.phone.trim(), email: f.email.trim(), lang, website: f.website })
+        const res = await placeOrder({ items: orderItems(lines), name: nameCase(f.name), phone: f.phone.trim(), email: f.email.trim(), lang, website: f.website })
         if (!res.ok) {
           if (res.code === 'out_of_stock') { setErrors({ general: outOfStock(res.line) }); return }
           const k = FIELD_OF[res.code]

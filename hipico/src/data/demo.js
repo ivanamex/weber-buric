@@ -2,8 +2,9 @@
 import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS_KINDS, applyPrices, resetPrices } from './prices.js'
 import { monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, todayKey, periodOf, addDays, daysBetween, weekdayOf } from '../lib/time.js'
-import { shopProductsSeed, shopOrdersSeed } from './shopSeed.js'
-import { stockNum, unitPrice, listPrice, ORDER_MAX } from './shop.js'
+import { shopProductsSeed, shopOrdersSeed, photosOf } from './shopSeed.js'
+import { stockNum, unitPrice, listPrice, ORDER_MAX, frePrice, FRE_DEFAULTS } from './shop.js'
+import { freCatalogSeed } from './freSeed.js'
 import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS, slotRuns, isClosed, isOneOff, pickHorse, horseBusy, riderBusy, slotMinutes, closedWeekdays, horseStatus } from './queries.js'
 
 // The demo keeps its data under its own names, apart from the real app. The chosen role is never saved:
@@ -78,6 +79,14 @@ export function activate(setState, inMemory = false) {
   if ((state.version || 1) < 7 && !memoryOnly) {
     const shop = shopOrdersSeed(state.families, (d) => new Date(Date.now() + d * 86400000).toISOString())
     state = persist({ ...state, version: 7, shopProducts: shopProductsSeed(), shopOrders: shop.orders, payments: [...state.payments, ...shop.payments], settings: { ...state.settings, moduleShop: true } })
+  }
+  // Demo states saved before the products' photos: add them where a product has none (uploads stay).
+  if ((state.version || 1) < 8 && !memoryOnly) {
+    state = persist({ ...state, version: 8, shopProducts: (state.shopProducts || []).map((p) => (p.photos?.length ? p : { ...p, photos: photosOf(p.slug) })) })
+  }
+  // Demo states saved before FreeRide's catalog: add the sample piece of it once.
+  if (!state.freCatalog && !memoryOnly) {
+    state = persist({ ...state, freCatalog: freCatalogSeed(), settings: { freMxnFactor: FRE_DEFAULTS.factor, freDiscount: FRE_DEFAULTS.discount, freHiddenTypes: [], freLastSync: now(), freLastCount: 16, ...state.settings } })
   }
   // Demo states saved before the website's contact form: add the sample messages once.
   if (!state.contactMessages && !memoryOnly) { state.contactMessages = createSeed().contactMessages; persist(state) }
@@ -1228,6 +1237,16 @@ function shopOrderIn(s, { items, name, phone, email, familyId, web, lang }) {
   const lines = []
   let total = 0; let later = 0
   for (const it of items) {
+    // A FreeRide line (the demo takes the price it showed; the database recomputes it).
+    if (it.fre) {
+      const qty = Number(it.qty) || 1
+      const unit = Number(it.unit) || 0
+      if (!unit || qty < 1 || qty > ORDER_MAX) return fail('out_of_stock', { line: { product: `fre:${it.fre}`, size: it.size, name: it.name, color: it.color } })
+      total += unit * qty
+      later += unit * qty
+      lines.push({ fre: true, slug: `fre:${it.fre}`, name: it.name || it.fre, color: it.color || '', size: it.size || '', qty, unit, list: Number(it.list) || unit, onOrder: true, photo: it.photo || null, url: it.url || null })
+      continue
+    }
     const p = (s.shopProducts || []).find((x) => (x.id === it.product || x.slug === it.product) && x.active !== false)
     const v = p?.variants.find((x) => x.size === it.size)
     const qty = Number(it.qty) || 1
@@ -1272,6 +1291,68 @@ export function webShopOrder(fields) {
     } else if (phone && !family.phone) family.phone = phone
     const r = shopOrderIn(s, { items: fields.items, name, phone, email, familyId: family.id, web: true, lang: fields.lang })
     return r.ok ? { ...r, family_name: family.name } : r
+  })
+}
+
+/* ───────── FreeRide's catalog: the same rules as public_fre_catalog() in SQL ───────── */
+
+const freShown = (s) => (s.freCatalog || []).filter((r) => r.active && !r.hidden && !(s.settings?.freHiddenTypes || []).includes(r.type))
+
+/** The catalog for the website and the app without a database, a page at a time, with the counts for the tabs. */
+export function demoFre(p = {}) {
+  if (!state) state = load() || persist(createSeed())
+  const s = state
+  if (s.settings?.moduleShop === false) return { total: 0, items: [], categories: {}, colors: [], kids: [] }
+  const factor = s.settings?.freMxnFactor ?? FRE_DEFAULTS.factor
+  const discount = s.settings?.freDiscount ?? FRE_DEFAULTS.discount
+  const base = freShown(s)
+  const color = String(p.color || '').toLowerCase()
+  const filt = base.filter((r) => (!p.handle || r.handle === p.handle) && (!p.category || r.category === p.category) && (!p.kids || r.kids === p.kids)
+    && (!p.size || r.variants.some((v) => v.size === p.size && v.available)) && (!color || r.colors.some((c) => c.toLowerCase() === color)))
+  const off = Math.max(0, Number(p.offset) || 0)
+  const lim = Math.min(60, Math.max(1, Number(p.limit) || 24))
+  const count = (list) => list.reduce((m, x) => ({ ...m, [x]: (m[x] || 0) + 1 }), {})
+  const colorCount = count(base.flatMap((r) => r.colors))
+  return {
+    factor, discount, total: filt.length,
+    items: structuredClone(filt.slice(off, off + lim)).map((r) => {
+      const price = frePrice(r.priceUsd, r.compareUsd, factor, discount)
+      return { handle: r.handle, title: r.title, category: r.category, kids: r.kids, colors: r.colors, sizes: r.sizes, variants: r.variants, priceUsd: r.priceUsd, compareUsd: r.compareUsd,
+        images: r.images.slice(0, 6), url: r.url, unit: price.unit, list: price.list, onSale: price.sale }
+    }),
+    categories: count(base.map((r) => r.category)),
+    colors: Object.keys(colorCount).sort((a, b) => colorCount[b] - colorCount[a] || a.localeCompare(b)).slice(0, 40),
+    kids: [...new Set(base.map((r) => r.kids).filter(Boolean))],
+  }
+}
+
+/** Dirección → Tienda → Catálogo FreeRide: every row (hidden ones too). */
+function loadFreCatalog() {
+  return { ok: true, rows: structuredClone(state.freCatalog || []) }
+}
+function saveFreSettings({ factor, discount, hiddenTypes }) {
+  return mutate((s) => {
+    const next = { ...s.settings }
+    if (factor !== undefined) { if (!(Number(factor) > 0)) return fail('missing'); next.freMxnFactor = Number(factor) }
+    if (discount !== undefined) { if (!(Number(discount) >= 0 && Number(discount) < 100)) return fail('missing'); next.freDiscount = Number(discount) }
+    if (hiddenTypes !== undefined) next.freHiddenTypes = [...new Set(hiddenTypes)]
+    s.settings = next
+    return { ok: true }
+  })
+}
+function setFreHidden(handle, hidden) {
+  return mutate((s) => {
+    const r = (s.freCatalog || []).find((x) => x.handle === handle)
+    if (!r) return fail('notFound')
+    r.hidden = Boolean(hidden)
+    return { ok: true }
+  })
+}
+/** "Actualizar catálogo": the demo has no FreeRide to ask, so it only stamps the time. */
+function syncFre() {
+  return mutate((s) => {
+    s.settings = { ...s.settings, freLastSync: now(), freLastCount: (s.freCatalog || []).filter((r) => r.active).length, freLastError: null }
+    return { ok: true, count: s.settings.freLastCount, unmapped: (s.freCatalog || []).filter((r) => r.active && !r.mapped).length }
   })
 }
 
@@ -1367,7 +1448,7 @@ function markContactMessage(id, status) {
 }
 
 export const actions = {
-  login, logout, resetDemo, markContactMessage, placeShopOrder, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, refreshData: () => { publish(view()); return { ok: true } }, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
+  login, logout, resetDemo, markContactMessage, placeShopOrder, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, loadFreCatalog, saveFreSettings, setFreHidden, syncFre, refreshData: () => { publish(view()); return { ok: true } }, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
   requestBoardingPayment, markPaid, registerCamp, bookRental,
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),

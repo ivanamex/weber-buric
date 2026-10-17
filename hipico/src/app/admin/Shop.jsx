@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { useStore, byId, moduleOn, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto } from '../../data/store.js'
+import { useStore, byId, moduleOn, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, loadFreCatalog, saveFreSettings, setFreHidden, syncFre } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { Empty, Segmented } from '../../components/ui.jsx'
 import { ConfirmDialog, SaveBar, Sheet, useFormState } from '../../components/EditKit.jsx'
@@ -12,30 +12,31 @@ import { waTo } from '../../lib/phone.js'
 import { todayKey } from '../../lib/time.js'
 import { useBase } from '../Backend.jsx'
 import { useSave } from './useSave.js'
-import { CATEGORIES, STICKERS, SIZE_CHIPS, KID_SIZES, ORDER_FILTERS, nextStatus, orderLine, stockNum, shopPhoto } from '../../data/shop.js'
+import { CATEGORIES, STICKERS, SIZE_CHIPS, KID_SIZES, ORDER_FILTERS, nextStatus, orderLine, stockNum, shopPhoto, frePrice, FRE_DEFAULTS } from '../../data/shop.js'
 import { OrderPill, ProductCardPreview } from '../../site/shop/ShopParts.jsx'
 
 const FILTERS = Object.keys(ORDER_FILTERS)
 
-/** Dirección → Tienda: the orders (what to order from FreeRide, what's ready, what was delivered) and the products. */
+/** Dirección → Tienda: the orders (what to order from FreeRide, what's ready, what was delivered), Mara's products and FreeRide's catalog. */
 export default function AdminShop() {
   const { t } = useI18n()
   const s = useStore()
   const base = useBase()
   const desk = useDesktop()
   const [params, setParams] = useSearchParams()
-  const view = params.get('vista') === 'productos' ? 'products' : 'orders'
-  const setView = (v) => setParams(v === 'products' ? { vista: 'productos' } : {}, { replace: true })
+  const VIEWS = { productos: 'products', freeride: 'fre' }
+  const view = VIEWS[params.get('vista')] || 'orders'
+  const setView = (v) => setParams(v === 'orders' ? {} : { vista: Object.keys(VIEWS).find((k) => VIEWS[k] === v) }, { replace: true })
   if (!moduleOn(s, 'moduleShop')) return <Navigate to={`${base}/direccion`} replace />
   return (
     <div className="page shopadmin">
       {!desk && <h1 className="page__title">{t('shop.nav')}</h1>}
       <div className={desk ? 'drows' : 'dtoolbar'}>
         <div className="drows__tabs">
-          <Segmented value={view} onChange={setView} options={[{ value: 'orders', label: t('shop.panel.tabs.orders') }, { value: 'products', label: t('shop.panel.tabs.products') }]} />
+          <Segmented value={view} onChange={setView} options={[{ value: 'orders', label: t('shop.panel.tabs.orders') }, { value: 'products', label: t('shop.panel.tabs.products') }, { value: 'fre', label: t('shop.panel.tabs.fre') }]} />
         </div>
       </div>
-      {view === 'orders' ? <Orders /> : <Products />}
+      {view === 'orders' ? <Orders /> : view === 'products' ? <Products /> : <FreCatalog />}
     </div>
   )
 }
@@ -157,6 +158,7 @@ function OrderDetail({ o }) {
         ))}
         <li className="list__row"><span className="grow list__title">{t('shop.cart.total')}</span><strong>{fmtMoney(o.total)}</strong></li>
       </ul>
+      <ToOrder o={o} />
       <p className="small muted mt12">{t('shop.panel.charges')}</p>
       <ul className="list">
         {pay.pays.map((p) => (
@@ -196,6 +198,37 @@ function OrderDetail({ o }) {
         <ConfirmDialog title={t('shop.panel.cancelAsk', { n: o.number })} text={t('shop.panel.cancelText')} confirmLabel={t('shop.panel.cancelYes')} cancelLabel={t('shop.panel.keep')}
           onConfirm={() => { setAsking(false); set('cancelado') }} onCancel={() => setAsking(false)} />
       )}
+    </div>
+  )
+}
+
+/** What has to be ordered from FreeRide for this order ("bajo pedido" and FreeRide lines), ready to paste. */
+function ToOrder({ o }) {
+  const { t } = useI18n()
+  const toast = useToast()
+  const lines = (o.items || []).filter((l) => l.onOrder)
+  if (!lines.length || ['entregado', 'cancelado'].includes(o.status)) return null
+  const text = lines.map((l) => `${l.qty}× ${l.name}${l.color ? ` · ${l.color}` : ''}${l.size ? ` · ${l.size}` : ''}${l.url ? ` · ${l.url}` : ''}`).join('\n')
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(text); toast(t('shop.panel.toOrder.copied')) } catch { toast(text, 'info') }
+  }
+  return (
+    <div className="toorder mt12">
+      <p className="row gap-sm wrap toorder__head">
+        <strong className="grow">{t('shop.panel.toOrder.title')}</strong>
+        <button type="button" className="btn btn--outline btn--sm" onClick={copy}><Icon name="copy" size={16} /> {t('shop.panel.toOrder.copy')}</button>
+      </p>
+      <ul className="list">
+        {lines.map((l, i) => (
+          <li key={i} className="list__row">
+            <span className="grow dtwo">
+              <span className="list__title">{l.name}</span>
+              <span className="small muted">{[l.color, l.size && t('shop.sizeShort', { size: l.size }), `×${l.qty}`].filter(Boolean).join(' · ')}</span>
+            </span>
+            {l.url && <a className="link small" href={l.url} target="_blank" rel="noopener noreferrer">{t('shop.panel.toOrder.open')}</a>}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -462,6 +495,160 @@ function ProductEditor({ product, models, onDone, onDuplicate }) {
       </label>
       {f.id && <button type="button" className="btn btn--outline" onClick={duplicate}><Icon name="copy" size={18} /> {t('shop.panel.editor.duplicate')}</button>}
       <SaveBar busy={busy || uploading > 0} dirty={dirty} error={error} onCancel={onDone} />
+    </form>
+  )
+}
+
+/* ───────── Catálogo FreeRide ───────── */
+
+const FRE_PAGE = 60
+const FRE_EXAMPLE_USD = 95 // Celestial Lux
+
+/** FreeRide's whole catalog as the shop shows it: the prices (factor and discount), the copy's state, the types and each product. */
+function FreCatalog() {
+  const { t, fmtMoney, fmtInstant } = useI18n()
+  const s = useStore()
+  const desk = useDesktop()
+  const toast = useToast()
+  const deskQ = useDeskSearch(t('shop.panel.fre.search'))
+  const [phoneQ, setPhoneQ] = useState('')
+  const q = desk ? deskQ : phoneQ.trim().toLowerCase()
+  const [all, setAll] = useState(null)
+  const [shown, setShown] = useState(FRE_PAGE)
+  const [syncing, setSyncing] = useState(false)
+  const [busyType, setBusyType] = useState(null)
+  const st = s.settings || {}
+  const hiddenTypes = st.freHiddenTypes || []
+  const reload = () => loadFreCatalog().then((r) => setAll(r.rows || []))
+  useEffect(() => { reload() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => setShown(FRE_PAGE), [q])
+  const factor = st.freMxnFactor ?? FRE_DEFAULTS.factor
+  const discount = st.freDiscount ?? FRE_DEFAULTS.discount
+  const types = useMemo(() => {
+    const m = new Map()
+    for (const r of all || []) m.set(r.type || '—', (m.get(r.type || '—') || 0) + 1)
+    return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  }, [all])
+  const unmapped = (all || []).filter((r) => !r.mapped)
+  const rows = (all || []).filter((r) => !q || [r.title, r.type, r.handle].some((v) => v?.toLowerCase().includes(q)))
+  const sync = async () => {
+    setSyncing(true)
+    const res = await syncFre()
+    setSyncing(false)
+    if (!res.ok) { toast(t(`errors.${res.code}`), 'error'); return }
+    toast(t('shop.panel.fre.synced', { n: res.count }))
+    reload()
+  }
+  const toggleType = async (type) => {
+    setBusyType(type)
+    const next = hiddenTypes.includes(type) ? hiddenTypes.filter((x) => x !== type) : [...hiddenTypes, type]
+    const res = await saveFreSettings({ hiddenTypes: next })
+    setBusyType(null)
+    if (!res.ok) toast(t(`errors.${res.code}`), 'error')
+  }
+  const toggle = async (r) => {
+    setAll((list) => list.map((x) => (x.handle === r.handle ? { ...x, hidden: !r.hidden } : x)))
+    const res = await setFreHidden(r.handle, !r.hidden)
+    if (!res.ok) { toast(t(`errors.${res.code}`), 'error'); setAll((list) => list.map((x) => (x.handle === r.handle ? { ...x, hidden: r.hidden } : x))) }
+  }
+  const price = (r) => frePrice(r.priceUsd, r.compareUsd, factor, discount)
+  const usd = (n) => `$${Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 })}`
+  const byType = (r) => hiddenTypes.includes(r.type)
+  const Show = ({ r }) => (
+    <label className="switch" onClick={(e) => e.stopPropagation()}>
+      <input type="checkbox" role="switch" checked={!r.hidden && !byType(r)} disabled={byType(r)} onChange={() => toggle(r)} aria-label={`${t('shop.panel.fre.show')}: ${r.title}`} />
+      <span aria-hidden="true" />
+    </label>
+  )
+  const Thumb = ({ r }) => <span className="shopadmin__thumb">{r.images?.[0] ? <img src={r.images[0]} alt="" loading="lazy" /> : <Icon name="hanger" size={22} />}</span>
+  const Price = ({ r }) => { const p = price(r); return <span className="dtwo is-right"><b>{fmtMoney(p.unit)}</b><span className="small muted">{usd(r.priceUsd)} USD{p.sale ? ` · ${t('shop.sticker.promo')}` : ''}</span></span> }
+  const columns = [
+    { key: 'photo', sortable: false, label: t('shop.panel.cols.photo'), value: () => '', render: (r) => <Thumb r={r} /> },
+    { key: 'title', label: t('shop.panel.cols.product'), value: (r) => r.title, render: (r) => <span className="dtwo"><b>{r.title}</b><span className="small muted">{r.type || '—'}{byType(r) ? ` · ${t('shop.panel.fre.hiddenByType')}` : ''}</span></span> },
+    { key: 'category', label: t('shop.panel.cols.category'), value: (r) => t(`shop.cat.${r.category}`), render: (r) => <span>{t(`shop.cat.${r.category}`)}{!r.mapped && <span className="small muted"> · ?</span>}</span> },
+    { key: 'price', align: 'right', label: t('shop.panel.fre.usdMxn'), value: (r) => r.priceUsd, render: (r) => <Price r={r} /> },
+    { key: 'show', label: t('shop.panel.fre.showShort'), value: (r) => (r.hidden || byType(r) ? 1 : 0), render: (r) => <Show r={r} /> },
+  ]
+  useDeskAction([{ label: syncing ? t('shop.panel.fre.syncing') : t('shop.panel.fre.sync'), icon: 'refresh', onClick: sync }], [syncing])
+  const status = st.freLastError
+    ? <p className="small frestatus frestatus--err" role="status"><Icon name="alert" size={16} /> {t('shop.panel.fre.error', { error: st.freLastError })}</p>
+    : <p className="small muted frestatus">{st.freLastSync ? t('shop.panel.fre.last', { when: fmtInstant(st.freLastSync, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }), n: st.freLastCount ?? (all || []).length }) : t('shop.panel.fre.never')} · {t('shop.panel.fre.daily')}</p>
+  return (
+    <div className="frecat">
+      <div className="frecat__top">
+        <section className="card frecat__card">
+          <h3 className="shopedit__h">{t('shop.panel.fre.price')}</h3>
+          <FrePrices key={`${factor}:${discount}`} factor={factor} discount={discount} />
+        </section>
+        <section className="card frecat__card">
+          <h3 className="shopedit__h">{t('shop.panel.fre.copy')}</h3>
+          {status}
+          {!desk && <button type="button" className="btn btn--primary" disabled={syncing} onClick={sync}><Icon name="refresh" size={18} /> {syncing ? t('shop.panel.fre.syncing') : t('shop.panel.fre.sync')}</button>}
+          {types.length > 0 && (
+            <>
+              <p className="small muted mt12">{t('shop.panel.fre.typesHint')}</p>
+              <div className="row gap-sm wrap">
+                {types.map(([type, n]) => (
+                  <button key={type} type="button" className={`chip ${hiddenTypes.includes(type) ? '' : 'is-active'}`} aria-pressed={!hiddenTypes.includes(type)} disabled={busyType === type} onClick={() => toggleType(type)}>
+                    {type} ({n})
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+      </div>
+      {unmapped.length > 0 && (
+        <details className="card frecat__card frecat__unmapped">
+          <summary><strong>{t('shop.panel.fre.unmapped', { n: unmapped.length })}</strong> <span className="small muted">{t('shop.panel.fre.unmappedHint')}</span></summary>
+          <ul className="list">
+            {unmapped.map((r) => <li key={r.handle} className="list__row"><span className="grow dtwo"><span className="list__title">{r.title}</span><span className="small muted">{r.type || '—'}</span></span><Show r={r} /></li>)}
+          </ul>
+        </details>
+      )}
+      {!desk && <input className="input" type="search" value={phoneQ} onChange={(e) => setPhoneQ(e.target.value)} placeholder={t('shop.panel.fre.search')} aria-label={t('shop.panel.fre.search')} />}
+      {all === null ? <p className="muted small">{t('shop.fre.loading')}</p> : desk ? (
+        <DataTable columns={columns} rows={rows.slice(0, shown)} rowKey={(r) => r.handle} empty={<Empty icon="hanger" title={t(all.length ? 'shop.panel.empty.filtered' : 'shop.panel.fre.empty')} />} />
+      ) : rows.length ? (
+        <ul className="card list">
+          {rows.slice(0, shown).map((r) => (
+            <li key={r.handle} className="list__row msgrow">
+              <Thumb r={r} />
+              <span className="grow dtwo">
+                <span className="list__title">{r.title}</span>
+                <span className="small muted">{t(`shop.cat.${r.category}`)} · {usd(r.priceUsd)} USD → {fmtMoney(price(r).unit)}</span>
+              </span>
+              <Show r={r} />
+            </li>
+          ))}
+        </ul>
+      ) : <Empty icon="hanger" title={t(all.length ? 'shop.panel.empty.filtered' : 'shop.panel.fre.empty')} />}
+      {rows.length > shown && <button type="button" className="btn btn--outline" onClick={() => setShown((n) => n + FRE_PAGE)}>{t('shop.fre.more', { n: rows.length - shown })}</button>}
+    </div>
+  )
+}
+
+/** Factor and discount, saved together. */
+function FrePrices({ factor, discount }) {
+  const { t, fmtMoney } = useI18n()
+  const [f, setF, dirty] = useFormState(() => ({ factor: String(factor), discount: String(discount) }))
+  const [run, busy, error] = useSave()
+  const submit = (e) => { e.preventDefault(); run(() => saveFreSettings({ factor: Number(f.factor), discount: Number(f.discount) }), t('shop.panel.fre.saved'), undefined, { inline: true }) }
+  const example = Number(f.factor) > 0 ? frePrice(FRE_EXAMPLE_USD, null, Number(f.factor), Number(f.discount) || 0) : null
+  return (
+    <form className="inline-form" onSubmit={submit}>
+      <div className="grid2">
+        <label className="field" htmlFor="fre-factor"><span>{t('shop.panel.fre.factor')}</span>
+          <input id="fre-factor" className="input" type="number" inputMode="decimal" step="0.1" min="1" required value={f.factor} onChange={(e) => setF({ ...f, factor: e.target.value })} />
+          <small className="muted">{t('shop.panel.fre.factorHint')}</small>
+        </label>
+        <label className="field" htmlFor="fre-discount"><span>{t('shop.panel.fre.discount')}</span>
+          <input id="fre-discount" className="input" type="number" inputMode="decimal" step="0.5" min="0" max="99" required value={f.discount} onChange={(e) => setF({ ...f, discount: e.target.value })} />
+          <small className="muted">{t('shop.panel.fre.discountHint')}</small>
+        </label>
+      </div>
+      {example && <p className="small frecat__example" aria-live="polite">{t('shop.panel.fre.example', { usd: `$${FRE_EXAMPLE_USD}`, mxn: fmtMoney(example.list), pct: Number(f.discount) || 0, unit: fmtMoney(example.unit) })}</p>}
+      {dirty && <SaveBar busy={busy} dirty={dirty} error={error} onCancel={() => setF({ factor: String(factor), discount: String(discount) })} />}
     </form>
   )
 }

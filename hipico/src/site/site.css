@@ -879,3 +879,42 @@
 .sbar.is-dark .sbar__bag:hover { color: var(--hover-text-dark); }
 .sbar__bagn { position: absolute; top: 2px; right: 0; display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--mustard); color: var(--ink); font: 800 11px/1 var(--font-body); }
 
+
+/* The bar: Tienda after a thin divider, its bag carrying the cart's count, "Nuevo" for its first weeks */
+.sbar__div { flex: none; width: 1px; height: 22px; margin: 0 8px; background: rgba(51, 53, 42, .22); }
+.sbar.is-dark .sbar__div { background: rgba(255, 255, 255, .3); }
+.sbar__nav a.sbar__shop { gap: 7px; color: var(--hover-text); opacity: 1; }
+.sbar.is-dark .sbar__nav a.sbar__shop { color: var(--hover-text-dark); }
+.sbar__shopicon { position: relative; display: inline-grid; place-items: center; }
+.sbar__shopicon .sbar__bagn { top: -8px; right: -10px; }
+.sbar__new { position: absolute; top: 9px; right: -16px; padding: 3px 6px; border-radius: 999px; background: var(--mustard); color: var(--ink); font: 800 9px/1 var(--font-head); font-style: normal; letter-spacing: .08em; text-transform: uppercase; pointer-events: none; }
+.sbar__nav a.sbar__shop { margin-right: 14px; }
+@media (min-width: 1180px) { .sbar__end .sbar__bag { display: none; } }
+/* Language as a small menu */
+.langm { position: relative; display: inline-flex; align-items: center; gap: 8px; }
+.langm__label { font-size: 15px; color: var(--bark); }
+.langm__btn { display: inline-flex; align-items: center; gap: 4px; height: 40px; padding: 0 2px; border: 0; background: linear-gradient(currentColor, currentColor) center bottom 6px / 0 2px no-repeat; color: inherit; font: 600 14px/1 var(--head-font, inherit); font-stretch: 80%; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; transition: color .2s, background-size .2s; }
+.langm__btn:hover { color: var(--hover-text); background-size: 100% 2px; }
+.sbar.is-dark .langm__btn:hover { color: var(--hover-text-dark); }
+.langm__btn:focus-visible { outline: 2px solid var(--mustard); outline-offset: 2px; }
+.langm__card { position: absolute; top: calc(100% + 6px); right: 0; z-index: 30; display: grid; min-width: 160px; padding: 6px; border: 1px solid var(--line, #DDD3BE); border-radius: 14px; background: #FFFBF5; color: var(--deep); box-shadow: 0 16px 40px -12px rgba(33, 35, 28, .35); }
+.langm--up .langm__card { top: auto; bottom: calc(100% + 6px); left: 0; right: auto; }
+.langm__card button { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--deep); font: 600 15px/1 inherit; text-align: left; cursor: pointer; text-transform: none; letter-spacing: 0; transition: background .2s; }
+.langm__card button:hover, .langm__card button:focus-visible { background: var(--hover-soft); outline: none; }
+.langm__card button.is-active { color: var(--deep); }
+.ssheet__foot .langm__btn { font-size: 16px; text-transform: none; letter-spacing: 0; }
+/* The phone menu: Tienda first, in mustard, with its tag */
+.ssheet__nav a.sbar__shop { position: relative; align-items: center; color: var(--hover-text); }
+.ssheet__nav a.sbar__shop .sbar__new { position: static; margin-left: 4px; font-size: 10px; }
+.ssheet__nav a.sbar__shop .sbar__shopicon { margin-right: 2px; }
+/* The bar on one line from 1180 px: the button never wraps, and the sections sit closer below 1360 px. */
+.sbar__end .sbtn, .sbar__end .sbtn__in { white-space: nowrap; }
+@media (min-width: 1180px) and (max-width: 1359px) {
+  .sbar__nav a { padding: 0 7px; letter-spacing: .06em; }
+  .sbar__nav a::after { left: 7px; right: 7px; }
+  .sbar__end { gap: 10px; }
+}
+@media (min-width: 1180px) and (max-width: 1279px) {
+  .sbar__nav a { padding: 0 6px; font-size: 13px; }
+  .sbar__nav a::after { left: 6px; right: 6px; }
+}

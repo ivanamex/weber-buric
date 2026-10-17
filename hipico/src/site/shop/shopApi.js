@@ -83,15 +83,37 @@ const saveCart = (next) => {
   try { localStorage.setItem(CART_KEY, JSON.stringify(next)) } catch { /* private mode: keep in memory */ }
   cartListeners.forEach((l) => l(next))
 }
+// A line is one product, size and color (FreeRide items have several colors under one product).
+const same = (l, slug, size, color) => l.slug === slug && l.size === size && (l.color || '') === (color || '')
 export const cartApi = {
-  add(slug, size, qty, max) {
-    const at = cart.findIndex((l) => l.slug === slug && l.size === size)
-    if (at >= 0) saveCart(cart.map((l, i) => (i === at ? { ...l, qty: Math.min(max || 10, l.qty + qty) } : l)))
-    else saveCart([...cart, { slug, size, qty }])
+  /** extra: { color, snap } — a FreeRide line keeps what it showed (name, photo, price) for the cart. */
+  add(slug, size, qty, max, extra = {}) {
+    const at = cart.findIndex((l) => same(l, slug, size, extra.color))
+    if (at >= 0) saveCart(cart.map((l, i) => (i === at ? { ...l, ...extra, qty: Math.min(max || 10, l.qty + qty) } : l)))
+    else saveCart([...cart, { slug, size, qty, ...extra }])
   },
-  set(slug, size, qty) { saveCart(cart.map((l) => (l.slug === slug && l.size === size ? { ...l, qty } : l))) },
-  remove(slug, size) { saveCart(cart.filter((l) => !(l.slug === slug && l.size === size))) },
+  set(slug, size, qty, color) { saveCart(cart.map((l) => (same(l, slug, size, color) ? { ...l, qty } : l))) },
+  remove(slug, size, color) { saveCart(cart.filter((l) => !same(l, slug, size, color))) },
   clear() { saveCart([]) },
+}
+/** The cart's lines as the order takes them. */
+export const orderItems = (lines) => lines.map((l) => (l.fre
+  ? { fre: l.slug.slice(4), color: l.color || '', size: l.size, qty: l.qty, unit: l.unit, list: l.list, name: l.product?.name, photo: l.snap?.photo || null, url: l.snap?.url || null }
+  : { product: l.slug, size: l.size, qty: l.qty }))
+
+/* ───────── FreeRide's whole catalog (a daily copy kept by the club's server), a page at a time ───────── */
+/** params: { offset, limit, category, size, color, kids, handle } → { total, items, categories, colors, kids, factor, discount } */
+export async function fetchFre(params = {}) {
+  if (!LIVE_CONFIGURED) { const { demoFre } = await import('../../data/demo.js'); return demoFre(params) }
+  try {
+    const res = await fetch(`${URL}/rest/v1/rpc/public_fre_catalog`, { method: 'POST', headers, body: JSON.stringify({ p: params }) })
+    if (!res.ok) throw new Error(String(res.status))
+    const d = await res.json()
+    return { total: d?.total || 0, items: d?.items || [], categories: d?.categories || {}, colors: d?.colors || [], kids: d?.kids || [], factor: d?.factor, discount: d?.discount }
+  } catch (err) {
+    console.error('[shop] FreeRide catalog failed', err.message)
+    return { total: 0, items: [], categories: {}, colors: [], kids: [], failed: true }
+  }
 }
 export function useCart() {
   const [c, setC] = useState(cart)
