@@ -4,7 +4,8 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
+1. **STEP-75**: Todo shows every product, the FreeRide catalog copied at deploy so it's live now (accessories etc.), FreeRide items as "Mi lista de deseos" sent to Mara (no payment; she quotes and converts it to an order in Tienda → Listas)
+2. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
 
