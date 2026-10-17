@@ -13,8 +13,9 @@ import { ShopBtn, ShopCatalog, CartDrawer } from './ShopParts.jsx'
 import { ShopCheckout } from './Checkout.jsx'
 import { openCart, useShop } from './shopApi.js'
 
-// FreeRide's lifestyle photo goes in public/img/shop/hero.webp; until it's there, a club photo of a rider.
+// The shop's photo (1916×821, a smaller one for phones); a club photo of a rider if it ever goes missing.
 const HERO = '/img/shop/hero.webp'
+const HERO_SET = '/img/shop/hero-960.webp 960w, /img/shop/hero.webp 1916w'
 const HERO_FALLBACK = '/img/club/girl-riding-flamboyan.webp'
 
 /** A Product entry per product (MXN) while the shop is open (the title and description come from the layout). */
@@ -63,7 +64,7 @@ export default function ShopPage() {
   return (
     <div className="shoppage">
       <section className="shophero" data-tone="dark">
-        <img className="shophero__img" src={hero} alt="" onError={() => setHero(HERO_FALLBACK)} />
+        <img className="shophero__img" src={hero} srcSet={hero === HERO ? HERO_SET : undefined} sizes="100vw" alt="" onError={() => setHero(HERO_FALLBACK)} />
         <div className="scontainer">
           <div className="shophero__in">
             <p className="shophero__eyebrow">{t('shop.eyebrow')}</p>
