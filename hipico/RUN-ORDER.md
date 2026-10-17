@@ -11,7 +11,7 @@ One at a time, check in the browser, then "ok".
 
 ## Next
 
-- **Shop photos:** FreeRide's product photos for the seven products (upload them in Dirección → Tienda → Productos → Fotos) and a lifestyle photo as `public/img/shop/hero.webp`; until then each product shows its pictogram and color
+- **Shop photos:** FreeRide's product photos for the seven products (upload them in Dirección → Tienda → Productos → Fotos) and a real FreeRide photo for the hero (the beach image is a stand-in); until then each product shows its pictogram and color
 - **Reminder emails and the contact form:** add the email sender in Vercel (SMTP_USER + SMTP_PASS for Gmail) so the daily reminders and the website's messages go out by email, not only in the app
 - **Device test:** `hipico/TEST-INSTALL.md` on a real iPhone and a real Android, before inviting families
 - STEP-06: the club's real data (after the 27 Sep meeting)
