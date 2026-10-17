@@ -28,6 +28,16 @@ FreeRide's store runs on Shopify, so its full catalog is public as JSON: `https:
 ## 4. The "Pedido especial" box goes down and gets small
 With the whole catalog in the shop, the instructions box is no longer the way to order. Replace it with one quiet line at the very bottom of the page (above the footer, bark text, no card): "¿No encuentras algo? Escríbenos por WhatsApp y lo pedimos por ti." with the WhatsApp link (level 1). No steps, no shopfre.com button, nothing that sends people to FreeRide's website. The same in the app.
 
+## 5. Nav bar: Tienda stands out, the language becomes a small menu
+Ivana: Tienda should be emphasized in the bar, and the ES/EN switch takes too much room.
+- **Order on a computer:** QUÉ HACEMOS · COMPETENCIAS · EQUINOTERAPIA · PENSIÓN · FAMILIAS · LA APP · VISÍTANOS · **TIENDA** · | · ES ▾ · ENTRAR · [App del club]. Tienda is the last link, after Visítanos, and a thin 1 px divider (white 30 % over the video, sand on parchment) separates the site's sections from Tienda + the rest.
+- **How Tienda stands out (without being a second button):** a bag pictogram (18 px) before the word, the word in light mustard `#E9C27A` over the video and dark bar and deep mustard `#866114` on parchment (both AA), and a small "Nuevo" tag (mustard fill, olivewood text, 10 px caps) on its top-right corner for the first weeks (`SHOP_NEW_UNTIL` in `content.js`, 30 Nov 2026). Hover stays level 1 (the underline). "App del club" stays the only button in the bar.
+- **The cart count lives on Tienda's bag:** once the cart has pieces, a mustard dot with the number sits on the bag pictogram, and the separate bag button after ENTRAR goes away. A tap on Tienda goes to `/tienda`; the cart opens from the page (and from `/tienda?carrito=1`).
+- On `/tienda` itself, Tienda carries the active underline like a section.
+- **Language as a small menu:** "ES ▾" (Archivo caps, 14 px, level 1 hover). It opens a small card under it: "Español" / "English", the current one with a check; Esc or a click outside closes it; arrow keys move; it keeps the section like the switch did (View Transitions). About 48 px wide instead of the switch.
+- **Phones:** the bar keeps the logo, the bag with its count (only when the cart has pieces), App del club and the menu. In the bottom-sheet menu Tienda is the first item (bag icon, mustard, "Nuevo"), and the language is one row at the bottom: "Idioma: Español ▾".
+- Check at 1280, 1440 and 1920 px that the bar fits on one line in both states (over the video and after scrolling) in ES and EN; at 1280 the links can tighten their gaps, never wrap. Screenshots in the report.
+
 ## Notes
 - Ask nothing of Mara in the UI; the factor and discount defaults are her own numbers from the WhatsApp posts.
 - `hipico/CLAUDE.md`: add the catalog sync, the table and the migration.

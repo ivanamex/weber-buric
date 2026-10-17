@@ -5,7 +5,7 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 ## Now
 
 1. **STEP-73**: phones always get the new version: check for updates when the app comes back to the screen, reload by itself when nothing is open (otherwise a small "Hay una versión nueva · Actualizar" bar), no blank screen from old files, no-cache headers, "Versión 17 oct · 10:40" + Buscar actualizaciones in Ajustes / Más
-2. **STEP-74**: shop round 2: fix the freeze after Agregar al carrito (iPhone) first, the real product photos on white, the whole FreeRide catalog synced daily from shopfre.com (pesos with Mara's factor, sobre pedido, Ver más, size/color filters), the pedido especial box replaced by one line at the bottom
+2. **STEP-74**: shop round 2: fix the freeze after Agregar al carrito (iPhone) first, the real product photos on white, the whole FreeRide catalog synced daily from shopfre.com (pesos with Mara's factor, sobre pedido, Ver más, size/color filters), the pedido especial box replaced by one line at the bottom, Tienda emphasized in the nav (after Visítanos, bag + "Nuevo", the cart count on it), the language as a small "ES ▾" menu
 3. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
