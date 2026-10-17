@@ -5,17 +5,17 @@
 const STORE = 'https://shopfre.com'
 const MAX_PAGES = 20
 // Raise it when the rules below change: the next deploy copies the catalog again with them.
-export const FRE_RULES = 2
+export const FRE_RULES = 3
 
 // FreeRide's product types, titles and tags → the shop's categories. The product type decides first, then the title,
 // then the tags; within each, the first rule that matches wins. "horse" = things for the horse (a "Para tu caballo"
 // tab when there are 4 or more, otherwise shown under Accesorios).
 const RULES = [
-  ['horse', /\b(saddle ?pads?|half ?pads?|dressage pads?|jump(ing)? pads?|all ?purpose pads?|bonnets?|ear ?nets?|fly (veil|mask|bonnet|sheet)s?|ear (bonnet|hood)s?|bell boots?|polo wraps?|polos for horses|girths?|halters?|lead ropes?|horse boots?|tendon boots?|fleece wraps?|standing wraps?|coolers?|quarter sheets?|horse blankets?|saddle covers?|tack|for (your |the )?horses?|equine)\b/],
-  ['jackets', /\b(jackets?|vests?|coats?|outerwear|hoodies?|pullovers?|sweaters?|sweatshirts?|parkas?|gilets?|fleece|windbreakers?|rain ?(jacket|shell)|soft ?shells?|quarter ?zips?|1\/4 ?zips?|half ?zips?|crewnecks?)\b/],
+  ['horse', /\b(saddle ?pads?|half ?pads?|dressage pads?|jump(ing)? pads?|all ?purpose pads?|bonnets?|ear ?nets?|fly (veil|mask|bonnet|sheet)s?|ear (bonnet|hood)s?|bell boots?|polo wraps?|polos for horses|girths?|halters?|bridles?|saddles?|reins|nosebands?|martingales?|breastplates?|lead ropes?|horse boots?|tendon boots?|fleece wraps?|standing wraps?|coolers?|quarter sheets?|horse blankets?|saddle covers?|tack|for (your |the )?horses?|equine)\b/],
+  ['jackets', /\b(jackets?|vests?|coats?|outerwear|hoodies?|pullovers?|sweaters?|sweatshirts?|parkas?|gilets?|fleece|windbreakers?|rain ?(jacket|shell)|soft ?shells?|quarter ?zips?|1\/4 ?zips?|half ?zips?|zip-?ups?|crewnecks?)\b/],
   ['pants', /\b(breech(es)?|leggings?|tights?|jodhpurs?|pants?|riding pants|shorts?|skorts?|joggers?)\b/],
   ['shirts', /\b(shirts?|tops?|polos?|tees?|t-shirts?|blouses?|base ?layers?|sun ?shirts?|show ?shirts?|tanks?|long ?sleeves?|henleys?|jerseys?|camis?)\b/],
-  ['accessories', /\b(belts?|socks?|gloves?|hats?|caps?|visors?|bras?|sports bras?|bags?|totes?|backpacks?|wallets?|headbands?|scrunchies?|accessor(y|ies)|gift ?cards?|stock ties?|hair ?nets?|hair|bows?|earrings?|jewelry|necklaces?|bracelets?|keychains?|stickers?|magnets?|mugs?|tumblers?|bottles?|neck ?gaiters?|bandanas?|scarf|scarves|sunglasses|lanyards?|pins?|patches|charms?|masks?|underwear|garment bags?|boot bags?|helmet bags?)\b/],
+  ['accessories', /\b(belts?|socks?|gloves?|hats?|caps?|visors?|bras?|sports bras?|bags?|totes?|backpacks?|wallets?|headbands?|scrunchies?|accessor(y|ies)|gift ?cards?|stock ties?|hair ?nets?|hair|bows?|earrings?|jewelry|necklaces?|bracelets?|keychains?|stickers?|magnets?|mugs?|tumblers?|bottles?|neck ?gaiters?|bandanas?|scarf|scarves|sunglasses|lanyards?|pins?|patches|charms?|masks?|underwear|thongs?|garment bags?|boot bags?|helmet bags?)\b/],
 ]
 const tagText = (p) => (Array.isArray(p.tags) ? p.tags : String(p.tags || '').split(',')).join(' ')
 
