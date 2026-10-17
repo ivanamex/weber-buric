@@ -46,7 +46,7 @@ Ivana (17 Oct): Mara sells FreeRide Equestrian clothing through posts in the Wha
   - Lux collection (Hunter Green, Merlot, the blue): https://shopfre.com/collections/lux-breeches-2 ("Load more")
   - Cassidy Show Shirt (pick Raspberry): https://shopfre.com/collections/competition-tops/products/cassidy-show-shirt-peach
 - If Claude Code can download from shopfre.com, it takes the product photos for each color from those pages. If not, use Mara's WhatsApp photos that Ivana drops into `public/img/shop/incoming/`, and otherwise a neutral placeholder (sand card with the pants/shirt pictogram) so nothing is broken. List which product still has a placeholder in the report.
-- **Hero:** `public/img/shop/hero.webp`: a FreeRide lifestyle photo Ivana provides; until then the best wide product photo, cropped 16:7 with the focal point on the rider.
+- **Hero:** `public/img/shop/hero.webp` (1916×821) + `hero-960.webp` for phones: Ivana's beach image (rider in the raspberry shirt, sand breeches and tall boots with a bay horse, golden hour). It's a stand-in until FreeRide or Mara gives a real photo. The rider and horse are on the right and the open sky and sea on the left take the text. `object-position: 72% 40%` so phones keep the rider's face and the horse's head; the olivewood gradient on the left can be lighter than usual (the sky is already calm), just enough for AA white text.
 
 ## Website: `/tienda` and `/en/shop` (`src/site/shop/`)
 - **Nav:** "TIENDA" between "Familias" and "La app" (level 1 hover). When the cart has items, a bag icon with a mustard count appears after "Entrar" (level 1; opens the cart). Not part of the one-page scroll-spy: it's its own route in `SiteLayout` with the same bar and footer.
