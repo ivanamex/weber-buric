@@ -11,6 +11,8 @@ import { SECTIONS, homePath, sectionId, translateHash } from './routes.js'
 import { CONTACT, SHARE_IMAGE, SLOGAN } from './content.js'
 import { reducedMotion, useReveal } from './motion.jsx'
 import { openCart, useCart, useShop } from './shop/shopApi.js'
+import { ScreenBoundary } from '../components/ScreenError.jsx'
+import { useApplyOnRouteChange } from '../lib/update.js'
 import { CATEGORY_SLUGS, categoryFromSlug } from '../data/shop.js'
 import './site.css'
 
@@ -296,6 +298,7 @@ export default function SiteLayout({ lang }) {
     return () => cancelAnimationFrame(raf)
   }, [pathname, hash, current, lang, state])
   const onShop = isShopPath(pathname)
+  useApplyOnRouteChange(pathname) // a new version waiting: taken on the next page change
   const shop = useShop()
   const shopOn = shop?.on !== false
   useHead(lang, t, onShop)
@@ -307,7 +310,7 @@ export default function SiteLayout({ lang }) {
     <div className={`site ${reducedMotion() ? '' : 'has-motion'}`} ref={root} id="top">
       <a href="#main" className="skip">{t('site.skip')}</a>
       <SiteBar scroll={scroll} progress={progress} onShop={onShop} shopOn={shopOn} />
-      <main id="main">{current === lang ? <Suspense fallback={<div className="route-wait" />}><Outlet /></Suspense> : null}</main>
+      <main id="main">{current === lang ? <ScreenBoundary key={pathname}><Suspense fallback={<div className="route-wait" />}><Outlet /></Suspense></ScreenBoundary> : null}</main>
       <a className={`smobilecta sbtn sbtn--deep ${cta ? 'is-on' : ''}`} href={waLink(t('site.wa.trial'))}
         target="_blank" rel="noopener noreferrer" aria-hidden={cta ? undefined : 'true'}
         tabIndex={cta ? undefined : -1}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</span></a>

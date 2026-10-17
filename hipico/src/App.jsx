@@ -5,12 +5,14 @@ import OnePage from './site/OnePage.jsx'
 import PayResult from './site/PayResult.jsx'
 import { OLD_PAGES, homePath, sectionId } from './site/routes.js'
 import { useI18n } from './i18n/I18nProvider.jsx'
+import { lazyRetry } from './lib/update.js'
+import { ScreenBoundary } from './components/ScreenError.jsx'
 
 // The website loads on its own; the app's code comes only when /app, /demo, /vista or /descargar opens.
 const LIVE_CONFIGURED = Boolean(__SUPABASE_URL__ && __SUPABASE_KEY__)
-const Landing = lazy(() => import('./pages/Landing.jsx'))
-const Backend = lazy(() => import('./app/Backend.jsx'))
-const ShopPage = lazy(() => import('./site/shop/ShopPage.jsx'))
+const Landing = lazy(lazyRetry(() => import('./pages/Landing.jsx')))
+const Backend = lazy(lazyRetry(() => import('./app/Backend.jsx')))
+const ShopPage = lazy(lazyRetry(() => import('./site/shop/ShopPage.jsx')))
 
 /** The download page (the QR and the posters open it) keeps its own title. */
 function DownloadPage() {
@@ -26,6 +28,7 @@ const oldPages = (lang) => Object.entries(OLD_PAGES[lang]).map(([slug, key]) => 
 
 export default function App() {
   return (
+    <ScreenBoundary>
     <Suspense fallback={<div className="route-wait" />}>
       <Routes>
         <Route path="/" element={<SiteLayout lang="es" />}>
@@ -47,5 +50,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
+    </ScreenBoundary>
   )
 }

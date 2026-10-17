@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
+import { markDirty } from '../lib/update.js'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { Icon } from './Icon.jsx'
 
@@ -6,8 +7,12 @@ import { Icon } from './Icon.jsx'
 export function useFormState(initial) {
   const [f, setF] = useState(initial)
   const start = useRef(null)
+  const id = useId()
   if (start.current === null) start.current = JSON.stringify(f)
-  return [f, setF, JSON.stringify(f) !== start.current]
+  const dirty = JSON.stringify(f) !== start.current
+  // An unsaved form holds back a waiting app update (it never reloads under someone's typing).
+  useEffect(() => { markDirty(id, dirty); return () => markDirty(id, false) }, [id, dirty])
+  return [f, setF, dirty]
 }
 
 /** "¿Descartar cambios?" — Descartar / Seguir editando. */

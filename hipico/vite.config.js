@@ -19,18 +19,30 @@ function jwtRole(key) {
   try { return JSON.parse(Buffer.from(key.split('.')[1], 'base64url').toString()).role } catch { return null }
 }
 
+// The build's time, shown as the app's version ("17 oct · 10:40", Cancún) and used to tell builds apart.
+function buildStamp() {
+  const now = new Date()
+  const part = (o) => new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Cancun', ...o }).format(now)
+  return { label: `${part({ day: 'numeric', month: 'short' }).replace('.', '')} · ${part({ hour: '2-digit', minute: '2-digit', hour12: false })}`, id: String(now.getTime()) }
+}
+
 export default defineConfig(({ mode }) => {
   const supabase = supabaseEnv(mode)
+  const build = buildStamp()
   return {
   define: {
     __SUPABASE_URL__: JSON.stringify(supabase.url),
     __SUPABASE_KEY__: JSON.stringify(supabase.key),
+    __BUILD__: JSON.stringify(build.label),
+    __BUILD_ID__: JSON.stringify(build.id),
   },
   plugins: [
     react(),
     gallery(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // Registered by src/lib/update.js: a new version waits until the app is idle (or "Actualizar"), then reloads.
+      registerType: 'prompt',
+      injectRegister: false,
       includeAssets: ['favicon-32.png', 'favicon-64.png', 'icons/apple-touch-icon.png', 'logo-white.png', 'logo-green.png'],
       manifest: {
         name: 'Hípico Riviera Maya',
@@ -52,6 +64,9 @@ export default defineConfig(({ mode }) => {
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png}', '**/*-latin-*.woff2'],
         navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//],
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
       },
     }),
   ],

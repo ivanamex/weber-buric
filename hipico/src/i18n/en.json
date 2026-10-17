@@ -2169,5 +2169,17 @@
         "saved": "Product saved"
       }
     }
+  },
+  "update": {
+    "loadFailed": "We couldn't load this screen",
+    "loadFailedText": "The app may have been updated while it was open.",
+    "reload": "Reload",
+    "ready": "There's a new version of the app.",
+    "apply": "Update",
+    "version": "Version {v}",
+    "check": "Check for updates",
+    "checking": "Checking…",
+    "latest": "You have the latest version",
+    "updating": "Updating…"
   }
 }

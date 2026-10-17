@@ -12,6 +12,7 @@ import { Badge, SectionTitle, Segmented, waLink } from '../../components/ui.jsx'
 import { LangToggle } from '../../components/LangToggle.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { ResetDemoRow } from '../../components/ResetDemoRow.jsx'
+import { VersionLine } from '../../components/UpdateBar.jsx'
 import { MyHorseCard } from '../../components/HorseCare.jsx'
 import { InstallButtons } from '../../components/Install.jsx'
 import { Link, Navigate } from 'react-router-dom'
@@ -250,6 +251,7 @@ export function SettingsSection() {
         <PasswordRow has={s.hasPassword} email={family.email || s.session.email} />
         <ResetDemoRow />
       </div>
+      <VersionLine />
     </>
   )
 }

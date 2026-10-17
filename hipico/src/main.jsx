@@ -8,8 +8,12 @@ import { I18nProvider } from './i18n/I18nProvider.jsx'
 import { ToastProvider } from './components/Toast.jsx'
 import App from './App.jsx'
 import { captureInstallPrompt } from './lib/install.js'
+import { BUILD_ID, startUpdates, watchChunkErrors } from './lib/update.js'
 
 captureInstallPrompt()
+watchChunkErrors()
+startUpdates()
+document.documentElement.dataset.build = BUILD_ID
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

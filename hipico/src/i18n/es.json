@@ -2169,5 +2169,17 @@
         "saved": "Producto guardado"
       }
     }
+  },
+  "update": {
+    "loadFailed": "No pudimos cargar esta pantalla",
+    "loadFailedText": "Puede que la app se haya actualizado mientras estaba abierta.",
+    "reload": "Recargar",
+    "ready": "Hay una versión nueva de la app.",
+    "apply": "Actualizar",
+    "version": "Versión {v}",
+    "check": "Buscar actualizaciones",
+    "checking": "Buscando…",
+    "latest": "Ya tienes la última versión",
+    "updating": "Actualizando…"
   }
 }

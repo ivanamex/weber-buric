@@ -9,6 +9,7 @@ import { SaveBar, useFormState } from '../../components/EditKit.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { todayKey } from '../../lib/time.js'
 import { useSave } from './useSave.js'
+import { VersionLine } from '../../components/UpdateBar.jsx'
 
 const WEEK = [1, 2, 3, 4, 5, 6, 0]
 
@@ -222,6 +223,7 @@ export default function AdminModules() {
         <ClosedWeekdays />
         <ClosedDates />
       </div>
+      <VersionLine />
     </div>
   )
 }

@@ -20,3 +20,6 @@ export function lockScroll() {
     }
   }
 }
+
+/** True while any sheet or lightbox holds the page. */
+export const isScrollLocked = () => count > 0

@@ -21,6 +21,7 @@ import AdminProfit from './admin/Profit.jsx'
 import AdminModules from './admin/Modules.jsx'
 import AdminMessages from './admin/Messages.jsx'
 import HorseProfile from './admin/HorseProfile.jsx'
+import { UpdateBar } from '../components/UpdateBar.jsx'
 import FamilyShop from './family/Shop.jsx'
 import AdminShop from './admin/Shop.jsx'
 
@@ -119,6 +120,7 @@ export default function Backend({ mode, base }) {
         <Route path="*" element={<Navigate to={base} replace />} />
       </Routes>
       {mode === 'preview' && <PreviewTour base={base} />}
+      <UpdateBar />
     </BaseContext.Provider>
   )
 }
