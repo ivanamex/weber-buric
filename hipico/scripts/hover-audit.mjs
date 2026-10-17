@@ -203,7 +203,7 @@ async function emptyCards(page, route, out) {
 const empties = []
 
 const EDGE_MIN = 12
-const EDGE_BOXES = '.ssheet2__panel, .efoot, .isheet__panel, .paydlg__panel, .paydlg__body, .card, .ctile, .package, .paycard, .democard, .login__panel, .esum, .eplan, .erow, .sbox, .feature, .pcard, .pinfo, .pgal, .cartdrw__panel, .cartdrw__foot, .toorder'
+const EDGE_BOXES = '.ssheet2__panel, .efoot, .isheet__panel, .paydlg__panel, .paydlg__body, .card, .ctile, .package, .paycard, .democard, .login__panel, .esum, .eplan, .erow, .sbox, .feature, .pcard, .pinfo, .pgal, .cartdrw__panel, .cartdrw__foot, .toorder, .fmenu__card, .fsheet__panel'
 
 /**
  * Nothing touches an edge: text, buttons, fields and images inside a lightbox, sheet, card, tile or sticky footer must
@@ -380,6 +380,15 @@ async function main() {
         await page.waitForTimeout(250)
         total += await auditPage(page, '/tienda (idioma)', seen, out)
         await page.keyboard.press('Escape').catch(() => {})
+      }
+      // The three filter menus (Para · Talla · Color), open one at a time.
+      for (let i = 0; i < 3; i++) {
+        await page.click(`.shopfilters .fmenu__btn >> nth=${i}`).catch(() => {})
+        await page.waitForTimeout(300)
+        await edgeCheck(page, `/tienda ${w}×${h} (filtro ${i + 1})`)
+        if (w === 1440) total += await auditPage(page, `/tienda (filtro ${i + 1})`, seen, out)
+        await page.keyboard.press('Escape').catch(() => {})
+        await page.waitForTimeout(200)
       }
     }
     // The Clases lightbox at Ivana's sizes and on a phone (both tabs, then details + payment), and the payment window.

@@ -7,6 +7,7 @@ import { waLink } from '../../components/ui.jsx'
 import {
   CATEGORIES, CATEGORY_SLUGS, categoryFromSlug, siblingsOf, stickersOf, STICKER_COLOR, stockNum, sizeOpen, onOrder,
   unitPrice, listPrice, maxQty, SIZE_GUIDE, resolveLine, cartTotals, shopPhoto, FRE_PREFIX, isFre, freAsProduct, freColors, freSizes, ORDER_MAX,
+  AUDIENCES, PARA_SLUGS, paraFromSlug, audienceOfProduct, forAudience, LETTER_SIZES, sortSizes, colorHexFor,
 } from '../../data/shop.js'
 import { cartApi, fetchFre, openCart, openWish, sendWishlist, useCart, useSheet, useWish, wishApi, wishItems, wishView } from './shopApi.js'
 import { wishText, wishTotal } from '../../data/shop.js'
@@ -166,7 +167,7 @@ export function useFreList(filters) {
     setState((st) => ({
       key, loading: false, total: r.total,
       items: reset ? r.items : [...st.items, ...r.items.filter((x) => !st.items.some((y) => y.handle === x.handle))],
-      facets: { categories: r.categories, colors: r.colors, kids: r.kids, discount: r.discount },
+      facets: { categories: r.categories, colors: r.colors, sizes: r.sizes, discount: r.discount },
     }))
   }, [key])
   useEffect(() => { load(0, true) }, [load])
@@ -174,10 +175,14 @@ export function useFreList(filters) {
   return { ...state, more, hasMore: state.items.length < state.total }
 }
 
-const SIZES = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']
+/** The filters in the address: ?para=mujer&talla=S,M&color=navy (a filtered page can be shared). */
+const listParam = (v) => String(v || '').split(',').map((x) => x.trim()).filter(Boolean)
+export function readFilters(params) {
+  return { para: paraFromSlug(params.get('para')), sizes: listParam(params.get('talla')), colors: listParam(params.get('color')).map((c) => c.toLowerCase()) }
+}
 
 /**
- * The shop itself: category tabs (in the address, ?cat=camisas), a filter row (Talla · Color · Niña / Niño), Mara's own
+ * The shop itself: category tabs (in the address, ?cat=camisas), three filter menus (Para · Talla · Color), Mara's own
  * stock first ("Entrega inmediata en el club"), then the whole FreeRide catalog ("sobre pedido", 24 at a time), and the
  * product window (?p=<slug> or ?p=fre:<handle>, so a product can be shared on WhatsApp). Used by /tienda and the app.
  */
@@ -186,26 +191,41 @@ export function ShopCatalog({ products, inApp, onAsk, gridRef, actions }) {
   const [params, setParams] = useSearchParams()
   const cat = categoryFromSlug(params.get('cat')) || 'all'
   const open = params.get('p')
-  const [size, setSize] = useState(null)
-  const [color, setColor] = useState('')
-  const [kids, setKids] = useState(null)
-  const fre = useFreList({ category: cat === 'all' ? null : cat, size, color: color || null, kids })
+  const f = readFilters(params)
+  const fre = useFreList({ category: cat === 'all' ? null : cat, audience: f.para, sizes: f.sizes, colors: f.colors })
   const freFacets = fre.facets || {}
   const freCats = freFacets.categories || {}
   const freOn = Object.values(freCats).some((n) => n > 0)
-  // Mara's own pieces with the same filters (her products are never "Niña" / "Niño").
-  const mine = products.filter((p) => (cat === 'all' || p.category === cat) && !kids
-    && (!size || (p.variants || []).some((v) => v.size === size && sizeOpen(p, v)))
-    && (!color || (p.colorName || '').toLowerCase() === color.toLowerCase()))
-  const filtered = Boolean(size || color || kids)
+  // Mara's own pieces in this tab for this audience (what the size and color menus offer), then with every filter.
+  const tabMine = products.filter((p) => (cat === 'all' || p.category === cat) && forAudience(audienceOfProduct(p), f.para))
+  const mine = tabMine.filter((p) => (!f.sizes.length || (p.variants || []).some((v) => f.sizes.includes(v.size) && sizeOpen(p, v)))
+    && (!f.colors.length || f.colors.includes((p.colorName || '').toLowerCase())))
+  const filtered = Boolean(f.para || f.sizes.length || f.colors.length)
   const counts = Object.fromEntries(CATEGORIES.map((c) => [c, products.filter((p) => p.category === c).length + (freCats[c] || 0)]))
   const allCount = products.length + Object.values(freCats).reduce((a, n) => a + n, 0)
-  const tabs = ['all', ...CATEGORIES.filter((c) => c !== 'horse' || counts.horse > 0)]
+  const tabs = ['all', ...CATEGORIES.filter((c) => counts[c] > 0)]
   // One card per product and color everywhere, Mara's newest first (the swatches jump to the other colors).
   const groups = useMemo(() => [...mine]
     .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
     .map((p) => ({ key: p.slug, first: p, colors: siblingsOf(products, p) })), [mine, products])
-  const colorOptions = [...new Set([...products.map((p) => p.colorName).filter(Boolean), ...(freFacets.colors || [])])]
+  // Sizes: XXS…XXXL for women, men and everyone; the kids' own sizes under Niños. Only what this tab has.
+  const tabSizes = [...(freFacets.sizes || []), ...tabMine.flatMap((p) => (p.variants || []).map((v) => v.size))]
+  const sizeOptions = f.para === 'kids' ? sortSizes(tabSizes) : LETTER_SIZES.filter((x) => tabSizes.includes(x))
+  const colorMap = new Map()
+  for (const p of tabMine) if (p.colorName) colorMap.set(p.colorName.toLowerCase(), { label: p.colorName, swatch: p.colorHex })
+  for (const c of freFacets.colors || []) if (!colorMap.has(c.toLowerCase())) colorMap.set(c.toLowerCase(), { label: c, swatch: colorHexFor(c) })
+  for (const c of f.colors) if (!colorMap.has(c)) colorMap.set(c, { label: c, swatch: colorHexFor(c) })
+  const setFilters = (next) => setParams((prev) => {
+    const q = new URLSearchParams(prev)
+    const put = (k, v) => (v ? q.set(k, v) : q.delete(k))
+    if ('para' in next) put('para', next.para ? PARA_SLUGS[lang][next.para] : '')
+    if ('sizes' in next) put('talla', next.sizes.join(','))
+    if ('colors' in next) put('color', next.colors.join(','))
+    q.delete('p')
+    return q
+  }, { replace: true, preventScrollReset: true })
+  const toggle = (list, v) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v])
+  const results = mine.length + (fre.total || 0)
   const setCat = (c) => {
     const next = new URLSearchParams(params)
     if (c === 'all') next.delete('cat'); else next.set('cat', CATEGORY_SLUGS[lang][c])
@@ -234,37 +254,27 @@ export function ShopCatalog({ products, inApp, onAsk, gridRef, actions }) {
         <div className="shoptabs" role="tablist" aria-label={t('shop.catLabel')}>
           {tabs.map((c) => (
             <button key={c} type="button" role="tab" aria-selected={cat === c} className={`shoptab ${cat === c ? 'is-on' : ''}`} onClick={() => setCat(c)}>
-              {t(`shop.cat.${c}`)} <span className="shoptab__n">{c === 'all' ? allCount : counts[c]}</span>
+              {t(c === 'pants' ? 'shop.catTab.pants' : `shop.cat.${c}`)} <span className="shoptab__n">{c === 'all' ? allCount : counts[c]}</span>
             </button>
           ))}
         </div>
         {actions}
       </div>
       <div className="shopfilters" role="group" aria-label={t('shop.filters.label')}>
-        <span className="shopfilters__label">{t('shop.size')}</span>
-        <span className="shopfilters__chips">
-          {SIZES.map((x) => (
-            <button key={x} type="button" className={`chip ${size === x ? 'is-active' : ''}`} aria-pressed={size === x} onClick={() => setSize(size === x ? null : x)}>{x}</button>
-          ))}
-        </span>
-        {colorOptions.length > 1 && (
-          <label className="shopfilters__color">
-            <span className="shopfilters__label">{t('shop.colorLabel')}</span>
-            <select className="input" value={color} onChange={(e) => setColor(e.target.value)}>
-              <option value="">{t('shop.filters.anyColor')}</option>
-              {colorOptions.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </label>
-        )}
-        {(freFacets.kids || []).length > 0 && (
-          <span className="shopfilters__chips">
-            {['girl', 'boy'].filter((k) => freFacets.kids.includes(k)).map((k) => (
-              <button key={k} type="button" className={`chip ${kids === k ? 'is-active' : ''}`} aria-pressed={kids === k} onClick={() => setKids(kids === k ? null : k)}>{t(`shop.filters.${k}`)}</button>
-            ))}
-          </span>
-        )}
-        {filtered && <button type="button" className="tlink" onClick={() => { setSize(null); setColor(''); setKids(null) }}>{t('shop.filters.clear')}</button>}
+        <FilterMenu inApp={inApp} title={t('shop.para.label')} label={t('shop.filters.paraOn', { v: t(`shop.para.${f.para || 'all'}`) })} on={Boolean(f.para)} results={results}
+          options={[{ value: null, label: t('shop.para.all') }, ...AUDIENCES.map((a) => ({ value: a, label: t(`shop.para.${a}`) }))]}
+          selected={[f.para]} onPick={(v) => setFilters({ para: v, sizes: v === f.para ? f.sizes : [] })} />
+        <FilterMenu inApp={inApp} multiple title={t('shop.filters.size')} results={results} badge={f.sizes.length}
+          label={f.sizes.length ? t('shop.filters.sizeOn', { v: f.sizes.slice(0, 3).join(', ') + (f.sizes.length > 3 ? ` +${f.sizes.length - 3}` : '') }) : t('shop.filters.size')}
+          options={[...new Set([...sizeOptions, ...f.sizes])].map((x) => ({ value: x, label: x }))} selected={f.sizes}
+          onPick={(v) => setFilters({ sizes: toggle(f.sizes, v) })} />
+        <FilterMenu inApp={inApp} multiple title={t('shop.filters.color')} results={results} badge={f.colors.length}
+          label={f.colors.length ? t('shop.filters.colorOn', { v: (colorMap.get(f.colors[0])?.label || f.colors[0]) + (f.colors.length > 1 ? ` +${f.colors.length - 1}` : '') }) : t('shop.filters.color')}
+          options={[...colorMap.entries()].map(([value, c]) => ({ value, label: c.label, swatch: c.swatch }))} selected={f.colors}
+          onPick={(v) => setFilters({ colors: toggle(f.colors, v) })} />
+        {filtered && <button type="button" className="tlink shopfilters__clear" onClick={() => setFilters({ para: null, sizes: [], colors: [] })}>{t('shop.filters.clear')}</button>}
       </div>
+      <p className="shopresults" aria-live="polite">{fre.loading && !fre.items.length ? '\u00a0' : t('shop.filters.results', { n: results })}</p>
       {groups.length > 0 && (
         <section className="shopsect" aria-labelledby="shop-mine">
           {freOn && <h2 id="shop-mine" className="shopsect__title">{t('shop.mine.title')} <span>{t('shop.mine.line')}</span></h2>}
@@ -868,5 +878,90 @@ function WishLine({ line }) {
       </span>
       <span className="cline__price">{fmtMoney(line.unit * line.qty)}<small>{t('shop.fre.approxShort')}</small></span>
     </li>
+  )
+}
+
+const PHONE = '(max-width: 599px)'
+function usePhone() {
+  const [phone, setPhone] = useState(() => typeof window !== 'undefined' && window.matchMedia?.(PHONE).matches)
+  useEffect(() => {
+    const m = window.matchMedia?.(PHONE)
+    if (!m) return undefined
+    const on = () => setPhone(m.matches)
+    m.addEventListener?.('change', on)
+    return () => m.removeEventListener?.('change', on)
+  }, [])
+  return phone
+}
+
+/**
+ * One filter menu: a pill button ("Talla: S, M ▾" with a count badge) and a card under it with the choices (radio for
+ * Para, checkboxes for Talla and Color); arrows move, Esc or a click outside closes. On phones it is a small bottom sheet
+ * with "Ver N productos". Choices apply at once.
+ */
+export function FilterMenu({ title, label, options, selected, onPick, multiple, badge = 0, on, results, inApp }) {
+  const { t } = useI18n()
+  const [open, setOpen] = useState(false)
+  const phone = usePhone()
+  const btn = useRef(null)
+  const card = useRef(null)
+  const close = useCallback((focus) => { setOpen(false); if (focus) btn.current?.focus() }, [])
+  useEffect(() => {
+    if (!open) return undefined
+    const onDown = (e) => { if (!card.current?.contains(e.target) && !btn.current?.contains(e.target)) close() }
+    const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); close(true) } }
+    document.addEventListener('pointerdown', onDown)
+    window.addEventListener('keydown', onKey)
+    const first = card.current?.querySelector('[aria-checked="true"]') || card.current?.querySelector('[role^="menuitem"]')
+    first?.focus({ preventScroll: true })
+    const unlock = phone ? lockScroll() : null
+    return () => { document.removeEventListener('pointerdown', onDown); window.removeEventListener('keydown', onKey); unlock?.() }
+  }, [open, phone, close])
+  const onKeyDown = (e) => {
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return
+    e.preventDefault()
+    const items = [...card.current.querySelectorAll('[role^="menuitem"]')]
+    const i = items.indexOf(document.activeElement)
+    const next = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : (i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length
+    items[next]?.focus()
+  }
+  const list = (
+    <div className="fmenu__list" role="menu" aria-label={title} onKeyDown={onKeyDown}>
+      {options.length ? options.map((o) => {
+        const sel = selected.includes(o.value)
+        return (
+          <button key={String(o.value)} type="button" role={multiple ? 'menuitemcheckbox' : 'menuitemradio'} aria-checked={sel} className={`fmenu__opt ${sel ? 'is-on' : ''}`}
+            onClick={() => { onPick(o.value); if (!multiple && !phone) close(true) }}>
+            <span className={`fmenu__tick ${multiple ? 'is-box' : 'is-dot'}`} aria-hidden="true">{sel && <SiteIcon name="check" size={14} />}</span>
+            {o.swatch && <span className="fmenu__sw" style={{ '--sw': o.swatch }} aria-hidden="true" />}
+            <span className="fmenu__label">{o.label}</span>
+          </button>
+        )
+      }) : <p className="fmenu__none">{t('shop.filters.noneHere')}</p>}
+    </div>
+  )
+  return (
+    <div className="fmenu">
+      <button ref={btn} type="button" className={`fmenu__btn ${on || badge ? 'is-on' : ''} ${open ? 'is-open' : ''}`} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <span className="fmenu__text">{label}</span>
+        {badge > 0 && <span className="fmenu__n" aria-hidden="true">{badge}</span>}
+        <SiteIcon name="chevronDown" size={16} />
+      </button>
+      {open && !phone && <div className="fmenu__card" ref={card}>{list}</div>}
+      {open && phone && createPortal(
+        <div className="fsheet" role="dialog" aria-modal="true" aria-label={title}>
+          <button type="button" className="shopdlg__scrim" aria-hidden="true" tabIndex={-1} onClick={() => close(true)} />
+          <div className="fsheet__panel" ref={card}>
+            <div className="fsheet__head">
+              <h2>{title}</h2>
+              <button type="button" className="shopdlg__close" aria-label={t('common.close')} onClick={() => close(true)}><SiteIcon name="x" size={22} /></button>
+            </div>
+            <div className="fsheet__body">{list}</div>
+            <div className="fsheet__foot"><ShopBtn inApp={inApp} onClick={() => close(true)}>{t('shop.filters.see', { n: results })}</ShopBtn></div>
+          </div>
+        </div>,
+        document.body,
+      )}
+    </div>
   )
 }

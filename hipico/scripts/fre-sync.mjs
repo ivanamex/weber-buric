@@ -30,7 +30,7 @@ async function main() {
     }
     await saveCatalog(client, list)
     const sum = tally(list)
-    log(`copied ${sum.total} products · pants ${sum.pants || 0} · shirts ${sum.shirts || 0} · jackets ${sum.jackets || 0} · accessories ${sum.accessories || 0} · horse ${sum.horse || 0} · unclear ${sum.unmapped}`)
+    log(`copied ${sum.total} products · pants ${sum.pants || 0} · shirts ${sum.shirts || 0} · jackets ${sum.jackets || 0} · accessories ${sum.accessories || 0} · horse ${sum.horse || 0} · unclear ${sum.unmapped} · for ${JSON.stringify(sum.audience)}`)
     const unclear = list.filter((r) => !r.mapped).map((r) => `${r.type || '—'}: ${r.title}`)
     if (unclear.length) log(`unclear: ${unclear.slice(0, 40).join(' | ')}`)
   } finally {

@@ -497,7 +497,7 @@ async function uploadShopPhoto(file) {
   return { ok: true, path }
 }
 // FreeRide's catalog (the copy api/fre-sync.js keeps): management reads every row, hides some, sets the prices.
-const FRE_COLS = 'handle, title, type, category, mapped, kids, colors, sizes, price_usd, compare_usd, images, url, position, hidden, active, updated_at'
+const FRE_COLS = 'handle, title, type, category, mapped, kids, audience, audience_override, colors, sizes, price_usd, compare_usd, images, url, position, hidden, active, updated_at'
 async function loadFreCatalog() {
   try {
     const all = []
@@ -525,6 +525,12 @@ async function saveFreSettings({ factor, discount, hiddenTypes }) {
 }
 async function setFreHidden(handle, hidden) {
   const res = await sb.from('fre_catalog').update({ hidden: Boolean(hidden) }).eq('handle', handle)
+  if (res.error) { console.error('[hipico] FreeRide product save failed', res.error); return { ok: false, code: 'network' } }
+  return { ok: true }
+}
+/** Who a FreeRide product is for, corrected by management (the daily copy keeps it); the computed one clears it. */
+async function setFreAudience(handle, audience, computed) {
+  const res = await sb.from('fre_catalog').update({ audience_override: audience && audience !== computed ? audience : null }).eq('handle', handle)
   if (res.error) { console.error('[hipico] FreeRide product save failed', res.error); return { ok: false, code: 'network' } }
   return { ok: true }
 }
@@ -723,6 +729,7 @@ export const actions = {
   loadFreCatalog,
   saveFreSettings,
   setFreHidden,
+  setFreAudience,
   syncFre,
   sendWishlist,
   setWishlistStatus,

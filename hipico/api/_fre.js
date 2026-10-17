@@ -1,11 +1,12 @@
 // FreeRide's catalog, shared by the daily function (api/fre-sync.js) and the production build (scripts/fre-sync.mjs).
 // Their store runs on Shopify, so the catalog is public JSON (shopfre.com/products.json, 250 a page). A copy upserts
 // every product into fre_catalog; products that disappear are marked inactive, never deleted.
+import { sizeKey } from '../src/data/shop.js'
 
 const STORE = 'https://shopfre.com'
 const MAX_PAGES = 20
 // Raise it when the rules below change: the next deploy copies the catalog again with them.
-export const FRE_RULES = 3
+export const FRE_RULES = 4
 
 // FreeRide's product types, titles and tags → the shop's categories. The product type decides first, then the title,
 // then the tags; within each, the first rule that matches wins. "horse" = things for the horse (a "Para tu caballo"
@@ -45,6 +46,25 @@ export function kidsOf(p) {
   return null
 }
 
+// Who a product is for: women | men | kids | all. Kids' words win (a "Boy's" shirt filed under Men is for kids), then
+// men's, then women's; belts, socks, gloves, hats and the horse's things are for everyone; nothing said = women.
+const KIDS_RE = /\b(girl'?s?|girls'|boy'?s?|boys'|young riders?|kids?|kid's|children'?s?|child|youth|junior|toddler)\b/
+const MEN_RE = /\b(men'?s?|mens'|man's|gentleman)\b/
+const WOMEN_RE = /\b(women'?s?|womens'|ladies|lady's)\b/
+const ALL_RE = /\b(belts?|socks?|gloves?|hats?|caps?|beanies?|neck (cover|gaiter)s?|gift ?cards?|bags?|stickers?|bridles?|saddle ?pads?|saddles?|bonnets?)\b/
+export function audienceOf(p, category) {
+  if (category === 'horse') return 'all'
+  const both = [p.product_type, p.title].map((x) => String(x || '').toLowerCase())
+  if (both.some((x) => KIDS_RE.test(x))) return 'kids'
+  if (both.some((x) => MEN_RE.test(x))) return 'men'
+  if (both.some((x) => WOMEN_RE.test(x))) return 'women'
+  if (ALL_RE.test(both.join(' '))) return 'all'
+  const tags = tagText(p).toLowerCase()
+  if (KIDS_RE.test(tags)) return 'kids'
+  if (MEN_RE.test(tags)) return 'men'
+  return 'women'
+}
+
 const optionIndex = (p, re) => (p.options || []).findIndex((o) => re.test(String(o.name || '').toLowerCase()))
 const uniq = (list) => [...new Set(list.filter(Boolean))]
 const image = (src) => (src ? `${src}${src.includes('?') ? '&' : '?'}width=800` : null)
@@ -67,6 +87,8 @@ export function toRow(p, position) {
     tags: Array.isArray(p.tags) ? p.tags.map(String) : String(p.tags || '').split(',').map((x) => x.trim()).filter(Boolean),
     category, mapped,
     kids: kidsOf(p),
+    audience: audienceOf(p, category),
+    size_keys: uniq(variants.filter((v) => v.available).map((v) => sizeKey(v.size))),
     colors: uniq(variants.map((v) => v.color)),
     sizes: uniq(variants.map((v) => v.size)),
     variants,
@@ -99,13 +121,13 @@ export async function saveCatalog(client, rows) {
   try {
     for (const r of rows) {
       await client.query(
-        `insert into fre_catalog (handle, title, type, tags, category, mapped, kids, colors, sizes, variants, price_usd, compare_usd, images, url, position, active, updated_at)
-         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12, $13, $14, $15, true, now())
+        `insert into fre_catalog (handle, title, type, tags, category, mapped, kids, colors, sizes, variants, price_usd, compare_usd, images, url, position, audience, size_keys, active, updated_at)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12, $13, $14, $15, $16, $17, true, now())
          on conflict (handle) do update set title = excluded.title, type = excluded.type, tags = excluded.tags, category = excluded.category,
            mapped = excluded.mapped, kids = excluded.kids, colors = excluded.colors, sizes = excluded.sizes, variants = excluded.variants,
            price_usd = excluded.price_usd, compare_usd = excluded.compare_usd, images = excluded.images, url = excluded.url,
-           position = excluded.position, active = true, updated_at = now()`,
-        [r.handle, r.title, r.type, r.tags, r.category, r.mapped, r.kids, r.colors, r.sizes, JSON.stringify(r.variants), r.price_usd, r.compare_usd, r.images, r.url, r.position])
+           position = excluded.position, audience = excluded.audience, size_keys = excluded.size_keys, active = true, updated_at = now()`,
+        [r.handle, r.title, r.type, r.tags, r.category, r.mapped, r.kids, r.colors, r.sizes, JSON.stringify(r.variants), r.price_usd, r.compare_usd, r.images, r.url, r.position, r.audience, r.size_keys])
     }
     await client.query('update fre_catalog set active = false, updated_at = now() where active and not (handle = any($1))', [rows.map((r) => r.handle)])
     await client.query('update club_settings set fre_last_sync = now(), fre_last_count = $1, fre_last_error = null, fre_rules = $2 where id = 1', [rows.length, FRE_RULES])
@@ -118,7 +140,11 @@ export async function saveCatalog(client, rows) {
 
 /** How many per category (and unclear) in a copy, for the logs. */
 export function tally(rows) {
-  const out = { total: rows.length, unmapped: 0 }
-  for (const r of rows) { out[r.category] = (out[r.category] || 0) + 1; if (!r.mapped) out.unmapped++ }
+  const out = { total: rows.length, unmapped: 0, audience: {} }
+  for (const r of rows) {
+    out[r.category] = (out[r.category] || 0) + 1
+    out.audience[r.audience] = (out.audience[r.audience] || 0) + 1
+    if (!r.mapped) out.unmapped++
+  }
   return out
 }

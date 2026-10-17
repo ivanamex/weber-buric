@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { useStore, byId, moduleOn, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, loadFreCatalog, saveFreSettings, setFreHidden, syncFre, setWishlistStatus, convertWishlist } from '../../data/store.js'
+import { useStore, byId, moduleOn, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, loadFreCatalog, saveFreSettings, setFreHidden, setFreAudience, syncFre, setWishlistStatus, convertWishlist } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { Empty, Segmented } from '../../components/ui.jsx'
 import { ConfirmDialog, SaveBar, Sheet, useFormState } from '../../components/EditKit.jsx'
@@ -504,12 +504,12 @@ function ShopThumb({ p }) {
 }
 
 const BLANK = { id: null, model: '', name: '', colorName: '', colorHex: '#D5C7AD', category: 'pants', descriptionEs: '', descriptionEn: '', featuresEs: '', featuresEn: '',
-  price: '', promoPrice: '', sticker: 'inauguracion', variants: [], takesOrders: false, photos: [], active: true }
+  price: '', promoPrice: '', sticker: 'inauguracion', variants: [], takesOrders: false, photos: [], active: true, audience: 'women' }
 const toForm = (p) => (p ? {
   id: p.id || null, model: p.model || '', name: p.name || '', colorName: p.colorName || '', colorHex: p.colorHex || '#D5C7AD', category: p.category || 'pants',
   descriptionEs: p.descriptionEs || '', descriptionEn: p.descriptionEn || '', featuresEs: (p.features?.es || []).join('\n'), featuresEn: (p.features?.en || []).join('\n'),
   price: p.price ?? '', promoPrice: p.promoPrice ?? '', sticker: p.sticker || 'none',
-  variants: (p.variants || []).map((v) => ({ size: v.size, stock: stockNum(v), price: v.price ?? '' })), takesOrders: Boolean(p.takesOrders), photos: [...(p.photos || [])], active: p.active !== false,
+  variants: (p.variants || []).map((v) => ({ size: v.size, stock: stockNum(v), price: v.price ?? '' })), takesOrders: Boolean(p.takesOrders), photos: [...(p.photos || [])], active: p.active !== false, audience: p.audience || 'women',
 } : { ...BLANK })
 const slug = (x) => String(x || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
@@ -579,7 +579,7 @@ function ProductEditor({ product, models, onDone, onDuplicate }) {
     descriptionEs: f.descriptionEs.trim(), descriptionEn: f.descriptionEn.trim(),
     features: { es: f.featuresEs.split('\n').map((x) => x.trim()).filter(Boolean), en: f.featuresEn.split('\n').map((x) => x.trim()).filter(Boolean) },
     price: f.price === '' ? null : Number(f.price), promoPrice: f.promoPrice === '' ? null : Number(f.promoPrice), sticker: f.sticker,
-    photos: f.photos, takesOrders: f.takesOrders, active: f.active,
+    photos: f.photos, takesOrders: f.takesOrders, active: f.active, audience: f.audience,
     variants: f.variants.filter((v) => String(v.size).trim()).map((v) => ({ size: String(v.size).trim(), stock: Number(v.stock) || 0, price: v.price === '' ? null : Number(v.price) })),
   })
   const preview = { ...payload(), slug: 'preview', price: Number(f.price) || 0, promoPrice: f.promoPrice === '' ? null : Number(f.promoPrice) }
@@ -611,6 +611,9 @@ function ProductEditor({ product, models, onDone, onDuplicate }) {
           {CATEGORIES.map((c) => <option key={c} value={c}>{t(`shop.cat.${c}`)}</option>)}
         </select>
       </label>
+      <div className="field"><span>{t('shop.panel.editor.para')}</span>
+        <Segmented small value={f.audience} onChange={(v) => setF({ ...f, audience: v })} options={['women', 'men', 'kids', 'all'].map((a) => ({ value: a, label: t(`shop.para.${a === 'all' ? 'everyone' : a}`) }))} />
+      </div>
       <label className="field" htmlFor="se-des"><span>{t('shop.panel.editor.descEs')}</span><textarea id="se-des" className="input" rows={3} value={f.descriptionEs} onChange={set('descriptionEs')} /></label>
       <label className="field" htmlFor="se-den"><span>{t('shop.panel.editor.descEn')}</span><textarea id="se-den" className="input" rows={3} value={f.descriptionEn} onChange={set('descriptionEn')} /></label>
       <label className="field" htmlFor="se-fes"><span>{t('shop.panel.editor.featEs')}</span><textarea id="se-fes" className="input" rows={4} value={f.featuresEs} onChange={set('featuresEs')} /></label>
@@ -743,6 +746,17 @@ function FreCatalog() {
     const res = await setFreHidden(r.handle, !r.hidden)
     if (!res.ok) { toast(t(`errors.${res.code}`), 'error'); setAll((list) => list.map((x) => (x.handle === r.handle ? { ...x, hidden: r.hidden } : x))) }
   }
+  const setAud = async (r, v) => {
+    setAll((list) => list.map((x) => (x.handle === r.handle ? { ...x, audienceOverride: v === r.audience ? null : v } : x)))
+    const res = await setFreAudience(r.handle, v, r.audience)
+    if (!res.ok) { toast(t(`errors.${res.code}`), 'error'); reload() }
+  }
+  const Para = ({ r }) => (
+    <select className="input input--sm freaud" value={r.audienceOverride || r.audience || 'women'} aria-label={`${t('shop.panel.cols.para')}: ${r.title}`}
+      onClick={(e) => e.stopPropagation()} onChange={(e) => setAud(r, e.target.value)}>
+      {['women', 'men', 'kids', 'all'].map((a) => <option key={a} value={a}>{t(`shop.para.${a === 'all' ? 'everyone' : a}`)}</option>)}
+    </select>
+  )
   const price = (r) => frePrice(r.priceUsd, r.compareUsd, factor, discount)
   const usd = (n) => `$${Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 })}`
   const byType = (r) => hiddenTypes.includes(r.type)
@@ -758,6 +772,7 @@ function FreCatalog() {
     { key: 'photo', sortable: false, label: t('shop.panel.cols.photo'), value: () => '', render: (r) => <Thumb r={r} /> },
     { key: 'title', label: t('shop.panel.cols.product'), value: (r) => r.title, render: (r) => <span className="dtwo"><b>{r.title}</b><span className="small muted">{r.type || '—'}{byType(r) ? ` · ${t('shop.panel.fre.hiddenByType')}` : ''}</span></span> },
     { key: 'category', label: t('shop.panel.cols.category'), value: (r) => t(`shop.cat.${r.category}`), render: (r) => <span>{t(`shop.cat.${r.category}`)}{!r.mapped && <span className="small muted"> · ?</span>}</span> },
+    { key: 'para', label: t('shop.panel.cols.para'), value: (r) => r.audienceOverride || r.audience, render: (r) => <Para r={r} /> },
     { key: 'price', align: 'right', label: t('shop.panel.fre.usdMxn'), value: (r) => r.priceUsd, render: (r) => <Price r={r} /> },
     { key: 'show', label: t('shop.panel.fre.showShort'), value: (r) => (r.hidden || byType(r) ? 1 : 0), render: (r) => <Show r={r} /> },
   ]
@@ -809,6 +824,7 @@ function FreCatalog() {
               <span className="grow dtwo">
                 <span className="list__title">{r.title}</span>
                 <span className="small muted">{t(`shop.cat.${r.category}`)} · {usd(r.priceUsd)} USD → {fmtMoney(price(r).unit)}</span>
+                <Para r={r} />
               </span>
               <Show r={r} />
             </li>

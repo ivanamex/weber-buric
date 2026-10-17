@@ -2085,7 +2085,8 @@
         "price": "Price",
         "sticker": "Sticker",
         "stock": "Pieces",
-        "active": "Active"
+        "active": "Active",
+        "para": "For"
       },
       "pay": {
         "paid": "Paid",
@@ -2168,7 +2169,8 @@
         "active": "Active in the shop",
         "duplicate": "Duplicate in another color",
         "duplicateDone": "Copy ready: give it its color, photos and pieces.",
-        "saved": "Product saved"
+        "saved": "Product saved",
+        "para": "Who it's for"
       },
       "toOrder": {
         "title": "Order from FreeRide",
@@ -2239,14 +2241,20 @@
       }
     },
     "newTag": "New",
-    "colorLabel": "Color",
     "filters": {
       "label": "Filters",
-      "anyColor": "Any color",
-      "girl": "Girls",
-      "boy": "Boys",
       "clear": "Clear filters",
-      "none": "Nothing with those filters. Try another size or color."
+      "none": "Nothing with those filters. Try another size or color.",
+      "paraOn": "For: {v}",
+      "size": "Size",
+      "sizeOn": "Size: {v}",
+      "color": "Color",
+      "colorOn": "Color: {v}",
+      "results": "{n} products",
+      "results_one": "1 product",
+      "see": "See {n} products",
+      "see_one": "See 1 product",
+      "noneHere": "Nothing to choose in this view."
     },
     "mine": {
       "title": "Ready at the club today",
@@ -2294,6 +2302,17 @@
       "gone": "{product} size {size} is no longer available at FreeRide. Remove it from your list.",
       "listOf": "List L-{number} · {date}",
       "waiting": "List sent · waiting for the price"
+    },
+    "para": {
+      "label": "For",
+      "all": "Everyone",
+      "women": "Women",
+      "men": "Men",
+      "kids": "Kids",
+      "everyone": "Everyone"
+    },
+    "catTab": {
+      "pants": "Breeches"
     }
   },
   "update": {

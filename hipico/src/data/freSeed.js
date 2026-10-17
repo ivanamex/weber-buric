@@ -3,8 +3,8 @@
 const S = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']
 const KIDS = ['4-5', '6-7', '8-9', '10-11', '12-13']
 
-const row = (handle, title, type, category, colors, sizes, priceUsd, { compareUsd = null, kids = null, mapped = true, images = [], missing = [] } = {}) => ({
-  handle, title, type, category, mapped, kids, colors, sizes, priceUsd, compareUsd, images,
+const row = (handle, title, type, category, colors, sizes, priceUsd, { compareUsd = null, kids = null, audience = kids ? 'kids' : 'women', mapped = true, images = [], missing = [] } = {}) => ({
+  handle, title, type, category, mapped, kids, audience, audienceOverride: null, colors, sizes, priceUsd, compareUsd, images,
   variants: colors.flatMap((color) => sizes.map((size) => ({ color, size, available: !missing.includes(`${color}/${size}`) && !missing.includes(size) }))),
   url: `https://shopfre.com/products/${handle}`, hidden: false, active: true,
 })
@@ -24,10 +24,12 @@ export function freCatalogSeed() {
     row('boys-show-polo', "Boy's Show Polo", 'Tops', 'shirts', ['Navy', 'White'], ['8', '10', '12', '14'], 40, { kids: 'boy' }),
     row('quilted-riding-vest', 'Quilted Riding Vest', 'Outerwear', 'jackets', ['Navy', 'Black'], S, 120),
     row('team-quarter-zip', 'Team Quarter Zip', 'Outerwear', 'jackets', ['Heather Grey'], S, 85, { missing: ['XXS', 'XXL'] }),
-    row('signature-leather-belt', 'Signature Leather Belt', 'Belts', 'accessories', ['Brown', 'Black'], ['S', 'M', 'L'], 45),
-    row('tall-boot-socks', 'Tall Boot Socks', 'Socks', 'accessories', ['Grey', 'Navy'], ['One Size'], 18),
-    row('saddle-pad-cover', 'Saddle Pad Cover', 'Tack', 'horse', ['Navy'], ['One Size'], 40),
-    row('logo-gift-tin', 'Logo Gift Tin', 'Misc', 'accessories', ['Assorted'], ['One Size'], 25, { mapped: false }),
+    row('signature-leather-belt', 'Signature Leather Belt', 'Belts', 'accessories', ['Brown', 'Black'], ['S', 'M', 'L'], 45, { audience: 'all' }),
+    row('tall-boot-socks', 'Tall Boot Socks', 'Socks', 'accessories', ['Grey', 'Navy'], ['One Size'], 18, { audience: 'all' }),
+    row('saddle-pad-cover', 'Saddle Pad Cover', 'Tack', 'horse', ['Navy'], ['One Size'], 40, { audience: 'all' }),
+    row('mens-pro-breeches', "Men's PRO Breeches", 'Men', 'pants', ['Beige', 'Navy'], ['S', 'M', 'L', 'XL', 'XXL'], 110, { audience: 'men' }),
+    row('mens-competition-shirt', "Men's Competition Shirt", 'Men', 'shirts', ['White'], ['S', 'M', 'L', 'XL'], 75, { audience: 'men' }),
+    row('logo-gift-tin', 'Logo Gift Tin', 'Misc', 'accessories', ['Assorted'], ['One Size'], 25, { mapped: false, audience: 'all' }),
   ].map((r, i) => ({ ...r, position: i }))
 }
 

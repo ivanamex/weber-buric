@@ -107,6 +107,7 @@ export const uploadShopPhoto = act('uploadShopPhoto') // management: one photo (
 export const loadFreCatalog = act('loadFreCatalog') // management: every row of FreeRide's catalog copy (hidden ones too)
 export const saveFreSettings = act('saveFreSettings') // management: { factor, discount, hiddenTypes }
 export const setFreHidden = act('setFreHidden') // management: show / hide one FreeRide product
+export const setFreAudience = act('setFreAudience') // management: who a FreeRide product is for (women · men · kids · all)
 export const syncFre = act('syncFre') // management: "Actualizar catálogo" (copy FreeRide's catalog now)
 export const sendWishlist = act('sendWishlist') // family: the FreeRide wish list goes to Mara ({ items, note, lang })
 export const setWishlistStatus = act('setWishlistStatus') // management: cotizada · cerrada · nueva

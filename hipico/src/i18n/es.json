@@ -2085,7 +2085,8 @@
         "price": "Precio",
         "sticker": "Etiqueta",
         "stock": "Piezas",
-        "active": "Activo"
+        "active": "Activo",
+        "para": "Para"
       },
       "pay": {
         "paid": "Pagado",
@@ -2168,7 +2169,8 @@
         "active": "Activo en la tienda",
         "duplicate": "Duplicar en otro color",
         "duplicateDone": "Copia lista: ponle el color, sus fotos y sus piezas.",
-        "saved": "Producto guardado"
+        "saved": "Producto guardado",
+        "para": "Para quién"
       },
       "toOrder": {
         "title": "Pedir a FreeRide",
@@ -2239,14 +2241,20 @@
       }
     },
     "newTag": "Nuevo",
-    "colorLabel": "Color",
     "filters": {
       "label": "Filtros",
-      "anyColor": "Todos los colores",
-      "girl": "Niña",
-      "boy": "Niño",
       "clear": "Quitar filtros",
-      "none": "Nada con esos filtros. Prueba con otra talla o color."
+      "none": "Nada con esos filtros. Prueba con otra talla o color.",
+      "paraOn": "Para: {v}",
+      "size": "Talla",
+      "sizeOn": "Talla: {v}",
+      "color": "Color",
+      "colorOn": "Color: {v}",
+      "results": "{n} productos",
+      "results_one": "1 producto",
+      "see": "Ver {n} productos",
+      "see_one": "Ver 1 producto",
+      "noneHere": "Nada que elegir en esta vista."
     },
     "mine": {
       "title": "Entrega inmediata en el club",
@@ -2294,6 +2302,17 @@
       "gone": "{product} talla {size} ya no está disponible en FreeRide. Quítala de tu lista.",
       "listOf": "Lista L-{number} · {date}",
       "waiting": "Lista enviada · esperando precio"
+    },
+    "para": {
+      "label": "Para",
+      "all": "Todos",
+      "women": "Mujer",
+      "men": "Hombre",
+      "kids": "Niños",
+      "everyone": "Todos"
+    },
+    "catTab": {
+      "pants": "Pantalones"
     }
   },
   "update": {

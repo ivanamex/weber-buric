@@ -64,6 +64,46 @@ export function byModel(products) {
 }
 export const siblingsOf = (products, p) => products.filter((x) => (x.model || x.slug) === (p.model || p.slug))
 
+/* ───────── Who it's for, sizes and colors (the shop's three filter menus) ───────── */
+export const AUDIENCES = ['women', 'men', 'kids'] // "all" items (belts, socks, the horse's things) show under each
+export const PARA_SLUGS = { es: { women: 'mujer', men: 'hombre', kids: 'ninos' }, en: { women: 'women', men: 'men', kids: 'kids' } }
+export const paraFromSlug = (slug) => {
+  for (const l of ['es', 'en']) { const hit = Object.entries(PARA_SLUGS[l]).find(([, v]) => v === slug); if (hit) return hit[0] }
+  return null
+}
+export const audienceOfProduct = (p) => p.audience || 'women'
+export const forAudience = (aud, para) => !para || aud === para || aud === 'all'
+export const LETTER_SIZES = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
+/** A size as the filter knows it: "34 (S)" → S, "2X" / "2XL" → XXL, "13-14 (24)" → 13-14. */
+export function sizeKey(size) {
+  let x = String(size || '').trim().toUpperCase()
+  const paren = x.match(/^(.*?)\s*\(([^)]+)\)\s*$/)
+  if (paren) x = /^(\d?X+[SL]?|[SML])$/.test(paren[2].trim()) ? paren[2].trim() : paren[1].trim()
+  return ({ '2X': 'XXL', '2XL': 'XXL', '3X': 'XXXL', '3XL': 'XXXL', '4XL': 'XXXXL' })[x] || x
+}
+/** Kids' sizes in order: 2T, 3T… then 2-3, 4-5… then 8, 10… */
+export const sortSizes = (list) => [...new Set(list)].sort((a, b) => {
+  const n = (x) => { const m = String(x).match(/\d+/); return m ? Number(m[0]) : 999 }
+  const li = (x) => LETTER_SIZES.indexOf(x)
+  if (li(a) >= 0 || li(b) >= 0) return (li(a) < 0 ? 99 : li(a)) - (li(b) < 0 ? 99 : li(b))
+  return n(a) - n(b) || String(a).localeCompare(String(b))
+})
+// A swatch for a color name FreeRide gives (Mara's products have their own hex).
+const COLOR_WORDS = [
+  ['navy', '#1F2A44'], ['black', '#222222'], ['white', '#F7F5F0'], ['ivory', '#F1EAD8'], ['cream', '#EFE6D3'], ['charcoal', '#3A3A3A'],
+  ['grey', '#9A9A9A'], ['gray', '#9A9A9A'], ['silver', '#C8C8C8'], ['beige', '#D8C3A0'], ['sand', '#D8C3A0'], ['tan', '#C9A57A'],
+  ['camel', '#B8865B'], ['brown', '#6B4A2E'], ['chocolate', '#4E3423'], ['tweed', '#7A5E43'], ['pink', '#E8A3B5'], ['blush', '#EBC2C0'],
+  ['raspberry', '#B3385E'], ['coral', '#E8826A'], ['peach', '#F2B49B'], ['tangerine', '#F08A4B'], ['orange', '#D9822B'],
+  ['red', '#B03A2E'], ['burgundy', '#6B2737'], ['merlot', '#6B2737'], ['wine', '#6B2737'], ['plum', '#6E3A5E'], ['purple', '#6E4A7E'],
+  ['lilac', '#C3A8D1'], ['lavender', '#B7A6D3'], ['periwinkle', '#8E9BD6'], ['mauve', '#B08A9E'], ['yellow', '#E8C547'], ['mustard', '#D9A441'],
+  ['olive', '#6B6B3A'], ['sage', '#8A8E75'], ['mint', '#A8D5BA'], ['hunter', '#2F4A3A'], ['forest', '#2F4A3A'], ['green', '#3E7A55'],
+  ['teal', '#2F6B6B'], ['turquoise', '#3FB0AC'], ['ocean', '#2E6E8E'], ['marine', '#24476B'], ['steel', '#3E5873'], ['blue', '#3E6BA8'],
+]
+export function colorHexFor(name) {
+  const s = String(name || '').toLowerCase()
+  return (COLOR_WORDS.find(([w]) => s.includes(w)) || [null, '#D5C7AD'])[1]
+}
+
 /* ───────── FreeRide's catalog (always "sobre pedido") ───────── */
 export const FRE_PREFIX = 'fre:'
 export const isFre = (slug) => String(slug || '').startsWith(FRE_PREFIX)

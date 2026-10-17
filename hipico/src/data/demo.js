@@ -3,7 +3,7 @@ import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS_KINDS, applyPrices, resetPrices } from './prices.js'
 import { monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, todayKey, periodOf, addDays, daysBetween, weekdayOf } from '../lib/time.js'
 import { shopProductsSeed, shopOrdersSeed, photosOf } from './shopSeed.js'
-import { stockNum, unitPrice, listPrice, ORDER_MAX, frePrice, FRE_DEFAULTS } from './shop.js'
+import { stockNum, unitPrice, listPrice, ORDER_MAX, frePrice, FRE_DEFAULTS, sizeKey } from './shop.js'
 import { freCatalogSeed, wishlistsSeed } from './freSeed.js'
 import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS, slotRuns, isClosed, isOneOff, pickHorse, horseBusy, riderBusy, slotMinutes, closedWeekdays, horseStatus } from './queries.js'
 
@@ -86,10 +86,12 @@ export function activate(setState, inMemory = false) {
   }
   // Demo states saved before FreeRide's catalog: add the sample piece of it once.
   if (!state.freCatalog && !memoryOnly) {
-    state = persist({ ...state, freCatalog: freCatalogSeed(), settings: { freMxnFactor: FRE_DEFAULTS.factor, freDiscount: FRE_DEFAULTS.discount, freHiddenTypes: [], freLastSync: now(), freLastCount: 17, ...state.settings } })
+    state = persist({ ...state, freCatalog: freCatalogSeed(), settings: { freMxnFactor: FRE_DEFAULTS.factor, freDiscount: FRE_DEFAULTS.discount, freHiddenTypes: [], freLastSync: now(), freLastCount: 19, ...state.settings } })
   }
   // Demo states saved before the wish lists: add the sample list once (and the catalog sample with its horse piece).
   if (!state.shopWishlists && !memoryOnly) state = persist({ ...state, shopWishlists: wishlistsSeed(), freCatalog: freCatalogSeed() })
+  // Demo states saved before "Para quién": the catalog sample again, now with who each piece is for.
+  if (!memoryOnly && (state.freCatalog || []).some((r) => !r.audience)) state = persist({ ...state, freCatalog: freCatalogSeed() })
   // Demo states saved before the website's contact form: add the sample messages once.
   if (!state.contactMessages && !memoryOnly) { state.contactMessages = createSeed().contactMessages; persist(state) }
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
@@ -1302,27 +1304,30 @@ const freShown = (s) => {
 export function demoFre(p = {}) {
   if (!state) state = load() || persist(createSeed())
   const s = state
-  if (s.settings?.moduleShop === false) return { total: 0, items: [], categories: {}, colors: [], kids: [] }
+  if (s.settings?.moduleShop === false) return { total: 0, items: [], categories: {}, colors: [], sizes: [] }
   const factor = s.settings?.freMxnFactor ?? FRE_DEFAULTS.factor
   const discount = s.settings?.freDiscount ?? FRE_DEFAULTS.discount
-  const base = freShown(s)
-  const color = String(p.color || '').toLowerCase()
-  const filt = base.filter((r) => (!p.handle || r.handle === p.handle) && (!p.category || r.category === p.category) && (!p.kids || r.kids === p.kids)
-    && (!p.size || r.variants.some((v) => v.size === p.size && v.available)) && (!color || r.colors.some((c) => c.toLowerCase() === color)))
+  const base = freShown(s).map((r) => ({ ...r, audience: r.audienceOverride || r.audience || 'women', sizeKeys: [...new Set(r.variants.filter((v) => v.available).map((v) => sizeKey(v.size)))] }))
+  const aud = ['women', 'men', 'kids'].includes(p.audience) ? p.audience : null
+  const sizes = Array.isArray(p.sizes) ? p.sizes : []
+  const colors = Array.isArray(p.colors) ? p.colors.map((c) => String(c).toLowerCase()) : []
+  const tab = base.filter((r) => (!p.category || r.category === p.category) && (!aud || r.audience === aud || r.audience === 'all'))
+  const filt = tab.filter((r) => (!p.handle || r.handle === p.handle)
+    && (!sizes.length || r.sizeKeys.some((k) => sizes.includes(k))) && (!colors.length || r.colors.some((c) => colors.includes(c.toLowerCase()))))
   const off = Math.max(0, Number(p.offset) || 0)
   const lim = Math.min(60, Math.max(1, Number(p.limit) || 24))
   const count = (list) => list.reduce((m, x) => ({ ...m, [x]: (m[x] || 0) + 1 }), {})
-  const colorCount = count(base.flatMap((r) => r.colors))
+  const colorCount = count(tab.flatMap((r) => r.colors))
   return {
     factor, discount, total: filt.length,
     items: structuredClone(filt.slice(off, off + lim)).map((r) => {
       const price = frePrice(r.priceUsd, r.compareUsd, factor, discount)
-      return { handle: r.handle, title: r.title, category: r.category, kids: r.kids, colors: r.colors, sizes: r.sizes, variants: r.variants, priceUsd: r.priceUsd, compareUsd: r.compareUsd,
+      return { handle: r.handle, title: r.title, category: r.category, audience: r.audience, colors: r.colors, sizes: r.sizes, variants: r.variants, priceUsd: r.priceUsd, compareUsd: r.compareUsd,
         images: r.images.slice(0, 6), url: r.url, unit: price.unit, list: price.list, onSale: price.sale }
     }),
     categories: count(base.map((r) => r.category)),
+    sizes: [...new Set(tab.filter((r) => (aud === 'kids') === (r.audience === 'kids')).flatMap((r) => r.sizeKeys))],
     colors: Object.keys(colorCount).sort((a, b) => colorCount[b] - colorCount[a] || a.localeCompare(b)).slice(0, 40),
-    kids: [...new Set(base.map((r) => r.kids).filter(Boolean))],
   }
 }
 
@@ -1345,6 +1350,15 @@ function setFreHidden(handle, hidden) {
     const r = (s.freCatalog || []).find((x) => x.handle === handle)
     if (!r) return fail('notFound')
     r.hidden = Boolean(hidden)
+    return { ok: true }
+  })
+}
+/** Management corrects who a FreeRide product is for (kept over the daily copy). */
+function setFreAudience(handle, audience) {
+  return mutate((s) => {
+    const r = (s.freCatalog || []).find((x) => x.handle === handle)
+    if (!r || (audience && !['women', 'men', 'kids', 'all'].includes(audience))) return fail('notFound')
+    r.audienceOverride = audience && audience !== r.audience ? audience : null
     return { ok: true }
   })
 }
@@ -1512,6 +1526,7 @@ function saveShopProduct(p) {
       descriptionEs: p.descriptionEs || '', descriptionEn: p.descriptionEn || '', features: p.features || { es: [], en: [] },
       price: Number(p.price), promoPrice: p.promoPrice === '' || p.promoPrice == null ? null : Number(p.promoPrice),
       sticker: p.sticker || 'none', photos: [...(p.photos || [])], takesOrders: Boolean(p.takesOrders), active: p.active !== false,
+      audience: ['women', 'men', 'kids', 'all'].includes(p.audience) ? p.audience : row.audience || 'women',
       variants: sizes.map((v) => ({ size: String(v.size).trim(), stock: Math.max(0, Number(v.stock) || 0), price: v.price === '' || v.price == null ? null : Number(v.price) })),
     })
     return { ok: true, id: row.id, slug: row.slug }
@@ -1546,7 +1561,7 @@ function markContactMessage(id, status) {
 }
 
 export const actions = {
-  login, logout, resetDemo, markContactMessage, placeShopOrder, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, loadFreCatalog, saveFreSettings, setFreHidden, syncFre, sendWishlist, setWishlistStatus, convertWishlist, refreshData: () => { publish(view()); return { ok: true } }, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
+  login, logout, resetDemo, markContactMessage, placeShopOrder, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, loadFreCatalog, saveFreSettings, setFreHidden, setFreAudience, syncFre, sendWishlist, setWishlistStatus, convertWishlist, refreshData: () => { publish(view()); return { ok: true } }, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
   requestBoardingPayment, markPaid, registerCamp, bookRental,
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),
