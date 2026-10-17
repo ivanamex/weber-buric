@@ -1,11 +1,11 @@
 // The shop's rules, shared by the website, the family app, the panel and the demo (the database applies the same ones
 // in shop_order()): prices, stock, "bajo pedido" lines with a 50 % deposit, stickers, colors grouped by model.
 
-export const CATEGORIES = ['pants', 'shirts', 'jackets', 'accessories']
+export const CATEGORIES = ['pants', 'shirts', 'jackets', 'accessories', 'horse'] // horse: only shown when it has products
 /** The category in the address: ?cat=camisas / ?cat=shirts. */
 export const CATEGORY_SLUGS = {
-  es: { pants: 'pantalones', shirts: 'camisas', jackets: 'chamarras', accessories: 'accesorios' },
-  en: { pants: 'breeches', shirts: 'shirts', jackets: 'jackets', accessories: 'accessories' },
+  es: { pants: 'pantalones', shirts: 'camisas', jackets: 'chamarras', accessories: 'accesorios', horse: 'caballo' },
+  en: { pants: 'breeches', shirts: 'shirts', jackets: 'jackets', accessories: 'accessories', horse: 'horse' },
 }
 export const categoryFromSlug = (slug) => {
   for (const l of ['es', 'en']) {
@@ -26,6 +26,7 @@ export const SIZE_GUIDE = {
   jackets: 'https://shopfre.com',
   shirts: 'https://shopfre.com/collections/competition-tops/products/cassidy-show-shirt-peach',
   accessories: 'https://shopfre.com',
+  horse: 'https://shopfre.com',
 }
 export const FRE_CATALOG = 'https://shopfre.com'
 
@@ -109,6 +110,13 @@ export function cartTotals(lines) {
   const now = subtotal - later + Math.ceil(later / 2)
   return { subtotal, saving: Math.max(0, list - subtotal), now, rest: subtotal - now, hasOrder: later > 0, count }
 }
+
+/* ───────── The wish list (FreeRide pieces: chosen here, priced by Mara) ───────── */
+/** A list line → "1 × Celestial Lux Breeches Navy, talla S". */
+export const wishText = (l, sizeWord = 'talla') => `${l.qty} × ${l.name}${l.color ? ` ${l.color}` : ''}${l.size ? `, ${sizeWord} ${l.size}` : ''}`
+export const wishTotal = (lines) => lines.reduce((a, l) => a + (Number(l.unit) || 0) * (Number(l.qty) || 0), 0)
+export const WISH_STATUSES = ['nueva', 'cotizada', 'convertida', 'cerrada']
+export const newWishlists = (s) => (s.shopWishlists || []).filter((w) => w.status === 'nueva')
 
 /** How the family reads an order's status. */
 export const familyStatus = (st) => ({ nuevo: 'apartado', apartado: 'apartado', pagado: 'pagado' }[st] || st)

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/migrate.mjs && vite build",
+    "build": "node scripts/migrate.mjs && node scripts/fre-sync.mjs && vite build",
     "preview": "vite preview",
     "migrate": "MIGRATE=1 node scripts/migrate.mjs",
     "check:hover": "node scripts/hover-audit.mjs"

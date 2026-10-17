@@ -108,4 +108,7 @@ export const loadFreCatalog = act('loadFreCatalog') // management: every row of 
 export const saveFreSettings = act('saveFreSettings') // management: { factor, discount, hiddenTypes }
 export const setFreHidden = act('setFreHidden') // management: show / hide one FreeRide product
 export const syncFre = act('syncFre') // management: "Actualizar catálogo" (copy FreeRide's catalog now)
+export const sendWishlist = act('sendWishlist') // family: the FreeRide wish list goes to Mara ({ items, note, lang })
+export const setWishlistStatus = act('setWishlistStatus') // management: cotizada · cerrada · nueva
+export const convertWishlist = act('convertWishlist') // management: the list → an order with her prices + the 50 % charge
 export const refreshData = act('refreshData') // load everything again (the "Actualizar" icon on Resumen)

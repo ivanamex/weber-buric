@@ -6,6 +6,7 @@ const shoe = <path d={HORSESHOE_D} fill="currentColor" stroke="none" fillRule="e
 
 const P = {
   hanger: <><path d="M12 7.2V6.4a1.9 1.9 0 1 1 1.9 1.9c-.9 0-1.9.6-1.9 1.6v.3" /><path d="M12 10.2 3.4 16.6c-.8.6-.4 1.9.6 1.9h16c1 0 1.4-1.3.6-1.9z" /></>,
+  heart: <path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z" />,
   bag: <><path d="M5 8h14l-1 12.5H6z" /><path d="M9 10.5V7a3 3 0 0 1 6 0v3.5" /></>,
   pants: <><path d="M7 3.5h10l1.6 17h-4.2L12 9.5l-2.4 11H5.4z" /><path d="M7 6.5h10M12 3.5v6" /></>,
   shirt: <><path d="M9 3.5 4 6l-1.5 4.5 3 1.2L6.5 10v10.5h11V10l1 1.7 3-1.2L20 6l-5-2.5c-.5 1.4-1.6 2.3-3 2.3s-2.5-.9-3-2.3z" /></>,

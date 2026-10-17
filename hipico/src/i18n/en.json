@@ -560,7 +560,8 @@
     "cardRejected": "The bank declined the card. Check the details or choose another way to pay.",
     "emptyCart": "Your cart is empty.",
     "out_of_stock": "A size in your cart just sold out.",
-    "freDown": "FreeRide didn't answer. The shop keeps the previous catalog; try again later."
+    "freDown": "FreeRide didn't answer. The shop keeps the previous catalog; try again later.",
+    "wishOnly": "FreeRide pieces go in your wish list."
   },
   "live": {
     "loading": "Loading…",
@@ -1967,7 +1968,8 @@
       "pants": "Breeches",
       "shirts": "Shirts",
       "accessories": "Accessories",
-      "jackets": "Jackets"
+      "jackets": "Jackets",
+      "horse": "For your horse"
     },
     "emptyCat": "More {cat} are coming soon.",
     "emptyAsk": "Looking for something? Write to us →",
@@ -2055,12 +2057,13 @@
     },
     "panel": {
       "tile": "Orders and products",
-      "newCount": "{n} new orders",
-      "newCount_one": "1 new order",
+      "newCount": "{n} to handle",
+      "newCount_one": "1 to handle",
       "tabs": {
         "orders": "Orders",
         "products": "Products",
-        "fre": "FreeRide catalog"
+        "fre": "FreeRide catalog",
+        "lists": "Lists"
       },
       "filters": {
         "nuevos": "New",
@@ -2198,6 +2201,41 @@
         "usdMxn": "USD → pesos",
         "hiddenByType": "hidden by type",
         "empty": "No FreeRide products yet. Tap \"Update catalog\"."
+      },
+      "lists": {
+        "search": "Search list, name or product",
+        "who": "Who",
+        "empty": "No wish lists yet.",
+        "title": "List L-{number}",
+        "filters": {
+          "nuevas": "New",
+          "cotizadas": "Answered",
+          "todas": "All"
+        },
+        "status": {
+          "nueva": "New",
+          "cotizada": "Answered",
+          "convertida": "Order",
+          "cerrada": "Closed"
+        },
+        "waReply": "Hi {name}, thanks for your list L-{number}:\n{lines}\nTotal: {total}\nIf that works for you, I will send you the order so you can pay the 50% deposit in the app.",
+        "reply": "Reply on WhatsApp",
+        "convert": "Turn into an order",
+        "close": "Mark as closed",
+        "closed": "List L-{number} closed",
+        "convertLead": "Set each piece's final price (and how many). An order is created, all to order, with the 50% deposit.",
+        "estimate": "approx. {amount}",
+        "finalPrice": "Final price",
+        "removeLine": "Remove piece",
+        "restore": "Add back",
+        "email": "Family's email",
+        "emailHint": "They sign in to the app with this email to pay.",
+        "deposit": "Deposit today: {amount}",
+        "create": "Create order",
+        "converted": "Order #{n} created · deposit {amount}.",
+        "convertedLine": "It is in Cobros; the family pays it in the app with {email}.",
+        "waOrder": "Hi {name}, your order #{n} is ready: the deposit is {amount}. Pay it in the app: {link}",
+        "isOrder": "Turned into order #{n}."
       }
     },
     "newTag": "New",
@@ -2216,20 +2254,46 @@
     },
     "fre": {
       "title": "All of FreeRide · to order",
-      "line": "Arrives in 2 to 3 weeks. Shipping and import included.",
+      "line": "Add it to your wish list and Mara sends you the final price.",
       "none": "No FreeRide products in this view.",
       "loading": "Loading…",
       "more": "See more ({n})",
       "colors": "{n} colors",
       "gone": "This product is no longer in FreeRide's catalog.",
       "oneSize": "One size",
-      "orderLine": "To order · arrives in 2 to 3 weeks · 50% deposit, the rest on arrival · shipping and import included"
+      "orderLine": "To order · arrives in 2 to 3 weeks · Mara confirms the final price before ordering it",
+      "tag": "To order",
+      "approxShort": "approx.",
+      "approx": "Approximate price"
     },
     "quiet": {
       "before": "Can't find something?",
       "link": "Message us on WhatsApp",
       "after": "and we'll order it for you.",
       "waText": "Hi, I'm looking for something from FreeRide I can't find in the club's shop"
+    },
+    "wish": {
+      "title": "My wish list",
+      "add": "Add to my list",
+      "added": "In your list",
+      "empty": "Nothing in your list yet. Pick FreeRide pieces and add them with the heart.",
+      "back": "Back to my list",
+      "sendLead": "Where should Mara write to you? She sends the final price by WhatsApp.",
+      "phone": "WhatsApp",
+      "email": "Email (optional)",
+      "note": "Note (optional)",
+      "total": "Approximate total",
+      "terms": "Mara confirms price and availability. 50% deposit when confirmed, the rest on arrival; shipping and import included.",
+      "send": "Send to Mara",
+      "sending": "Sending…",
+      "doneTitle": "Done, {name}!",
+      "doneLine": "Mara will message you on WhatsApp with your price. Your list is L-{number}.",
+      "alsoWa": "Also send it by WhatsApp",
+      "waText": "Hi Mara, this is my FreeRide list:\n{lines}\nApproximate total {total}. List L-{number}",
+      "sizeWord": "size",
+      "gone": "{product} size {size} is no longer available at FreeRide. Remove it from your list.",
+      "listOf": "List L-{number} · {date}",
+      "waiting": "List sent · waiting for the price"
     }
   },
   "update": {

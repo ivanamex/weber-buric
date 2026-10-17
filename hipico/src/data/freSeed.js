@@ -26,6 +26,19 @@ export function freCatalogSeed() {
     row('team-quarter-zip', 'Team Quarter Zip', 'Outerwear', 'jackets', ['Heather Grey'], S, 85, { missing: ['XXS', 'XXL'] }),
     row('signature-leather-belt', 'Signature Leather Belt', 'Belts', 'accessories', ['Brown', 'Black'], ['S', 'M', 'L'], 45),
     row('tall-boot-socks', 'Tall Boot Socks', 'Socks', 'accessories', ['Grey', 'Navy'], ['One Size'], 18),
-    row('saddle-pad-cover', 'Saddle Pad Cover', 'Tack', 'accessories', ['Navy'], ['One Size'], 40, { mapped: false }),
+    row('saddle-pad-cover', 'Saddle Pad Cover', 'Tack', 'horse', ['Navy'], ['One Size'], 40),
+    row('logo-gift-tin', 'Logo Gift Tin', 'Misc', 'accessories', ['Assorted'], ['One Size'], 25, { mapped: false }),
   ].map((r, i) => ({ ...r, position: i }))
+}
+
+/** One list a visitor sent from the website, so Dirección → Tienda → Listas isn't empty in the demo. */
+export function wishlistsSeed(at = (h) => new Date(Date.now() - h * 3600000).toISOString()) {
+  return [{
+    id: 'wl1', number: 101, familyId: null, name: 'Daniela Ruiz', phone: '+52 984 222 3344', email: null, note: 'Es para mi hija de 9 años.',
+    items: [
+      { handle: 'childrens-lux-breeches', name: "Children's Lux Breeches", color: 'Raspberry', size: '8-9', qty: 1, unit: 1450, photo: null, url: 'https://shopfre.com/products/childrens-lux-breeches' },
+      { handle: 'childrens-cassidy-show-shirt', name: "Children's Cassidy Show Shirt", color: 'White', size: '8-9', qty: 1, unit: 1250, photo: null, url: 'https://shopfre.com/products/childrens-cassidy-show-shirt' },
+    ],
+    totalEstimate: 2700, status: 'nueva', orderId: null, lang: 'es', createdAt: at(5),
+  }]
 }

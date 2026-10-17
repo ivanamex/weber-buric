@@ -102,6 +102,10 @@
     "api/fre-sync.js": {
       "includeFiles": "scripts/supabase-ca.crt",
       "maxDuration": 60
+    },
+    "api/wishlist.js": {
+      "includeFiles": "scripts/supabase-ca.crt",
+      "maxDuration": 30
     }
   },
   "crons": [

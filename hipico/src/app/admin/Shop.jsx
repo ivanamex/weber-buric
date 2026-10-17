@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { useStore, byId, moduleOn, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, loadFreCatalog, saveFreSettings, setFreHidden, syncFre } from '../../data/store.js'
+import { useStore, byId, moduleOn, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, loadFreCatalog, saveFreSettings, setFreHidden, syncFre, setWishlistStatus, convertWishlist } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { Empty, Segmented } from '../../components/ui.jsx'
 import { ConfirmDialog, SaveBar, Sheet, useFormState } from '../../components/EditKit.jsx'
@@ -12,19 +12,20 @@ import { waTo } from '../../lib/phone.js'
 import { todayKey } from '../../lib/time.js'
 import { useBase } from '../Backend.jsx'
 import { useSave } from './useSave.js'
-import { CATEGORIES, STICKERS, SIZE_CHIPS, KID_SIZES, ORDER_FILTERS, nextStatus, orderLine, stockNum, shopPhoto, frePrice, FRE_DEFAULTS } from '../../data/shop.js'
+import { CATEGORIES, STICKERS, SIZE_CHIPS, KID_SIZES, ORDER_FILTERS, nextStatus, orderLine, stockNum, shopPhoto, frePrice, FRE_DEFAULTS, wishText, newWishlists } from '../../data/shop.js'
 import { OrderPill, ProductCardPreview } from '../../site/shop/ShopParts.jsx'
 
 const FILTERS = Object.keys(ORDER_FILTERS)
 
-/** Dirección → Tienda: the orders (what to order from FreeRide, what's ready, what was delivered), Mara's products and FreeRide's catalog. */
+/** Dirección → Tienda: the orders (what to order from FreeRide, what's ready, what was delivered), the wish lists, Mara's products and FreeRide's catalog. */
 export default function AdminShop() {
   const { t } = useI18n()
   const s = useStore()
   const base = useBase()
   const desk = useDesktop()
   const [params, setParams] = useSearchParams()
-  const VIEWS = { productos: 'products', freeride: 'fre' }
+  const VIEWS = { listas: 'lists', productos: 'products', freeride: 'fre' }
+  const fresh = newWishlists(s).length
   const view = VIEWS[params.get('vista')] || 'orders'
   const setView = (v) => setParams(v === 'orders' ? {} : { vista: Object.keys(VIEWS).find((k) => VIEWS[k] === v) }, { replace: true })
   if (!moduleOn(s, 'moduleShop')) return <Navigate to={`${base}/direccion`} replace />
@@ -33,10 +34,10 @@ export default function AdminShop() {
       {!desk && <h1 className="page__title">{t('shop.nav')}</h1>}
       <div className={desk ? 'drows' : 'dtoolbar'}>
         <div className="drows__tabs">
-          <Segmented value={view} onChange={setView} options={[{ value: 'orders', label: t('shop.panel.tabs.orders') }, { value: 'products', label: t('shop.panel.tabs.products') }, { value: 'fre', label: t('shop.panel.tabs.fre') }]} />
+          <Segmented value={view} onChange={setView} options={[{ value: 'orders', label: t('shop.panel.tabs.orders') }, { value: 'lists', label: <>{t('shop.panel.tabs.lists')}{fresh > 0 && <span className="segbadge">{fresh}</span>}</> }, { value: 'products', label: t('shop.panel.tabs.products') }, { value: 'fre', label: t('shop.panel.tabs.fre') }]} />
         </div>
       </div>
-      {view === 'orders' ? <Orders /> : view === 'products' ? <Products /> : <FreCatalog />}
+      {view === 'orders' ? <Orders /> : view === 'lists' ? <Lists /> : view === 'products' ? <Products /> : <FreCatalog />}
     </div>
   )
 }
@@ -230,6 +231,197 @@ function ToOrder({ o }) {
         ))}
       </ul>
     </div>
+  )
+}
+
+/* ───────── Listas (FreeRide wish lists sent from the website and the app) ───────── */
+
+const LIST_FILTERS = { nuevas: (w) => w.status === 'nueva', cotizadas: (w) => w.status === 'cotizada', todas: () => true }
+const LIST_PILL = { nueva: 'review', cotizada: 'pending', convertida: 'paid', cerrada: 'neutral' }
+const listNo = (w) => `L-${w.number}`
+
+function Lists() {
+  const { t, fmtMoney, fmtInstant } = useI18n()
+  const s = useStore()
+  const desk = useDesktop()
+  const q = useDeskSearch(t('shop.panel.lists.search'))
+  const [filter, setFilter] = useState('nuevas')
+  const [open, setOpen] = useState(null)
+  const all = s.shopWishlists || []
+  const counts = Object.fromEntries(Object.keys(LIST_FILTERS).map((f) => [f, all.filter(LIST_FILTERS[f]).length]))
+  const rows = all.filter(LIST_FILTERS[filter])
+    .filter((w) => !q || [listNo(w), w.name, w.phone, w.email, ...(w.items || []).map((l) => l.name)].some((v) => v?.toLowerCase().includes(q)))
+  const when = (iso) => fmtInstant(iso, { day: 'numeric', month: 'short' })
+  const items = (w) => (w.items || []).map((l) => wishText(l, t('shop.wish.sizeWord'))).join(', ')
+  const Pill = ({ w }) => <StatusPill status={LIST_PILL[w.status]}>{t(`shop.panel.lists.status.${w.status}`)}</StatusPill>
+  const columns = [
+    { key: 'number', label: '#', value: (w) => w.number, render: (w) => <span className="dtable__strong">{listNo(w)}</span>, csv: listNo },
+    { key: 'date', nowrap: true, label: t('shop.panel.cols.date'), value: (w) => w.createdAt, render: (w) => when(w.createdAt), csv: (w) => w.createdAt.slice(0, 10) },
+    { key: 'buyer', label: t('shop.panel.lists.who'), value: (w) => w.name, csv: (w) => `${w.name} ${w.phone || ''}`, render: (w) => <span className="dtwo"><b>{w.name}</b><span className="small muted">{w.phone || w.email}</span></span> },
+    { key: 'items', label: t('shop.panel.cols.items'), value: items, render: (w) => <span className="dtwo">{(w.items || []).map((l, i) => <span key={i}>{wishText(l, t('shop.wish.sizeWord'))}</span>)}</span> },
+    { key: 'total', align: 'right', label: t('shop.wish.total'), value: (w) => w.totalEstimate, render: (w) => fmtMoney(w.totalEstimate) },
+    { key: 'status', label: t('shop.panel.cols.status'), value: (w) => w.status, csv: (w) => t(`shop.panel.lists.status.${w.status}`), render: (w) => <Pill w={w} /> },
+  ]
+  useDeskAction([{ label: t('desk.export'), icon: 'download', onClick: () => exportCsv(`listas-${todayKey()}.csv`, columns, rows) }], [rows.length, filter, q])
+  const empty = <Empty icon="heart" title={t(all.length ? 'shop.panel.empty.filtered' : 'shop.panel.lists.empty')} />
+  const selected = open && byId(all, open)
+  return (
+    <>
+      <div className="chips-scroll chips-scroll--fade" role="group" aria-label={t('shop.panel.cols.status')}>
+        {Object.keys(LIST_FILTERS).map((f) => (
+          <button key={f} type="button" className={`chip ${filter === f ? 'is-active' : ''}`} aria-pressed={filter === f} onClick={() => setFilter(f)}>
+            {t(`shop.panel.lists.filters.${f}`)}{counts[f] ? ` (${counts[f]})` : ''}
+          </button>
+        ))}
+      </div>
+      {desk ? (
+        <DataTable columns={columns} rows={rows} onRow={(w) => setOpen(w.id)} selected={open} defaultSort={{ key: 'number', dir: -1 }} empty={empty} />
+      ) : rows.length ? (
+        <ul className="card list">
+          {rows.map((w) => (
+            <li key={w.id} className="list__row msgrow">
+              <button type="button" className="msgrow__btn" onClick={() => setOpen(w.id)} aria-label={`${listNo(w)} · ${w.name}`}>
+                <Icon name="heart" size={18} />
+                <span className="grow">
+                  <span className="list__title">{listNo(w)} · {w.name}</span>
+                  <span className="small muted">{when(w.createdAt)} · {fmtMoney(w.totalEstimate)}</span>
+                  <span className="small msgrow__preview">{items(w)}</span>
+                  <span className="row gap-sm wrap mt8"><Pill w={w} /></span>
+                </span>
+                <Icon name="chevronRight" size={18} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : empty}
+      {selected && (
+        <Sheet title={t('shop.panel.lists.title', { number: selected.number })} onClose={() => setOpen(null)}>
+          <ListDetail key={selected.id} w={selected} />
+        </Sheet>
+      )}
+    </>
+  )
+}
+
+/** A list: its lines with FreeRide's links, "Responder por WhatsApp" with the prices, then "Convertir en pedido". */
+function ListDetail({ w }) {
+  const { t, fmtMoney, fmtInstant } = useI18n()
+  const s = useStore()
+  const base = useBase()
+  const toast = useToast()
+  const [mode, setMode] = useState('view') // view | convert
+  const [done, setDone] = useState(null)
+  const first = w.name.split(/\s+/)[0]
+  const reply = t('shop.panel.lists.waReply', {
+    name: first, number: w.number,
+    lines: (w.items || []).map((l) => `${wishText(l, t('shop.wish.sizeWord'))} · ${fmtMoney(l.unit * l.qty)}`).join('\n'),
+    total: fmtMoney(w.totalEstimate),
+  })
+  const wa = waTo(w.phone, reply)
+  const answered = async () => { if (w.status === 'nueva') await setWishlistStatus(w.id, 'cotizada') }
+  const close = async () => {
+    const res = await setWishlistStatus(w.id, 'cerrada')
+    if (!res.ok) toast(t(`errors.${res.code}`), 'error'); else toast(t('shop.panel.lists.closed', { number: w.number }))
+  }
+  const order = w.orderId && byId(s.shopOrders || [], w.orderId)
+  if (mode === 'convert') return <ConvertList w={w} onCancel={() => setMode('view')} onDone={(r) => { setDone(r); setMode('view') }} />
+  return (
+    <div className="card msg orderdetail">
+      <p className="row gap-sm wrap">
+        <StatusPill status={LIST_PILL[w.status]}>{t(`shop.panel.lists.status.${w.status}`)}</StatusPill>
+        <span className="small muted">{fmtInstant(w.createdAt, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</span>
+      </p>
+      <ul className="list orderdetail__lines">
+        {(w.items || []).map((l, i) => (
+          <li key={i} className="list__row">
+            <span className="grow dtwo">
+              <span className="list__title">{l.name}</span>
+              <span className="small muted">{[l.color, l.size && t('shop.sizeShort', { size: l.size }), `×${l.qty}`].filter(Boolean).join(' · ')}</span>
+              {l.url && <a className="link small" href={l.url} target="_blank" rel="noopener noreferrer">{t('shop.panel.toOrder.open')}</a>}
+            </span>
+            <strong>{fmtMoney(l.unit * l.qty)}</strong>
+          </li>
+        ))}
+        <li className="list__row"><span className="grow list__title">{t('shop.wish.total')}</span><strong>{fmtMoney(w.totalEstimate)}</strong></li>
+      </ul>
+      {w.note && <p className="small mt8"><b>{t('shop.wish.note')}:</b> {w.note}</p>}
+      <ul className="msg__contact mt12">
+        <li><Icon name="user" size={18} /><span>{w.name}</span></li>
+        {w.phone && <li><Icon name="phone" size={18} /><a href={`tel:${w.phone.replace(/[^\d+]/g, '')}`}>{w.phone}</a></li>}
+        {w.email && <li><Icon name="mail" size={18} /><a className="break" href={`mailto:${w.email}`}>{w.email}</a></li>}
+      </ul>
+      {done && (
+        <div className="orderdetail__ready mt12" role="status">
+          <p className="small"><strong>{t('shop.panel.lists.converted', { n: done.number, amount: fmtMoney(done.amount) })}</strong> {t('shop.panel.lists.convertedLine', { email: done.email || '' })}</p>
+          <div className="row gap-sm wrap">
+            {waTo(w.phone, '') && <a className="btn btn--primary btn--sm" href={waTo(w.phone, t('shop.panel.lists.waOrder', { name: first, n: done.number, amount: fmtMoney(done.amount), link: `${window.location.origin}/app/familia/tienda` }))} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" size={18} /> {t('shop.panel.notifyWa')}</a>}
+            <Link className="btn btn--slate btn--sm" to={`${base}/direccion/cobros`}>{t('shop.panel.seeCobros')}</Link>
+          </div>
+        </div>
+      )}
+      {order && !done && <p className="small mt12">{t('shop.panel.lists.isOrder', { n: order.number })}</p>}
+      {w.status !== 'convertida' && (
+        <>
+          <div className="row gap-sm wrap mt12">
+            <button type="button" className="btn btn--primary" onClick={() => setMode('convert')}><Icon name="bag" size={18} /> {t('shop.panel.lists.convert')}</button>
+            {wa && <a className="btn btn--slate" href={wa} target="_blank" rel="noopener noreferrer" onClick={answered}><Icon name="whatsapp" size={18} /> {t('shop.panel.lists.reply')}</a>}
+          </div>
+          {w.status !== 'cerrada' && <button type="button" className="link mt12" onClick={close}>{t('shop.panel.lists.close')}</button>}
+        </>
+      )}
+    </div>
+  )
+}
+
+/** The list as an order: Mara's final price per line (and how many), lines removed, the family's email when unknown. */
+function ConvertList({ w, onCancel, onDone }) {
+  const { t, fmtMoney } = useI18n()
+  const [lines, setLines] = useState(() => (w.items || []).map((l, i) => ({ i, unit: String(l.unit), qty: String(l.qty), keep: true })))
+  const [email, setEmail] = useState(w.email || '')
+  const [run, busy, error] = useSave()
+  const kept = lines.filter((l) => l.keep)
+  const total = kept.reduce((a, l) => a + (Number(l.unit) || 0) * (Number(l.qty) || 0), 0)
+  const set = (i, k, v) => setLines((ls) => ls.map((l) => (l.i === i ? { ...l, [k]: v } : l)))
+  const needEmail = !w.familyId
+  const submit = (e) => {
+    e.preventDefault()
+    run(() => convertWishlist(w.id, { lines: kept.map((l) => ({ i: l.i, unit: Number(l.unit), qty: Number(l.qty) })), email: email.trim() }),
+      null, (r) => onDone(r), { inline: true })
+  }
+  return (
+    <form className="card inline-form convertlist" onSubmit={submit}>
+      <p className="small muted">{t('shop.panel.lists.convertLead')}</p>
+      {lines.map((l) => {
+        const src = w.items[l.i]
+        return (
+          <div key={l.i} className={`convertlist__row ${l.keep ? '' : 'is-off'}`}>
+            <span className="grow dtwo">
+              <span className="list__title">{src.name}</span>
+              <span className="small muted">{[src.color, src.size && t('shop.sizeShort', { size: src.size })].filter(Boolean).join(' · ')} · {t('shop.panel.lists.estimate', { amount: fmtMoney(src.unit) })}</span>
+            </span>
+            {l.keep ? (
+              <>
+                <label className="convertlist__f convertlist__qty"><span>{t('shop.panel.editor.stock')}</span>
+                  <input className="input" type="number" min={1} max={10} inputMode="numeric" value={l.qty} onChange={(e) => set(l.i, 'qty', e.target.value)} />
+                </label>
+                <label className="convertlist__f convertlist__price"><span>{t('shop.panel.lists.finalPrice')}</span>
+                  <input className="input" type="number" min={0} inputMode="numeric" value={l.unit} onChange={(e) => set(l.i, 'unit', e.target.value)} />
+                </label>
+                <button type="button" className="iconbtn" aria-label={t('shop.panel.lists.removeLine')} onClick={() => set(l.i, 'keep', false)}><Icon name="x" size={18} /></button>
+              </>
+            ) : <button type="button" className="link small" onClick={() => set(l.i, 'keep', true)}>{t('shop.panel.lists.restore')}</button>}
+          </div>
+        )
+      })}
+      {needEmail && (
+        <label className="field" htmlFor="cl-email"><span>{t('shop.panel.lists.email')}</span>
+          <input id="cl-email" className="input" type="email" inputMode="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          <small className="muted">{t('shop.panel.lists.emailHint')}</small>
+        </label>
+      )}
+      <p className="convertlist__sum"><span>{t('shop.cart.total')} <b>{fmtMoney(total)}</b></span><span>{t('shop.panel.lists.deposit', { amount: fmtMoney(Math.ceil(total / 2)) })}</span></p>
+      <SaveBar busy={busy} dirty error={error} onCancel={onCancel} label={t('shop.panel.lists.create')} disabled={!kept.length} />
+    </form>
   )
 }
 

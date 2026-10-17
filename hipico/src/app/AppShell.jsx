@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { familyRiders, login, logout, useStore, byId, moduleOn, newMessages } from '../data/store.js'
-import { newOrders } from '../data/shop.js'
+import { newOrders, newWishlists } from '../data/shop.js'
 import { Logo } from '../components/Logo.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
 import { Icon } from '../components/Icon.jsx'
@@ -121,7 +121,7 @@ function DeskShell({ onLogout, toReview, demoBar }) {
   const ctx = useMemo(() => ({ desk: true, query, setQuery, setAction, setSearchable }), [query])
   const q = new URLSearchParams(search)
   const items = SIDEBAR.filter((i) => !i.module || moduleOn(s, i.module))
-  const badges = { review: toReview, messages: newMessages(s), shop: newOrders(s).length } // counts shown on the sidebar icons
+  const badges = { review: toReview, messages: newMessages(s), shop: newOrders(s).length + newWishlists(s).length } // counts shown on the sidebar icons
   const actions = [].concat(action || []) // a page may offer one main action or a few (the last one is the main one)
   const horseId = pathname.match(/\/caballos\/([^/]+)$/)?.[1]
   const adminCrumbs = [{ label: t('desk.crumbAdmin'), to: `${base}/direccion` }]

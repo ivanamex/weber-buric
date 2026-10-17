@@ -7,7 +7,7 @@ import { SiteDialog } from '../ServiceSheet.jsx'
 import { ContactForm } from '../ContactForm.jsx'
 import { BIG } from '../content.js'
 import { unitPrice, shopPhoto } from '../../data/shop.js'
-import { ShopBtn, ShopCatalog, CartDrawer, ShopQuiet } from './ShopParts.jsx'
+import { ShopBtn, ShopCatalog, CartDrawer, ShopQuiet, ShopIcons, WishDrawer } from './ShopParts.jsx'
 import { ShopCheckout } from './Checkout.jsx'
 import { openCart, useShop } from './shopApi.js'
 
@@ -73,10 +73,11 @@ export default function ShopPage() {
         </div>
       </section>
       <section className="scontainer shopmain" ref={main} data-tone="light" aria-label={t('shop.nav')}>
-        {data ? <ShopCatalog products={products} onAsk={ask} /> : <div className="shopempty"><span className="sspin" aria-hidden="true" /></div>}
+        {data ? <ShopCatalog products={products} onAsk={ask} actions={<ShopIcons />} /> : <div className="shopempty"><span className="sspin" aria-hidden="true" /></div>}
         <ShopQuiet />
       </section>
       <CartDrawer products={products} onBrowse={toGrid} checkout={(props) => <ShopCheckout {...props} />} />
+      <WishDrawer onBrowse={toGrid} />
       {asking && (
         <SiteDialog photo={{ src: BIG.nose.small, w: 800, h: 1067 }} alt={t('site.alt.nose')} position={BIG.nose.position} labelledBy="ssheet2-title" onClose={() => setAsking(null)}>
           <div className="ssheet2__body"><ContactForm titleId="ssheet2-title" service="shop" prefill={asking} /></div>

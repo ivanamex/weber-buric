@@ -4,7 +4,7 @@ import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS
 import { monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, todayKey, periodOf, addDays, daysBetween, weekdayOf } from '../lib/time.js'
 import { shopProductsSeed, shopOrdersSeed, photosOf } from './shopSeed.js'
 import { stockNum, unitPrice, listPrice, ORDER_MAX, frePrice, FRE_DEFAULTS } from './shop.js'
-import { freCatalogSeed } from './freSeed.js'
+import { freCatalogSeed, wishlistsSeed } from './freSeed.js'
 import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS, slotRuns, isClosed, isOneOff, pickHorse, horseBusy, riderBusy, slotMinutes, closedWeekdays, horseStatus } from './queries.js'
 
 // The demo keeps its data under its own names, apart from the real app. The chosen role is never saved:
@@ -86,8 +86,10 @@ export function activate(setState, inMemory = false) {
   }
   // Demo states saved before FreeRide's catalog: add the sample piece of it once.
   if (!state.freCatalog && !memoryOnly) {
-    state = persist({ ...state, freCatalog: freCatalogSeed(), settings: { freMxnFactor: FRE_DEFAULTS.factor, freDiscount: FRE_DEFAULTS.discount, freHiddenTypes: [], freLastSync: now(), freLastCount: 16, ...state.settings } })
+    state = persist({ ...state, freCatalog: freCatalogSeed(), settings: { freMxnFactor: FRE_DEFAULTS.factor, freDiscount: FRE_DEFAULTS.discount, freHiddenTypes: [], freLastSync: now(), freLastCount: 17, ...state.settings } })
   }
+  // Demo states saved before the wish lists: add the sample list once (and the catalog sample with its horse piece).
+  if (!state.shopWishlists && !memoryOnly) state = persist({ ...state, shopWishlists: wishlistsSeed(), freCatalog: freCatalogSeed() })
   // Demo states saved before the website's contact form: add the sample messages once.
   if (!state.contactMessages && !memoryOnly) { state.contactMessages = createSeed().contactMessages; persist(state) }
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
@@ -1237,16 +1239,8 @@ function shopOrderIn(s, { items, name, phone, email, familyId, web, lang }) {
   const lines = []
   let total = 0; let later = 0
   for (const it of items) {
-    // A FreeRide line (the demo takes the price it showed; the database recomputes it).
-    if (it.fre) {
-      const qty = Number(it.qty) || 1
-      const unit = Number(it.unit) || 0
-      if (!unit || qty < 1 || qty > ORDER_MAX) return fail('out_of_stock', { line: { product: `fre:${it.fre}`, size: it.size, name: it.name, color: it.color } })
-      total += unit * qty
-      later += unit * qty
-      lines.push({ fre: true, slug: `fre:${it.fre}`, name: it.name || it.fre, color: it.color || '', size: it.size || '', qty, unit, list: Number(it.list) || unit, onOrder: true, photo: it.photo || null, url: it.url || null })
-      continue
-    }
+    // FreeRide pieces go through a wish list (an order with them only comes from the panel's "Convertir en pedido").
+    if (it.fre) return fail('wishOnly')
     const p = (s.shopProducts || []).find((x) => (x.id === it.product || x.slug === it.product) && x.active !== false)
     const v = p?.variants.find((x) => x.size === it.size)
     const qty = Number(it.qty) || 1
@@ -1296,7 +1290,13 @@ export function webShopOrder(fields) {
 
 /* ───────── FreeRide's catalog: the same rules as public_fre_catalog() in SQL ───────── */
 
-const freShown = (s) => (s.freCatalog || []).filter((r) => r.active && !r.hidden && !(s.settings?.freHiddenTypes || []).includes(r.type))
+const freVisible = (s) => (s.freCatalog || []).filter((r) => r.active && !r.hidden && !(s.settings?.freHiddenTypes || []).includes(r.type))
+// "Para tu caballo" is its own tab only with 4 or more products; otherwise they show under Accesorios.
+const freShown = (s) => {
+  const rows = freVisible(s)
+  const horseTab = rows.filter((r) => r.category === 'horse').length >= 4
+  return horseTab ? rows : rows.map((r) => (r.category === 'horse' ? { ...r, category: 'accessories' } : r))
+}
 
 /** The catalog for the website and the app without a database, a page at a time, with the counts for the tabs. */
 export function demoFre(p = {}) {
@@ -1353,6 +1353,104 @@ function syncFre() {
   return mutate((s) => {
     s.settings = { ...s.settings, freLastSync: now(), freLastCount: (s.freCatalog || []).filter((r) => r.active).length, freLastError: null }
     return { ok: true, count: s.settings.freLastCount, unmapped: (s.freCatalog || []).filter((r) => r.active && !r.mapped).length }
+  })
+}
+
+/* ───────── Wish lists: the same rules as send_wishlist() and admin_wishlist_*() in SQL ───────── */
+
+/** Every piece against the FreeRide copy, priced as the shop shows it (the estimate Mara confirms). */
+function wishLinesIn(s, items) {
+  if (!Array.isArray(items) || !items.length || items.length > 30) return fail('emptyCart')
+  const factor = s.settings?.freMxnFactor ?? FRE_DEFAULTS.factor
+  const discount = s.settings?.freDiscount ?? FRE_DEFAULTS.discount
+  const shown = freShown(s)
+  const lines = []
+  for (const it of items) {
+    const r = shown.find((x) => x.handle === it.fre)
+    const qty = Number(it.qty) || 1
+    const ok = r && qty >= 1 && qty <= ORDER_MAX && r.variants.some((v) => (v.size || '') === (it.size || '') && (v.color || '') === (it.color || '') && v.available)
+    if (!ok) return fail('out_of_stock', { line: { product: `fre:${it.fre}`, size: it.size, name: r?.title, color: it.color } })
+    lines.push({ handle: r.handle, name: r.title, color: it.color || '', size: it.size || '', qty, unit: frePrice(r.priceUsd, r.compareUsd, factor, discount).unit, photo: r.images[0] || null, url: r.url })
+  }
+  return { ok: true, lines }
+}
+function wishlistIn(s, { items, name, phone, email, note, lang, familyId }) {
+  if (s.settings?.moduleShop === false) return fail('notFound')
+  const res = wishLinesIn(s, items)
+  if (!res.ok) return res
+  const hourAgo = Date.now() - 3600000
+  if ((s.shopWishlists || []).filter((w) => new Date(w.createdAt).getTime() > hourAgo && ((phone && w.phone === phone) || (email && w.email === email))).length >= 5) return fail('tooMany')
+  const total = res.lines.reduce((a, l) => a + l.unit * l.qty, 0)
+  const number = Math.max(100, ...(s.shopWishlists || []).map((w) => w.number)) + 1
+  const list = { id: nextId(s, 'wl'), number, familyId: familyId || null, name, phone: phone || null, email: email || null, note: note || null,
+    items: res.lines, totalEstimate: total, status: 'nueva', orderId: null, lang: lang === 'en' ? 'en' : 'es', createdAt: now() }
+  ;(s.shopWishlists ||= []).unshift(list)
+  return { ok: true, id: list.id, number, total, items: res.lines, name }
+}
+
+/** "Enviar a Mara" on the website without a database. */
+export function webWishlist(fields) {
+  if (!state) state = load() || persist(createSeed())
+  if (String(fields.website || '').trim()) return { ok: true, bot: true }
+  const name = String(fields.name || '').trim().slice(0, 120)
+  const phone = String(fields.phone || '').trim().slice(0, 40)
+  const email = String(fields.email || '').trim().toLowerCase()
+  if (!name) return fail('missing')
+  if (phone.replace(/\D/g, '').length < 8) return fail('badPhone')
+  if (email && !EMAIL_RE.test(email)) return fail('badEmail')
+  return mutate((s) => wishlistIn(s, { ...fields, name, phone, email: email || null, note: String(fields.note || '').trim().slice(0, 1000) }))
+}
+
+/** The family's list from the app: their details are known. */
+function sendWishlist({ items, note, lang }) {
+  return mutate((s) => {
+    const f = byId(s.families, s.session?.familyId)
+    if (!f) return fail('notFound')
+    return wishlistIn(s, { items, note: String(note || '').trim() || null, lang, name: f.contact, phone: f.phone, email: f.email, familyId: f.id })
+  })
+}
+function setWishlistStatus(id, status) {
+  return mutate((s) => {
+    const w = byId(s.shopWishlists || [], id)
+    if (!w || w.status === 'convertida' || !['nueva', 'cotizada', 'cerrada'].includes(status)) return fail('notFound')
+    w.status = status
+    return { ok: true }
+  })
+}
+/** The list → an order with Mara's final prices (all "sobre pedido") and the 50 % charge. */
+function convertWishlist(id, { lines, email }) {
+  return mutate((s) => {
+    const w = byId(s.shopWishlists || [], id)
+    if (!w || w.status === 'convertida') return fail('notFound')
+    if (!Array.isArray(lines) || !lines.length) return fail('emptyCart')
+    const items = []
+    for (const x of lines) {
+      const src = w.items[x.i]
+      const unit = Number(x.unit)
+      const qty = Number(x.qty ?? src?.qty)
+      if (!src || !(unit >= 0) || x.unit === '' || !(qty >= 1 && qty <= 10)) return fail('missing')
+      items.push({ fre: true, slug: `fre:${src.handle}`, name: src.name, color: src.color, size: src.size, qty, unit: Math.round(unit), list: Math.max(Math.round(unit), src.unit), onOrder: true, photo: src.photo, url: src.url })
+    }
+    let family = w.familyId ? byId(s.families, w.familyId) : null
+    if (!family) {
+      const mail = String(email || w.email || '').trim().toLowerCase()
+      if (!EMAIL_RE.test(mail)) return fail('badEmail')
+      family = s.families.find((f) => f.email?.toLowerCase() === mail)
+      if (!family) {
+        family = { id: nextId(s, 'f'), name: familyNameFor(w.name), contact: w.name, email: mail, phone: w.phone, active: true, selfSignup: true }
+        s.families.push(family)
+      }
+    }
+    const total = items.reduce((a, l) => a + l.unit * l.qty, 0)
+    const amount = Math.ceil(total / 2)
+    const number = Math.max(1023, ...(s.shopOrders || []).map((o) => o.number)) + 1
+    const order = { id: nextId(s, 'so'), number, familyId: family.id, name: w.name, phone: w.phone || family.phone, email: w.email || family.email, items, total, status: 'nuevo', note: null, createdAt: now() }
+    ;(s.shopOrders ||= []).unshift(order)
+    const payment = { id: nextId(s, 'pay'), familyId: family.id, service: 'shop', amount, status: 'pending', method: null, createdAt: now(), paidAt: null,
+      meta: { order: order.id, number, kind: 'shop', lang: w.lang, wishlist: w.number } }
+    s.payments.push(payment)
+    Object.assign(w, { status: 'convertida', orderId: order.id, familyId: family.id })
+    return { ok: true, order: order.id, number, payment_id: payment.id, amount, total, email: family.email }
   })
 }
 
@@ -1448,7 +1546,7 @@ function markContactMessage(id, status) {
 }
 
 export const actions = {
-  login, logout, resetDemo, markContactMessage, placeShopOrder, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, loadFreCatalog, saveFreSettings, setFreHidden, syncFre, refreshData: () => { publish(view()); return { ok: true } }, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
+  login, logout, resetDemo, markContactMessage, placeShopOrder, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, loadFreCatalog, saveFreSettings, setFreHidden, syncFre, sendWishlist, setWishlistStatus, convertWishlist, refreshData: () => { publish(view()); return { ok: true } }, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
   requestBoardingPayment, markPaid, registerCamp, bookRental,
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),

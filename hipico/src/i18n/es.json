@@ -560,7 +560,8 @@
     "cardRejected": "El banco no aceptó la tarjeta. Revisa los datos o elige otra forma de pago.",
     "emptyCart": "Tu carrito está vacío.",
     "out_of_stock": "Una talla de tu carrito se acaba de agotar.",
-    "freDown": "FreeRide no respondió. La tienda sigue con el catálogo anterior; intenta más tarde."
+    "freDown": "FreeRide no respondió. La tienda sigue con el catálogo anterior; intenta más tarde.",
+    "wishOnly": "Las piezas de FreeRide van en tu lista de deseos."
   },
   "live": {
     "loading": "Cargando…",
@@ -1967,7 +1968,8 @@
       "pants": "Pantalones de montar",
       "shirts": "Camisas",
       "accessories": "Accesorios",
-      "jackets": "Chamarras"
+      "jackets": "Chamarras",
+      "horse": "Para tu caballo"
     },
     "emptyCat": "Pronto llegan {cat}.",
     "emptyAsk": "¿Buscas algo? Escríbenos →",
@@ -2055,12 +2057,13 @@
     },
     "panel": {
       "tile": "Pedidos y productos",
-      "newCount": "{n} pedidos nuevos",
-      "newCount_one": "1 pedido nuevo",
+      "newCount": "{n} por atender",
+      "newCount_one": "1 por atender",
       "tabs": {
         "orders": "Pedidos",
         "products": "Productos",
-        "fre": "Catálogo FreeRide"
+        "fre": "Catálogo FreeRide",
+        "lists": "Listas"
       },
       "filters": {
         "nuevos": "Nuevos",
@@ -2198,6 +2201,41 @@
         "usdMxn": "USD → pesos",
         "hiddenByType": "oculto por tipo",
         "empty": "Aún no hay productos de FreeRide. Toca «Actualizar catálogo»."
+      },
+      "lists": {
+        "search": "Buscar lista, nombre o producto",
+        "who": "Quién",
+        "empty": "Aún no hay listas de deseos.",
+        "title": "Lista L-{number}",
+        "filters": {
+          "nuevas": "Nuevas",
+          "cotizadas": "Contestadas",
+          "todas": "Todas"
+        },
+        "status": {
+          "nueva": "Nueva",
+          "cotizada": "Contestada",
+          "convertida": "Pedido",
+          "cerrada": "Cerrada"
+        },
+        "waReply": "Hola {name}, gracias por tu lista L-{number}:\n{lines}\nTotal: {total}\nSi te parece bien, te paso el pedido para que pagues el anticipo del 50% en la app.",
+        "reply": "Responder por WhatsApp",
+        "convert": "Convertir en pedido",
+        "close": "Marcar como cerrada",
+        "closed": "Lista L-{number} cerrada",
+        "convertLead": "Pon el precio final de cada pieza (y cuántas). Se crea un pedido sobre pedido con el anticipo del 50%.",
+        "estimate": "aprox. {amount}",
+        "finalPrice": "Precio final",
+        "removeLine": "Quitar pieza",
+        "restore": "Volver a agregar",
+        "email": "Correo de la familia",
+        "emailHint": "Con este correo entra a la app a pagar.",
+        "deposit": "Anticipo hoy: {amount}",
+        "create": "Crear pedido",
+        "converted": "Pedido #{n} creado · anticipo {amount}.",
+        "convertedLine": "Ya está en Cobros; la familia lo paga en la app con {email}.",
+        "waOrder": "Hola {name}, tu pedido #{n} está listo: el anticipo es de {amount}. Págalo en la app: {link}",
+        "isOrder": "Convertida en el pedido #{n}."
       }
     },
     "newTag": "Nuevo",
@@ -2216,20 +2254,46 @@
     },
     "fre": {
       "title": "Todo FreeRide · sobre pedido",
-      "line": "Llega en 2 a 3 semanas. Envío e importación incluidos.",
+      "line": "Agrégalo a tu lista de deseos y Mara te manda el precio final.",
       "none": "No hay productos de FreeRide en esta vista.",
       "loading": "Cargando…",
       "more": "Ver más ({n})",
       "colors": "{n} colores",
       "gone": "Este producto ya no está en el catálogo de FreeRide.",
       "oneSize": "Talla única",
-      "orderLine": "Sobre pedido · llega en 2 a 3 semanas · anticipo del 50%, el resto al recibirlo · envío e importación incluidos"
+      "orderLine": "Sobre pedido · llega en 2 a 3 semanas · Mara te confirma el precio final antes de pedirlo",
+      "tag": "Sobre pedido",
+      "approxShort": "aprox.",
+      "approx": "Precio aproximado"
     },
     "quiet": {
       "before": "¿No encuentras algo?",
       "link": "Escríbenos por WhatsApp",
       "after": "y lo pedimos por ti.",
       "waText": "Hola, busco algo de FreeRide que no encuentro en la tienda del club"
+    },
+    "wish": {
+      "title": "Mi lista de deseos",
+      "add": "Agregar a mi lista",
+      "added": "En tu lista",
+      "empty": "Aún no hay nada en tu lista. Elige piezas de FreeRide y agrégalas con el corazón.",
+      "back": "Volver a mi lista",
+      "sendLead": "¿A dónde te escribe Mara? Te manda el precio final por WhatsApp.",
+      "phone": "WhatsApp",
+      "email": "Correo (opcional)",
+      "note": "Nota (opcional)",
+      "total": "Total aproximado",
+      "terms": "Mara confirma precio y disponibilidad. Anticipo del 50% al confirmar, el resto al recibirlo; envío e importación incluidos.",
+      "send": "Enviar a Mara",
+      "sending": "Enviando…",
+      "doneTitle": "¡Listo, {name}!",
+      "doneLine": "Mara te escribe por WhatsApp con tu precio. Tu lista es la L-{number}.",
+      "alsoWa": "Enviar también por WhatsApp",
+      "waText": "Hola Mara, esta es mi lista de FreeRide:\n{lines}\nTotal aproximado {total}. Lista L-{number}",
+      "sizeWord": "talla",
+      "gone": "{product} talla {size} ya no está disponible en FreeRide. Quítala de tu lista.",
+      "listOf": "Lista L-{number} · {date}",
+      "waiting": "Lista enviada · esperando precio"
     }
   },
   "update": {

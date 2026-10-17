@@ -5,10 +5,12 @@ import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { SiteIcon } from '../../components/site/Icons.jsx'
 import { waLink } from '../../components/ui.jsx'
 import {
-  CATEGORIES, CATEGORY_SLUGS, categoryFromSlug, byModel, siblingsOf, stickersOf, STICKER_COLOR, stockNum, sizeOpen, onOrder,
+  CATEGORIES, CATEGORY_SLUGS, categoryFromSlug, siblingsOf, stickersOf, STICKER_COLOR, stockNum, sizeOpen, onOrder,
   unitPrice, listPrice, maxQty, SIZE_GUIDE, resolveLine, cartTotals, shopPhoto, FRE_PREFIX, isFre, freAsProduct, freColors, freSizes, ORDER_MAX,
 } from '../../data/shop.js'
-import { cartApi, fetchFre, openCart, useCart, useCartOpener } from './shopApi.js'
+import { cartApi, fetchFre, openCart, openWish, sendWishlist, useCart, useSheet, useWish, wishApi, wishItems, wishView } from './shopApi.js'
+import { wishText, wishTotal } from '../../data/shop.js'
+import { FloatField } from '../FloatField.jsx'
 import './shop.css'
 import { lockScroll } from '../../lib/scrollLock.js'
 
@@ -58,7 +60,7 @@ export function ProductPhoto({ product, index = 0, alt = '' }) {
   if (!src || broken) {
     return (
       <span className="pph" style={{ '--sw': product.colorHex }} role={alt ? 'img' : undefined} aria-label={alt || undefined}>
-        <SiteIcon name={product.category === 'shirts' ? 'shirt' : product.category === 'pants' ? 'pants' : 'hanger'} size={72} />
+        <SiteIcon name={product.category === 'shirts' ? 'shirt' : product.category === 'pants' ? 'pants' : product.category === 'horse' ? 'horseshoe' : 'hanger'} size={72} />
         <span className="pph__dot" aria-hidden="true" />
       </span>
     )
@@ -113,7 +115,7 @@ function SizeLine({ product }) {
   )
 }
 
-/** One card per model (its colors as swatches); a swatch swaps the card to that color. */
+/** One card per product and color; the swatches jump the card to the model's other colors. */
 function ProductCard({ group, hrefFor }) {
   const { t } = useI18n()
   const [current, setCurrent] = useState(group.first)
@@ -179,7 +181,7 @@ const SIZES = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']
  * stock first ("Entrega inmediata en el club"), then the whole FreeRide catalog ("sobre pedido", 24 at a time), and the
  * product window (?p=<slug> or ?p=fre:<handle>, so a product can be shared on WhatsApp). Used by /tienda and the app.
  */
-export function ShopCatalog({ products, inApp, onAsk, gridRef }) {
+export function ShopCatalog({ products, inApp, onAsk, gridRef, actions }) {
   const { t, lang } = useI18n()
   const [params, setParams] = useSearchParams()
   const cat = categoryFromSlug(params.get('cat')) || 'all'
@@ -198,10 +200,11 @@ export function ShopCatalog({ products, inApp, onAsk, gridRef }) {
   const filtered = Boolean(size || color || kids)
   const counts = Object.fromEntries(CATEGORIES.map((c) => [c, products.filter((p) => p.category === c).length + (freCats[c] || 0)]))
   const allCount = products.length + Object.values(freCats).reduce((a, n) => a + n, 0)
-  // "Todo" without filters: one card per model (its colors as swatches); otherwise one card per color.
-  const groups = useMemo(() => (cat === 'all' && !filtered
-    ? byModel(mine)
-    : mine.map((p) => ({ key: p.slug, first: p, colors: siblingsOf(products, p) }))), [mine, products, cat, filtered])
+  const tabs = ['all', ...CATEGORIES.filter((c) => c !== 'horse' || counts.horse > 0)]
+  // One card per product and color everywhere, Mara's newest first (the swatches jump to the other colors).
+  const groups = useMemo(() => [...mine]
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+    .map((p) => ({ key: p.slug, first: p, colors: siblingsOf(products, p) })), [mine, products])
   const colorOptions = [...new Set([...products.map((p) => p.colorName).filter(Boolean), ...(freFacets.colors || [])])]
   const setCat = (c) => {
     const next = new URLSearchParams(params)
@@ -227,12 +230,15 @@ export function ShopCatalog({ products, inApp, onAsk, gridRef }) {
   const empty = !groups.length && !(fre.items.length || fre.loading)
   return (
     <>
-      <div className="shoptabs" role="tablist" aria-label={t('shop.catLabel')}>
-        {['all', ...CATEGORIES].map((c) => (
-          <button key={c} type="button" role="tab" aria-selected={cat === c} className={`shoptab ${cat === c ? 'is-on' : ''}`} onClick={() => setCat(c)}>
-            {t(`shop.cat.${c}`)} <span className="shoptab__n">{c === 'all' ? allCount : counts[c]}</span>
-          </button>
-        ))}
+      <div className={`shopbar ${actions ? 'shopbar--sticky' : ''}`}>
+        <div className="shoptabs" role="tablist" aria-label={t('shop.catLabel')}>
+          {tabs.map((c) => (
+            <button key={c} type="button" role="tab" aria-selected={cat === c} className={`shoptab ${cat === c ? 'is-on' : ''}`} onClick={() => setCat(c)}>
+              {t(`shop.cat.${c}`)} <span className="shoptab__n">{c === 'all' ? allCount : counts[c]}</span>
+            </button>
+          ))}
+        </div>
+        {actions}
       </div>
       <div className="shopfilters" role="group" aria-label={t('shop.filters.label')}>
         <span className="shopfilters__label">{t('shop.size')}</span>
@@ -272,7 +278,7 @@ export function ShopCatalog({ products, inApp, onAsk, gridRef }) {
           <h2 id="shop-fre" className="shopsect__title">{t('shop.fre.title')} <span>{t('shop.fre.line')}</span></h2>
           {fre.items.length > 0 ? (
             <ul className="shopgrid" ref={groups.length ? undefined : gridRef}>
-              {fre.items.map((item) => <FreCard key={item.handle} item={item} discount={freFacets.discount} href={hrefFor(`${FRE_PREFIX}${item.handle}`)} />)}
+              {fre.items.map((item) => <FreCard key={item.handle} item={item} href={hrefFor(`${FRE_PREFIX}${item.handle}`)} />)}
             </ul>
           ) : !fre.loading && <p className="shopsect__none">{t('shop.fre.none')}</p>}
           {fre.hasMore && (
@@ -290,13 +296,13 @@ export function ShopCatalog({ products, inApp, onAsk, gridRef }) {
         </div>
       )}
       {product && <ProductSheet key={product.model || product.slug} product={product} siblings={siblingsOf(products, product)} inApp={inApp} onClose={closeSheet} onSwitch={switchTo} onAsk={onAsk} />}
-      {open && isFre(open) && <FreSheet handle={open.slice(FRE_PREFIX.length)} known={fre.items} discount={freFacets.discount} inApp={inApp} onClose={closeSheet} onAsk={onAsk} />}
+      {open && isFre(open) && <FreSheet handle={open.slice(FRE_PREFIX.length)} known={fre.items} inApp={inApp} onClose={closeSheet} onAsk={onAsk} />}
     </>
   )
 }
 
-/** A FreeRide product: its photo on white, "−5 %" (or Promo when FreeRide has it on sale), the price in pesos, sizes. */
-function FreCard({ item, href, discount }) {
+/** A FreeRide product: its photo on white on a sand card, "Sobre pedido", the approximate price in pesos, sizes. */
+function FreCard({ item, href }) {
   const { t, fmtMoney } = useI18n()
   const p = freAsProduct(item)
   const colors = freColors(item).filter(Boolean)
@@ -309,14 +315,14 @@ function FreCard({ item, href, discount }) {
           <ProductPhoto product={p} alt={item.title} />
           {item.images?.[1] && <ProductPhoto product={p} index={1} />}
           <span className="pcard__stickers">
-            {item.onSale ? <span className="sticker sticker--terracotta">{t('shop.sticker.promo')}</span>
-              : Number(discount) > 0 && <span className="sticker sticker--mustard">{t('shop.sticker.off', { pct: Number(discount) })}</span>}
+            <span className="sticker sticker--order">{t('shop.fre.tag')}</span>
+            {item.onSale && <span className="sticker sticker--terracotta">{t('shop.sticker.promo')}</span>}
           </span>
         </Link>
         <div className="pcard__body">
           <h3 className="pcard__name"><Link to={href}>{item.title}</Link></h3>
           <div className="pcard__color"><span>{colors.length > 1 ? t('shop.fre.colors', { n: colors.length }) : colors[0] || ''}</span></div>
-          <span className="pprice"><b>{fmtMoney(item.unit)}</b>{item.list > item.unit && <s>{fmtMoney(item.list)}</s>}</span>
+          <span className="pprice"><b>{fmtMoney(item.unit)}</b><small className="pprice__approx">{t('shop.fre.approxShort')}</small></span>
           {sizes.length > 0 && (
             <p className="psizes">{t('shop.sizes')}{' '}{sizes.map((sz, i) => <span key={sz}>{i ? ' · ' : ''}{avail(sz) ? sz : <s>{sz}</s>}</span>)}</p>
           )}
@@ -326,8 +332,9 @@ function FreCard({ item, href, discount }) {
   )
 }
 
-/** A FreeRide product in full: its photos, colors, sizes (struck when FreeRide has none), always "sobre pedido". */
-function FreSheet({ handle, known, discount, inApp, onClose, onAsk }) {
+/** A FreeRide product in full: its photos, colors, sizes (struck when FreeRide has none), the approximate price and
+ *  "Agregar a mi lista" (Mara answers the list with her price; nothing is paid here). */
+function FreSheet({ handle, known, inApp, onClose, onAsk }) {
   const { t, fmtMoney } = useI18n()
   const panel = useRef(null)
   const closeBtn = useRef(null)
@@ -348,10 +355,10 @@ function FreSheet({ handle, known, discount, inApp, onClose, onAsk }) {
   const sizes = item ? freSizes(item, current) : []
   const p = item ? freAsProduct(item, current) : null
   const add = () => {
-    if (!size) { setPulse((n) => n + 1); return }
-    cartApi.add(p.slug, size, qty, ORDER_MAX, { color: current, snap: { name: item.title, photo: item.images?.[0] || null, unit: item.unit, list: item.list, category: item.category, url: item.url } })
+    if (!size && sizes.length) { setPulse((n) => n + 1); return }
+    wishApi.add(item.handle, current, size || '', qty, { name: item.title, photo: item.images?.[0] || null, unit: item.unit, category: item.category, url: item.url })
     setAdded(true)
-    setTimeout(() => { setAdded(false); onClose(); setTimeout(openCart, 80) }, 900)
+    setTimeout(() => { setAdded(false); onClose(); setTimeout(openWish, 80) }, 1500)
   }
   return createPortal(
     <div className={`shopdlg ${inApp ? 'shopdlg--app' : ''}`} role="dialog" aria-modal="true" aria-labelledby="pinfo-title">
@@ -365,8 +372,8 @@ function FreSheet({ handle, known, discount, inApp, onClose, onAsk }) {
             <Gallery key={item.handle} product={p} title={item.title} />
             <div className="pinfo">
               <span className="pinfo__stickers">
-                {item.onSale ? <span className="sticker sticker--terracotta">{t('shop.sticker.promo')}</span>
-                  : Number(discount) > 0 && <span className="sticker sticker--mustard">{t('shop.sticker.off', { pct: Number(discount) })}</span>}
+                <span className="sticker sticker--order">{t('shop.fre.tag')}</span>
+                {item.onSale && <span className="sticker sticker--terracotta">{t('shop.sticker.promo')}</span>}
               </span>
               <h2 id="pinfo-title">{item.title}</h2>
               {colors.filter(Boolean).length > 0 && (
@@ -380,10 +387,7 @@ function FreSheet({ handle, known, discount, inApp, onClose, onAsk }) {
                   </div>
                 </div>
               )}
-              <div className="pinfo__pricerow">
-                <span className="pprice pprice--big"><b>{fmtMoney(item.unit)}</b>{item.list > item.unit && <s>{fmtMoney(item.list)}</s>}</span>
-                {item.list > item.unit && <span className="psave">{t('shop.save', { amount: fmtMoney((item.list - item.unit) * qty) })}</span>}
-              </div>
+              <p className="pinfo__approx">{t('shop.fre.approx')} <b>{fmtMoney(item.unit * qty)}</b></p>
               <div>
                 <p className="pinfo__label" id="fre-size"><span>{t('shop.size')}</span>
                   {item.url && <a className="tlink" href={item.url} target="_blank" rel="noopener noreferrer">{t('shop.sizeGuide')}</a>}
@@ -401,9 +405,10 @@ function FreSheet({ handle, known, discount, inApp, onClose, onAsk }) {
               </div>
               <div className="pinfo__buy">
                 <Qty value={qty} max={ORDER_MAX} onChange={setQty} />
-                <ShopBtn inApp={inApp} className="shopbtn--main" onClick={add} aria-live="polite">{added ? t('shop.added') : t('shop.add')}</ShopBtn>
+                <ShopBtn inApp={inApp} className="shopbtn--main" onClick={add} aria-live="polite" disabled={added}>
+                  {added ? <><SiteIcon name="check" size={18} /> {t('shop.wish.added')}</> : <><SiteIcon name="heart" size={18} /> {t('shop.wish.add')}</>}
+                </ShopBtn>
               </div>
-              <p className="pinfo__pickup"><SiteIcon name="pin" size={20} /> {t('shop.pickup')}</p>
               <Dudas inApp={inApp} title={item.title} onAsk={onAsk} onClose={onClose} />
             </div>
           </>
@@ -573,10 +578,10 @@ export function CartDrawer({ products, inApp, onBrowse, checkout, onPay, payBusy
   const panel = useRef(null)
   const closeBtn = useRef(null)
   const show = useCallback(() => { setOpen(true); setStep('cart') }, [])
-  useCartOpener(show)
+  const close = useCallback(() => setOpen(false), [])
+  useSheet('cart', show, close)
   const lines = useCartLines(products)
   const totals = cartTotals(lines)
-  const close = useCallback(() => setOpen(false), [])
   // Leaving the page closes it (and lets the page scroll again).
   const { pathname } = useLocation()
   useEffect(() => { setOpen(false) }, [pathname])
@@ -604,7 +609,7 @@ function CartPanel({ panel, closeBtn, close, lines, totals, step, setStep, inApp
               {lines.length ? (
                 <>
                   <ul className="clines" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                    {lines.map((l) => <CartLine key={`${l.slug}|${l.size}|${l.color || ''}`} line={l} />)}
+                    {lines.map((l) => <CartLine key={`${l.slug}|${l.size}`} line={l} />)}
                   </ul>
                   <div className="csum">
                     <div><span>{t('shop.cart.subtotal')}</span><b>{fmtMoney(totals.subtotal)}</b></div>
@@ -655,8 +660,8 @@ function CartLine({ line }) {
         <span>{line.gone ? t('shop.cart.gone', { size: line.size }) : `${p.colorName} · ${t('shop.sizeShort', { size: line.size })}`}</span>
         {line.onOrder && <span className="ordertag">{t('shop.onOrder')}</span>}
         <span className="cline__row">
-          <Qty small value={line.qty} max={Math.max(line.qty, line.max)} onChange={(q) => cartApi.set(line.slug, line.size, q, line.color)} />
-          <button type="button" className="tlink" onClick={() => cartApi.remove(line.slug, line.size, line.color)}>{t('shop.cart.remove')}</button>
+          <Qty small value={line.qty} max={Math.max(line.qty, line.max)} onChange={(q) => cartApi.set(line.slug, line.size, q)} />
+          <button type="button" className="tlink" onClick={() => cartApi.remove(line.slug, line.size)}>{t('shop.cart.remove')}</button>
         </span>
       </span>
       <span className="cline__price">{fmtMoney(line.unit * line.qty)}{line.list > line.unit && <s>{fmtMoney(line.list * line.qty)}</s>}</span>
@@ -678,5 +683,190 @@ export function ShopQuiet() {
     <p className="shopquiet">{t('shop.quiet.before')}{' '}
       <a className="tlink" href={waLink(t('shop.quiet.waText'))} target="_blank" rel="noopener noreferrer">{t('shop.quiet.link')}</a>{' '}{t('shop.quiet.after')}
     </p>
+  )
+}
+
+/** The heart (the wish list) and the bag (the cart) with their counts, for the shop's sticky bar and the app's band. */
+export function ShopIcons({ inApp }) {
+  const { t } = useI18n()
+  const w = useWish().reduce((a, l) => a + l.qty, 0)
+  const c = useCart().reduce((a, l) => a + l.qty, 0)
+  const Btn = ({ icon, n, label, onClick }) => (
+    <button type="button" className={`shopicon ${inApp ? 'shopicon--app' : ''}`} onClick={onClick} aria-label={`${label}${n ? ` (${n})` : ''}`}>
+      <SiteIcon name={icon} size={22} />
+      {n > 0 && <span className="shopicon__n" aria-hidden="true">{n}</span>}
+    </button>
+  )
+  return (
+    <span className="shopicons">
+      <Btn icon="heart" n={w} label={t('shop.wish.title')} onClick={openWish} />
+      <Btn icon="bag" n={c} label={t('shop.cart.title')} onClick={openCart} />
+    </span>
+  )
+}
+
+const WA_FIELDS = ['name', 'phone', 'email']
+const EMAIL_OK = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+
+/**
+ * Mi lista de deseos: the FreeRide pieces chosen, with the approximate total; "Enviar a Mara" asks for a name and a
+ * WhatsApp on the website (`onSend` in the app, where the family is known), saves the list, and then offers to send it
+ * by WhatsApp too. The same shell as the cart; only one of them is open at a time.
+ */
+export function WishDrawer({ inApp, onSend, onBrowse }) {
+  const [open, setOpen] = useState(false)
+  const show = useCallback(() => setOpen(true), [])
+  const close = useCallback(() => setOpen(false), [])
+  useSheet('wish', show, close)
+  const { pathname } = useLocation()
+  useEffect(() => { setOpen(false) }, [pathname])
+  if (!open) return null
+  return <WishPanel inApp={inApp} onSend={onSend} onBrowse={onBrowse} close={close} />
+}
+
+function WishPanel({ inApp, onSend, onBrowse, close }) {
+  const { t, fmtMoney, lang } = useI18n()
+  const panel = useRef(null)
+  const closeBtn = useRef(null)
+  useModal(panel, close, closeBtn)
+  const body = useRef(null)
+  const list = useWish().map(wishView)
+  const total = wishTotal(list)
+  const [step, setStep] = useState('list') // list | send | done
+  const [f, setF] = useState({ name: '', phone: '', email: '', note: '', website: '' })
+  const [errors, setErrors] = useState({})
+  const [tried, setTried] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [done, setDone] = useState(null) // { number, name, text }
+  useEffect(() => { body.current?.scrollTo({ top: 0 }) }, [step])
+
+  const check = (v = f) => {
+    const e = {}
+    if (!v.name.trim()) e.name = t('site.enroll.errors.contact')
+    if (v.phone.replace(/\D/g, '').length < 8) e.phone = t('site.enroll.errors.phone')
+    if (v.email.trim() && !EMAIL_OK.test(v.email.trim())) e.email = t('site.enroll.errors.email')
+    return e
+  }
+  const set = (k) => (ev) => { const v = { ...f, [k]: ev.target.value }; setF(v); if (tried) setErrors(check(v)) }
+  // The list typed out for WhatsApp: "Hola Mara, esta es mi lista de FreeRide: 1 × … Total aproximado $4,300. Lista L-101"
+  const waText = (lines, number, sum) => t('shop.wish.waText', {
+    lines: lines.map((l) => wishText(l, t('shop.wish.sizeWord'))).join('\n'), total: fmtMoney(sum), number,
+  })
+  const finish = (r, name) => {
+    const text = waText(list, r.number, r.total ?? total)
+    wishApi.clear()
+    setDone({ number: r.number, name: (name || '').trim().split(/\s+/)[0], text })
+    setStep('done')
+  }
+  const send = async (ev) => {
+    ev?.preventDefault()
+    if (busy || !list.length) return
+    if (onSend) {
+      setBusy(true)
+      const r = await onSend({ items: wishItems(list), note: f.note.trim(), lang })
+      setBusy(false)
+      if (!r.ok) { setErrors({ general: t(`errors.${r.code}`) }); return }
+      finish(r, r.name)
+      return
+    }
+    if (step === 'list') { setStep('send'); return }
+    setTried(true)
+    const e = check()
+    setErrors(e)
+    const k = WA_FIELDS.find((x) => e[x])
+    if (k) { body.current?.querySelector(`[name="${k}"]`)?.focus(); return }
+    setBusy(true)
+    const r = await sendWishlist({ items: wishItems(list), name: f.name.trim(), phone: f.phone.trim(), email: f.email.trim(), note: f.note.trim(), lang, website: f.website })
+    setBusy(false)
+    if (!r.ok) {
+      if (r.code === 'out_of_stock') { setErrors({ general: t('shop.wish.gone', { product: `${r.line?.name || ''} ${r.line?.color || ''}`.trim(), size: r.line?.size || '' }) }); return }
+      const field = { badPhone: 'phone', badEmail: 'email', missing: 'name' }[r.code]
+      setErrors({ [field || 'general']: t(`errors.${r.code}`) })
+      return
+    }
+    finish(r, f.name)
+  }
+
+  return createPortal(
+    <div className="cartdrw wishdrw" role="dialog" aria-modal="true" aria-labelledby="wish-title">
+      <button type="button" className="shopdlg__scrim" aria-hidden="true" tabIndex={-1} onClick={close} />
+      <form className="cartdrw__panel" ref={panel} onSubmit={send} noValidate>
+        <div className="cartdrw__head">
+          <h2 id="wish-title">{t('shop.wish.title')}</h2>
+          <button ref={closeBtn} type="button" className="shopdlg__close" aria-label={t('common.close')} onClick={close}><SiteIcon name="x" size={22} /></button>
+        </div>
+        <div className="cartdrw__body" ref={body}>
+          {step === 'done' && done ? (
+            <div className="cdone">
+              <span className="cdone__check" aria-hidden="true"><SiteIcon name="check" size={26} /></span>
+              <p className="cdone__title">{t('shop.wish.doneTitle', { name: done.name })}</p>
+              <p>{t('shop.wish.doneLine', { number: done.number })}</p>
+              <ShopBtn inApp={inApp} kind="sage" as="a" href={waLink(done.text)} target="_blank" rel="noopener noreferrer"><SiteIcon name="whatsapp" size={18} /> {t('shop.wish.alsoWa')}</ShopBtn>
+            </div>
+          ) : !list.length ? (
+            <div className="cempty">
+              <SiteIcon name="heart" size={44} />
+              <p>{t('shop.wish.empty')}</p>
+              <ShopBtn inApp={inApp} kind="line" onClick={() => { close(); onBrowse?.() }}>{t('shop.cart.browse')}</ShopBtn>
+            </div>
+          ) : step === 'send' ? (
+            <div className="ccheck">
+              <button type="button" className="sback ccheck__back tlink" onClick={() => setStep('list')}><span aria-hidden="true">←</span> {t('shop.wish.back')}</button>
+              <p className="wish__lead">{t('shop.wish.sendLead')}</p>
+              <div>
+                <FloatField error={errors.name} label={t('site.contact.name')} className="efield"><input name="name" autoComplete="name" value={f.name} onChange={set('name')} /></FloatField>
+                <FloatField error={errors.phone} label={t('shop.wish.phone')} className="efield"><input name="phone" type="tel" inputMode="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} /></FloatField>
+                <FloatField error={errors.email} label={t('shop.wish.email')} className="efield"><input name="email" type="email" inputMode="email" autoComplete="email" value={f.email} onChange={set('email')} /></FloatField>
+                <FloatField label={t('shop.wish.note')} className="efield"><textarea name="note" rows={2} value={f.note} onChange={set('note')} /></FloatField>
+              </div>
+              <div className="cform__hp" aria-hidden="true"><label>{t('site.contact.website')}<input name="website" tabIndex={-1} autoComplete="off" value={f.website} onChange={set('website')} /></label></div>
+              {errors.general && <p className="cerr" role="alert">{errors.general}</p>}
+            </div>
+          ) : (
+            <>
+              <ul className="clines" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                {list.map((l) => <WishLine key={`${l.handle}|${l.color}|${l.size}`} line={l} />)}
+              </ul>
+              <div className="csum">
+                <div><span>{t('shop.wish.total')}</span><b>{fmtMoney(total)}</b></div>
+                <p className="wish__terms">{t('shop.wish.terms')}</p>
+              </div>
+              {onSend && (
+                <FloatField label={t('shop.wish.note')} className="efield"><textarea name="note" rows={2} value={f.note} onChange={set('note')} /></FloatField>
+              )}
+              {errors.general && <p className="cerr" role="alert">{errors.general}</p>}
+            </>
+          )}
+        </div>
+        {step !== 'done' && list.length > 0 && (
+          <div className="cartdrw__foot">
+            <span className="cartdrw__total"><span>{t('shop.wish.total')}</span><b>{fmtMoney(total)}</b></span>
+            <ShopBtn inApp={inApp} type="submit" disabled={busy} aria-busy={busy || undefined}>
+              {busy && <span className="sspin" aria-hidden="true" />}{busy ? t('shop.wish.sending') : t('shop.wish.send')}
+            </ShopBtn>
+          </div>
+        )}
+      </form>
+    </div>,
+    document.body,
+  )
+}
+
+function WishLine({ line }) {
+  const { t, fmtMoney } = useI18n()
+  const p = { name: line.name, colorName: line.color, colorHex: '#FFFFFF', category: line.category, photos: line.photo ? [line.photo] : [] }
+  return (
+    <li className="cline">
+      <span className="cline__thumb"><ProductPhoto product={p} /></span>
+      <span className="cline__info">
+        <b>{line.name}</b>
+        <span>{[line.color, line.size && t('shop.sizeShort', { size: line.size })].filter(Boolean).join(' · ')}</span>
+        <span className="cline__row">
+          <Qty small value={line.qty} max={ORDER_MAX} onChange={(q) => wishApi.set(line, q)} />
+          <button type="button" className="tlink" onClick={() => wishApi.remove(line)}>{t('shop.cart.remove')}</button>
+        </span>
+      </span>
+      <span className="cline__price">{fmtMoney(line.unit * line.qty)}<small>{t('shop.fre.approxShort')}</small></span>
+    </li>
   )
 }

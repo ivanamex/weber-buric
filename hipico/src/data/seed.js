@@ -5,7 +5,7 @@ import {
 } from '../lib/time.js'
 import { horseOrder } from './queries.js'
 import { shopOrdersSeed, shopProductsSeed } from './shopSeed.js'
-import { freCatalogSeed } from './freSeed.js'
+import { freCatalogSeed, wishlistsSeed } from './freSeed.js'
 
 export const DEMO_FAMILY_ID = 'f1'
 
@@ -349,7 +349,7 @@ export function createSeed() {
     campRegistrations,
     rentals,
     // Sample bank details for transfers (the real club fills in its own in Cobros).
-    settings: { bankName: 'BBVA México', accountHolder: 'Hípico Riviera Maya S.A. de C.V.', clabe: '012180001234567895', modulePayroll: true, moduleProfit: true, moduleSales: true, closedWeekdays: [1], remindersOn: true, boardingDueDay: 1, reminderNote: null, promoteDemo: true, moduleShop: true, freMxnFactor: 23.7, freDiscount: 5, freHiddenTypes: [], freLastSync: new Date().toISOString(), freLastCount: 16 },
+    settings: { bankName: 'BBVA México', accountHolder: 'Hípico Riviera Maya S.A. de C.V.', clabe: '012180001234567895', modulePayroll: true, moduleProfit: true, moduleSales: true, closedWeekdays: [1], remindersOn: true, boardingDueDay: 1, reminderNote: null, promoteDemo: true, moduleShop: true, freMxnFactor: 23.7, freDiscount: 5, freHiddenTypes: [], freLastSync: new Date().toISOString(), freLastCount: 17 },
     closedDates: [{ id: 'cd1', startsOn: holiday, endsOn: holiday, note: 'Día de Muertos' }],
     ...ownerSample(today),
     cancellations: [], // single class dates cancelled by the club
@@ -357,6 +357,7 @@ export function createSeed() {
     contactMessages: contactSample(today),
     shopProducts: shopProductsSeed(),
     freCatalog: freCatalogSeed(),
+    shopWishlists: wishlistsSeed(),
     shopOrders: shop.orders,
     nextId: n + 1,
   }

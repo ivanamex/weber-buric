@@ -8,7 +8,7 @@ const URL = __SUPABASE_URL__
 const KEY = __SUPABASE_KEY__
 const LIVE_CONFIGURED = Boolean(URL && KEY)
 const headers = { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' }
-const CODES = new Set(['missing', 'badEmail', 'badPhone', 'tooMany', 'network', 'accountBlocked', 'notFound', 'emptyCart', 'out_of_stock'])
+const CODES = new Set(['missing', 'badEmail', 'badPhone', 'tooMany', 'network', 'accountBlocked', 'notFound', 'emptyCart', 'out_of_stock', 'wishOnly'])
 
 let cache = null
 let pending = null
@@ -74,32 +74,73 @@ export async function placeOrder(fields) {
   return r
 }
 
-/* ───────── The cart: kept in this browser (works without storage too) ───────── */
+/* ───────── The cart (Mara's own pieces) and the wish list (FreeRide's), kept in this browser ───────── */
 const CART_KEY = 'hipico.cart'
-let cart = (() => { try { const v = JSON.parse(localStorage.getItem(CART_KEY)); return Array.isArray(v) ? v.filter((l) => l?.slug && l?.size) : [] } catch { return [] } })()
-const cartListeners = new Set()
-const saveCart = (next) => {
-  cart = next
-  try { localStorage.setItem(CART_KEY, JSON.stringify(next)) } catch { /* private mode: keep in memory */ }
-  cartListeners.forEach((l) => l(next))
+const WISH_KEY = 'hipico.wish'
+const read = (key) => { try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v) ? v : [] } catch { return [] } }
+const write = (key, v) => { try { localStorage.setItem(key, JSON.stringify(v)) } catch { /* private mode: keep in memory */ } }
+let cart = read(CART_KEY).filter((l) => l?.slug && l?.size)
+let wish = read(WISH_KEY).filter((l) => l?.handle)
+// Carts from before the wish list: their FreeRide lines move into the list.
+if (cart.some((l) => String(l.slug).startsWith('fre:'))) {
+  const moved = cart.filter((l) => String(l.slug).startsWith('fre:'))
+    .map((l) => ({ handle: l.slug.slice(4), color: l.color || '', size: l.size, qty: l.qty, snap: { name: l.snap?.name, photo: l.snap?.photo, unit: l.snap?.unit, url: l.snap?.url, category: l.snap?.category } }))
+  wish = [...wish, ...moved.filter((m) => !wish.some((w) => w.handle === m.handle && w.color === m.color && w.size === m.size))]
+  cart = cart.filter((l) => !String(l.slug).startsWith('fre:'))
+  write(CART_KEY, cart)
+  write(WISH_KEY, wish)
 }
-// A line is one product, size and color (FreeRide items have several colors under one product).
-const same = (l, slug, size, color) => l.slug === slug && l.size === size && (l.color || '') === (color || '')
+const cartListeners = new Set()
+const saveCart = (next) => { cart = next; write(CART_KEY, next); cartListeners.forEach((l) => l(next)) }
+const same = (l, slug, size) => l.slug === slug && l.size === size
 export const cartApi = {
-  /** extra: { color, snap } — a FreeRide line keeps what it showed (name, photo, price) for the cart. */
-  add(slug, size, qty, max, extra = {}) {
-    const at = cart.findIndex((l) => same(l, slug, size, extra.color))
-    if (at >= 0) saveCart(cart.map((l, i) => (i === at ? { ...l, ...extra, qty: Math.min(max || 10, l.qty + qty) } : l)))
-    else saveCart([...cart, { slug, size, qty, ...extra }])
+  add(slug, size, qty, max) {
+    const at = cart.findIndex((l) => same(l, slug, size))
+    if (at >= 0) saveCart(cart.map((l, i) => (i === at ? { ...l, qty: Math.min(max || 10, l.qty + qty) } : l)))
+    else saveCart([...cart, { slug, size, qty }])
   },
-  set(slug, size, qty, color) { saveCart(cart.map((l) => (same(l, slug, size, color) ? { ...l, qty } : l))) },
-  remove(slug, size, color) { saveCart(cart.filter((l) => !same(l, slug, size, color))) },
+  set(slug, size, qty) { saveCart(cart.map((l) => (same(l, slug, size) ? { ...l, qty } : l))) },
+  remove(slug, size) { saveCart(cart.filter((l) => !same(l, slug, size))) },
   clear() { saveCart([]) },
 }
 /** The cart's lines as the order takes them. */
-export const orderItems = (lines) => lines.map((l) => (l.fre
-  ? { fre: l.slug.slice(4), color: l.color || '', size: l.size, qty: l.qty, unit: l.unit, list: l.list, name: l.product?.name, photo: l.snap?.photo || null, url: l.snap?.url || null }
-  : { product: l.slug, size: l.size, qty: l.qty }))
+export const orderItems = (lines) => lines.map((l) => ({ product: l.slug, size: l.size, qty: l.qty }))
+
+const wishListeners = new Set()
+const saveWish = (next) => { wish = next; write(WISH_KEY, next); wishListeners.forEach((l) => l(next)) }
+const sameW = (l, handle, color, size) => l.handle === handle && (l.color || '') === (color || '') && (l.size || '') === (size || '')
+export const wishApi = {
+  /** snap: what the window showed (name, photo, approximate price, link): the list shows it without asking again. */
+  add(handle, color, size, qty, snap) {
+    const at = wish.findIndex((l) => sameW(l, handle, color, size))
+    if (at >= 0) saveWish(wish.map((l, i) => (i === at ? { ...l, snap, qty: Math.min(3, l.qty + qty) } : l)))
+    else saveWish([...wish, { handle, color: color || '', size: size || '', qty, snap }])
+  },
+  set(l, qty) { saveWish(wish.map((x) => (sameW(x, l.handle, l.color, l.size) ? { ...x, qty } : x))) },
+  remove(l) { saveWish(wish.filter((x) => !sameW(x, l.handle, l.color, l.size))) },
+  clear() { saveWish([]) },
+}
+/** The list's lines as send_wishlist() takes them. */
+export const wishItems = (lines) => lines.map((l) => ({ fre: l.handle, color: l.color || '', size: l.size || '', qty: l.qty }))
+/** A list line with what it shows: name, photo, approximate price. */
+export const wishView = (l) => ({ ...l, name: l.snap?.name || l.handle, photo: l.snap?.photo || null, unit: Number(l.snap?.unit) || 0, url: l.snap?.url || null, category: l.snap?.category })
+
+/** fields: { items, name, phone, email, note, lang, website } → { ok, number, total } (website: the function, the RPC, or the demo) */
+export async function sendWishlist(fields) {
+  if (!LIVE_CONFIGURED) {
+    const { webWishlist } = await import('../../data/demo.js')
+    return webWishlist(fields)
+  }
+  let r
+  try { r = await post('/api/wishlist', fields) } catch (err) { console.error('[shop] function unavailable', err.message) }
+  if (!r) {
+    try { r = (await post(`${URL}/rest/v1/rpc/send_wishlist`, { p: fields }, headers)) || { ok: false, code: 'network' } } catch (err) {
+      console.error('[shop] list failed', err.message)
+      r = { ok: false, code: 'network' }
+    }
+  }
+  return r
+}
 
 /* ───────── FreeRide's whole catalog (a daily copy kept by the club's server), a page at a time ───────── */
 /** params: { offset, limit, category, size, color, kids, handle } → { total, items, categories, colors, kids, factor, discount } */
@@ -120,11 +161,23 @@ export function useCart() {
   useEffect(() => { cartListeners.add(setC); setC(cart); return () => cartListeners.delete(setC) }, [])
   return c
 }
-/** The cart drawer opens from anywhere (the bag in the bar, "Agregar al carrito"). */
-const openListeners = new Set()
-export const openCart = () => openListeners.forEach((l) => l())
-export function useCartOpener(fn) {
-  useEffect(() => { openListeners.add(fn); return () => openListeners.delete(fn) }, [fn])
+export function useWish() {
+  const [w, setW] = useState(wish)
+  useEffect(() => { wishListeners.add(setW); setW(wish); return () => wishListeners.delete(setW) }, [])
+  return w
+}
+/** One sheet at a time: opening the cart closes the list and the other way round. */
+const sheetListeners = new Set()
+const showSheet = (name) => sheetListeners.forEach((l) => l(name))
+export const openCart = () => showSheet('cart')
+export const openWish = () => showSheet('wish')
+/** open(): this sheet was asked for; close(): another one was. */
+export function useSheet(name, open, close) {
+  useEffect(() => {
+    const l = (n) => (n === name ? open() : close())
+    sheetListeners.add(l)
+    return () => sheetListeners.delete(l)
+  }, [name, open, close])
 }
 
 export const SHOP_DEMO = !LIVE_CONFIGURED

@@ -169,20 +169,25 @@ async function load() {
 /** The shop: management reads the tables (every product, exact stock); a family the public catalog and its own orders. */
 async function loadShop(admin) {
   try {
-    const orders = await sb.from('shop_orders').select('*').order('created_at', { ascending: false })
+    const [orders, lists] = await Promise.all([
+      sb.from('shop_orders').select('*').order('created_at', { ascending: false }),
+      sb.from('shop_wishlists').select('*').order('created_at', { ascending: false }),
+    ])
+    const shopWishlists = lists.error ? [] : rows(lists)
     if (admin) {
       const [prods, vars] = await Promise.all([sb.from('shop_products').select('*').order('sort'), sb.from('shop_variants').select('*').order('sort')])
       const variants = rows(vars)
       return {
         shopProducts: rows(prods).map((p) => ({ ...p, variants: variants.filter((v) => v.productId === p.id).map(({ size, stock, price }) => ({ size, stock, price })) })),
         shopOrders: orders.error ? [] : rows(orders),
+        shopWishlists,
       }
     }
     const cat = await sb.rpc('public_shop')
-    return { shopProducts: cat.error ? [] : cat.data?.products || [], shopOrders: orders.error ? [] : rows(orders) }
+    return { shopProducts: cat.error ? [] : cat.data?.products || [], shopOrders: orders.error ? [] : rows(orders), shopWishlists }
   } catch (err) {
     console.error('[hipico] shop not loaded', err)
-    return { shopProducts: [], shopOrders: [] }
+    return { shopProducts: [], shopOrders: [], shopWishlists: [] }
   }
 }
 
@@ -537,6 +542,20 @@ async function syncFre() {
     return { ok: false, code: 'network' }
   }
 }
+// Wish lists: the family sends one (as itself), management answers, closes or turns it into an order.
+async function sendWishlist({ items, note, lang }) {
+  try {
+    const { data, error } = await sb.rpc('send_wishlist', { p: { items, note, lang } })
+    if (error) throw error
+    await refresh()
+    return data?.ok ? { ...data, ok: true } : { ok: false, code: data?.code || 'network', line: data?.line }
+  } catch (err) {
+    console.error('[hipico] send_wishlist failed', err)
+    return { ok: false, code: 'network' }
+  }
+}
+const setWishlistStatus = (id, status) => call('admin_wishlist_status', { p_list: id, p_status: status })
+const convertWishlist = (id, p) => call('admin_wishlist_convert', { p_list: id, p })
 const bookSingleClass = ({ riderId, slotId, date, kind }) => call('book_single_class', { p_rider: riderId, p_slot: slotId, p_date: date, p_kind: kind })
 async function saveClassPrices(prices) {
   const rowsToSave = []
@@ -705,6 +724,9 @@ export const actions = {
   saveFreSettings,
   setFreHidden,
   syncFre,
+  sendWishlist,
+  setWishlistStatus,
+  convertWishlist,
   markContactMessage: (id, status) => call('mark_contact_message', { p_id: id, p_status: status }),
   refreshData: async () => { await refresh(); return { ok: true } },
 }

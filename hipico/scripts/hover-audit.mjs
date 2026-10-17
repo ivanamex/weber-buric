@@ -62,7 +62,7 @@ async function ensureServer() {
 
 // Family and management screens, then the website and the download page.
 const FAMILY = ['', 'reservar', 'plan', 'caballo', 'pagos', 'eventos', 'tienda', 'perfil', 'instalar', 'ajustes', 'mas'].map((p) => `/demo/familia${p ? `/${p}` : ''}`)
-const ADMIN = ['', 'hoy', 'horario', 'horario?vista=caballos', 'cobros', 'familias', 'mensajes', 'tienda', 'tienda?vista=productos', 'tienda?vista=freeride', 'nomina', 'rentabilidad', 'reportes', 'ajustes'].map((p) => `/demo/direccion${p ? `/${p}` : ''}`)
+const ADMIN = ['', 'hoy', 'horario', 'horario?vista=caballos', 'cobros', 'familias', 'mensajes', 'tienda', 'tienda?vista=listas', 'tienda?vista=productos', 'tienda?vista=freeride', 'nomina', 'rentabilidad', 'reportes', 'ajustes'].map((p) => `/demo/direccion${p ? `/${p}` : ''}`)
 const SITE = ['/', '/en', '/tienda', '/en/shop', '/descargar']
 
 const PICK = [
@@ -362,7 +362,18 @@ async function main() {
       await page.waitForTimeout(500)
       await edgeCheck(page, `/tienda ${w}×${h} (FreeRide)`)
       if (w === 1440) total += await auditPage(page, '/tienda (FreeRide)', seen, out)
+      // Added to the wish list: the list opens; then the step with the fields.
+      await page.click('.pinfo [aria-labelledby=fre-size] .sizepill:not(:disabled) >> nth=0').catch(() => {})
+      await page.click('.pinfo .shopbtn--main').catch(() => {})
+      await page.waitForTimeout(1900)
+      await edgeCheck(page, `/tienda ${w}×${h} (lista)`)
+      if (w === 1440) total += await auditPage(page, '/tienda (lista)', seen, out)
+      await page.click('.wishdrw .cartdrw__foot .shopbtn').catch(() => {})
+      await page.waitForTimeout(400)
+      await edgeCheck(page, `/tienda ${w}×${h} (lista: enviar)`)
+      if (w === 1440) total += await auditPage(page, '/tienda (lista: enviar)', seen, out)
       await page.keyboard.press('Escape').catch(() => {})
+      await page.evaluate(() => { try { localStorage.removeItem('hipico.wish') } catch { /* no storage */ } })
       await page.waitForTimeout(300)
       if (w === 1440) {
         await page.click('.sbar .langm__btn').catch(() => {})

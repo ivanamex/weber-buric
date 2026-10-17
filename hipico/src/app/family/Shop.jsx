@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
-import { useStore, moduleOn, placeShopOrder } from '../../data/store.js'
+import { useStore, moduleOn, placeShopOrder, sendWishlist } from '../../data/store.js'
 import { Icon } from '../../components/Icon.jsx'
 import { SectionTitle } from '../../components/ui.jsx'
 import { PayDialog } from '../../components/PayDialog.jsx'
 import { useToast } from '../../components/Toast.jsx'
 import { useBase } from '../Backend.jsx'
-import { ShopCatalog, CartDrawer, OrderPill, productTitle, ShopQuiet } from '../../site/shop/ShopParts.jsx'
-import { cartApi, openCart, orderItems, useCart } from '../../site/shop/shopApi.js'
-import { orderLine } from '../../data/shop.js'
+import { ShopCatalog, CartDrawer, OrderPill, productTitle, ShopQuiet, ShopIcons, WishDrawer } from '../../site/shop/ShopParts.jsx'
+import { cartApi, orderItems } from '../../site/shop/shopApi.js'
+import { orderLine, wishText } from '../../data/shop.js'
 
 /**
  * Tienda in the family app: the same grid, product window and cart as the website, without the hero. "Pagar" places
@@ -21,13 +21,14 @@ export default function FamilyShop() {
   const s = useStore()
   const base = useBase()
   const toast = useToast()
-  const cart = useCart()
   const [paying, setPaying] = useState(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   if (!moduleOn(s, 'moduleShop')) return <Navigate to={`${base}/familia`} replace />
   const products = (s.shopProducts || []).filter((p) => p.active !== false)
-  const n = cart.reduce((a, l) => a + l.qty, 0)
+
+  const me = (s.families || []).find((f) => f.id === s.session?.familyId)
+  const sendList = async (p) => ({ ...(await sendWishlist(p)), name: me?.contact || '' })
 
   const pay = async (lines, _totals, close) => {
     setBusy(true)
@@ -53,32 +54,46 @@ export default function FamilyShop() {
       <div className="shopband">
         <Icon name="hanger" size={22} />
         <span className="grow">{t('shop.app.band')}</span>
-        {n > 0 && <button type="button" className="btn btn--sm btn--primary" onClick={openCart}><Icon name="bag" size={18} /> {t('shop.cart.open', { n })}</button>}
+        <ShopIcons inApp />
       </div>
       <ShopCatalog products={products} inApp />
       <MyOrders onPay={setPaying} />
       <ShopQuiet />
       <CartDrawer products={products} inApp onPay={pay} payBusy={busy} payError={error} />
+      <WishDrawer inApp onSend={sendList} />
       {paying && <PayDialog paymentId={paying} onClose={() => setPaying(null)} />}
     </div>
   )
 }
 
-/** Mis pedidos: number, date, what's in it, the status, and "Pagar" while a charge of it is pending. */
+/** Mis pedidos: the lists sent to Mara still waiting for her price, then the orders (number, date, what's in it, the
+ *  status, and "Pagar" while a charge of it is pending). */
 function MyOrders({ onPay }) {
   const { t, fmtDate, fmtMoney } = useI18n()
   const s = useStore()
   const mine = (s.shopOrders || []).filter((o) => o.familyId === s.session.familyId && o.status !== 'cancelado')
-  if (!mine.length) return null
+  const lists = (s.shopWishlists || []).filter((w) => w.familyId === s.session.familyId && ['nueva', 'cotizada'].includes(w.status))
+  if (!mine.length && !lists.length) return null
+  const day = (iso) => fmtDate(iso.slice(0, 10), { day: 'numeric', month: 'short' })
   return (
     <section className="myorders">
       <SectionTitle icon="bag">{t('shop.app.myOrders')}</SectionTitle>
+      {lists.map((w) => (
+        <article key={w.id} className="card myorder myorder--wish">
+          <div className="myorder__top">
+            <b>{t('shop.wish.listOf', { number: w.number, date: day(w.createdAt) })}</b>
+            <span className="opill opill--wish">{t('shop.wish.waiting')}</span>
+          </div>
+          <p className="myorder__items">{(w.items || []).map((l) => wishText(l, t('shop.wish.sizeWord'))).join(' · ')}</p>
+          <div className="myorder__top"><span>{t('shop.wish.total')} <b>{fmtMoney(w.totalEstimate)}</b></span></div>
+        </article>
+      ))}
       {mine.map((o) => {
         const due = s.payments.find((p) => p.service === 'shop' && p.meta?.order === o.id && p.status === 'pending' && p.receiptStatus !== 'review')
         return (
           <article key={o.id} className="card myorder">
             <div className="myorder__top">
-              <b>{t('shop.app.orderOf', { n: o.number, date: fmtDate(o.createdAt.slice(0, 10), { day: 'numeric', month: 'short' }) })}</b>
+              <b>{t('shop.app.orderOf', { n: o.number, date: day(o.createdAt) })}</b>
               <OrderPill status={o.status} family />
             </div>
             <p className="myorder__items">{o.items.map(orderLine).join(' · ')}</p>
