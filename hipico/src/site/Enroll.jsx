@@ -312,7 +312,7 @@ function EnrollFoot({ label, what, children }) {
 }
 
 /** The club's bank details for a transfer, each line with its copy button: CLABE, amount, reference. */
-function BankLines({ bank, amount, reference }) {
+export function BankLines({ bank, amount, reference }) {
   const { t, fmtMoney } = useI18n()
   const [copied, setCopied] = useState(null)
   const copy = async (k, v) => { try { await navigator.clipboard.writeText(String(v)); setCopied(k); setTimeout(() => setCopied(null), 1800) } catch { /* ignore */ } }

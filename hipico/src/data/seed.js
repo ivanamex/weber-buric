@@ -4,6 +4,7 @@ import {
   todayKey, addDays, weekdayOf, monthKeyOf, monthEnd, nextMonthKey, hoursUntil, toInstant,
 } from '../lib/time.js'
 import { horseOrder } from './queries.js'
+import { shopOrdersSeed, shopProductsSeed } from './shopSeed.js'
 
 export const DEMO_FAMILY_ID = 'f1'
 
@@ -328,8 +329,11 @@ export function createSeed() {
     createdAt: stamp(`${pastMonths[1]}-10`), paidAt: stamp(`${pastMonths[1]}-12`), meta: { kind: 'birthday' },
   })
 
+  const shop = shopOrdersSeed(families, (d) => stamp(addDays(today, d)))
+  payments.push(...shop.payments)
+
   return {
-    version: 6,
+    version: 7,
     seededAt: new Date().toISOString(),
     session: null,
     instructors,
@@ -344,12 +348,14 @@ export function createSeed() {
     campRegistrations,
     rentals,
     // Sample bank details for transfers (the real club fills in its own in Cobros).
-    settings: { bankName: 'BBVA México', accountHolder: 'Hípico Riviera Maya S.A. de C.V.', clabe: '012180001234567895', modulePayroll: true, moduleProfit: true, moduleSales: true, closedWeekdays: [1], remindersOn: true, boardingDueDay: 1, reminderNote: null, promoteDemo: true },
+    settings: { bankName: 'BBVA México', accountHolder: 'Hípico Riviera Maya S.A. de C.V.', clabe: '012180001234567895', modulePayroll: true, moduleProfit: true, moduleSales: true, closedWeekdays: [1], remindersOn: true, boardingDueDay: 1, reminderNote: null, promoteDemo: true, moduleShop: true },
     closedDates: [{ id: 'cd1', startsOn: holiday, endsOn: holiday, note: 'Día de Muertos' }],
     ...ownerSample(today),
     cancellations: [], // single class dates cancelled by the club
     planChanges: [], // plan history: new / upgrade / downgrade
     contactMessages: contactSample(today),
+    shopProducts: shopProductsSeed(),
+    shopOrders: shop.orders,
     nextId: n + 1,
   }
 }

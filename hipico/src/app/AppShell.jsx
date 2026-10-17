@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import { familyRiders, login, logout, useStore, byId, moduleOn, newMessages } from '../data/store.js'
+import { newOrders } from '../data/shop.js'
 import { Logo } from '../components/Logo.jsx'
 import { LangToggle } from '../components/LangToggle.jsx'
 import { Icon } from '../components/Icon.jsx'
@@ -35,6 +36,7 @@ const SIDEBAR = [
   { to: 'direccion/cobros', icon: 'receipt', label: 'tabs.payments', badge: 'review' },
   { to: 'direccion/familias', icon: 'family', label: 'tabs.families' },
   { to: 'direccion/mensajes', icon: 'mail', label: 'messages.title', badge: 'messages' },
+  { to: 'direccion/tienda', icon: 'hanger', label: 'shop.nav', badge: 'shop', module: 'moduleShop' },
   { to: 'direccion/horario?vista=caballos', icon: 'horseHead', label: 'schedule.horses', match: (p, q) => p.includes('/caballos/') || (p.endsWith('/horario') && q.get('vista') === 'caballos') },
   { to: 'direccion/horario?vista=instructores', icon: 'user', label: 'schedule.instructors', match: (p, q) => p.endsWith('/horario') && q.get('vista') === 'instructores' },
   { to: 'direccion/nomina', icon: 'users', label: 'payroll.title', module: 'modulePayroll' },
@@ -49,7 +51,7 @@ function deskTitle(pathname, search) {
   if (q.get('vista') === 'instructores') return 'schedule.instructors'
   const last = pathname.replace(/\/$/, '').split('/').pop()
   return { direccion: 'tabs.summary', hoy: 'tabs.today', horario: 'tabs.schedule', cobros: 'tabs.payments', familias: 'tabs.families',
-    nomina: 'payroll.title', rentabilidad: 'profit.title', ajustes: 'modules.title', reportes: 'tabs.reports', mensajes: 'messages.title' }[last] || 'tabs.summary'
+    nomina: 'payroll.title', rentabilidad: 'profit.title', ajustes: 'modules.title', reportes: 'tabs.reports', mensajes: 'messages.title', tienda: 'shop.nav' }[last] || 'tabs.summary'
 }
 const SIDE_KEY = 'hipico.sidebarSmall'
 
@@ -119,7 +121,7 @@ function DeskShell({ onLogout, toReview, demoBar }) {
   const ctx = useMemo(() => ({ desk: true, query, setQuery, setAction, setSearchable }), [query])
   const q = new URLSearchParams(search)
   const items = SIDEBAR.filter((i) => !i.module || moduleOn(s, i.module))
-  const badges = { review: toReview, messages: newMessages(s) } // counts shown on the sidebar icons
+  const badges = { review: toReview, messages: newMessages(s), shop: newOrders(s).length } // counts shown on the sidebar icons
   const actions = [].concat(action || []) // a page may offer one main action or a few (the last one is the main one)
   const horseId = pathname.match(/\/caballos\/([^/]+)$/)?.[1]
   const adminCrumbs = [{ label: t('desk.crumbAdmin'), to: `${base}/direccion` }]
@@ -191,11 +193,12 @@ const FAMILY_SIDEBAR = [
   { to: 'familia/caballo', icon: 'saddle', label: 'myHorse.title', ownsHorse: true },
   { to: 'familia/pagos', icon: 'receipt', label: 'family.payments' },
   { to: 'familia/eventos', icon: 'balloons', label: 'more.events' },
+  { to: 'familia/tienda', icon: 'hanger', label: 'shop.nav', module: 'moduleShop' },
   { to: 'familia/perfil', icon: 'family', label: 'more.profile.title' },
   { to: 'familia/instalar', icon: 'install', label: 'install.pageTitle', notInstalled: true },
   { to: 'familia/ajustes', icon: 'plan', label: 'more.settings' },
 ]
-const FAMILY_TITLES = { reservar: 'tabs.book', plan: 'tabs.plan', caballo: 'myHorse.title', pagos: 'family.payments', eventos: 'more.events', perfil: 'more.profile.title', instalar: 'install.pageTitle', ajustes: 'more.settings', mas: 'tabs.more' }
+const FAMILY_TITLES = { reservar: 'tabs.book', plan: 'tabs.plan', caballo: 'myHorse.title', pagos: 'family.payments', eventos: 'more.events', tienda: 'shop.nav', perfil: 'more.profile.title', instalar: 'install.pageTitle', ajustes: 'more.settings', mas: 'tabs.more' }
 
 function FamilyDeskShell({ onLogout, demoBar, family, outletContext }) {
   const { t } = useI18n()
@@ -204,7 +207,7 @@ function FamilyDeskShell({ onLogout, demoBar, family, outletContext }) {
   const { pathname } = useLocation()
   const { standalone } = useInstallState()
   const ownsHorse = s.horses.some((h) => h.ownerFamilyId === s.session.familyId && h.status !== 'sold')
-  const items = FAMILY_SIDEBAR.filter((i) => (!i.ownsHorse || ownsHorse) && (!i.notInstalled || !standalone))
+  const items = FAMILY_SIDEBAR.filter((i) => (!i.ownsHorse || ownsHorse) && (!i.notInstalled || !standalone) && (!i.module || moduleOn(s, i.module)))
   const section = pathname.replace(/\/$/, '').split('/').pop()
   const crumbs = [{ label: family?.name || '', to: `${base}/familia` }]
   if (FAMILY_TITLES[section]) crumbs.push({ label: t(FAMILY_TITLES[section]) })

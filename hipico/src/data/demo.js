@@ -2,6 +2,8 @@
 import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS_KINDS, applyPrices, resetPrices } from './prices.js'
 import { monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, todayKey, periodOf, addDays, daysBetween, weekdayOf } from '../lib/time.js'
+import { shopProductsSeed, shopOrdersSeed } from './shopSeed.js'
+import { stockNum, unitPrice, listPrice, ORDER_MAX } from './shop.js'
 import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS, slotRuns, isClosed, isOneOff, pickHorse, horseBusy, riderBusy, slotMinutes, closedWeekdays, horseStatus } from './queries.js'
 
 // The demo keeps its data under its own names, apart from the real app. The chosen role is never saved:
@@ -72,6 +74,11 @@ export function activate(setState, inMemory = false) {
   // Demo states from before the sample data was corrected (dates, horses by level, bank details) or before the real class
   // and plan prices: start again once.
   if ((state.version || 1) < 6 && !memoryOnly) state = persist({ ...createSeed(), session: state.session })
+  // Demo states saved before the shop: add its products and the two sample orders once (nothing else changes).
+  if ((state.version || 1) < 7 && !memoryOnly) {
+    const shop = shopOrdersSeed(state.families, (d) => new Date(Date.now() + d * 86400000).toISOString())
+    state = persist({ ...state, version: 7, shopProducts: shopProductsSeed(), shopOrders: shop.orders, payments: [...state.payments, ...shop.payments], settings: { ...state.settings, moduleShop: true } })
+  }
   // Demo states saved before the website's contact form: add the sample messages once.
   if (!state.contactMessages && !memoryOnly) { state.contactMessages = createSeed().contactMessages; persist(state) }
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
@@ -338,6 +345,11 @@ function changePlan({ riderId, classes }) {
 
 /** A regular plan payment marks the month paid; an upgrade difference adds the classes. */
 function applyPlanPayment(s, p) {
+  if (p.service === 'shop') {
+    const o = p.meta?.kind === 'shop' && byId(s.shopOrders || [], p.meta.order)
+    if (o && ['nuevo', 'apartado'].includes(o.status)) o.status = 'pagado'
+    return
+  }
   if (p.service !== 'plan') return
   const plan = getPlan(s, p.meta.riderId, p.meta.month)
   if (!plan) return
@@ -843,7 +855,7 @@ function saveCategory(c) {
 }
 function saveModules(mods) {
   return mutate((s) => {
-    s.settings = { ...s.settings, modulePayroll: Boolean(mods.modulePayroll), moduleProfit: Boolean(mods.moduleProfit), moduleSales: Boolean(mods.moduleSales) }
+    s.settings = { ...s.settings, modulePayroll: Boolean(mods.modulePayroll), moduleProfit: Boolean(mods.moduleProfit), moduleSales: Boolean(mods.moduleSales), moduleShop: mods.moduleShop !== false }
   })
 }
 
@@ -1200,6 +1212,149 @@ export function webCardDemo(paymentId) {
   })
 }
 
+/* ───────── Tienda: the same rules as shop_order() and admin_shop_*() in SQL ───────── */
+
+/** The catalog for the website when there's no database (works before the demo has opened in this tab). */
+export function demoShop() {
+  if (!state) state = load() || persist(createSeed())
+  const on = state.settings?.moduleShop !== false
+  return { on, products: on ? structuredClone((state.shopProducts || []).filter((p) => p.active !== false)) : [] }
+}
+
+/** Every line against the stock at once; in-stock pieces are taken, sizes at 0 of a product that takes orders are "bajo pedido". */
+function shopOrderIn(s, { items, name, phone, email, familyId, web, lang }) {
+  if (s.settings?.moduleShop === false) return fail('notFound')
+  if (!Array.isArray(items) || !items.length || items.length > 20) return fail('emptyCart')
+  const lines = []
+  let total = 0; let later = 0
+  for (const it of items) {
+    const p = (s.shopProducts || []).find((x) => (x.id === it.product || x.slug === it.product) && x.active !== false)
+    const v = p?.variants.find((x) => x.size === it.size)
+    const qty = Number(it.qty) || 1
+    if (!p || !v || qty < 1 || qty > 10) return fail('out_of_stock', { line: { product: it.product, size: it.size } })
+    let order = false
+    if (stockNum(v) >= qty) v.stock -= qty
+    else if (stockNum(v) === 0 && p.takesOrders && qty <= ORDER_MAX) order = true
+    else return fail('out_of_stock', { line: { product: p.slug, size: v.size, name: p.name, color: p.colorName, left: stockNum(v) } })
+    const unit = unitPrice(p, v)
+    total += unit * qty
+    if (order) later += unit * qty
+    lines.push({ productId: p.id, slug: p.slug, name: p.name, color: p.colorName, size: v.size, qty, unit, list: listPrice(p, v), onOrder: order, photo: p.photos?.[0] || null })
+  }
+  const amount = total - later + Math.ceil(later / 2)
+  const number = Math.max(1023, ...(s.shopOrders || []).map((o) => o.number)) + 1
+  const order = { id: nextId(s, 'so'), number, familyId, name, phone, email, items: lines, total, status: 'nuevo', note: null, createdAt: now() }
+  ;(s.shopOrders ||= []).unshift(order)
+  const payment = { id: nextId(s, 'pay'), familyId, service: 'shop', amount, status: 'pending', method: null, createdAt: now(), paidAt: null,
+    meta: { order: order.id, number, kind: 'shop', lang: lang === 'en' ? 'en' : 'es', ...(web ? { web: true } : {}) } }
+  s.payments.push(payment)
+  return { ok: true, order: order.id, number, payment_id: payment.id, amount, total }
+}
+
+/** "Pagar" in the website's cart without a database: the family found by email or created, then the order. */
+export function webShopOrder(fields) {
+  if (!state) state = load() || persist(createSeed())
+  const email = String(fields.email || '').trim().toLowerCase()
+  const name = String(fields.name || '').trim().slice(0, 120)
+  const phone = String(fields.phone || '').trim().slice(0, 40)
+  if (String(fields.website || '').trim()) return { ok: true, bot: true }
+  if (!name) return fail('missing')
+  if (!EMAIL_RE.test(email)) return fail('badEmail')
+  if (phone.replace(/\D/g, '').length < 8) return fail('badPhone')
+  return mutate((s) => {
+    const hourAgo = Date.now() - 3600000
+    if (s.payments.filter((p) => p.meta?.web && new Date(p.createdAt).getTime() > hourAgo).length >= 5) return fail('tooMany')
+    let family = s.families.find((f) => f.email?.toLowerCase() === email)
+    if (family && (family.active === false || family.deletedAt)) return fail('accountBlocked')
+    if (!family) {
+      family = { id: nextId(s, 'f'), name: familyNameFor(name), contact: name, email, phone, active: true, selfSignup: true }
+      s.families.push(family)
+    } else if (phone && !family.phone) family.phone = phone
+    const r = shopOrderIn(s, { items: fields.items, name, phone, email, familyId: family.id, web: true, lang: fields.lang })
+    return r.ok ? { ...r, family_name: family.name } : r
+  })
+}
+
+/** The family's own order from the app: their details are known. */
+function placeShopOrder({ items, lang }) {
+  return mutate((s) => {
+    const f = byId(s.families, s.session?.familyId)
+    if (!f) return fail('notFound')
+    return shopOrderIn(s, { items, name: f.contact, phone: f.phone, email: f.email, familyId: f.id, web: false, lang })
+  })
+}
+
+/** Management: the order's next step. Cancel returns the in-stock pieces and drops unpaid charges; "listo" adds the balance. */
+function setShopOrderStatus(orderId, status) {
+  return mutate((s) => {
+    const o = byId(s.shopOrders || [], orderId)
+    if (!o || o.status === 'cancelado' || !['nuevo', 'apartado', 'pagado', 'pedido_a_fre', 'listo', 'entregado', 'cancelado'].includes(status)) return fail('notFound')
+    let balance = 0
+    if (status === 'cancelado') {
+      if (o.status === 'entregado') return fail('notFound')
+      for (const l of o.items) {
+        if (l.onOrder) continue
+        const v = byId(s.shopProducts, l.productId)?.variants.find((x) => x.size === l.size)
+        if (v) v.stock = stockNum(v) + l.qty
+      }
+      s.payments = s.payments.filter((p) => !(p.service === 'shop' && p.meta?.order === o.id && p.status === 'pending'))
+    } else if (status === 'listo') {
+      const charged = s.payments.filter((p) => p.service === 'shop' && p.meta?.order === o.id).reduce((n, p) => n + p.amount, 0)
+      balance = o.total - charged
+      if (balance > 0 && o.familyId) {
+        s.payments.push({ id: nextId(s, 'pay'), familyId: o.familyId, service: 'shop', amount: balance, status: 'pending', method: null, createdAt: now(), paidAt: null,
+          meta: { order: o.id, number: o.number, kind: 'shop_balance' } })
+      }
+    }
+    o.status = status
+    return { ok: true, balance: Math.max(0, balance) }
+  })
+}
+
+const slugify = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'producto'
+
+/** Management: create or edit a product with its sizes and photos. */
+function saveShopProduct(p) {
+  if (!String(p.name || '').trim() || !(Number(p.price) >= 0) || p.price === '' || p.price == null) return fail('missing')
+  return mutate((s) => {
+    s.shopProducts ||= []
+    let row = p.id && byId(s.shopProducts, p.id)
+    if (p.id && !row) return fail('notFound')
+    if (!row) {
+      let slug = slugify(`${p.model || p.name}-${p.colorName || ''}`)
+      if (s.shopProducts.some((x) => x.slug === slug)) slug = `${slug}-${s.nextId}`
+      row = { id: nextId(s, 'sp'), slug, sort: 100 + s.shopProducts.length }
+      s.shopProducts.push(row)
+    }
+    const sizes = (p.variants || []).filter((v) => String(v.size || '').trim())
+    Object.assign(row, {
+      model: String(p.model || '').trim() || row.model || row.slug, category: p.category || 'pants', name: String(p.name).trim(),
+      colorName: String(p.colorName || '').trim(), colorHex: p.colorHex || '#D5C7AD',
+      descriptionEs: p.descriptionEs || '', descriptionEn: p.descriptionEn || '', features: p.features || { es: [], en: [] },
+      price: Number(p.price), promoPrice: p.promoPrice === '' || p.promoPrice == null ? null : Number(p.promoPrice),
+      sticker: p.sticker || 'none', photos: [...(p.photos || [])], takesOrders: Boolean(p.takesOrders), active: p.active !== false,
+      variants: sizes.map((v) => ({ size: String(v.size).trim(), stock: Math.max(0, Number(v.stock) || 0), price: v.price === '' || v.price == null ? null : Number(v.price) })),
+    })
+    return { ok: true, id: row.id, slug: row.slug }
+  })
+}
+
+function setShopProductActive(id, active) {
+  return mutate((s) => {
+    const row = byId(s.shopProducts || [], id)
+    if (!row) return fail('notFound')
+    row.active = Boolean(active)
+  })
+}
+
+/** Demo photos stay in this browser as data URLs (already resized to 1200 px WebP by the panel). */
+async function uploadShopPhoto(file) {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return fail('fileType')
+  if (file.size > 8 * 1024 * 1024) return fail('fileTooBig')
+  const url = await new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result); r.onerror = reject; r.readAsDataURL(file) })
+  return { ok: true, path: url }
+}
+
 /** Management: a message answered (or back to new). */
 function markContactMessage(id, status) {
   return mutate((s) => {
@@ -1212,7 +1367,7 @@ function markContactMessage(id, status) {
 }
 
 export const actions = {
-  login, logout, resetDemo, markContactMessage, refreshData: () => { publish(view()); return { ok: true } }, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
+  login, logout, resetDemo, markContactMessage, placeShopOrder, setShopOrderStatus, saveShopProduct, setShopProductActive, uploadShopPhoto, refreshData: () => { publish(view()); return { ok: true } }, bookClass, cancelBooking, markAttendance, choosePlan, changePlan,
   requestBoardingPayment, markPaid, registerCamp, bookRental,
   createFamily, saveFamily, setFamilyActive, deleteFamily,
   selfSignup: () => fail('notFound'),

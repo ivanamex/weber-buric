@@ -118,6 +118,7 @@ async function load() {
       sb.from('horse_care').select('*'), sb.from('horse_health').select('*'), sb.from('closed_dates').select('*').order('starts_on'),
     ])
     const ownerRows = (i) => (owner[i] && !owner[i].error ? rows(owner[i]) : [])
+    const shop = await loadShop(who.data.is_admin)
     lastRiders = riderRows
     lastClosedWeekdays = settings.data?.closed_weekdays ?? [1]
     lastLoad = Date.now()
@@ -153,6 +154,7 @@ async function load() {
       horseSales: ownerRows(4),
       paymentReminders: ownerRows(5),
       contactMessages: ownerRows(6),
+      ...shop,
       horseCare: care.error ? [] : rows(care),
       horseHealth: health.error ? [] : rows(health),
       planChanges: planChanges.error ? [] : rows(planChanges),
@@ -161,6 +163,26 @@ async function load() {
   } catch (err) {
     console.error('[hipico] load failed', err)
     publish({ ...empty, status: 'error' })
+  }
+}
+
+/** The shop: management reads the tables (every product, exact stock); a family the public catalog and its own orders. */
+async function loadShop(admin) {
+  try {
+    const orders = await sb.from('shop_orders').select('*').order('created_at', { ascending: false })
+    if (admin) {
+      const [prods, vars] = await Promise.all([sb.from('shop_products').select('*').order('sort'), sb.from('shop_variants').select('*').order('sort')])
+      const variants = rows(vars)
+      return {
+        shopProducts: rows(prods).map((p) => ({ ...p, variants: variants.filter((v) => v.productId === p.id).map(({ size, stock, price }) => ({ size, stock, price })) })),
+        shopOrders: orders.error ? [] : rows(orders),
+      }
+    }
+    const cat = await sb.rpc('public_shop')
+    return { shopProducts: cat.error ? [] : cat.data?.products || [], shopOrders: orders.error ? [] : rows(orders) }
+  } catch (err) {
+    console.error('[hipico] shop not loaded', err)
+    return { shopProducts: [], shopOrders: [] }
   }
 }
 
@@ -430,7 +452,7 @@ async function deleteExpense(id) {
 }
 const saveCategory = (c) => (c.name?.trim() ? upsertRow('expense_categories', c.id, { name: c.name.trim(), active: c.active !== false }) : Promise.resolve({ ok: false, code: 'missing' }))
 async function saveModules(m) {
-  const res = await sb.from('club_settings').update({ module_payroll: Boolean(m.modulePayroll), module_profit: Boolean(m.moduleProfit), module_sales: Boolean(m.moduleSales) }).eq('id', 1)
+  const res = await sb.from('club_settings').update({ module_payroll: Boolean(m.modulePayroll), module_profit: Boolean(m.moduleProfit), module_sales: Boolean(m.moduleSales), module_shop: m.moduleShop !== false }).eq('id', 1)
   if (res.error) { console.error('[hipico] settings save failed', res.error); return { ok: false, code: 'network' } }
   await refresh()
   return { ok: true }
@@ -440,6 +462,34 @@ async function savePromoteDemo(on) {
   if (res.error) { console.error('[hipico] settings save failed', res.error); return { ok: false, code: 'network' } }
   await refresh()
   return { ok: true }
+}
+// Tienda
+async function placeShopOrder({ items, lang }) {
+  try {
+    const { data, error } = await sb.rpc('shop_order', { p: { items, lang } })
+    if (error) throw error
+    await refresh()
+    return data?.ok ? { ...data, ok: true } : { ok: false, code: data?.code || 'network', line: data?.line }
+  } catch (err) {
+    console.error('[hipico] shop_order failed', err)
+    return { ok: false, code: 'network' }
+  }
+}
+const setShopOrderStatus = (id, status) => call('admin_shop_set_status', { p_order: id, p_status: status })
+const saveShopProduct = (p) => call('admin_shop_save_product', { p })
+async function setShopProductActive(id, active) {
+  const res = await sb.from('shop_products').update({ active: Boolean(active) }).eq('id', id)
+  if (res.error) { console.error('[hipico] product save failed', res.error); return { ok: false, code: 'network' } }
+  await refresh()
+  return { ok: true }
+}
+async function uploadShopPhoto(file) {
+  if (!PHOTO_EXT[file.type]) return { ok: false, code: 'fileType' }
+  if (file.size > 8 * 1024 * 1024) return { ok: false, code: 'fileTooBig' }
+  const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${PHOTO_EXT[file.type]}`
+  const up = await sb.storage.from('shop-photos').upload(path, file, { contentType: file.type, upsert: false })
+  if (up.error) { console.error('[hipico] photo upload failed', up.error); return { ok: false, code: 'uploadFailed' } }
+  return { ok: true, path }
 }
 const bookSingleClass = ({ riderId, slotId, date, kind }) => call('book_single_class', { p_rider: riderId, p_slot: slotId, p_date: date, p_kind: kind })
 async function saveClassPrices(prices) {
@@ -600,6 +650,11 @@ export const actions = {
   saveCategory,
   saveModules,
   savePromoteDemo,
+  placeShopOrder,
+  setShopOrderStatus,
+  saveShopProduct,
+  setShopProductActive,
+  uploadShopPhoto,
   markContactMessage: (id, status) => call('mark_contact_message', { p_id: id, p_status: status }),
   refreshData: async () => { await refresh(); return { ok: true } },
 }

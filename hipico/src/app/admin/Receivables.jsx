@@ -16,7 +16,7 @@ import { StatusPill } from '../../components/Colors.jsx'
 
 export const SERVICE_ICON = { plan: 'horseshoe', boarding: 'saddle', camp: 'balloons', rental: 'horseHead', events: 'cake', class: 'helmet' }
 const GROUPS = ['overdue', 'today', 'soon', 'later']
-const FILTERS = ['all', 'plan', 'boarding', 'class', 'rental', 'events']
+const FILTERS = ['all', 'plan', 'boarding', 'class', 'rental', 'events', 'shop']
 const matches = (filter, x) => filter === 'all' || x.service === filter || (filter === 'events' && x.service === 'camp')
 
 /**
@@ -31,7 +31,8 @@ function useDescribeLines() {
       ? [t('plan.classesPlan', { n: p.meta.classes })]
       : [concept(t, p), p.meta?.classes && p.meta?.kind !== 'upgrade' ? t('plan.classesPlan', { n: p.meta.classes }) : null]
     if (p.meta?.month && p.service === 'boarding') what.push(fmtDate(`${p.meta.month}-01`, { month: 'long' }))
-    const who = [p.meta?.riderId ? byId(s.riders, p.meta.riderId)?.name : null, p.meta?.horseId ? byId(s.horses, p.meta.horseId)?.name : null]
+    const who = [p.meta?.riderId ? byId(s.riders, p.meta.riderId)?.name : null, p.meta?.horseId ? byId(s.horses, p.meta.horseId)?.name : null,
+      p.service === 'shop' ? byId(s.shopOrders || [], p.meta?.order)?.name : null]
     return [what.filter(Boolean).join(' · '), who.filter(Boolean).join(' · ')]
   }
 }

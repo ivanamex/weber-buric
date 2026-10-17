@@ -17,7 +17,7 @@ import { concept } from '../../components/PaymentHistory.jsx'
 import { ActivePlanCard } from './ActivePlan.jsx'
 import { UpcomingList, CancelClassButton } from './Upcoming.jsx'
 import { GreetingMark } from '../../components/GreetingMark.jsx'
-import { getPlan, planRenewal } from '../../data/store.js'
+import { getPlan, planRenewal, moduleOn } from '../../data/store.js'
 import { useDesktop } from '../../components/Desk.jsx'
 import { StatusPill, LevelPill, HorseTag, RiderDot, riderColor, HorseAvatar } from '../../components/Colors.jsx'
 import { PayDialog } from '../../components/PayDialog.jsx'
@@ -274,6 +274,7 @@ function QuickTiles({ s, rider, familyId, dueCount }) {
     hasHorse && { to: 'caballo', color: 'terracotta', icon: 'horseHead', title: t('myHorse.title'), text: t('homeTiles.horse') },
     { to: 'pagos', color: 'slate', icon: 'receipt', title: t('homeTiles.payments'), text: dueCount ? t('homeTiles.paymentsDue', { n: dueCount }) : t('homeTiles.paymentsOk') },
     { to: 'eventos', color: 'plum', icon: 'balloons', title: t('homeTiles.events'), text: t('homeTiles.eventsText') },
+    moduleOn(s, 'moduleShop') && { to: 'tienda', color: 'plum', icon: 'hanger', title: t('shop.nav'), text: t('homeTiles.shopText') },
     { to: 'perfil', color: 'sage', icon: 'user', title: t('homeTiles.profile'), text: t('homeTiles.profileText') },
   ].filter(Boolean)
   return (

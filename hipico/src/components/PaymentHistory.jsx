@@ -10,6 +10,7 @@ import { StatusPill } from './Colors.jsx'
 export function concept(t, p) {
   if (p.service === 'class') return t(`classKind.${p.meta?.kind || 'single'}`)
   if (p.service === 'plan' && p.meta?.kind === 'upgrade') return t('services.planDiff', { from: p.meta.fromClasses, to: p.meta.classes })
+  if (p.service === 'shop') return t(p.meta?.kind === 'shop_balance' ? 'shop.balanceTitle' : 'shop.orderTitle', { n: p.meta?.number ?? '' })
   return t(`services.${p.service}`)
 }
 
@@ -26,6 +27,7 @@ export function paymentSentence(t, s, p) {
   }
   if (p.service === 'class') return t('wa.class', { kind: t(`classKind.${m.kind || 'single'}`).toLowerCase(), of })
   if (p.service === 'camp') return t('wa.camp', { of })
+  if (p.service === 'shop') return t('wa.shop', { n: m.number ?? '' })
   return t('wa.other', { what: t(`services.${p.service}`).toLowerCase(), of })
 }
 

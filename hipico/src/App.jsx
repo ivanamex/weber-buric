@@ -10,6 +10,7 @@ import { useI18n } from './i18n/I18nProvider.jsx'
 const LIVE_CONFIGURED = Boolean(__SUPABASE_URL__ && __SUPABASE_KEY__)
 const Landing = lazy(() => import('./pages/Landing.jsx'))
 const Backend = lazy(() => import('./app/Backend.jsx'))
+const ShopPage = lazy(() => import('./site/shop/ShopPage.jsx'))
 
 /** The download page (the QR and the posters open it) keeps its own title. */
 function DownloadPage() {
@@ -30,11 +31,13 @@ export default function App() {
         <Route path="/" element={<SiteLayout lang="es" />}>
           <Route index element={<OnePage />} />
           <Route path="pago/:estado" element={<PayResult />} />
+          <Route path="tienda" element={<ShopPage />} />
           {oldPages('es')}
         </Route>
         <Route path="/en" element={<SiteLayout lang="en" />}>
           <Route index element={<OnePage />} />
           <Route path="payment/:estado" element={<PayResult />} />
+          <Route path="shop" element={<ShopPage />} />
           {oldPages('en')}
         </Route>
         <Route path="/descargar" element={<DownloadPage />} />

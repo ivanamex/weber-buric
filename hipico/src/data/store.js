@@ -98,4 +98,10 @@ export const deleteClosedDate = act('deleteClosedDate')
 export const reopenClassDate = act('reopenClassDate')
 export const markClassAttended = act('markClassAttended') // "Todos vinieron"
 export const markContactMessage = act('markContactMessage') // management: a website message answered / new
+// Tienda
+export const placeShopOrder = act('placeShopOrder') // family: an order from the app's shop (the charge appears in Pagos)
+export const setShopOrderStatus = act('setShopOrderStatus') // management: pedido a FreeRide → listo → entregado, or cancelar
+export const saveShopProduct = act('saveShopProduct') // management: product, sizes, prices, photos
+export const setShopProductActive = act('setShopProductActive')
+export const uploadShopPhoto = act('uploadShopPhoto') // management: one photo (already resized) → its path
 export const refreshData = act('refreshData') // load everything again (the "Actualizar" icon on Resumen)

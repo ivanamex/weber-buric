@@ -21,6 +21,8 @@ import AdminProfit from './admin/Profit.jsx'
 import AdminModules from './admin/Modules.jsx'
 import AdminMessages from './admin/Messages.jsx'
 import HorseProfile from './admin/HorseProfile.jsx'
+import FamilyShop from './family/Shop.jsx'
+import AdminShop from './admin/Shop.jsx'
 
 const BaseContext = createContext('/app')
 /** '/app' (live, or demo when Supabase isn't set up) or '/demo'. */
@@ -98,6 +100,7 @@ export default function Backend({ mode, base }) {
           <Route path="perfil" element={<FamilySectionPage section="perfil" />} />
           <Route path="instalar" element={<FamilySectionPage section="instalar" />} />
           <Route path="ajustes" element={<FamilySectionPage section="ajustes" />} />
+          <Route path="tienda" element={<FamilyShop />} />
         </Route>
         <Route path="direccion" element={<RequireRole role="admin"><AppShell role="admin" /></RequireRole>}>
           <Route index element={<AdminSummary />} />
@@ -111,6 +114,7 @@ export default function Backend({ mode, base }) {
           <Route path="familias" element={<AdminFamilies />} />
           <Route path="reportes" element={<AdminReports />} />
           <Route path="mensajes" element={<AdminMessages />} />
+          <Route path="tienda" element={<AdminShop />} />
         </Route>
         <Route path="*" element={<Navigate to={base} replace />} />
       </Routes>

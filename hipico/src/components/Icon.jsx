@@ -5,6 +5,11 @@ export const HORSESHOE_D = 'M3.4 3.2H8.6L8 11A4 4 0 0 0 16 11L15.4 3.2H20.6L20 1
 const shoe = <path d={HORSESHOE_D} fill="currentColor" stroke="none" fillRule="evenodd" />
 
 const P = {
+  hanger: <><path d="M12 7.2V6.4a1.9 1.9 0 1 1 1.9 1.9c-.9 0-1.9.6-1.9 1.6v.3" /><path d="M12 10.2 3.4 16.6c-.8.6-.4 1.9.6 1.9h16c1 0 1.4-1.3.6-1.9z" /></>,
+  bag: <><path d="M5 8h14l-1 12.5H6z" /><path d="M9 10.5V7a3 3 0 0 1 6 0v3.5" /></>,
+  pants: <><path d="M7 3.5h10l1.6 17h-4.2L12 9.5l-2.4 11H5.4z" /><path d="M7 6.5h10M12 3.5v6" /></>,
+  shirt: <><path d="M9 3.5 4 6l-1.5 4.5 3 1.2L6.5 10v10.5h11V10l1 1.7 3-1.2L20 6l-5-2.5c-.5 1.4-1.6 2.3-3 2.3s-2.5-.9-3-2.3z" /></>,
+  minus: <path d="M6 12h12" />,
   bank: <><path d="M3.5 9.5 12 4.5l8.5 5" /><path d="M5 10v7.5M9.5 10v7.5M14.5 10v7.5M19 10v7.5" /><path d="M3.5 20h17" /></>,
   upload: <><path d="M12 15.5V4.5M7.5 9 12 4.5 16.5 9" /><path d="M4 14.5v3.5A2.5 2.5 0 0 0 6.5 20.5h11a2.5 2.5 0 0 0 2.5-2.5v-3.5" /></>,
   file: <><path d="M7 3.5h7l4.5 4.5v10.5a2 2 0 0 1-2 2h-9.5a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2z" /><path d="M14 3.5V8h4.5M8.5 13h7M8.5 16.5h5" /></>,

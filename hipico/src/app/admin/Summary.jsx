@@ -12,6 +12,7 @@ import { todayKey, addDays, currentMonthKey } from '../../lib/time.js'
 import IncomeChart from './IncomeChart.jsx'
 import { LevelPill } from '../../components/Colors.jsx'
 import { BackToSite } from '../../components/BackToSite.jsx'
+import { newOrders } from '../../data/shop.js'
 
 /** WhatsApp link to a family's phone (Mexican numbers get +52), with a friendly reminder. */
 export function familyWaLink(phone, text) {
@@ -216,6 +217,7 @@ export default function AdminSummary() {
       <nav className="ctiles ctiles--5" aria-label={t('summary.more')}>
         {[
           { to: 'mensajes', color: 'terracotta', icon: 'mail', title: t('messages.title'), count: newMessages(s), text: newMessages(s) ? t('messages.newCount', { n: newMessages(s) }) : t('summary.tiles.messages') },
+          moduleOn(s, 'moduleShop') && { to: 'tienda', color: 'plum', icon: 'hanger', title: t('shop.nav'), count: newOrders(s).length, text: newOrders(s).length ? t('shop.panel.newCount', { n: newOrders(s).length }) : t('shop.panel.tile') },
           { to: 'reportes', color: 'slate', icon: 'chart', title: t('tabs.reports'), text: t('summary.tiles.reports') },
           moduleOn(s, 'moduleProfit') && { to: 'rentabilidad', color: 'mustard', icon: 'trophy', title: t('profit.title'), text: t('summary.tiles.profit') },
           moduleOn(s, 'modulePayroll') && { to: 'nomina', color: 'plum', icon: 'users', title: t('payroll.title'), text: t('summary.tiles.payroll') },

@@ -19,7 +19,8 @@
  * It also lists elements with a color of their own (`.c-<color>`) whose hover background isn't their own light tint (--ch).
  *
  * And it lists text, buttons, fields and images closer than 12 px to the edge of their lightbox, sheet, card, tile or
- * sticky footer (nothing touches an edge), by screen; the Clases lightbox is also checked at 1920×830, 1440×760 and 390×844.
+ * sticky footer (nothing touches an edge), by screen; the Clases lightbox is also checked at 1920×830, 1440×760 and 390×844,
+ * and the shop's product window, cart and checkout at 1440×900 and 390×844.
  *
  * Exit code 1 when any element has no hover, a text-level one gets a background, a colored element hovers in another
  * color, or a card is mostly empty.
@@ -60,9 +61,9 @@ async function ensureServer() {
 }
 
 // Family and management screens, then the website and the download page.
-const FAMILY = ['', 'reservar', 'plan', 'caballo', 'pagos', 'eventos', 'perfil', 'instalar', 'ajustes', 'mas'].map((p) => `/demo/familia${p ? `/${p}` : ''}`)
-const ADMIN = ['', 'hoy', 'horario', 'horario?vista=caballos', 'cobros', 'familias', 'mensajes', 'nomina', 'rentabilidad', 'reportes', 'ajustes'].map((p) => `/demo/direccion${p ? `/${p}` : ''}`)
-const SITE = ['/', '/en', '/descargar']
+const FAMILY = ['', 'reservar', 'plan', 'caballo', 'pagos', 'eventos', 'tienda', 'perfil', 'instalar', 'ajustes', 'mas'].map((p) => `/demo/familia${p ? `/${p}` : ''}`)
+const ADMIN = ['', 'hoy', 'horario', 'horario?vista=caballos', 'cobros', 'familias', 'mensajes', 'tienda', 'tienda?vista=productos', 'nomina', 'rentabilidad', 'reportes', 'ajustes'].map((p) => `/demo/direccion${p ? `/${p}` : ''}`)
+const SITE = ['/', '/en', '/tienda', '/en/shop', '/descargar']
 
 const PICK = [
   'button', 'a[href]', '[role="tab"]', '[role="button"]', '[role="link"]', '[role="option"]', '[role="switch"]', 'summary',
@@ -201,7 +202,7 @@ async function emptyCards(page, route, out) {
 const empties = []
 
 const EDGE_MIN = 12
-const EDGE_BOXES = '.ssheet2__panel, .efoot, .isheet__panel, .paydlg__panel, .paydlg__body, .card, .ctile, .package, .paycard, .democard, .login__panel, .esum, .eplan, .erow, .sbox, .feature'
+const EDGE_BOXES = '.ssheet2__panel, .efoot, .isheet__panel, .paydlg__panel, .paydlg__body, .card, .ctile, .package, .paycard, .democard, .login__panel, .esum, .eplan, .erow, .sbox, .feature, .pcard, .pinfo, .pgal, .cartdrw__panel, .cartdrw__foot, .shopspecial, .shopsteps li'
 
 /**
  * Nothing touches an edge: text, buttons, fields and images inside a lightbox, sheet, card, tile or sticky footer must
@@ -229,7 +230,7 @@ async function edgeCheck(page, route) {
         for (const rect of r.getClientRects()) if (rect.width > 1) items.push({ el: n.parentElement, rect, what: n.textContent })
       }
       for (const el of box.querySelectorAll('button, a, input, select, textarea, img, svg, video')) {
-        if (!visible(el) || el.closest('.visually-hidden, [aria-hidden="true"], .ssheet2__photo') || el.matches('.ssheet2__close, .ssheet2__close *')) continue
+        if (!visible(el) || el.closest('.visually-hidden, [aria-hidden="true"], .ssheet2__photo, .pcard__photo') || el.matches('.ssheet2__close, .ssheet2__close *')) continue
         const nested = el.closest(boxes); if (nested !== box && box.contains(nested) && nested !== el) continue // judged by its own container
         items.push({ el, rect: el.getBoundingClientRect(), what: label(el) })
       }
@@ -326,6 +327,32 @@ async function main() {
         await page.keyboard.press('Escape')
         await page.waitForTimeout(300)
       }
+    }
+    // The shop: the product window (a size chosen, added), the cart and its checkout, on a computer and on a phone.
+    for (const [w, h] of [[1440, 900], [390, 844]]) {
+      await page.setViewportSize({ width: w, height: h })
+      await page.goto(`${BASE}/tienda`, { waitUntil: 'networkidle' })
+      await page.evaluate(() => { try { localStorage.removeItem('hipico.cart') } catch { /* no storage */ } })
+      await page.waitForTimeout(500)
+      await settle()
+      const seen = new Set()
+      await edgeCheck(page, `/tienda ${w}×${h}`)
+      await page.click('.pcard__photo >> nth=0').catch(() => {})
+      await page.waitForTimeout(500)
+      await edgeCheck(page, `/tienda ${w}×${h} (producto)`)
+      if (w === 1440) total += await auditPage(page, '/tienda (producto)', seen, out)
+      await page.click('.sizepill:not(:disabled) >> nth=0').catch(() => {})
+      await page.click('.pinfo .shopbtn--main').catch(() => {})
+      await page.waitForTimeout(1400)
+      await edgeCheck(page, `/tienda ${w}×${h} (carrito)`)
+      if (w === 1440) total += await auditPage(page, '/tienda (carrito)', seen, out)
+      await page.click('.cartdrw__foot .shopbtn').catch(() => {})
+      await page.waitForTimeout(400)
+      await page.click('.cartdrw .paycard >> nth=1').catch(() => {})
+      await page.waitForTimeout(400)
+      await edgeCheck(page, `/tienda ${w}×${h} (pago)`)
+      if (w === 1440) total += await auditPage(page, '/tienda (pago)', seen, out)
+      await page.evaluate(() => { try { localStorage.removeItem('hipico.cart') } catch { /* no storage */ } })
     }
     // The Clases lightbox at Ivana's sizes and on a phone (both tabs, then details + payment), and the payment window.
     for (const [w, h] of [[1920, 830], [1440, 760], [390, 844]]) {

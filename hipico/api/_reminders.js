@@ -20,6 +20,7 @@ export function concept(r) {
   if (r.service === 'class') return `la ${CLASS_KIND[r.classKind] || 'clase'}${who}`
   if (r.service === 'rental') return 'la renta de caballo'
   if (r.service === 'camp') return `el campamento${who}`
+  if (r.service === 'shop') return r.classKind === 'shop_balance' ? 'el resto de tu pedido de la tienda' : 'tu pedido de la tienda'
   return `el evento${who}`
 }
 

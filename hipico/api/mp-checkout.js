@@ -15,6 +15,7 @@ export function titleFor(p) {
   if (p.service === 'plan') return m.kind === 'upgrade' ? `${es.services.planDiff.replace('{from}', m.from ?? '').replace('{to}', m.classes ?? '')}${who}` : `${es.plan.classesPlan.replace('{n}', m.classes ?? '')}${who}`
   if (p.service === 'class') return `${es.classKind[m.kind] || es.services.class}${who}`
   if (p.service === 'boarding') return `${es.services.boarding}${m.month ? ` · ${m.month}` : ''}`
+  if (p.service === 'shop') return es.shop.orderTitle.replace('{n}', m.number ?? '')
   return `${es.services[p.service] || p.service} · ${CLUB}`
 }
 

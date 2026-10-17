@@ -3,7 +3,7 @@ import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { DateInput } from '../../components/DateInput.jsx'
 import {
   useStore, byId, familyRiders, getPlan, registerCamp, bookRental, campTaken, setPassword,
-  horseStatus,
+  horseStatus, moduleOn,
 } from '../../data/store.js'
 import { FROM_PRICES, RENTAL_PER_HOUR, RENTAL_HOURS } from '../../data/prices.js'
 import { Icon } from '../../components/Icon.jsx'
@@ -14,7 +14,7 @@ import { useToast } from '../../components/Toast.jsx'
 import { ResetDemoRow } from '../../components/ResetDemoRow.jsx'
 import { MyHorseCard } from '../../components/HorseCare.jsx'
 import { InstallButtons } from '../../components/Install.jsx'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useBase } from '../Backend.jsx'
 import { todayKey, addDays, hoursUntil } from '../../lib/time.js'
 import { StatusPill, LevelPill } from '../../components/Colors.jsx'
@@ -254,12 +254,30 @@ export function SettingsSection() {
   )
 }
 
+/** Tienda from Más (phones): the same plum tile as on Inicio. */
+function ShopTile() {
+  const { t } = useI18n()
+  const s = useStore()
+  const base = useBase()
+  if (!moduleOn(s, 'moduleShop')) return null
+  return (
+    <nav className="ctiles ctiles--one" aria-label={t('shop.nav')}>
+      <Link to={`${base}/familia/tienda`} className="ctile c-plum">
+        <span className="ctile__icon"><Icon name="hanger" size={22} /></span>
+        <span className="ctile__title">{t('shop.nav')}</span>
+        <span className="ctile__text">{t('homeTiles.shopText')}</span>
+      </Link>
+    </nav>
+  )
+}
+
 /** Más (phones): everything above on one page. */
 export default function FamilyMore() {
   const { t } = useI18n()
   return (
     <div className="page">
       <h1 className="page__title">{t('more.title')}</h1>
+      <ShopTile />
       <MyHorseSection />
       <EventsSection />
       <ProfileSection />

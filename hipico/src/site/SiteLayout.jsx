@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useI18n } from '../i18n/I18nProvider.jsx'
@@ -10,6 +10,8 @@ import { isStandalone } from '../lib/install.js'
 import { SECTIONS, homePath, sectionId, translateHash } from './routes.js'
 import { CONTACT, SHARE_IMAGE, SLOGAN } from './content.js'
 import { reducedMotion, useReveal } from './motion.jsx'
+import { openCart, useCart, useShop } from './shop/shopApi.js'
+import { CATEGORY_SLUGS, categoryFromSlug } from '../data/shop.js'
 import './site.css'
 
 const LANG_KEY = 'hipico.lang'
@@ -37,6 +39,9 @@ export function AppButton({ className = '', children, tone = 'deep' }) {
   return <Link to={to} className={`sbtn sbtn--${tone} ${className}`}><span className="sbtn__in">{children || t('site.appButton')}</span></Link>
 }
 
+export const shopPath = (lang) => (lang === 'en' ? '/en/shop' : '/tienda')
+const isShopPath = (pathname) => /^\/(tienda|en\/shop)\/?$/.test(pathname)
+
 /* ───────── <head>: title, description, languages, share image, structured data ───────── */
 const defaults = typeof document === 'undefined' ? {} : {
   title: document.title,
@@ -48,20 +53,20 @@ function headTag(tag, attrs) {
   if (!el) { el = document.createElement(tag); el.dataset.site = ''; document.head.appendChild(el) }
   Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v))
 }
-function useHead(lang, t) {
+function useHead(lang, t, shop) {
   useEffect(() => {
     const origin = window.location.origin
-    const title = t('site.meta.title')
-    const desc = t('site.meta.desc')
+    const title = t(shop ? 'shop.meta.title' : 'site.meta.title')
+    const desc = t(shop ? 'shop.meta.desc' : 'site.meta.desc')
     document.title = title
     headTag('meta', { name: 'description', content: desc })
     headTag('meta', { property: 'og:title', content: title })
     headTag('meta', { property: 'og:description', content: desc })
     headTag('meta', { property: 'og:image', content: origin + SHARE_IMAGE })
     headTag('meta', { property: 'og:locale', content: lang === 'en' ? 'en_US' : 'es_MX' })
-    headTag('link', { rel: 'canonical', href: origin + homePath(lang) })
-    headTag('link', { rel: 'alternate', hreflang: 'es', href: `${origin}/` })
-    headTag('link', { rel: 'alternate', hreflang: 'en', href: `${origin}/en` })
+    headTag('link', { rel: 'canonical', href: origin + (shop ? shopPath(lang) : homePath(lang)) })
+    headTag('link', { rel: 'alternate', hreflang: 'es', href: `${origin}${shop ? shopPath('es') : '/'}` })
+    headTag('link', { rel: 'alternate', hreflang: 'en', href: `${origin}${shop ? shopPath('en') : '/en'}` })
     let ld = document.getElementById('site-ld')
     if (!ld) { ld = document.createElement('script'); ld.type = 'application/ld+json'; ld.id = 'site-ld'; document.head.appendChild(ld) }
     ld.textContent = JSON.stringify({
@@ -83,7 +88,7 @@ function useHead(lang, t) {
       },
       sameAs: [CONTACT.instagram, CONTACT.facebook],
     })
-  }, [lang, t])
+  }, [lang, t, shop])
   useEffect(() => () => {
     if (defaults.title) document.title = defaults.title
     if (defaults.desc) headTag('meta', { name: 'description', content: defaults.desc })
@@ -132,10 +137,18 @@ function useScrollState(lang) {
 function LangSwitch({ active, onDone }) {
   const { lang, setLang, t } = useI18n()
   const navigate = useNavigate()
+  const { pathname, search } = useLocation()
   const go = (l) => {
     if (l === lang) return
-    const hash = active ? `#${sectionId(active, l)}` : translateHash(window.location.hash, lang, l)
-    const swap = () => flushSync(() => { setLang(l); navigate(homePath(l) + hash, { replace: false, state: { keep: true } }) })
+    let to
+    if (isShopPath(pathname)) {
+      // The shop in the other language, with the same category and product open.
+      const q = new URLSearchParams(search)
+      const cat = categoryFromSlug(q.get('cat'))
+      if (cat) q.set('cat', CATEGORY_SLUGS[l][cat])
+      to = shopPath(l) + (q.toString() ? `?${q}` : '')
+    } else to = homePath(l) + (active ? `#${sectionId(active, l)}` : translateHash(window.location.hash, lang, l))
+    const swap = () => flushSync(() => { setLang(l); navigate(to, { replace: false, state: { keep: true } }) })
     onDone?.()
     if (document.startViewTransition && !reducedMotion()) document.startViewTransition(swap)
     else swap()
@@ -150,21 +163,31 @@ function LangSwitch({ active, onDone }) {
 }
 
 /** Slim glass bar: logo · sections with a sliding underline (scroll-spy) · ES/EN · App del club; a jump-pole progress line. */
-function SiteBar({ scroll, progress }) {
+function SiteBar({ scroll, progress, onShop, shopOn }) {
   const { t, lang } = useI18n()
+  const navigate = useNavigate()
   const nav = useRef(null)
+  const active = onShop ? 'shop' : scroll.active
   const [line, setLine] = useState(null)
   const [open, setOpen] = useState(false)
   useLayoutEffect(() => {
     const place = () => {
-      const a = scroll.active && nav.current?.querySelector(`[data-key="${scroll.active}"]`)
+      const a = active && nav.current?.querySelector(`[data-key="${active}"]`)
       setLine(a ? { left: a.offsetLeft, width: a.offsetWidth } : null)
     }
     place()
     window.addEventListener('resize', place)
     document.fonts?.ready.then(place)
     return () => window.removeEventListener('resize', place)
-  }, [scroll.active, lang])
+  }, [active, lang, shopOn])
+  // On the shop the sections are on the home page: the links go there (the layout scrolls to the section).
+  const sectionLink = (s, props) => (onShop
+    ? <Link key={s.key} to={{ pathname: homePath(lang), hash: `#${s[lang]}` }} {...props}>{props.children}</Link>
+    : <a key={s.key} href={`#${s[lang]}`} {...props}>{props.children}</a>)
+  const shopLink = (props) => (shopOn
+    ? <Link key="shop" to={shopPath(lang)} data-key="shop" className={onShop ? 'is-active' : ''} aria-current={onShop ? 'page' : undefined} {...props}>{props.children}</Link>
+    : null)
+  const openBag = () => (onShop ? openCart() : navigate(`${shopPath(lang)}?carrito=1`))
   useEffect(() => {
     if (!open) return undefined
     const key = (e) => { if (e.key === 'Escape') setOpen(false) }
@@ -177,15 +200,16 @@ function SiteBar({ scroll, progress }) {
         <div className="sbar__inner">
           <a href={`${homePath(lang)}#top`} className="sbar__logo" aria-label={t('site.homeLabel')}><BrandLogo variant={scroll.dark ? 'white' : 'green'} height={40} /></a>
           <nav className="sbar__nav" ref={nav} aria-label={t('site.navLabel')}>
-            {SECTIONS.map((s) => (
-              <a key={s.key} data-key={s.key} href={`#${s[lang]}`} className={scroll.active === s.key ? 'is-active' : ''}
-                aria-current={scroll.active === s.key ? 'true' : undefined}>{t(`site.nav.${s.key}`)}</a>
-            ))}
+            {SECTIONS.flatMap((s) => [
+              sectionLink(s, { 'data-key': s.key, className: active === s.key ? 'is-active' : '', 'aria-current': active === s.key ? 'true' : undefined, children: t(`site.nav.${s.key}`) }),
+              s.key === 'community' ? shopLink({ children: t('shop.nav') }) : null,
+            ])}
             <span className="sbar__line" style={line ? { transform: `translateX(${line.left}px)`, width: line.width } : { opacity: 0 }} aria-hidden="true" />
           </nav>
           <div className="sbar__end">
             <span className="sbar__lang"><LangSwitch active={scroll.active} /></span>
             <Link to="/app" className="sbar__login">{t('landing.signIn')}</Link>
+            <Bag onOpen={openBag} />
             <AppButton className="sbtn--sm" tone="sage" />
             <button type="button" className="sbar__menu" aria-expanded={open} aria-controls="ssheet" onClick={() => setOpen(true)} aria-label={t('site.menuOpen')}>
               <SiteIcon name="menu" size={24} />
@@ -200,11 +224,10 @@ function SiteBar({ scroll, progress }) {
           <div className="ssheet__panel">
             <span className="ssheet__grab" aria-hidden="true" />
             <nav className="ssheet__nav">
-              {SECTIONS.map((s) => (
-                <a key={s.key} href={`#${s[lang]}`} onClick={() => setOpen(false)} className={scroll.active === s.key ? 'is-active' : ''}>
-                  <span>{s.n}</span>{t(`site.nav.${s.key}`)}
-                </a>
-              ))}
+              {SECTIONS.flatMap((s) => [
+                sectionLink(s, { onClick: () => setOpen(false), className: active === s.key ? 'is-active' : '', children: <><span>{s.n}</span>{t(`site.nav.${s.key}`)}</> }),
+                s.key === 'community' ? shopLink({ onClick: () => setOpen(false), children: <><span><SiteIcon name="bag" size={16} /></span>{t('shop.nav')}</> }) : null,
+              ])}
             </nav>
             <div className="ssheet__foot">
               <LangSwitch active={scroll.active} onDone={() => setOpen(false)} />
@@ -215,6 +238,18 @@ function SiteBar({ scroll, progress }) {
         </div>
       )}
     </>
+  )
+}
+
+/** The bag after "Entrar" while the cart has something: opens the cart (on the shop) or goes to it. */
+function Bag({ onOpen }) {
+  const { t } = useI18n()
+  const n = useCart().reduce((a, l) => a + (l.qty || 0), 0)
+  if (!n) return null
+  return (
+    <button type="button" className="sbar__bag" aria-label={t('shop.cart.open', { n })} onClick={onOpen}>
+      <SiteIcon name="bag" size={22} /><span className="sbar__bagn">{n}</span>
+    </button>
   )
 }
 
@@ -260,18 +295,22 @@ export default function SiteLayout({ lang }) {
     const raf = requestAnimationFrame(go)
     return () => cancelAnimationFrame(raf)
   }, [pathname, hash, current, lang, state])
-  useHead(lang, t)
+  const onShop = isShopPath(pathname)
+  const shop = useShop()
+  const shopOn = shop?.on !== false
+  useHead(lang, t, onShop)
   useReveal(root, current)
   const [scroll, progress] = useScrollState(lang)
+  const cta = scroll.heroGone && !scroll.nearEnd && !onShop
   if (toEnglish) return <Navigate to="/en" replace />
   return (
     <div className={`site ${reducedMotion() ? '' : 'has-motion'}`} ref={root} id="top">
       <a href="#main" className="skip">{t('site.skip')}</a>
-      <SiteBar scroll={scroll} progress={progress} />
-      <main id="main">{current === lang ? <Outlet /> : null}</main>
-      <a className={`smobilecta sbtn sbtn--deep ${scroll.heroGone && !scroll.nearEnd ? 'is-on' : ''}`} href={waLink(t('site.wa.trial'))}
-        target="_blank" rel="noopener noreferrer" aria-hidden={scroll.heroGone && !scroll.nearEnd ? undefined : 'true'}
-        tabIndex={scroll.heroGone && !scroll.nearEnd ? undefined : -1}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</span></a>
+      <SiteBar scroll={scroll} progress={progress} onShop={onShop} shopOn={shopOn} />
+      <main id="main">{current === lang ? <Suspense fallback={<div className="route-wait" />}><Outlet /></Suspense> : null}</main>
+      <a className={`smobilecta sbtn sbtn--deep ${cta ? 'is-on' : ''}`} href={waLink(t('site.wa.trial'))}
+        target="_blank" rel="noopener noreferrer" aria-hidden={cta ? undefined : 'true'}
+        tabIndex={cta ? undefined : -1}><span className="sbtn__in"><SiteIcon name="whatsapp" size={20} /> {t('site.ctaTrial')}</span></a>
       <SiteFooter />
     </div>
   )

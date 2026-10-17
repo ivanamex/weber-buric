@@ -162,6 +162,7 @@ const MODULES = [
   { key: 'modulePayroll', icon: 'users', name: 'payroll' },
   { key: 'moduleProfit', icon: 'trophy', name: 'profit' },
   { key: 'moduleSales', icon: 'horseHead', name: 'sales' },
+  { key: 'moduleShop', icon: 'hanger', name: 'shop' },
 ]
 
 /** Ajustes: closed days, and the owner's modules on or off. */

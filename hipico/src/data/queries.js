@@ -138,7 +138,7 @@ const paidThisMonth = (s) => {
 const dateKeyFromIso = (iso) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Cancun' }).format(new Date(iso))
 
 // Income types in Reportes: plans, trial classes and single/extra classes apart, then the other services.
-export const SERVICES = ['plan', 'trial', 'classes', 'boarding', 'camp', 'rental', 'events']
+export const SERVICES = ['plan', 'trial', 'classes', 'boarding', 'camp', 'rental', 'events', 'shop']
 const incomeType = (p) => (p.service === 'class' ? (p.meta?.kind === 'trial' ? 'trial' : 'classes') : p.service)
 export function incomeByService(s) {
   const totals = Object.fromEntries(SERVICES.map((k) => [k, 0]))
@@ -292,7 +292,7 @@ export const upcomingSalaries = (s, days = 15) => {
 }
 
 /** Income of a calendar month by source, for Rentabilidad. */
-export const INCOME_SOURCES = ['plan', 'boarding', 'classes', 'events', 'rental', 'horses']
+export const INCOME_SOURCES = ['plan', 'boarding', 'classes', 'events', 'rental', 'horses', 'shop']
 const sourceOf = (p) => (p.service === 'class' ? 'classes' : p.service === 'camp' ? 'events' : p.service)
 export function monthResult(s, month) {
   const income = Object.fromEntries(INCOME_SOURCES.map((k) => [k, 0]))

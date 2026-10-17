@@ -142,7 +142,8 @@
     "planDiff": "Plan difference ({from} → {to} classes)",
     "class": "Class",
     "trial": "Trial classes",
-    "classes": "Single and extra classes"
+    "classes": "Single and extra classes",
+    "shop": "Shop"
   },
   "methods": {
     "cash": "Cash",
@@ -556,7 +557,9 @@
     "badPhone": "Check the phone number.",
     "cardOff": "Card payment isn't available right now. Pay by transfer.",
     "cardInvalid": "Check the card details.",
-    "cardRejected": "The bank declined the card. Check the details or choose another way to pay."
+    "cardRejected": "The bank declined the card. Check the details or choose another way to pay.",
+    "emptyCart": "Your cart is empty.",
+    "out_of_stock": "A size in your cart just sold out."
   },
   "live": {
     "loading": "Loading…",
@@ -994,7 +997,8 @@
       "classes": "Single classes",
       "events": "Events and camps",
       "rental": "Horse rentals",
-      "horses": "Horse sales"
+      "horses": "Horse sales",
+      "shop": "Shop"
     },
     "categories": "Categories",
     "category": "Category",
@@ -1026,6 +1030,10 @@
     "sales": {
       "title": "Horses for sale",
       "text": "Price, details and photos of the horses the club sells."
+    },
+    "shop": {
+      "title": "Shop",
+      "text": "The FreeRide shop on the website and in the app; orders and products in Management → Shop."
     }
   },
   "horses": {
@@ -1203,7 +1211,8 @@
       "boarding": "Boarding",
       "class": "Classes",
       "rental": "Rides",
-      "events": "Events"
+      "events": "Events",
+      "shop": "Shop"
     },
     "expected": "Expected",
     "expectedHint": "Created 5 days before it's due",
@@ -1657,6 +1666,9 @@
           "Always with an instructor beside them"
         ],
         "cta": "Ask for information"
+      },
+      "shop": {
+        "title": "Shop"
       }
     },
     "families": {
@@ -1796,7 +1808,8 @@
     "boarding": "the payment for {horse}'s boarding",
     "class": "the payment for the {kind}{of}",
     "camp": "the camp deposit{of}",
-    "other": "the payment for {what}{of}"
+    "other": "the payment for {what}{of}",
+    "shop": "the payment of your shop order #{n}"
   },
   "calendar": {
     "day": "Day",
@@ -1822,7 +1835,8 @@
     "events": "Events",
     "eventsText": "Camps, Pony Friday and parties",
     "profile": "Profile",
-    "profileText": "Riders and details"
+    "profileText": "Riders and details",
+    "shopText": "FreeRide riding wear"
   },
   "messages": {
     "title": "Messages",
@@ -1932,5 +1946,228 @@
     "text": "While you present the app, anyone who opens it sees «See the demo» first. Turn it off once families start using it, so signing in comes first.",
     "on": "The demo now comes first on the sign-in screen",
     "off": "Signing in now comes first"
+  },
+  "shop": {
+    "nav": "Shop",
+    "orderTitle": "Shop · order #{n}",
+    "balanceTitle": "Shop · rest of order #{n}",
+    "eyebrow": "THE CLUB'S SHOP",
+    "title": "FreeRide Equestrian in the Riviera Maya",
+    "heroLine": "Technical riding wear at opening prices. Pick it up at the club.",
+    "heroBtn": "See the products",
+    "catLabel": "Categories",
+    "cat": {
+      "all": "All",
+      "pants": "Breeches",
+      "shirts": "Shirts",
+      "accessories": "Accessories"
+    },
+    "emptyCat": "More {cat} are coming soon.",
+    "emptyAsk": "Looking for something? Write to us →",
+    "sticker": {
+      "none": "None",
+      "inauguracion": "Opening price",
+      "promo": "Sale",
+      "nuevo": "New",
+      "ultimas": "Last pieces",
+      "agotado": "Sold out"
+    },
+    "sizes": "Sizes:",
+    "colors": "Colors",
+    "color": "Color:",
+    "save": "You save {amount}",
+    "size": "Size",
+    "sizeShort": "Size {size}",
+    "left": "{n} left",
+    "left_one": "1 left",
+    "onOrder": "On order",
+    "onOrderLine": "Arrives in 2 to 3 weeks · 50% deposit",
+    "sizeGuide": "Size guide",
+    "qty": "Quantity",
+    "less": "One less",
+    "more": "One more",
+    "add": "Add to cart",
+    "added": "Added ✓",
+    "chooseSize": "Choose your size.",
+    "pickup": "Pick it up at the club, in Paamul.",
+    "prevPhoto": "Previous photo",
+    "nextPhoto": "Next photo",
+    "waAsk": "Hi, I have a question about {product} from the shop.",
+    "cart": {
+      "title": "Your cart",
+      "open": "Cart ({n})",
+      "close": "Close the cart",
+      "empty": "Your cart is empty",
+      "browse": "See the products",
+      "remove": "Remove",
+      "subtotal": "Subtotal",
+      "saving": "You save {amount} with the opening price",
+      "today": "Today you pay {amount}",
+      "todayNote": "(50% deposit on what is ordered)",
+      "later": "On arrival: {amount}",
+      "todayShort": "Today you pay",
+      "total": "Total",
+      "pay": "Pay {amount}",
+      "back": "Back to the cart",
+      "gone": "Size {size} just sold out",
+      "fix": "Remove the pieces that are gone to continue."
+    },
+    "checkout": {
+      "emailMore": "you follow your order in the app with it",
+      "methodClub": "Pay on pickup",
+      "clubLine": "Pay when you pick it up at the club; your order is set aside.",
+      "clubBtn": "Set my order aside",
+      "needReceipt": "Upload your transfer receipt.",
+      "gone": "Size {size} of {product} just sold out.",
+      "ref": "Order {n}",
+      "doneLine": "Your order #{n} is set aside. We'll message you on WhatsApp when it's ready to pick up.",
+      "doneReceipt": "We got your receipt; the club checks it and confirms.",
+      "doneClub": "You pay when you pick it up at the club's office.",
+      "appLine": "Follow your order in the app with {email}: you'll get a 6-digit code."
+    },
+    "special": {
+      "title": "Want another model, color or size?",
+      "text": "Order anything from FreeRide's catalog: an extra 5% off (except sales), free shipping and import, a 50% deposit and the rest when it arrives.",
+      "step1": "Build your cart on shopfre.com",
+      "step2": "Take a screenshot of the cart",
+      "step3": "Send it on WhatsApp and we send you your price",
+      "catalog": "See FreeRide's catalog",
+      "wa": "Send on WhatsApp",
+      "waText": "Hi, I'd like a special FreeRide order"
+    },
+    "meta": {
+      "title": "FreeRide Equestrian shop · Hípico Riviera Maya",
+      "desc": "FreeRide Equestrian breeches and show shirts at opening prices. Pay online or at the club and pick up in Paamul, Riviera Maya."
+    },
+    "status": {
+      "nuevo": "New",
+      "apartado": "Set aside",
+      "pagado": "Paid",
+      "pedido_a_fre": "Ordered from FreeRide",
+      "listo": "Ready to pick up",
+      "entregado": "Delivered",
+      "cancelado": "Cancelled"
+    },
+    "app": {
+      "band": "FreeRide shop · opening prices",
+      "myOrders": "My orders",
+      "orderOf": "Order #{n} · {date}",
+      "placed": "Order #{n} set aside",
+      "pay": "Pay {amount}"
+    },
+    "panel": {
+      "tile": "Orders and products",
+      "newCount": "{n} new orders",
+      "newCount_one": "1 new order",
+      "tabs": {
+        "orders": "Orders",
+        "products": "Products"
+      },
+      "filters": {
+        "nuevos": "New",
+        "proceso": "In progress",
+        "listos": "Ready",
+        "entregados": "Delivered",
+        "todos": "All"
+      },
+      "cols": {
+        "date": "Date",
+        "buyer": "Buyer",
+        "items": "Items",
+        "total": "Total",
+        "payment": "Payment",
+        "status": "Status",
+        "photo": "Photo",
+        "product": "Product",
+        "category": "Category",
+        "price": "Price",
+        "sticker": "Sticker",
+        "stock": "Pieces",
+        "active": "Active"
+      },
+      "pay": {
+        "paid": "Paid",
+        "review": "To review",
+        "pending": "Pending",
+        "club": "Pays at the club",
+        "none": "No charge"
+      },
+      "searchOrders": "Search order, name or product",
+      "searchProducts": "Search product or color",
+      "orderTitle": "Order #{n}",
+      "charges": "The order's charges",
+      "firstCharge": "When ordered",
+      "balanceCharge": "Rest on pickup",
+      "seeCobros": "See in Payments",
+      "whatsapp": "WhatsApp",
+      "waHello": "Hi {name}, I'm writing about your order #{n} from the Hípico Riviera Maya shop.",
+      "waReady": "Hi {name}, your order #{n} is ready to pick up at the club. See you soon!",
+      "mailSubject": "Your order #{n} is ready",
+      "ready": "Let {name} know it's ready.",
+      "balanceAdded": "The rest ({amount}) is now a pending charge.",
+      "notifyWa": "Tell them on WhatsApp",
+      "notifyMail": "Tell them by email",
+      "next": {
+        "pedido_a_fre": "Mark ordered from FreeRide",
+        "listo": "Mark ready to pick up",
+        "entregado": "Mark delivered"
+      },
+      "statusSaved": "Order #{n}: {status}",
+      "cancel": "Cancel order",
+      "cancelAsk": "Cancel order #{n}?",
+      "cancelText": "Pieces in stock go back to the shop and the unpaid charge is removed.",
+      "cancelYes": "Yes, cancel",
+      "keep": "No, keep it",
+      "newProduct": "New product",
+      "empty": {
+        "orders": "No orders yet.",
+        "filtered": "No orders in this view.",
+        "products": "No products yet."
+      },
+      "editor": {
+        "new": "New product",
+        "edit": "Edit product",
+        "data": "Details",
+        "name": "Name",
+        "model": "Model",
+        "modelHint": "The model joins the colors in one card.",
+        "modelNew": "New model",
+        "colorName": "Color",
+        "swatch": "Color swatch",
+        "category": "Category",
+        "descEs": "Description in Spanish",
+        "descEn": "Description in English",
+        "featEs": "Features in Spanish (one per line)",
+        "featEn": "Features in English (one per line)",
+        "price": "Price",
+        "listPrice": "List price",
+        "promoPrice": "Discount price",
+        "promoHint": "Empty = no discount",
+        "sticker": "Sticker",
+        "preview": "How it looks in the shop",
+        "sizes": "Sizes",
+        "size": "Size",
+        "stock": "Pieces",
+        "sizePrice": "Special price",
+        "sizePriceHint": "Optional",
+        "addSize": "Add size",
+        "girl": "Girl {n}",
+        "removeSize": "Remove size",
+        "takesOrders": "Can be ordered in sold-out sizes",
+        "takesOrdersHint": "Sizes at 0 show as \"On order\", with a 50% deposit.",
+        "photos": "Photos",
+        "photosDrop": "Drop the photos here or tap to choose",
+        "photosHint": "Several at once · resized to 1200 px · the first is the main one",
+        "uploading": "Uploading…",
+        "main": "Main",
+        "moveLeft": "Move earlier",
+        "moveRight": "Move later",
+        "removePhoto": "Remove photo",
+        "active": "Active in the shop",
+        "duplicate": "Duplicate in another color",
+        "duplicateDone": "Copy ready: give it its color, photos and pieces.",
+        "saved": "Product saved"
+      }
+    }
   }
 }

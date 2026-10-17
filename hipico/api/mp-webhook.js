@@ -16,7 +16,8 @@ export function confirmation(p) {
     text: [
       `Hola ${first}:`, '',
       `Recibimos tu pago con tarjeta de ${money(p.amount)} por ${titleFor(p)}. ¡Gracias!`,
-      p.service === 'plan' ? 'Tu plan ya está activo: confirma tus clases desde la app.' : 'El club te escribe para acordar el día y la hora.',
+      p.service === 'plan' ? 'Tu plan ya está activo: confirma tus clases desde la app.'
+        : p.service === 'shop' ? 'Te avisamos por WhatsApp cuando tu pedido esté listo para recoger en el club.' : 'El club te escribe para acordar el día y la hora.',
       `Entra a la app con este correo: ${SITE_URL}/app`, '',
       `Gracias,\n${CLUB}`,
     ].join('\n'),
