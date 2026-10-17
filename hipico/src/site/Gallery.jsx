@@ -5,6 +5,7 @@ import { SiteIcon } from '../components/site/Icons.jsx'
 import { BIG, GALLERY_CLIPS, GALLERY_FILTERS, GALLERY_TAGS, PHOTOS } from './content.js'
 import { reducedMotion } from './motion.jsx'
 import GALLERY from 'virtual:gallery'
+import { lockScroll } from '../lib/scrollLock.js'
 
 // Alt text for known photos; any other file gets its name (without the tag prefix) as a short description.
 const GALLERY_ALT = {
@@ -161,15 +162,14 @@ function Lightbox({ items, start, alt, onClose }) {
   const go = useCallback((d) => setI((n) => (n + d + items.length) % items.length), [items.length])
   useEffect(() => {
     closeRef.current?.focus()
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const unlock = lockScroll()
     const onKey = (e) => {
       if (e.key === 'Escape') onClose()
       else if (e.key === 'ArrowRight') go(1)
       else if (e.key === 'ArrowLeft') go(-1)
     }
     window.addEventListener('keydown', onKey)
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prev }
+    return () => { window.removeEventListener('keydown', onKey); unlock() }
   }, [go, onClose])
   const g = items[i]
   const onTouchStart = (e) => { touch.current = e.touches[0].clientX }

@@ -7,6 +7,7 @@ import { useSiteData } from './siteData.js'
 import { BIG } from './content.js'
 import { ContactForm } from './ContactForm.jsx'
 import { Enroll } from './Enroll.jsx'
+import { lockScroll } from '../lib/scrollLock.js'
 
 const wa = (text) => ({ href: waLink(text), target: '_blank', rel: 'noopener noreferrer' })
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([tabindex="-1"]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -22,8 +23,7 @@ export function SiteDialog({ photo, alt, position, labelledBy, onClose, children
   useEffect(() => {
     const before = document.activeElement
     closeBtn.current?.focus({ preventScroll: true })
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const unlock = lockScroll()
     const onKey = (e) => {
       if (e.key === 'Escape') { e.preventDefault(); onClose() }
       if (e.key !== 'Tab' || !panel.current) return
@@ -35,7 +35,7 @@ export function SiteDialog({ photo, alt, position, labelledBy, onClose, children
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
     }
     window.addEventListener('keydown', onKey)
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prev; before?.focus?.() }
+    return () => { window.removeEventListener('keydown', onKey); unlock(); before?.focus?.() }
   }, [onClose])
   return createPortal(
     <div className={`ssheet2 ${variant ? `ssheet2--${variant}` : ''}`} role="dialog" aria-modal="true" aria-labelledby={labelledBy}>

@@ -153,14 +153,17 @@
 .cartdrw__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px var(--pad-m) 16px; border-bottom: 1px solid var(--border); }
 .cartdrw__head h2 { margin: 0; font-family: var(--font-head); font-stretch: 78%; font-size: 26px; font-weight: 800; }
 .cartdrw__head .shopdlg__close { position: static; }
-.cartdrw__body { flex: 1; min-height: 0; overflow-y: auto; padding: 16px var(--pad-m) 20px; }
+.cartdrw__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 16px var(--pad-m) 20px; }
 .cartdrw__foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px var(--pad-m) calc(var(--pad-m) + var(--safe-bottom)); border-top: 1px solid var(--border); background: var(--card); }
 .cartdrw__total { display: grid; gap: 2px; }
 .cartdrw__total span { font-size: 13px; color: var(--accent-ink); }
 .cartdrw__total b { font-family: var(--font-head); font-stretch: 80%; font-size: 26px; font-weight: 800; }
 @media (max-width: 759px) {
-  .cartdrw__panel { top: auto; left: 0; width: 100%; max-height: calc(100dvh - 32px); border-radius: 22px 22px 0 0; animation-name: cartup; }
-  @keyframes cartup { from { transform: translateY(24px); opacity: 0; } }
+  /* A bottom sheet that always slides up fully: fixed to the bottom of the screen, never taller than it, its own scroll. */
+  .cartdrw__panel { position: fixed; inset: auto 0 0 0; top: auto; width: 100%; height: auto; max-height: 92vh; max-height: 92dvh; border-radius: 22px 22px 0 0; animation-name: cartup; }
+  .cartdrw__head { flex: none; }
+  .cartdrw__foot { flex: none; }
+  @keyframes cartup { from { transform: translateY(40px); } }
 }
 
 .cline { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 14px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--border); }

@@ -9,6 +9,7 @@ import { concept } from './PaymentHistory.jsx'
 import { payByCard, payCard, useCardInfo } from '../lib/card.js'
 import { CardForm, cardMode } from './CardForm.jsx'
 import { DropZone, MethodCards } from './PayOptions.jsx'
+import { lockScroll } from '../lib/scrollLock.js'
 
 const METHOD_KEY = 'hipico.payMethod'
 const RESULT = { paid: 'Paid', club: 'Club', review: 'Review', pending: 'Pending', said: 'Said' }
@@ -65,9 +66,8 @@ export function PayDialog({ paymentId, onClose }) {
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
     }
     window.addEventListener('keydown', onKey)
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prev }
+    const unlock = lockScroll()
+    return () => { window.removeEventListener('keydown', onKey); unlock() }
   }, [])
 
   if (!p) return null

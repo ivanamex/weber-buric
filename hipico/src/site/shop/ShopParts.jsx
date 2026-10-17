@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/I18nProvider.jsx'
 import { SiteIcon } from '../../components/site/Icons.jsx'
 import { waLink } from '../../components/ui.jsx'
@@ -10,6 +10,7 @@ import {
 } from '../../data/shop.js'
 import { cartApi, openCart, useCart, useCartOpener } from './shopApi.js'
 import './shop.css'
+import { lockScroll } from '../../lib/scrollLock.js'
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([tabindex="-1"]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
@@ -32,8 +33,7 @@ function useModal(panel, onClose, first) {
   useEffect(() => {
     const before = document.activeElement
     first?.current?.focus({ preventScroll: true })
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const unlock = lockScroll()
     const onKey = (e) => {
       if (e.key === 'Escape') { e.preventDefault(); close.current() }
       if (e.key !== 'Tab' || !panel.current) return
@@ -44,7 +44,7 @@ function useModal(panel, onClose, first) {
       if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus() } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus() }
     }
     window.addEventListener('keydown', onKey)
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prev; before?.focus?.({ preventScroll: true }) }
+    return () => { window.removeEventListener('keydown', onKey); unlock(); before?.focus?.({ preventScroll: true }) }
   }, [panel, first])
 }
 
@@ -226,7 +226,8 @@ function ProductSheet({ product, siblings, inApp, onClose, onSwitch, onAsk }) {
     if (!variant) { setPulse((n) => n + 1); return }
     cartApi.add(product.slug, variant.size, qty, max)
     setAdded(true)
-    setTimeout(() => { setAdded(false); onClose(); openCart() }, 900)
+    // The product window closes first; the cart opens once it's gone (never two sheets on top of each other).
+    setTimeout(() => { setAdded(false); onClose(); setTimeout(openCart, 80) }, 900)
   }
   return createPortal(
     <div className={`shopdlg ${inApp ? 'shopdlg--app' : ''}`} role="dialog" aria-modal="true" aria-labelledby="pinfo-title">
@@ -347,6 +348,9 @@ export function CartDrawer({ products, inApp, onBrowse, checkout, onPay, payBusy
   const lines = useCartLines(products)
   const totals = cartTotals(lines)
   const close = useCallback(() => setOpen(false), [])
+  // Leaving the page closes it (and lets the page scroll again).
+  const { pathname } = useLocation()
+  useEffect(() => { setOpen(false) }, [pathname])
   if (!open) return null
   return <CartPanel {...{ panel, closeBtn, close, lines, totals, step, setStep, inApp, onBrowse, checkout, onPay, payBusy, payError, t, fmtMoney }} />
 }
