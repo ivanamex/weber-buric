@@ -5,7 +5,8 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 ## Now
 
 1. **STEP-55 (check)**: the video for Mara is done with Alejandro Garcia's voice (40.8 s, MP4, 7.2 MB, −16 LUFS); 4 takes generated, take 1 used. Ivana watches it; the panel and family parts run longer than their sentences (quiet stretches), so splitting sentence 6 is the next tweak if she wants it. The family WhatsApp video comes after the meeting.
-2. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
+2. **STEP-72**: Tienda FreeRide: `/tienda` in the nav (hero, categories, products with colors, sizes, stickers, cart, Tarjeta · Transferencia · En el club, "bajo pedido" with 50% deposit, pedido especial from shopfre.com), Tienda in the family app, and Dirección → Tienda (orders + products with sizes, stock, prices, photos)
+3. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
 
