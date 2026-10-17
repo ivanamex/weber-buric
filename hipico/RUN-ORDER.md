@@ -4,7 +4,8 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
+1. **STEP-73**: phones always get the new version: check for updates when the app comes back to the screen, reload by itself when nothing is open (otherwise a small "Hay una versión nueva · Actualizar" bar), no blank screen from old files, no-cache headers, "Versión 17 oct · 10:40" + Buscar actualizaciones in Ajustes / Más
+2. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
 
