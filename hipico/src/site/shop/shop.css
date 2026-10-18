@@ -29,19 +29,41 @@
 .shop--app .shopgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (min-width: 1024px) { .shop--app .shopgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
-.pcard { position: relative; display: flex; flex-direction: column; height: 100%; overflow: hidden; border: 1px solid var(--border); border-radius: 22px; background: var(--card); color: var(--ink); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
-.pcard:hover { transform: translateY(-2px); border-color: var(--hover-line); box-shadow: 0 16px 30px -16px rgba(51, 53, 42, .35); }
-.pcard__photo { position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden; background: #FFFFFF; border-bottom: 1px solid var(--border); transition: filter .2s; }
-.pcard__photo:hover { filter: brightness(1.03); }
-.pcard__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #FFFFFF; transition: opacity .35s ease; } /* the whole product, never cropped */
-.pcard__photo img + img { opacity: 0; }
-@media (hover: hover) { .pcard:hover .pcard__photo img + img { opacity: 1; } }
+/* Product cards: the site cards' shadow, no border (the photo box keeps its hairline where it meets the body). Hover on a
+   computer: the card lifts 4 px, the photo turns to the second one (or zooms a little), the name underlines, "Ver →". */
+.pcard { position: relative; display: flex; flex-direction: column; height: 100%; overflow: hidden; border-radius: 22px; background: var(--card); color: var(--ink); box-shadow: var(--card-shadow); transition: transform .22s ease, box-shadow .22s ease; }
+.pcard__photo { position: relative; display: block; aspect-ratio: 3 / 4; overflow: hidden; background: #FFFFFF; border-bottom: 1px solid var(--border); }
+.pcard__photo .pimg, .pcard__photo .pph { transition: opacity .4s ease, transform .4s ease; }
+.pcard__photo .pimg--alt { opacity: 0; }
 .pcard__photo:focus-visible { outline: 3px solid var(--mustard); outline-offset: -3px; }
 .pcard__stickers { position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; pointer-events: none; }
-.pcard__body { display: grid; gap: 8px; padding: 16px 16px 18px; }
+.pcard__body { position: relative; display: grid; gap: 8px; padding: 16px 16px 18px; }
 .pcard__name { margin: 0; font-family: var(--font-head); font-stretch: 80%; font-size: 19px; font-weight: 700; line-height: 1.15; }
-.pcard__name a { color: inherit; text-decoration: none; background: linear-gradient(currentColor, currentColor) center bottom / 0 2px no-repeat; transition: color .2s, background-size .2s; }
+.pcard__name a { color: inherit; text-decoration: none; background: linear-gradient(var(--mustard), var(--mustard)) center bottom / 0 2px no-repeat; transition: color .2s, background-size .2s; }
 .pcard__name a:hover { color: var(--hover-text); background-size: 100% 2px; }
+.pcard__see { position: absolute; right: 16px; bottom: 16px; display: inline-flex; align-items: center; gap: 4px; font: 700 13px/1 var(--font-head); letter-spacing: .04em; color: var(--jungle, #5E6650); opacity: 0; transition: opacity .22s ease, transform .22s ease; transform: translateX(-4px); pointer-events: none; }
+.pcard--fre .pcard__see { color: var(--bark, #68604D); }
+@media (hover: hover) {
+  .pcard:hover { transform: translateY(-4px); box-shadow: var(--card-shadow-up); }
+  .pcard:hover .pcard__photo .pimg--alt { opacity: 1; }
+  .pcard--one:hover .pcard__photo .pimg, .pcard--one:hover .pcard__photo .pph { transform: scale(1.04); }
+  .pcard:hover .pcard__name a { color: var(--hover-text); background-size: 100% 2px; }
+  .pcard:hover .pcard__see { opacity: 1; transform: none; }
+  .pcard .psizes { padding-right: 52px; }
+}
+@media (hover: none) {
+  .pcard { transition: transform .12s ease; }
+  .pcard:active { transform: scale(.98); }
+}
+
+/* A shop photo filling its box: the same image, blurred, behind the photo itself (whole, never cropped). */
+.pimg { position: absolute; inset: 0; overflow: hidden; background: #FFFFFF; }
+.pimg img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pimg__bg { object-fit: cover; filter: blur(28px) saturate(1.05); transform: scale(1.2); }
+.pimg__fg { object-fit: contain; }
+.pimg--lite { background: #EDEDED; }
+.pimg--thumb .pimg__fg, .pcard__photo .pimg--own .pimg__fg { object-fit: cover; }
+@media (prefers-reduced-data: reduce) { .pimg__bg { display: none; } .pimg { background: #EDEDED; } .pimg--thumb { background: #FFFFFF; } }
 .pcard__color { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; font-size: 14px; color: var(--accent-ink); }
 .psizes { margin: 0; font-size: 13px; color: var(--accent-ink); }
 .psizes s { opacity: .65; }
@@ -90,16 +112,16 @@
 .pgal__strip { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .pgal__strip::-webkit-scrollbar { display: none; }
 .pgal__slide { position: relative; flex: 0 0 100%; scroll-snap-align: start; }
-.pgal__slide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 .pgal__arrow { position: absolute; top: 50%; z-index: 2; display: grid; place-items: center; width: 40px; height: 40px; margin-top: -20px; border: 0; border-radius: 50%; background: rgba(255, 251, 245, .9); color: var(--ink); cursor: pointer; transition: background .2s, transform .2s; }
 .pgal__arrow:hover { background: var(--mustard-t); transform: scale(1.06); }
 .pgal__arrow--prev { left: 12px; }
 .pgal__arrow--next { right: 12px; }
 .pgal__thumbs { display: flex; gap: 8px; overflow-x: auto; }
-.pgal__thumb { position: relative; flex: none; width: 60px; height: 75px; padding: 0; overflow: hidden; border: 2px solid transparent; border-radius: 10px; background: #FFFFFF; cursor: pointer; transition: border-color .2s, opacity .2s; opacity: .75; }
+.pgal__thumb { position: relative; flex: none; width: 60px; height: 80px; padding: 0; overflow: hidden; border: 2px solid transparent; border-radius: 10px; background: #FFFFFF; cursor: pointer; transition: border-color .2s, opacity .2s; opacity: .75; }
 .pgal__thumb:hover { opacity: 1; border-color: var(--hover-line); }
 .pgal__thumb.is-on { opacity: 1; border-color: var(--ink); }
-.pgal__thumb img { width: 100%; height: 100%; object-fit: contain; }
+.pgal__thumb.is-dim { opacity: .4; }
+.pgal__thumb.is-dim:hover { opacity: .8; }
 
 .pinfo { display: flex; flex-direction: column; gap: 18px; min-height: 0; overflow-y: auto; padding: calc(var(--pad-l) + 8px) var(--pad-l) var(--pad-l); }
 .pinfo__stickers { display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px; padding-right: 52px; }
@@ -150,7 +172,7 @@
   .shopdlg { place-items: end stretch; padding: 0; }
   .shopdlg__panel { display: block; width: 100%; height: calc(100dvh - 24px); overflow-y: auto; border-radius: 22px 22px 0 0; }
   .pgal { padding: var(--pad-m) var(--pad-m) 12px; background: var(--card); }
-  .pgal__main { aspect-ratio: 4 / 5; max-height: 58dvh; }
+  .pgal__main { aspect-ratio: 3 / 4; max-height: 58dvh; }
   .pgal__arrow { display: none; }
   .pinfo { overflow: visible; padding: 20px var(--pad-m) calc(var(--pad-m) + var(--safe-bottom)); }
   .pinfo__stickers { padding-right: 0; }
@@ -179,8 +201,7 @@
 
 .cline { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 14px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--border); }
 .cline:first-child { padding-top: 0; }
-.cline__thumb { position: relative; width: 64px; height: 80px; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: #FFFFFF; }
-.cline__thumb img { width: 100%; height: 100%; object-fit: contain; }
+.cline__thumb { position: relative; width: 60px; height: 80px; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: #FFFFFF; }
 .cline__thumb .pph { gap: 6px; }
 .cline__thumb .pph svg { width: 26px; height: 26px; }
 .cline__thumb .pph__dot { width: 14px; height: 14px; box-shadow: 0 0 0 2px rgba(255, 251, 245, .9); }
@@ -253,15 +274,19 @@
 .opill--cancelado { background: var(--danger-soft); color: var(--danger-ink); }
 
 @media (prefers-reduced-motion: reduce) {
-  .pcard, .pcard__photo img, .swatch, .sizepill, .shopdlg__close, .pgal__arrow { transition: none; }
-  .pcard:hover { transform: none; }
+  .pcard, .pcard__photo .pimg, .pcard__photo .pph, .pcard__see, .pcard__name a, .swatch, .sizepill, .seg__opt, .shopdlg__close, .pgal__arrow { transition: none; }
+  .pcard { transition: box-shadow .22s ease; }
+  .pcard:hover, .pcard:active { transform: none; }
+  .pcard:hover .pcard__photo .pimg--alt { opacity: 0; }
+  .pcard--one:hover .pcard__photo .pimg, .pcard--one:hover .pcard__photo .pph { transform: none; }
+  .pcard:hover .pcard__see { opacity: 0; }
   .shopdlg__panel, .cartdrw__panel, .sizes.is-pulse, .shopbtn.is-pulse { animation: none; }
 }
 
 /* ───────── Panel: Dirección → Tienda ───────── */
 .shopadmin .chips-scroll { margin-bottom: 16px; }
-.shopadmin__thumb { display: inline-grid; place-items: center; flex: none; width: 48px; height: 60px; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: #FFFFFF; }
-.shopadmin__thumb img { width: 100%; height: 100%; object-fit: contain; }
+.shopadmin__thumb { display: inline-grid; place-items: center; flex: none; width: 48px; height: 64px; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: #FFFFFF; }
+.shopadmin__thumb img { width: 100%; height: 100%; object-fit: cover; }
 .shopadmin__sw { width: 22px; height: 22px; border-radius: 50%; box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(51, 53, 42, .2); }
 .shopadmin__zero { color: var(--terracotta-g); }
 .shopadmin__zeroin { color: var(--terracotta-g); font-weight: 700; }
@@ -321,7 +346,7 @@
 .fmenu__btn.is-open svg { transform: rotate(180deg); }
 .fmenu__btn:focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }
 .fmenu__n { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--mustard); color: var(--ink); font: 700 11px/1 var(--font-body); letter-spacing: 0; }
-.fmenu__card { position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; min-width: 220px; max-width: 300px; max-height: 320px; overflow-y: auto; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); box-shadow: 0 18px 40px -18px rgba(51, 53, 42, .45); }
+.fmenu__card { position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; min-width: 220px; max-width: 300px; max-height: 320px; overflow-y: auto; padding: 12px; border-radius: 12px; background: var(--card); box-shadow: var(--card-shadow-light); }
 .fmenu__list { display: grid; gap: 2px; }
 .fmenu__opt { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 6px 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); font: 500 15px/1.2 var(--font-body); text-align: left; cursor: pointer; }
 .fmenu__opt:hover, .fmenu__opt:focus-visible { background: var(--hover-soft); outline: none; }
@@ -350,6 +375,16 @@
 .shopsect__none { margin: 0; color: var(--accent-ink); }
 .shopmore { display: flex; justify-content: center; padding: 8px 0 4px; }
 .sizepill--wide { min-width: 0; padding: 0 16px; }
+/* FreeRide's sizes: compact, so a row of waist sizes fits on a computer. */
+.sizes--compact { gap: 6px; }
+.sizes--compact .sizepill { min-width: 40px; height: 40px; padding: 0 8px; font-size: 14px; }
+/* FreeRide's other options (Agarre, Largo, Manga): one small segmented row each, above Talla. */
+.seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 14px; background: color-mix(in srgb, var(--border) 45%, var(--card)); }
+.seg__opt { min-height: 36px; padding: 0 14px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 600 14px/1 var(--font-body); cursor: pointer; transition: background .2s, color .2s, box-shadow .2s; }
+.seg__opt:hover:not(:disabled) { background: var(--hover-soft); box-shadow: inset 0 0 0 1px var(--hover-line); }
+.seg__opt.is-on { background: var(--card); box-shadow: 0 0 0 2px var(--mustard), 0 2px 6px rgba(51, 53, 42, .12); }
+.seg__opt:disabled { color: var(--muted); text-decoration: line-through; cursor: not-allowed; }
+.seg__opt:focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }
 .pinfo--wait { display: grid; place-items: center; grid-column: 1 / -1; min-height: 240px; color: var(--accent-ink); }
 
 /* ───────── FreeRide pieces: sand cards, "Sobre pedido", the approximate price ───────── */

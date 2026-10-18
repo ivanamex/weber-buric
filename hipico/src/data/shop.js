@@ -74,16 +74,21 @@ export const paraFromSlug = (slug) => {
 export const audienceOfProduct = (p) => p.audience || 'women'
 export const forAudience = (aud, para) => !para || aud === para || aud === 'all'
 export const LETTER_SIZES = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
-/** A size as the filter knows it: "34 (S)" → S, "2X" / "2XL" → XXL, "13-14 (24)" → 13-14. */
+// Waist sizes (FreeRide's breeches) as letters, for the Talla filter.
+const WAIST = { 22: 'XXS', 24: 'XS', 26: 'S', 28: 'M', 30: 'L', 32: 'XL', 34: 'XXL', 36: 'XXXL' }
+/** A size as the filter knows it: "34 (S)" → S, "2X" / "2XL" → XXL, "13-14 (24)" → 13-14, waist 26 → S. */
 export function sizeKey(size) {
   let x = String(size || '').trim().toUpperCase()
   const paren = x.match(/^(.*?)\s*\(([^)]+)\)\s*$/)
   if (paren) x = /^(\d?X+[SL]?|[SML])$/.test(paren[2].trim()) ? paren[2].trim() : paren[1].trim()
-  return ({ '2X': 'XXL', '2XL': 'XXL', '3X': 'XXXL', '3XL': 'XXXL', '4XL': 'XXXXL' })[x] || x
+  return ({ '2X': 'XXL', '2XL': 'XXL', '3X': 'XXXL', '3XL': 'XXXL', '4XL': 'XXXXL' })[x] || WAIST[x] || x
 }
-/** Kids' sizes in order: 2T, 3T… then 2-3, 4-5… then 8, 10… */
+/** "26 (S)" → "26 · S" on a size pill. */
+export const sizeLabel = (size) => String(size || '').replace(/^(\d{2})\s*\(([^)]+)\)$/, '$1 · $2')
+const HORSE_SIZES = ['PONY', 'COB', 'FULL', 'WARMBLOOD', 'ONE SIZE']
+/** Sizes in order: letters, then kids' 2T, 3T… 2-3, 4-5… 8, 10…, waist 22…36, then the horse's Pony · Cob · Full. */
 export const sortSizes = (list) => [...new Set(list)].sort((a, b) => {
-  const n = (x) => { const m = String(x).match(/\d+/); return m ? Number(m[0]) : 999 }
+  const n = (x) => { const h = HORSE_SIZES.indexOf(String(x).toUpperCase()); if (h >= 0) return 1000 + h; const m = String(x).match(/\d+/); return m ? Number(m[0]) : 999 }
   const li = (x) => LETTER_SIZES.indexOf(x)
   if (li(a) >= 0 || li(b) >= 0) return (li(a) < 0 ? 99 : li(a)) - (li(b) < 0 ? 99 : li(b))
   return n(a) - n(b) || String(a).localeCompare(String(b))
@@ -115,9 +120,52 @@ export function frePrice(usd, compare, factor = FRE_DEFAULTS.factor, discount = 
   if (Number(compare) > Number(usd)) return { unit: mxn, list: to50(Number(compare) * Number(factor)), sale: true }
   return { unit: to50(mxn * (1 - Number(discount) / 100)), list: mxn, sale: false }
 }
-/** The colors of a FreeRide product, and the sizes of one color with whether FreeRide has them. */
+/** FreeRide's options besides color and size, in the order the product window shows them (above Talla). */
+export const EXTRA_KEYS = ['grip', 'length', 'sleeve', 'style']
+const OPT_WORDS = { 'full seat': 'fullSeat', 'knee patch': 'kneePatch', petite: 'petite', regular: 'regular', tall: 'tall', long: 'long', short: 'short', sleeveless: 'sleeveless' }
+/** One option value as the shop says it ("Knee Patch" → "Rodilla"); FreeRide's own words otherwise. */
+export const optText = (t, v) => { const k = OPT_WORDS[String(v || '').trim().toLowerCase()]; return k && typeof t === 'function' ? t(`shop.optv.${k}`) : String(v || '') }
+/** A variant's (or a line's) extra options, in order: { grip: 'Knee Patch', length: 'Regular' } → ['Knee Patch', 'Regular']. */
+export const extraList = (extra) => EXTRA_KEYS.filter((k) => extra?.[k]).map((k) => extra[k])
+const fits = (v, extra) => Object.entries(extra || {}).every(([k, x]) => !x || !v.extra?.[k] || v.extra[k] === x)
+/** The colors of a FreeRide product, and the sizes of one color (and chosen options) with whether FreeRide has them. */
 export const freColors = (item) => (item.colors?.length ? item.colors : [''])
-export const freSizes = (item, color) => (item.variants || []).filter((v) => (v.color || '') === (color || '')).map((v) => ({ size: v.size, available: Boolean(v.available) }))
+export function freSizes(item, color, extra) {
+  const out = new Map()
+  for (const v of item.variants || []) {
+    if ((v.color || '') !== (color || '') || !fits(v, extra)) continue
+    out.set(v.size, Boolean(out.get(v.size)) || Boolean(v.available))
+  }
+  const order = item.sizes || []
+  return [...out].map(([size, available]) => ({ size, available }))
+    .sort((a, b) => (order.indexOf(a.size) < 0 ? 999 : order.indexOf(a.size)) - (order.indexOf(b.size) < 0 ? 999 : order.indexOf(b.size)))
+}
+/** The extra options one color has: [{ key, values: [{ value, available }] }], in the window's order. */
+export function freExtras(item, color) {
+  const vs = (item.variants || []).filter((v) => (v.color || '') === (color || ''))
+  const listed = item.extras?.length ? item.extras : EXTRA_KEYS.map((key) => ({ key, values: [...new Set(vs.map((v) => v.extra?.[key]).filter(Boolean))] }))
+  return listed.map(({ key, values }) => ({
+    key, values: values.filter((x) => vs.some((v) => v.extra?.[key] === x)).map((value) => ({ value, available: vs.some((v) => v.extra?.[key] === value && v.available) })),
+  })).filter((x) => x.values.length)
+}
+/** What's chosen, completed: every option the color has keeps the picked value while FreeRide has it in this color,
+ *  else takes the first one FreeRide has. */
+export function freChosen(item, color, picked = {}) {
+  const vs = (item.variants || []).filter((v) => (v.color || '') === (color || ''))
+  const out = {}
+  for (const { key, values } of freExtras(item, color)) {
+    const ok = (x) => vs.some((v) => v.available && v.extra?.[key] === x && fits(v, out))
+    out[key] = values.some((x) => x.value === picked[key] && ok(x.value)) ? picked[key] : (values.find((x) => ok(x.value)) || values[0]).value
+  }
+  return out
+}
+/** The photos of a FreeRide product with the chosen color's first: { photos, mine } (mine: how many are that color's). */
+export function frePhotos(item, color) {
+  const all = item.images || []
+  const own = [...new Set((item.variants || []).filter((v) => (v.color || '') === (color || '') && Number.isInteger(v.image) && all[v.image]).map((v) => v.image))].sort((a, b) => a - b)
+  if (!own.length) return { photos: all, mine: all.length }
+  return { photos: [...own.map((i) => all[i]), ...all.filter((_, i) => !own.includes(i))], mine: own.length }
+}
 /** A FreeRide item as the shop's parts show a product (photo, name, color). */
 export const freAsProduct = (item, color) => ({ slug: `${FRE_PREFIX}${item.handle}`, name: item.title, colorName: color || '', colorHex: '#FFFFFF', category: item.category, photos: item.images || [] })
 
@@ -152,8 +200,8 @@ export function cartTotals(lines) {
 }
 
 /* ───────── The wish list (FreeRide pieces: chosen here, priced by Mara) ───────── */
-/** A list line → "1 × Celestial Lux Breeches Navy, talla S". */
-export const wishText = (l, sizeWord = 'talla') => `${l.qty} × ${l.name}${l.color ? ` ${l.color}` : ''}${l.size ? `, ${sizeWord} ${l.size}` : ''}`
+/** A list line → "1 × Define Breeches · Sage · Rodilla · Regular · 26 (S)" (t: the page's translator, for the options). */
+export const wishText = (l, t) => `${l.qty} × ${[l.name, l.color, ...extraList(l.extra).map((v) => optText(t, v)), l.size].filter(Boolean).join(' · ')}`
 export const wishTotal = (lines) => lines.reduce((a, l) => a + (Number(l.unit) || 0) * (Number(l.qty) || 0), 0)
 export const WISH_STATUSES = ['nueva', 'cotizada', 'convertida', 'cerrada']
 export const newWishlists = (s) => (s.shopWishlists || []).filter((w) => w.status === 'nueva')
@@ -176,7 +224,7 @@ export function nextStatus(o) {
   if (o.status === 'listo') return 'entregado'
   return null
 }
-export const orderLine = (l) => `${(l.name || '').replace(/^(Pantalón|Camisa) /, '')} ${l.color || ''} · ${l.size}${l.qty > 1 ? ` ×${l.qty}` : ''}`.replace(/\s+/g, ' ').trim()
+export const orderLine = (l, t) => `${(l.name || '').replace(/^(Pantalón|Camisa) /, '')} ${l.color || ''}${extraList(l.extra).map((v) => ` · ${optText(t, v)}`).join('')} · ${l.size}${l.qty > 1 ? ` ×${l.qty}` : ''}`.replace(/\s+/g, ' ').trim()
 
 const URL = typeof __SUPABASE_URL__ === 'undefined' ? '' : __SUPABASE_URL__
 /** A product photo: a site file (/img/shop/…), a data URL (demo uploads) or a path in the shop-photos bucket. */

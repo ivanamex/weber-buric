@@ -84,7 +84,7 @@ function MyOrders({ onPay }) {
             <b>{t('shop.wish.listOf', { number: w.number, date: day(w.createdAt) })}</b>
             <span className="opill opill--wish">{t('shop.wish.waiting')}</span>
           </div>
-          <p className="myorder__items">{(w.items || []).map((l) => wishText(l, t('shop.wish.sizeWord'))).join(' · ')}</p>
+          <p className="myorder__items">{(w.items || []).map((l) => wishText(l, t)).join(' · ')}</p>
           <div className="myorder__top"><span>{t('shop.wish.total')} <b>{fmtMoney(w.totalEstimate)}</b></span></div>
         </article>
       ))}
@@ -96,7 +96,7 @@ function MyOrders({ onPay }) {
               <b>{t('shop.app.orderOf', { n: o.number, date: day(o.createdAt) })}</b>
               <OrderPill status={o.status} family />
             </div>
-            <p className="myorder__items">{o.items.map(orderLine).join(' · ')}</p>
+            <p className="myorder__items">{o.items.map((l) => orderLine(l, t)).join(' · ')}</p>
             <div className="myorder__top">
               <span>{t('shop.cart.total')} <b>{fmtMoney(o.total)}</b></span>
               {due && <button type="button" className="btn btn--primary btn--sm" onClick={() => onPay(due.id)}>{t('shop.app.pay', { amount: fmtMoney(due.amount) })}</button>}

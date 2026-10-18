@@ -2313,7 +2313,24 @@
     },
     "catTab": {
       "pants": "Breeches"
-    }
+    },
+    "opt": {
+      "grip": "Grip",
+      "length": "Length",
+      "sleeve": "Sleeve",
+      "style": "Style"
+    },
+    "optv": {
+      "fullSeat": "Full seat",
+      "kneePatch": "Knee patch",
+      "petite": "Petite",
+      "regular": "Regular",
+      "tall": "Tall",
+      "long": "Long",
+      "short": "Short",
+      "sleeveless": "Sleeveless"
+    },
+    "see": "View"
   },
   "update": {
     "loadFailed": "We couldn't load this screen",

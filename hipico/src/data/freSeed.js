@@ -3,11 +3,20 @@
 const S = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']
 const KIDS = ['4-5', '6-7', '8-9', '10-11', '12-13']
 
-const row = (handle, title, type, category, colors, sizes, priceUsd, { compareUsd = null, kids = null, audience = kids ? 'kids' : 'women', mapped = true, images = [], missing = [] } = {}) => ({
-  handle, title, type, category, mapped, kids, audience, audienceOverride: null, colors, sizes, priceUsd, compareUsd, images,
-  variants: colors.flatMap((color) => sizes.map((size) => ({ color, size, available: !missing.includes(`${color}/${size}`) && !missing.includes(size) }))),
-  url: `https://shopfre.com/products/${handle}`, hidden: false, active: true,
-})
+const WAIST = ['22', '24', '26', '28', '30', '32', '34', '36']
+// extras: FreeRide's other options ({ grip: ['Full Seat', 'Knee Patch'] }), one variant per combination; photoOf: color → its first photo.
+const row = (handle, title, type, category, colors, sizes, priceUsd, { compareUsd = null, kids = null, audience = kids ? 'kids' : 'women', mapped = true, images = [], missing = [], extras = {}, photoOf = {} } = {}) => {
+  const combos = Object.entries(extras).reduce((all, [key, values]) => all.flatMap((e) => values.map((v) => ({ ...e, [key]: v }))), [{}])
+  return {
+    handle, title, type, category, mapped, kids, audience, audienceOverride: null, colors, sizes, priceUsd, compareUsd, images,
+    extras: Object.entries(extras).map(([key, values]) => ({ key, values })),
+    variants: colors.flatMap((color) => sizes.flatMap((size) => combos.map((extra) => ({
+      color, size, extra, image: photoOf[color] ?? null,
+      available: ![`${color}/${size}`, size, ...Object.values(extra).map((x) => `${color}/${x}`), ...Object.values(extra).map((x) => `${color}/${size}/${x}`)].some((k) => missing.includes(k)),
+    })))),
+    url: `https://shopfre.com/products/${handle}`, hidden: false, active: true,
+  }
+}
 
 export function freCatalogSeed() {
   return [
@@ -17,6 +26,11 @@ export function freCatalogSeed() {
     row('celestial-lux-breeches-merlot', 'Celestial Lux Breeches', 'Breeches', 'pants', ['Merlot'], S, 95, { images: ['/img/shop/celestial-lux-merlot-1.webp', '/img/shop/celestial-lux-merlot-2.webp'], missing: ['XXS', 'XL'] }),
     row('celestial-lux-breeches-white', 'Celestial Lux Breeches', 'Breeches', 'pants', ['White'], S, 95, { images: ['/img/shop/celestial-lux-blanco-1.webp'] }),
     row('celestial-lux-breeches-steel-blue', 'Celestial Lux Breeches', 'Breeches', 'pants', ['Steel Blue'], S, 95, { compareUsd: 110, images: ['/img/shop/celestial-lux-azul-acero-1.webp', '/img/shop/celestial-lux-azul-acero-2.webp'] }),
+    row('define-breeches', 'Define Breeches', 'Breeches', 'pants', ['Navy', 'Forest', 'Merlot'], WAIST, 99, {
+      extras: { grip: ['Full Seat', 'Knee Patch'], length: ['Regular', 'Petite'] }, missing: ['22', 'Merlot/Petite', 'Navy/36/Knee Patch'],
+      images: ['/img/shop/celestial-lux-azul-marino-1.webp', '/img/shop/celestial-lux-verde-bosque-1.webp', '/img/shop/celestial-lux-merlot-1.webp', '/img/shop/celestial-lux-azul-marino-2.webp', '/img/shop/celestial-lux-verde-bosque-2.webp', '/img/shop/celestial-lux-merlot-2.webp'],
+      photoOf: { Navy: 0, Forest: 1, Merlot: 2 } }),
+    row('kate-show-shirt', 'Kate Show Shirt', 'Show Shirts', 'shirts', ['White', 'Grey'], S, 68, { extras: { sleeve: ['Long', 'Short'] }, missing: ['Grey/Long', 'XXS'] }),
     row('childrens-lux-breeches', "Children's Lux Breeches", 'Breeches', 'pants', ['Navy', 'Raspberry'], KIDS, 65, { kids: 'girl' }),
     row('cassidy-show-shirt-raspberry', 'Cassidy Show Shirt', 'Show Shirts', 'shirts', ['Raspberry', 'White'], S, 72, { images: ['/img/shop/cassidy-frambuesa-1.webp', '/img/shop/cassidy-frambuesa-2.webp'], missing: ['White/XXS'] }),
     row('childrens-cassidy-show-shirt', "Children's Cassidy Show Shirt", 'Show Shirts', 'shirts', ['Raspberry', 'White'], KIDS, 55, { kids: 'girl' }),

@@ -1223,6 +1223,13 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
   --lvl-beginner: #BEC5A4; --lvl-intermediate: #D5C7AD; --lvl-advanced: #8A8E75; --lvl-competition: #33352A;
   --st-paid: #4E7A5A; --st-review: #C9A13B; --st-pending: #B5704F; --st-overdue: var(--danger);
 }
+/* The soft long shadow of the website's cards (the 4 boxes, the shop's product cards), at rest and lifted on hover;
+   a lighter one for small floating cards (the shop's filter menus). */
+:root {
+  --card-shadow: 0 1px 2px rgba(36, 33, 28, .04), 0 10px 26px -16px rgba(36, 33, 28, .3);
+  --card-shadow-up: 0 1px 2px rgba(36, 33, 28, .04), 0 20px 38px -20px rgba(51, 53, 42, .55);
+  --card-shadow-light: 0 0 0 1px rgba(104, 96, 77, .08), 0 12px 28px -16px rgba(36, 33, 28, .32);
+}
 .lvl { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: .74rem; font-weight: 700; white-space: nowrap; vertical-align: middle; line-height: 1.3; }
 .lvl--beginner { background: var(--lvl-beginner); color: #33352A; }
 .lvl--intermediate { background: var(--lvl-intermediate); color: #33352A; }

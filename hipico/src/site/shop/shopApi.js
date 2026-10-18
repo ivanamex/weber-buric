@@ -108,20 +108,22 @@ export const orderItems = (lines) => lines.map((l) => ({ product: l.slug, size: 
 
 const wishListeners = new Set()
 const saveWish = (next) => { wish = next; write(WISH_KEY, next); wishListeners.forEach((l) => l(next)) }
-const sameW = (l, handle, color, size) => l.handle === handle && (l.color || '') === (color || '') && (l.size || '') === (size || '')
+const extraKey = (e) => JSON.stringify(Object.entries(e || {}).filter(([, v]) => v).sort())
+const sameW = (l, handle, color, size, extra) => l.handle === handle && (l.color || '') === (color || '') && (l.size || '') === (size || '') && extraKey(l.extra) === extraKey(extra)
 export const wishApi = {
-  /** snap: what the window showed (name, photo, approximate price, link): the list shows it without asking again. */
-  add(handle, color, size, qty, snap) {
-    const at = wish.findIndex((l) => sameW(l, handle, color, size))
+  /** snap: what the window showed (name, photo, approximate price, link): the list shows it without asking again.
+   *  extra: FreeRide's other options of the piece ({ grip, length, sleeve, style }). */
+  add(handle, color, size, qty, snap, extra = {}) {
+    const at = wish.findIndex((l) => sameW(l, handle, color, size, extra))
     if (at >= 0) saveWish(wish.map((l, i) => (i === at ? { ...l, snap, qty: Math.min(3, l.qty + qty) } : l)))
-    else saveWish([...wish, { handle, color: color || '', size: size || '', qty, snap }])
+    else saveWish([...wish, { handle, color: color || '', size: size || '', extra, qty, snap }])
   },
-  set(l, qty) { saveWish(wish.map((x) => (sameW(x, l.handle, l.color, l.size) ? { ...x, qty } : x))) },
-  remove(l) { saveWish(wish.filter((x) => !sameW(x, l.handle, l.color, l.size))) },
+  set(l, qty) { saveWish(wish.map((x) => (sameW(x, l.handle, l.color, l.size, l.extra) ? { ...x, qty } : x))) },
+  remove(l) { saveWish(wish.filter((x) => !sameW(x, l.handle, l.color, l.size, l.extra))) },
   clear() { saveWish([]) },
 }
-/** The list's lines as send_wishlist() takes them. */
-export const wishItems = (lines) => lines.map((l) => ({ fre: l.handle, color: l.color || '', size: l.size || '', qty: l.qty }))
+/** The list's lines as send_wishlist() takes them (a line from before the options goes without them). */
+export const wishItems = (lines) => lines.map((l) => ({ fre: l.handle, color: l.color || '', size: l.size || '', ...(l.extra ? { extra: l.extra } : {}), qty: l.qty }))
 /** A list line with what it shows: name, photo, approximate price. */
 export const wishView = (l) => ({ ...l, name: l.snap?.name || l.handle, photo: l.snap?.photo || null, unit: Number(l.snap?.unit) || 0, url: l.snap?.url || null, category: l.snap?.category })
 

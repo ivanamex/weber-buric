@@ -2313,7 +2313,24 @@
     },
     "catTab": {
       "pants": "Pantalones"
-    }
+    },
+    "opt": {
+      "grip": "Agarre",
+      "length": "Largo",
+      "sleeve": "Manga",
+      "style": "Estilo"
+    },
+    "optv": {
+      "fullSeat": "Asiento completo",
+      "kneePatch": "Rodilla",
+      "petite": "Corto (Petite)",
+      "regular": "Regular",
+      "tall": "Largo (Tall)",
+      "long": "Larga",
+      "short": "Corta",
+      "sleeveless": "Sin manga"
+    },
+    "see": "Ver"
   },
   "update": {
     "loadFailed": "No pudimos cargar esta pantalla",

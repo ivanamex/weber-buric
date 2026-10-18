@@ -92,6 +92,8 @@ export function activate(setState, inMemory = false) {
   if (!state.shopWishlists && !memoryOnly) state = persist({ ...state, shopWishlists: wishlistsSeed(), freCatalog: freCatalogSeed() })
   // Demo states saved before "Para quién": the catalog sample again, now with who each piece is for.
   if (!memoryOnly && (state.freCatalog || []).some((r) => !r.audience)) state = persist({ ...state, freCatalog: freCatalogSeed() })
+  // …and before FreeRide's other options (grip, length, sleeve): the sample again, with a breech and a shirt that have them.
+  if (!memoryOnly && (state.freCatalog || []).some((r) => !r.extras)) state = persist({ ...state, freCatalog: freCatalogSeed() })
   // Demo states saved before the website's contact form: add the sample messages once.
   if (!state.contactMessages && !memoryOnly) { state.contactMessages = createSeed().contactMessages; persist(state) }
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
@@ -1322,8 +1324,8 @@ export function demoFre(p = {}) {
     factor, discount, total: filt.length,
     items: structuredClone(filt.slice(off, off + lim)).map((r) => {
       const price = frePrice(r.priceUsd, r.compareUsd, factor, discount)
-      return { handle: r.handle, title: r.title, category: r.category, audience: r.audience, colors: r.colors, sizes: r.sizes, variants: r.variants, priceUsd: r.priceUsd, compareUsd: r.compareUsd,
-        images: r.images.slice(0, 6), url: r.url, unit: price.unit, list: price.list, onSale: price.sale }
+      return { handle: r.handle, title: r.title, category: r.category, audience: r.audience, colors: r.colors, sizes: r.sizes, extras: r.extras || [], variants: r.variants, priceUsd: r.priceUsd, compareUsd: r.compareUsd,
+        images: p.handle ? r.images : r.images.slice(0, 6), url: r.url, unit: price.unit, list: price.list, onSale: price.sale }
     }),
     categories: count(base.map((r) => r.category)),
     sizes: [...new Set(tab.filter((r) => (aud === 'kids') === (r.audience === 'kids')).flatMap((r) => r.sizeKeys))],
@@ -1372,6 +1374,7 @@ function syncFre() {
 
 /* ───────── Wish lists: the same rules as send_wishlist() and admin_wishlist_*() in SQL ───────── */
 
+const sameExtra = (a, b) => { const x = a || {}; const y = b || {}; return Object.keys({ ...x, ...y }).every((k) => (x[k] || '') === (y[k] || '')) }
 /** Every piece against the FreeRide copy, priced as the shop shows it (the estimate Mara confirms). */
 function wishLinesIn(s, items) {
   if (!Array.isArray(items) || !items.length || items.length > 30) return fail('emptyCart')
@@ -1382,9 +1385,11 @@ function wishLinesIn(s, items) {
   for (const it of items) {
     const r = shown.find((x) => x.handle === it.fre)
     const qty = Number(it.qty) || 1
-    const ok = r && qty >= 1 && qty <= ORDER_MAX && r.variants.some((v) => (v.size || '') === (it.size || '') && (v.color || '') === (it.color || '') && v.available)
+    const extra = it.extra && typeof it.extra === 'object' ? it.extra : null // a line from before the options matches any of them
+    const ok = r && qty >= 1 && qty <= ORDER_MAX && r.variants.some((v) => (v.size || '') === (it.size || '') && (v.color || '') === (it.color || '') && v.available
+      && (!extra || sameExtra(v.extra, extra)))
     if (!ok) return fail('out_of_stock', { line: { product: `fre:${it.fre}`, size: it.size, name: r?.title, color: it.color } })
-    lines.push({ handle: r.handle, name: r.title, color: it.color || '', size: it.size || '', qty, unit: frePrice(r.priceUsd, r.compareUsd, factor, discount).unit, photo: r.images[0] || null, url: r.url })
+    lines.push({ handle: r.handle, name: r.title, color: it.color || '', size: it.size || '', extra: extra || {}, qty, unit: frePrice(r.priceUsd, r.compareUsd, factor, discount).unit, photo: r.images[0] || null, url: r.url })
   }
   return { ok: true, lines }
 }
@@ -1443,7 +1448,7 @@ function convertWishlist(id, { lines, email }) {
       const unit = Number(x.unit)
       const qty = Number(x.qty ?? src?.qty)
       if (!src || !(unit >= 0) || x.unit === '' || !(qty >= 1 && qty <= 10)) return fail('missing')
-      items.push({ fre: true, slug: `fre:${src.handle}`, name: src.name, color: src.color, size: src.size, qty, unit: Math.round(unit), list: Math.max(Math.round(unit), src.unit), onOrder: true, photo: src.photo, url: src.url })
+      items.push({ fre: true, slug: `fre:${src.handle}`, name: src.name, color: src.color, size: src.size, extra: src.extra || {}, qty, unit: Math.round(unit), list: Math.max(Math.round(unit), src.unit), onOrder: true, photo: src.photo, url: src.url })
     }
     let family = w.familyId ? byId(s.families, w.familyId) : null
     if (!family) {

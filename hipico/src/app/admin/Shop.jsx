@@ -12,7 +12,7 @@ import { waTo } from '../../lib/phone.js'
 import { todayKey } from '../../lib/time.js'
 import { useBase } from '../Backend.jsx'
 import { useSave } from './useSave.js'
-import { CATEGORIES, STICKERS, SIZE_CHIPS, KID_SIZES, ORDER_FILTERS, nextStatus, orderLine, stockNum, shopPhoto, frePrice, FRE_DEFAULTS, wishText, newWishlists } from '../../data/shop.js'
+import { CATEGORIES, STICKERS, SIZE_CHIPS, KID_SIZES, ORDER_FILTERS, nextStatus, orderLine, stockNum, shopPhoto, frePrice, FRE_DEFAULTS, wishText, newWishlists, extraList, optText } from '../../data/shop.js'
 import { OrderPill, ProductCardPreview } from '../../site/shop/ShopParts.jsx'
 
 const FILTERS = Object.keys(ORDER_FILTERS)
@@ -64,14 +64,14 @@ function Orders() {
   const all = s.shopOrders || []
   const counts = Object.fromEntries(FILTERS.map((f) => [f, all.filter(ORDER_FILTERS[f]).length]))
   const rows = all.filter(ORDER_FILTERS[filter])
-    .filter((o) => !q || [String(o.number), o.name, o.phone, o.email, ...o.items.map(orderLine)].some((v) => v?.toLowerCase().includes(q)))
+    .filter((o) => !q || [String(o.number), o.name, o.phone, o.email, ...o.items.map((l) => orderLine(l, t))].some((v) => v?.toLowerCase().includes(q)))
   const when = (iso) => fmtInstant(iso, { day: 'numeric', month: 'short' })
   const Pay = ({ o }) => { const p = payState(s, o); return <StatusPill status={p.status}>{t(`shop.panel.pay.${p.key}`)}</StatusPill> }
   const columns = [
     { key: 'number', label: '#', value: (o) => o.number, render: (o) => <span className="dtable__strong">#{o.number}</span> },
     { key: 'date', nowrap: true, label: t('shop.panel.cols.date'), value: (o) => o.createdAt, render: (o) => when(o.createdAt), csv: (o) => o.createdAt.slice(0, 10) },
     { key: 'buyer', label: t('shop.panel.cols.buyer'), value: (o) => o.name, csv: (o) => `${o.name} ${o.phone || ''}`, render: (o) => <span className="dtwo"><b>{o.name}</b><span className="small muted">{o.phone || o.email}</span></span> },
-    { key: 'items', label: t('shop.panel.cols.items'), value: (o) => o.items.map(orderLine).join(', '), render: (o) => <span className="dtwo">{o.items.map((l, i) => <span key={i}>{orderLine(l)}{l.onOrder ? ` · ${t('shop.onOrder').toLowerCase()}` : ''}</span>)}</span> },
+    { key: 'items', label: t('shop.panel.cols.items'), value: (o) => o.items.map((l) => orderLine(l, t)).join(', '), render: (o) => <span className="dtwo">{o.items.map((l, i) => <span key={i}>{orderLine(l, t)}{l.onOrder ? ` · ${t('shop.onOrder').toLowerCase()}` : ''}</span>)}</span> },
     { key: 'total', align: 'right', label: t('shop.panel.cols.total'), value: (o) => o.total, render: (o) => fmtMoney(o.total) },
     { key: 'pay', label: t('shop.panel.cols.payment'), value: (o) => payState(s, o).key, csv: (o) => t(`shop.panel.pay.${payState(s, o).key}`), render: (o) => <Pay o={o} /> },
     { key: 'status', label: t('shop.panel.cols.status'), value: (o) => o.status, csv: (o) => t(`shop.status.${o.status}`), render: (o) => <OrderPill status={o.status} /> },
@@ -99,7 +99,7 @@ function Orders() {
                 <span className="grow">
                   <span className="list__title">#{o.number} · {o.name}</span>
                   <span className="small muted">{when(o.createdAt)} · {fmtMoney(o.total)}</span>
-                  <span className="small msgrow__preview">{o.items.map(orderLine).join(' · ')}</span>
+                  <span className="small msgrow__preview">{o.items.map((l) => orderLine(l, t)).join(' · ')}</span>
                   <span className="row gap-sm wrap mt8"><OrderPill status={o.status} /><Pay o={o} /></span>
                 </span>
                 <Icon name="chevronRight" size={18} />
@@ -152,7 +152,7 @@ function OrderDetail({ o }) {
           <li key={i} className="list__row">
             <span className="grow dtwo">
               <span className="list__title">{l.name} {l.color}</span>
-              <span className="small muted">{t('shop.sizeShort', { size: l.size })} · ×{l.qty}{l.onOrder && <> · <span className="ordertag">{t('shop.onOrder')}</span></>}</span>
+              <span className="small muted">{[...extraList(l.extra).map((v) => optText(t, v)), t('shop.sizeShort', { size: l.size })].join(' · ')} · ×{l.qty}{l.onOrder && <> · <span className="ordertag">{t('shop.onOrder')}</span></>}</span>
             </span>
             <strong>{fmtMoney(l.unit * l.qty)}</strong>
           </li>
@@ -209,7 +209,8 @@ function ToOrder({ o }) {
   const toast = useToast()
   const lines = (o.items || []).filter((l) => l.onOrder)
   if (!lines.length || ['entregado', 'cancelado'].includes(o.status)) return null
-  const text = lines.map((l) => `${l.qty}× ${l.name}${l.color ? ` · ${l.color}` : ''}${l.size ? ` · ${l.size}` : ''}${l.url ? ` · ${l.url}` : ''}`).join('\n')
+  // Pasted into FreeRide's own store, so the options go in FreeRide's words (Knee Patch, Petite).
+  const text = lines.map((l) => `${l.qty}× ${[l.name, l.color, ...extraList(l.extra), l.size].filter(Boolean).join(' · ')}${l.url ? ` · ${l.url}` : ''}`).join('\n')
   const copy = async () => {
     try { await navigator.clipboard.writeText(text); toast(t('shop.panel.toOrder.copied')) } catch { toast(text, 'info') }
   }
@@ -224,7 +225,7 @@ function ToOrder({ o }) {
           <li key={i} className="list__row">
             <span className="grow dtwo">
               <span className="list__title">{l.name}</span>
-              <span className="small muted">{[l.color, l.size && t('shop.sizeShort', { size: l.size }), `×${l.qty}`].filter(Boolean).join(' · ')}</span>
+              <span className="small muted">{[l.color, ...extraList(l.extra).map((v) => optText(t, v)), l.size && t('shop.sizeShort', { size: l.size }), `×${l.qty}`].filter(Boolean).join(' · ')}</span>
             </span>
             {l.url && <a className="link small" href={l.url} target="_blank" rel="noopener noreferrer">{t('shop.panel.toOrder.open')}</a>}
           </li>
@@ -252,13 +253,13 @@ function Lists() {
   const rows = all.filter(LIST_FILTERS[filter])
     .filter((w) => !q || [listNo(w), w.name, w.phone, w.email, ...(w.items || []).map((l) => l.name)].some((v) => v?.toLowerCase().includes(q)))
   const when = (iso) => fmtInstant(iso, { day: 'numeric', month: 'short' })
-  const items = (w) => (w.items || []).map((l) => wishText(l, t('shop.wish.sizeWord'))).join(', ')
+  const items = (w) => (w.items || []).map((l) => wishText(l, t)).join(', ')
   const Pill = ({ w }) => <StatusPill status={LIST_PILL[w.status]}>{t(`shop.panel.lists.status.${w.status}`)}</StatusPill>
   const columns = [
     { key: 'number', label: '#', value: (w) => w.number, render: (w) => <span className="dtable__strong">{listNo(w)}</span>, csv: listNo },
     { key: 'date', nowrap: true, label: t('shop.panel.cols.date'), value: (w) => w.createdAt, render: (w) => when(w.createdAt), csv: (w) => w.createdAt.slice(0, 10) },
     { key: 'buyer', label: t('shop.panel.lists.who'), value: (w) => w.name, csv: (w) => `${w.name} ${w.phone || ''}`, render: (w) => <span className="dtwo"><b>{w.name}</b><span className="small muted">{w.phone || w.email}</span></span> },
-    { key: 'items', label: t('shop.panel.cols.items'), value: items, render: (w) => <span className="dtwo">{(w.items || []).map((l, i) => <span key={i}>{wishText(l, t('shop.wish.sizeWord'))}</span>)}</span> },
+    { key: 'items', label: t('shop.panel.cols.items'), value: items, render: (w) => <span className="dtwo">{(w.items || []).map((l, i) => <span key={i}>{wishText(l, t)}</span>)}</span> },
     { key: 'total', align: 'right', label: t('shop.wish.total'), value: (w) => w.totalEstimate, render: (w) => fmtMoney(w.totalEstimate) },
     { key: 'status', label: t('shop.panel.cols.status'), value: (w) => w.status, csv: (w) => t(`shop.panel.lists.status.${w.status}`), render: (w) => <Pill w={w} /> },
   ]
@@ -314,7 +315,7 @@ function ListDetail({ w }) {
   const first = w.name.split(/\s+/)[0]
   const reply = t('shop.panel.lists.waReply', {
     name: first, number: w.number,
-    lines: (w.items || []).map((l) => `${wishText(l, t('shop.wish.sizeWord'))} · ${fmtMoney(l.unit * l.qty)}`).join('\n'),
+    lines: (w.items || []).map((l) => `${wishText(l, t)} · ${fmtMoney(l.unit * l.qty)}`).join('\n'),
     total: fmtMoney(w.totalEstimate),
   })
   const wa = waTo(w.phone, reply)
@@ -336,7 +337,7 @@ function ListDetail({ w }) {
           <li key={i} className="list__row">
             <span className="grow dtwo">
               <span className="list__title">{l.name}</span>
-              <span className="small muted">{[l.color, l.size && t('shop.sizeShort', { size: l.size }), `×${l.qty}`].filter(Boolean).join(' · ')}</span>
+              <span className="small muted">{[l.color, ...extraList(l.extra).map((v) => optText(t, v)), l.size && t('shop.sizeShort', { size: l.size }), `×${l.qty}`].filter(Boolean).join(' · ')}</span>
               {l.url && <a className="link small" href={l.url} target="_blank" rel="noopener noreferrer">{t('shop.panel.toOrder.open')}</a>}
             </span>
             <strong>{fmtMoney(l.unit * l.qty)}</strong>
@@ -397,7 +398,7 @@ function ConvertList({ w, onCancel, onDone }) {
           <div key={l.i} className={`convertlist__row ${l.keep ? '' : 'is-off'}`}>
             <span className="grow dtwo">
               <span className="list__title">{src.name}</span>
-              <span className="small muted">{[src.color, src.size && t('shop.sizeShort', { size: src.size })].filter(Boolean).join(' · ')} · {t('shop.panel.lists.estimate', { amount: fmtMoney(src.unit) })}</span>
+              <span className="small muted">{[src.color, ...extraList(src.extra).map((v) => optText(t, v)), src.size && t('shop.sizeShort', { size: src.size })].filter(Boolean).join(' · ')} · {t('shop.panel.lists.estimate', { amount: fmtMoney(src.unit) })}</span>
             </span>
             {l.keep ? (
               <>
