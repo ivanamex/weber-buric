@@ -150,24 +150,24 @@ export function frePrice(usd, compare, factor = FRE_DEFAULTS.factor, discount = 
   return { unit: to50(mxn * (1 - Number(discount) / 100)), list: mxn, sale: false }
 }
 /** A shop photo's background, read from the outer 3-pixel frame of a ~48 px copy (drawn over white, so transparency
- *  counts as white): when the frame is one even color (no channel deviates more than 14: white, off-white, studio grey,
- *  beige) that color as '#RRGGBB', so the box is filled with exactly it; otherwise (outdoors, lifestyle) 'blur', the
- *  blurred copy behind. data: raw pixels, `channels` per pixel (3 RGB or 4 RGBA). */
+ *  counts as white): when 85 % of the frame is one even color (within 16 of the frame's median on every channel:
+ *  white, off-white, studio grey, beige; a product touching the edge doesn't change it) that color as '#RRGGBB', so the
+ *  box is filled with exactly it; otherwise (outdoors, lifestyle) 'blur', the blurred copy behind. data: raw pixels,
+ *  `channels` per pixel (3 RGB or 4 RGBA). */
 export function frameColor(data, width, height, channels = 4, frame = 3) {
-  const sum = [0, 0, 0]
-  const sq = [0, 0, 0]
-  let n = 0
+  const px = []
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       if (x >= frame && x < width - frame && y >= frame && y < height - frame) continue
       const i = (y * width + x) * channels
-      for (let c = 0; c < 3; c++) { sum[c] += data[i + c]; sq[c] += data[i + c] * data[i + c] }
-      n++
+      px.push([data[i], data[i + 1], data[i + 2]])
     }
   }
-  if (!n) return 'blur'
-  const mean = sum.map((v) => v / n)
-  if (sq.some((v, c) => Math.sqrt(Math.max(0, v / n - mean[c] * mean[c])) > 14)) return 'blur'
+  if (!px.length) return 'blur'
+  const median = [0, 1, 2].map((c) => px.map((p) => p[c]).sort((a, b) => a - b)[px.length >> 1])
+  const even = px.filter((p) => p.every((v, c) => Math.abs(v - median[c]) <= 16))
+  if (even.length < px.length * 0.85) return 'blur'
+  const mean = [0, 1, 2].map((c) => even.reduce((a, p) => a + p[c], 0) / even.length)
   return `#${mean.map((m) => Math.round(m).toString(16).padStart(2, '0')).join('').toUpperCase()}`
 }
 /** A stored background → '#RRGGBB' (fill the box with it) | 'blur' | '' (not read yet: a plain light box).

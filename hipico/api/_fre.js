@@ -6,7 +6,9 @@ import { sizeKey, sortSizes, colorHexFor, EXTRA_KEYS, frameColor } from '../src/
 const STORE = 'https://shopfre.com'
 const MAX_PAGES = 20
 // Raise it when the rules below change: the next deploy copies the catalog again with them.
-export const FRE_RULES = 9
+export const FRE_RULES = 10
+// The rules version from which a photo's 'blur' answer can be kept (frameColor() changed then); older ones are read again.
+const BG_SINCE = 10
 
 // FreeRide's product types, titles and tags → the shop's categories. The product type decides first, then the title,
 // then the tags; within each, the first rule that matches wins. "horse" = things for the horse (a "Para tu caballo"
@@ -246,12 +248,15 @@ async function readBg(src, fetchImpl, signal) {
   }
 }
 
-/** The answers of an earlier copy: photo address → '#RRGGBB' | 'blur' (the older white / photo answers are read again). */
+/** The answers of an earlier copy: photo address → '#RRGGBB' | 'blur' (older white / photo answers, and blur answers
+ *  from before BG_SINCE, are read again). */
 export async function knownBackgrounds(client) {
   const known = new Map()
   try {
+    const st = await client.query('select coalesce(fre_rules, 0) as rules from club_settings where id = 1')
+    const keep = (st.rows[0]?.rules || 0) >= BG_SINCE ? /^(#[0-9A-F]{6}|blur)$/i : /^#[0-9A-F]{6}$/i
     const { rows } = await client.query(`select images, images_bg from fre_catalog where cardinality(images_bg) > 0`)
-    for (const r of rows) (r.images || []).forEach((src, i) => { if (/^(#[0-9A-F]{6}|blur)$/i.test(r.images_bg?.[i] || '')) known.set(src, r.images_bg[i]) })
+    for (const r of rows) (r.images || []).forEach((src, i) => { if (keep.test(r.images_bg?.[i] || '')) known.set(src, r.images_bg[i]) })
   } catch { /* an older database: everything is read again */ }
   return known
 }
