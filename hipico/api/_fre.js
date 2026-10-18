@@ -6,7 +6,7 @@ import { sizeKey, sortSizes, colorHexFor, EXTRA_KEYS, whiteFrame } from '../src/
 const STORE = 'https://shopfre.com'
 const MAX_PAGES = 20
 // Raise it when the rules below change: the next deploy copies the catalog again with them.
-export const FRE_RULES = 7
+export const FRE_RULES = 8
 
 // FreeRide's product types, titles and tags → the shop's categories. The product type decides first, then the title,
 // then the tags; within each, the first rule that matches wins. "horse" = things for the horse (a "Para tu caballo"
@@ -146,12 +146,19 @@ function variantOf(v, p, category, imageIndex) {
   const out = { color: '', size: '', extra: {}, available: Boolean(v.available), image: null }
   const loose = []
   const values = valuesOf(v, (p.options || []).length)
+  // Even a variant's own values don't always come in the options' order, so a value belongs to the option whose list
+  // holds it (when exactly one does); its position only decides otherwise.
+  const owner = (x, fallback) => {
+    const hits = (p.options || []).filter((o) => (o.values || []).some((y) => String(y).trim().toLowerCase() === x.toLowerCase()))
+    return hits.length === 1 ? hits[0].name : fallback
+  }
   ;(p.options || []).forEach((o, i) => {
     const raw = String(values[i] ?? '').trim()
     if (!raw || /^default title$/i.test(raw)) return
-    for (const part of partsOf(raw, o.name, category)) {
-      const kind = kindOf(part, o.name, category)
-      if (!kind) { loose.push([part, o.name]); continue }
+    for (const part of partsOf(raw, owner(raw, o.name), category)) {
+      const name = owner(part, o.name)
+      const kind = kindOf(part, name, category)
+      if (!kind) { loose.push([part, name]); continue }
       const val = canonical(kind, part)
       if (kind === 'color') out.color = out.color ? `${out.color} ${val}` : val
       else if (kind === 'size') out.size = !out.size ? val : /^\d/.test(val) && !/^\d/.test(out.size) ? `${val} (${out.size})` : /^\d/.test(out.size) && !/^\d/.test(val) ? `${out.size} (${val})` : `${out.size} ${val}`
