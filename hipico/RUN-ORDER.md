@@ -6,7 +6,8 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 1. **STEP-77**: a lighter nav bar: 12 px links, App del club 36 px tall with no minimum width, the links grouped on the right (≤ 60 % of the bar at 1440), "La app" link removed (App del club covers it)
 2. **STEP-78**: shop photos fill their box: a blurred copy of the same photo behind it (grey extends grey, lifestyle extends lifestyle, white stays white), box 3:4, the photo never cropped
-3. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
+3. **STEP-79**: FreeRide products with a third option (grip Full Seat / Knee Patch, length Regular / Petite, sleeve): their own rows in Spanish, sizes only once, photos follow the color, the list line names every option
+4. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
 
