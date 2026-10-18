@@ -1,12 +1,12 @@
 // FreeRide's catalog, shared by the daily function (api/fre-sync.js) and the production build (scripts/fre-sync.mjs).
 // Their store runs on Shopify, so the catalog is public JSON (shopfre.com/products.json, 250 a page). A copy upserts
 // every product into fre_catalog; products that disappear are marked inactive, never deleted.
-import { sizeKey, sortSizes, colorHexFor, EXTRA_KEYS, whiteFrame } from '../src/data/shop.js'
+import { sizeKey, sortSizes, colorHexFor, EXTRA_KEYS, frameColor } from '../src/data/shop.js'
 
 const STORE = 'https://shopfre.com'
 const MAX_PAGES = 20
 // Raise it when the rules below change: the next deploy copies the catalog again with them.
-export const FRE_RULES = 8
+export const FRE_RULES = 9
 
 // FreeRide's product types, titles and tags → the shop's categories. The product type decides first, then the title,
 // then the tags; within each, the first rule that matches wins. "horse" = things for the horse (a "Para tu caballo"
@@ -221,12 +221,10 @@ export function toRow(p, position) {
   }
 }
 
-// Which photos are shot on white (belts, socks, gloves…): the shop shows those on plain white, the rest with a blurred
-// copy of the photo behind it. A 48 px copy of each of a product's first 8 photos, its outer frame read (whiteFrame()
-// in data/shop.js). 6 at a time, 4 s each; a photo that can't be read stays '' (shown as "photo", the blurred look)
-// and is tried again on the next copy. Photos already read in an earlier copy (same address) keep their answer, so a
-// daily copy only reads the new ones.
-const BG_PHOTOS = 8
+// Each photo's background, so the shop fills its box with it: a 48 px copy of every photo, its outer frame read
+// (frameColor() in data/shop.js): one even color → that color ('#F2F1EF'), anything else → 'blur'. 8 at a time, 4 s
+// each; a photo that can't be read stays '' (a plain light box meanwhile) and is tried again on the next copy, so
+// every daily copy keeps reading until none are left. Photos read in an earlier copy (same address) keep their answer.
 const tiny = (src) => (/[?&]width=\d+/.test(src) ? src.replace(/([?&])width=\d+/, '$1width=48') : `${src}${src.includes('?') ? '&' : '?'}width=48`)
 async function readBg(src, fetchImpl, signal) {
   const stop = new AbortController()
@@ -239,7 +237,7 @@ async function readBg(src, fetchImpl, signal) {
     const { default: sharp } = await import('sharp')
     const { data, info } = await sharp(Buffer.from(await res.arrayBuffer())).resize({ height: 48, withoutEnlargement: true })
       .flatten({ background: '#ffffff' }).removeAlpha().raw().toBuffer({ resolveWithObject: true })
-    return whiteFrame(data, info.width, info.height, info.channels) ? 'white' : 'photo'
+    return frameColor(data, info.width, info.height, info.channels)
   } catch {
     return ''
   } finally {
@@ -248,21 +246,21 @@ async function readBg(src, fetchImpl, signal) {
   }
 }
 
-/** The answers of an earlier copy: photo address → 'white' | 'photo'. */
+/** The answers of an earlier copy: photo address → '#RRGGBB' | 'blur' (the older white / photo answers are read again). */
 export async function knownBackgrounds(client) {
   const known = new Map()
   try {
     const { rows } = await client.query(`select images, images_bg from fre_catalog where cardinality(images_bg) > 0`)
-    for (const r of rows) (r.images || []).forEach((src, i) => { if (['white', 'photo'].includes(r.images_bg?.[i])) known.set(src, r.images_bg[i]) })
+    for (const r of rows) (r.images || []).forEach((src, i) => { if (/^(#[0-9A-F]{6}|blur)$/i.test(r.images_bg?.[i] || '')) known.set(src, r.images_bg[i]) })
   } catch { /* an older database: everything is read again */ }
   return known
 }
 
 /** Gives every row images_bg (same order as images). Stops reading after budgetMs; what's left stays '' (read next time,
- *  shown as "photo" meanwhile). Never throws. */
+ *  a plain light box meanwhile). Never throws. */
 export async function readBackgrounds(rows, { known = new Map(), fetchImpl = fetch, budgetMs = 60000, signal } = {}) {
   const until = Date.now() + budgetMs
-  const todo = [...new Set(rows.flatMap((r) => r.images.slice(0, BG_PHOTOS)).filter((src) => !known.has(src)))]
+  const todo = [...new Set(rows.flatMap((r) => r.images).filter((src) => !known.has(src)))]
   const found = new Map(known)
   let next = 0
   const worker = async () => {
@@ -271,8 +269,8 @@ export async function readBackgrounds(rows, { known = new Map(), fetchImpl = fet
       found.set(src, await readBg(src, fetchImpl, signal))
     }
   }
-  await Promise.all(Array.from({ length: 6 }, worker))
-  for (const r of rows) r.images_bg = r.images.map((src, i) => (i < BG_PHOTOS ? found.get(src) || '' : 'photo'))
+  await Promise.all(Array.from({ length: 8 }, worker))
+  for (const r of rows) r.images_bg = r.images.map((src) => found.get(src) || '')
   return { read: Math.min(next, todo.length), left: Math.max(0, todo.length - next) }
 }
 
@@ -320,6 +318,16 @@ export async function fetchCatalog(fetchImpl = fetch, { signal } = {}) {
   return all.map((p, i) => toRow(p, i))
 }
 
+/** Reads the photos an earlier copy left unread (''), without copying the catalog again; { read, left }. */
+export async function readUnread(client, { fetchImpl = fetch, budgetMs = 60000 } = {}) {
+  const { rows } = await client.query(`select handle, images, images_bg from fre_catalog
+    where active and cardinality(images) > 0 and (cardinality(images_bg) < cardinality(images) or '' = any (images_bg))`)
+  if (!rows.length) return { read: 0, left: 0 }
+  const res = await readBackgrounds(rows, { known: await knownBackgrounds(client), fetchImpl, budgetMs })
+  for (const r of rows) await client.query('update fre_catalog set images_bg = $2 where handle = $1', [r.handle, r.images_bg])
+  return res
+}
+
 /** Upsert the rows; whatever wasn't in this copy becomes inactive. */
 export async function saveCatalog(client, rows) {
   await client.query('begin')
@@ -348,7 +356,7 @@ export function tally(rows) {
   const out = { total: rows.length, unmapped: 0, audience: {}, extras: {}, photos: {} }
   for (const r of rows) {
     for (const x of r.extras || []) if (x.values.length > 1) out.extras[x.key] = (out.extras[x.key] || 0) + 1
-    for (const bg of r.images_bg || []) out.photos[bg || 'unread'] = (out.photos[bg || 'unread'] || 0) + 1
+    for (const bg of r.images_bg || []) { const k = bg === 'blur' ? 'blur' : bg ? 'solid' : 'unread'; out.photos[k] = (out.photos[k] || 0) + 1 }
     out[r.category] = (out[r.category] || 0) + 1
     out.audience[r.audience] = (out.audience[r.audience] || 0) + 1
     if (!r.mapped) out.unmapped++

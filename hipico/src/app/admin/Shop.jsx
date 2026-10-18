@@ -12,7 +12,7 @@ import { waTo } from '../../lib/phone.js'
 import { todayKey } from '../../lib/time.js'
 import { useBase } from '../Backend.jsx'
 import { useSave } from './useSave.js'
-import { CATEGORIES, STICKERS, SIZE_CHIPS, KID_SIZES, ORDER_FILTERS, nextStatus, orderLine, stockNum, shopPhoto, frePrice, FRE_DEFAULTS, wishText, newWishlists, extraList, optText, whiteFrame } from '../../data/shop.js'
+import { CATEGORIES, STICKERS, SIZE_CHIPS, KID_SIZES, ORDER_FILTERS, nextStatus, orderLine, stockNum, shopPhoto, frePrice, FRE_DEFAULTS, wishText, newWishlists, extraList, optText, frameColor } from '../../data/shop.js'
 import { OrderPill, ProductCardPreview } from '../../site/shop/ShopParts.jsx'
 
 const FILTERS = Object.keys(ORDER_FILTERS)
@@ -516,7 +516,7 @@ const toForm = (p) => (p ? {
 const slug = (x) => String(x || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
 /** A photo for the shop: at most 1200 px tall, WebP (~80), resized in the browser before it goes up; and whether it's
- *  shot on white (the frame of a 48 px copy, as the FreeRide copy reads its photos): { file, bg: 'white' | 'photo' | '' }. */
+ *  edge color (the frame of a 48 px copy, as the FreeRide copy reads its photos): { file, bg: '#RRGGBB' | 'blur' | '' }. */
 async function resizePhoto(file) {
   try {
     const bmp = await createImageBitmap(file)
@@ -534,7 +534,7 @@ async function resizePhoto(file) {
       g.fillStyle = '#FFFFFF'
       g.fillRect(0, 0, tiny.width, tiny.height)
       g.drawImage(bmp, 0, 0, tiny.width, tiny.height)
-      bg = whiteFrame(g.getImageData(0, 0, tiny.width, tiny.height).data, tiny.width, tiny.height) ? 'white' : 'photo'
+      bg = frameColor(g.getImageData(0, 0, tiny.width, tiny.height).data, tiny.width, tiny.height)
     } catch { /* not known: shown as a photo */ }
     const blob = await new Promise((r) => c.toBlob(r, 'image/webp', 0.8))
     return { file: blob ? new File([blob], file.name.replace(/\.[^.]+$/, '') + '.webp', { type: 'image/webp' }) : file, bg }

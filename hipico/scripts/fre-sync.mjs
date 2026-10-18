@@ -2,7 +2,7 @@
 // older than 20 hours or made with older category rules. It never fails a deploy: if FreeRide or the database can't
 // be reached, it logs why and the build goes on (the daily copy and the panel's button stay).
 import { connect } from '../api/_reminders.js'
-import { fetchCatalog, saveCatalog, tally, knownBackgrounds, readBackgrounds, FRE_RULES } from '../api/_fre.js'
+import { fetchCatalog, saveCatalog, tally, knownBackgrounds, readBackgrounds, readUnread, FRE_RULES } from '../api/_fre.js'
 
 const log = (msg) => console.log(`[fre-sync] ${msg}`)
 const env = process.env
@@ -15,7 +15,13 @@ async function main() {
     const { rows } = await client.query(`select (select count(*) from fre_catalog where active)::int as n,
       coalesce(extract(epoch from now() - fre_last_sync) / 3600, 1e6) as hours, coalesce(fre_rules, 0) as rules from club_settings where id = 1`)
     const st = rows[0] || { n: 0, hours: 1e6, rules: 0 }
-    if (st.n > 0 && st.hours < 20 && st.rules >= FRE_RULES) { log(`fresh (${st.n} products, ${Math.round(st.hours)} h old)`); return }
+    if (st.n > 0 && st.hours < 20 && st.rules >= FRE_RULES) {
+      log(`fresh (${st.n} products, ${Math.round(st.hours)} h old)`)
+      // Photos an earlier copy couldn't read yet: read them now (up to 4 minutes).
+      const bg = await readUnread(client, { budgetMs: 240000 })
+      if (bg.read || bg.left) log(`photos read ${bg.read}, ${bg.left} left for the next copy`)
+      return
+    }
     const stop = new AbortController()
     const timer = setTimeout(() => stop.abort(), 90000)
     let list
@@ -28,8 +34,8 @@ async function main() {
     } finally {
       clearTimeout(timer)
     }
-    // Which photos are on white: up to 2 minutes here (the daily copy reads whatever is left).
-    const bg = await readBackgrounds(list, { known: await knownBackgrounds(client), budgetMs: 120000 })
+    // Every photo's background: up to 4 minutes here (the daily copy reads whatever is left).
+    const bg = await readBackgrounds(list, { known: await knownBackgrounds(client), budgetMs: 240000 })
     await saveCatalog(client, list)
     const sum = tally(list)
     log(`photos: ${JSON.stringify(sum.photos)} · read ${bg.read}, ${bg.left} left for the next copy`)

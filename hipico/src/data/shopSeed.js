@@ -11,9 +11,9 @@ export const SHOP_PHOTOS = {
   'celestial-lux-azul-marino': 2, 'celestial-lux-verde-bosque': 2, 'celestial-lux-merlot': 2,
 }
 export const photosOf = (slug) => Array.from({ length: SHOP_PHOTOS[slug] || 0 }, (_, i) => `/img/shop/${slug}-${i + 1}.webp`)
-/** The background of each of Mara's sample photos (as whiteFrame() reads them): the breeches cut out on white, the
- *  Cassidy shirt photographed. Anything else is not known ('', shown as a photo). */
-export const bgOf = (photos) => (photos || []).map((p) => (/^\/img\/shop\/cassidy-/.test(p) ? 'photo' : /^\/img\/shop\/celestial-lux-/.test(p) ? 'white' : ''))
+/** The background of each of Mara's sample photos (as frameColor() reads them): the breeches cut out on white, the
+ *  Cassidy shirt photographed. Anything else is not known yet (''). */
+export const bgOf = (photos) => (photos || []).map((p) => (/^\/img\/shop\/cassidy-/.test(p) ? 'blur' : /^\/img\/shop\/celestial-lux-/.test(p) ? '#FFFFFF' : ''))
 
 const LUX = [
   ['arena', 'Arena', '#D8C3A0', ['XS', 'S', 'M'], ' Tela muy fresca; color permitido los sábados en los concursos de CESQROO.', ' A very cool fabric; a color allowed on Saturdays at CESQROO shows.'],

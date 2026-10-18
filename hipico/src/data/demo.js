@@ -3,7 +3,7 @@ import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS_KINDS, applyPrices, resetPrices } from './prices.js'
 import { monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, todayKey, periodOf, addDays, daysBetween, weekdayOf } from '../lib/time.js'
 import { shopProductsSeed, shopOrdersSeed, photosOf, bgOf } from './shopSeed.js'
-import { stockNum, unitPrice, listPrice, ORDER_MAX, frePrice, FRE_DEFAULTS, sizeKey } from './shop.js'
+import { stockNum, unitPrice, listPrice, ORDER_MAX, frePrice, FRE_DEFAULTS, sizeKey, photoBg, matchesWords } from './shop.js'
 import { freCatalogSeed, wishlistsSeed } from './freSeed.js'
 import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS, slotRuns, isClosed, isOneOff, pickHorse, horseBusy, riderBusy, slotMinutes, closedWeekdays, horseStatus } from './queries.js'
 
@@ -93,9 +93,9 @@ export function activate(setState, inMemory = false) {
   // Demo states saved before "Para quién": the catalog sample again, now with who each piece is for.
   if (!memoryOnly && (state.freCatalog || []).some((r) => !r.audience)) state = persist({ ...state, freCatalog: freCatalogSeed() })
   // …and before FreeRide's other options (grip, length, sleeve): the sample again, with a breech and a shirt that have them.
-  if (!memoryOnly && (state.freCatalog || []).some((r) => !r.extras || !r.imagesBg)) state = persist({ ...state, freCatalog: freCatalogSeed() })
+  if (!memoryOnly && (state.freCatalog || []).some((r) => !r.extras || !r.imagesBg || r.imagesBg.includes('white'))) state = persist({ ...state, freCatalog: freCatalogSeed() })
   // …and before photos on white: each sample photo's background.
-  if (!memoryOnly && (state.shopProducts || []).some((p) => !p.photosBg)) state = persist({ ...state, shopProducts: state.shopProducts.map((p) => (p.photosBg ? p : { ...p, photosBg: bgOf(p.photos) })) })
+  if (!memoryOnly && (state.shopProducts || []).some((p) => !p.photosBg || p.photosBg.some((b) => b === 'white' || b === 'photo'))) state = persist({ ...state, shopProducts: state.shopProducts.map((p) => ({ ...p, photosBg: (p.photosBg || bgOf(p.photos)).map((b, i) => (b === 'white' || b === 'photo' ? bgOf(p.photos)[i] || photoBg(b) : b)) })) })
   // Demo states saved before the website's contact form: add the sample messages once.
   if (!state.contactMessages && !memoryOnly) { state.contactMessages = createSeed().contactMessages; persist(state) }
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
@@ -1316,8 +1316,10 @@ export function demoFre(p = {}) {
   const sizes = Array.isArray(p.sizes) ? p.sizes : []
   const colors = Array.isArray(p.colors) ? p.colors.map((c) => String(c).toLowerCase()) : []
   const tab = base.filter((r) => (!p.category || r.category === p.category) && (!aud || r.audience === aud || r.audience === 'all'))
+  const words = Array.isArray(p.words) ? p.words : []
   const filt = tab.filter((r) => (!p.handle || r.handle === p.handle)
-    && (!sizes.length || r.sizeKeys.some((k) => sizes.includes(k))) && (!colors.length || r.colors.some((c) => colors.includes(c.toLowerCase()))))
+    && (!sizes.length || r.sizeKeys.some((k) => sizes.includes(k))) && (!colors.length || r.colors.some((c) => colors.includes(c.toLowerCase())))
+    && (!words.length || matchesWords(`${r.title} ${r.colors.join(' ')} ${r.type}`, words)))
   const off = Math.max(0, Number(p.offset) || 0)
   const lim = Math.min(60, Math.max(1, Number(p.limit) || 24))
   const count = (list) => list.reduce((m, x) => ({ ...m, [x]: (m[x] || 0) + 1 }), {})
@@ -1532,7 +1534,7 @@ function saveShopProduct(p) {
       colorName: String(p.colorName || '').trim(), colorHex: p.colorHex || '#D5C7AD',
       descriptionEs: p.descriptionEs || '', descriptionEn: p.descriptionEn || '', features: p.features || { es: [], en: [] },
       price: Number(p.price), promoPrice: p.promoPrice === '' || p.promoPrice == null ? null : Number(p.promoPrice),
-      sticker: p.sticker || 'none', photos: [...(p.photos || [])], photosBg: (p.photos || []).map((_, i) => (['white', 'photo'].includes(p.photosBg?.[i]) ? p.photosBg[i] : '')), takesOrders: Boolean(p.takesOrders), active: p.active !== false,
+      sticker: p.sticker || 'none', photos: [...(p.photos || [])], photosBg: (p.photos || []).map((_, i) => photoBg(p.photosBg?.[i])), takesOrders: Boolean(p.takesOrders), active: p.active !== false,
       audience: ['women', 'men', 'kids', 'all'].includes(p.audience) ? p.audience : row.audience || 'women',
       variants: sizes.map((v) => ({ size: String(v.size).trim(), stock: Math.max(0, Number(v.stock) || 0), price: v.price === '' || v.price == null ? null : Number(v.price) })),
     })

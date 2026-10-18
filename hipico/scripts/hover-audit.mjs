@@ -383,7 +383,7 @@ async function main() {
       }
       // The three filter menus (Para · Talla · Color), open one at a time.
       for (let i = 0; i < 3; i++) {
-        await page.click(`.shopfilters .fmenu__btn >> nth=${i}`).catch(() => {})
+        await page.click(`.shoptools .fmenu__btn >> nth=${i}`).catch(() => {})
         await page.waitForTimeout(300)
         await edgeCheck(page, `/tienda ${w}×${h} (filtro ${i + 1})`)
         if (w === 1440) total += await auditPage(page, `/tienda (filtro ${i + 1})`, seen, out)

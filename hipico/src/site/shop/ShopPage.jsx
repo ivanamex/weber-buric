@@ -7,7 +7,7 @@ import { SiteDialog } from '../ServiceSheet.jsx'
 import { ContactForm } from '../ContactForm.jsx'
 import { BIG } from '../content.js'
 import { unitPrice, shopPhoto } from '../../data/shop.js'
-import { ShopBtn, ShopCatalog, CartDrawer, ShopQuiet, ShopIcons, WishDrawer } from './ShopParts.jsx'
+import { ShopCatalog, CartDrawer, ShopQuiet, ShopIcons, WishDrawer } from './ShopParts.jsx'
 import { ShopCheckout } from './Checkout.jsx'
 import { openCart, useShop } from './shopApi.js'
 
@@ -68,7 +68,6 @@ export default function ShopPage() {
             <p className="shophero__eyebrow">{t('shop.eyebrow')}</p>
             <h1>{t('shop.title')}</h1>
             <p>{t('shop.heroLine')}</p>
-            <ShopBtn onClick={toGrid}>{t('shop.heroBtn')}</ShopBtn>
           </div>
         </div>
       </section>

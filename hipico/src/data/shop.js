@@ -109,6 +109,35 @@ export function colorHexFor(name) {
   return (COLOR_WORDS.find(([w]) => s.includes(w)) || [null, '#D5C7AD'])[1]
 }
 
+/* ───────── Search ("Buscar en la tienda", ?q=) ───────── */
+// Words that mean the same in Spanish and English, so "navy" finds Mara's "Azul marino" and "camisa" FreeRide's shirts.
+const SAME_WORDS = [
+  ['navy', 'azul marino', 'marino'], ['black', 'negro', 'negra'], ['white', 'blanco', 'blanca'], ['sand', 'arena'], ['forest', 'verde bosque', 'bosque'],
+  ['steel blue', 'azul acero', 'acero'], ['raspberry', 'frambuesa'], ['grey', 'gray', 'gris'], ['pink', 'rosa'], ['brown', 'cafe'], ['green', 'verde'],
+  ['blue', 'azul'], ['red', 'rojo', 'roja'], ['purple', 'morado', 'morada'], ['yellow', 'amarillo'], ['orange', 'naranja'],
+  ['breeches', 'pantalon', 'pantalones', 'pants', 'leggings'], ['shirt', 'shirts', 'camisa', 'camisas'], ['jacket', 'chamarra', 'chamarras', 'vest', 'coat', 'chaleco'],
+  ['belt', 'cinturon', 'cinturones'], ['socks', 'calcetas', 'calcetines'], ['gloves', 'guantes'], ['kids', 'ninos', 'nino', 'nina', 'children', 'youth'],
+]
+export const foldText = (x) => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[%_\\]/g, ' ').replace(/\s+/g, ' ').trim()
+/** A search → one list per word of what it may be written as: "navy breeches" → [[navy, azul marino, marino], [breeches, pantalon…]].
+ *  A product matches when every word does (any of its forms). */
+export function searchWords(q) {
+  const text = foldText(q)
+  if (!text) return []
+  const words = []
+  let rest = ` ${text} `
+  for (const group of SAME_WORDS) { // two-word names first ("azul marino")
+    for (const w of group.filter((x) => x.includes(' '))) if (rest.includes(` ${w} `)) { words.push(group); rest = rest.replace(` ${w} `, ' ') }
+  }
+  for (const w of rest.trim().split(' ').filter((x) => x.length > 1)) words.push(SAME_WORDS.find((g) => g.includes(w)) || [w])
+  return words
+}
+/** Every word found at the start of a word of the text ("red" doesn't match "tailored"). */
+export const matchesWords = (text, words) => {
+  const t = ` ${foldText(text).replace(/[^a-z0-9]+/g, ' ')}`
+  return words.every((forms) => forms.some((f) => t.includes(` ${f}`)))
+}
+
 /* ───────── FreeRide's catalog (always "sobre pedido") ───────── */
 export const FRE_PREFIX = 'fre:'
 export const isFre = (slug) => String(slug || '').startsWith(FRE_PREFIX)
@@ -120,24 +149,30 @@ export function frePrice(usd, compare, factor = FRE_DEFAULTS.factor, discount = 
   if (Number(compare) > Number(usd)) return { unit: mxn, list: to50(Number(compare) * Number(factor)), sale: true }
   return { unit: to50(mxn * (1 - Number(discount) / 100)), list: mxn, sale: false }
 }
-/** A photo shot on white (no blurred backdrop behind it in the shop): the outer 3-pixel frame of a ~48 px copy is at
- *  least 92 % near-white pixels (every channel ≥ 238). data: raw pixels, `channels` per pixel (3 RGB or 4 RGBA, drawn
- *  over white first so transparency counts as white). */
-export function whiteFrame(data, width, height, channels = 4, frame = 3) {
-  let white = 0
-  let all = 0
+/** A shop photo's background, read from the outer 3-pixel frame of a ~48 px copy (drawn over white, so transparency
+ *  counts as white): when the frame is one even color (no channel deviates more than 14: white, off-white, studio grey,
+ *  beige) that color as '#RRGGBB', so the box is filled with exactly it; otherwise (outdoors, lifestyle) 'blur', the
+ *  blurred copy behind. data: raw pixels, `channels` per pixel (3 RGB or 4 RGBA). */
+export function frameColor(data, width, height, channels = 4, frame = 3) {
+  const sum = [0, 0, 0]
+  const sq = [0, 0, 0]
+  let n = 0
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       if (x >= frame && x < width - frame && y >= frame && y < height - frame) continue
       const i = (y * width + x) * channels
-      all++
-      if (data[i] >= 238 && data[i + 1] >= 238 && data[i + 2] >= 238) white++
+      for (let c = 0; c < 3; c++) { sum[c] += data[i + c]; sq[c] += data[i + c] * data[i + c] }
+      n++
     }
   }
-  return all > 0 && white / all >= 0.92
+  if (!n) return 'blur'
+  const mean = sum.map((v) => v / n)
+  if (sq.some((v, c) => Math.sqrt(Math.max(0, v / n - mean[c] * mean[c])) > 14)) return 'blur'
+  return `#${mean.map((m) => Math.round(m).toString(16).padStart(2, '0')).join('').toUpperCase()}`
 }
-/** A photo's background as the shop keeps it: 'white' | 'photo' ('' = not known yet, shown as 'photo'). */
-export const PHOTO_BG = ['white', 'photo']
+/** A stored background → '#RRGGBB' (fill the box with it) | 'blur' | '' (not read yet: a plain light box).
+ *  Answers from before the color was read: 'white' = #FFFFFF, 'photo' = blur. */
+export const photoBg = (v) => (v === 'white' ? '#FFFFFF' : v === 'photo' || v === 'blur' ? 'blur' : /^#[0-9A-F]{6}$/i.test(v || '') ? v.toUpperCase() : '')
 
 /** FreeRide's options besides color and size, in the order the product window shows them (above Talla). */
 export const EXTRA_KEYS = ['grip', 'length', 'sleeve', 'pockets', 'style']

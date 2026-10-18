@@ -36,7 +36,7 @@ export default async function handler(req, res) {
       await client.query('update club_settings set fre_last_error = $1 where id = 1', [String(err.message).slice(0, 200)])
       return res.status(200).json({ ok: false, code: 'freDown', error: err.message })
     }
-    // Which photos are on white: the new ones only, at most 35 s (the function has 60); the rest on the next copy.
+    // Every photo's background: the new and unread ones only, at most 35 s (the function has 60); the rest next time.
     await readBackgrounds(rows, { known: await knownBackgrounds(client), budgetMs: 35000 })
     await saveCatalog(client, rows)
     const sum = tally(rows)

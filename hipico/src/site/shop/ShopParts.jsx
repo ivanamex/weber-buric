@@ -6,7 +6,7 @@ import { SiteIcon } from '../../components/site/Icons.jsx'
 import { waLink } from '../../components/ui.jsx'
 import {
   CATEGORIES, CATEGORY_SLUGS, categoryFromSlug, siblingsOf, stickersOf, STICKER_COLOR, stockNum, sizeOpen, onOrder,
-  unitPrice, listPrice, maxQty, SIZE_GUIDE, resolveLine, cartTotals, shopPhoto, FRE_PREFIX, isFre, freAsProduct, freColors, freSizes, freExtras, freChosen, frePhotos, sizeLabel, optText, extraList, ORDER_MAX,
+  unitPrice, listPrice, maxQty, SIZE_GUIDE, photoBg, searchWords, matchesWords, resolveLine, cartTotals, shopPhoto, FRE_PREFIX, isFre, freAsProduct, freColors, freSizes, freExtras, freChosen, frePhotos, sizeLabel, optText, extraList, ORDER_MAX,
   AUDIENCES, PARA_SLUGS, paraFromSlug, audienceOfProduct, forAudience, LETTER_SIZES, sortSizes, colorHexFor,
 } from '../../data/shop.js'
 import { cartApi, fetchFre, openCart, openWish, sendWishlist, useCart, useSheet, useWish, wishApi, wishItems, wishView } from './shopApi.js'
@@ -56,10 +56,10 @@ export const productTitle = (p) => `${p.name} ${p.colorName}`.trim()
 /** The photo, or a sand card with the pictogram and the product's color while there's none. */
 // Phones that ask to save data get the photo alone (no blurred copy behind it).
 const SAVE_DATA = typeof navigator !== 'undefined' && Boolean(navigator.connection?.saveData)
-/** A shop photo filling its box. A photo shot on white (photosBg 'white', read when it was copied or uploaded) sits on
- *  plain white; any other (or not known yet) has the same image blurred behind it, so a grey studio photo extends into
- *  its grey and a lifestyle one into its colors; the photo itself always whole on top. thumb: a small cart / list
- *  thumbnail, simply cropped to fill. */
+/** A shop photo filling its box. Its background was read from its edges when it was copied or uploaded (photosBg):
+ *  one even color ('#F2F1EF': white, off-white, studio grey) fills the box with exactly that color, so the photo melts
+ *  into it; 'blur' (outdoors) puts the same image blurred behind it; not read yet → a plain light box. The photo itself
+ *  is always whole on top. thumb: a small cart / list thumbnail, simply cropped to fill. */
 export function ProductPhoto({ product, index = 0, alt = '', thumb = false, className = '' }) {
   const src = shopPhoto(product.photos?.[index])
   const [broken, setBroken] = useState(false)
@@ -72,10 +72,12 @@ export function ProductPhoto({ product, index = 0, alt = '', thumb = false, clas
       </span>
     )
   }
-  const white = product.photosBg?.[index] === 'white'
-  const backdrop = !thumb && !white && !SAVE_DATA
+  const bg = photoBg(product.photosBg?.[index])
+  const solid = bg.startsWith('#')
+  const backdrop = !thumb && bg === 'blur' && !SAVE_DATA
+  const look = thumb ? 'pimg--thumb' : solid ? 'pimg--solid' : bg === 'blur' ? (backdrop ? '' : 'pimg--lite') : 'pimg--plain'
   return (
-    <span className={`pimg ${thumb ? 'pimg--thumb' : white ? 'pimg--white' : backdrop ? '' : 'pimg--lite'} ${className}`}>
+    <span className={`pimg ${look} ${className}`} style={solid && !thumb ? { background: bg } : undefined}>
       {backdrop && <img className="pimg__bg" src={src} alt="" aria-hidden="true" loading="lazy" decoding="async" />}
       <img className="pimg__fg" src={src} alt={alt} loading="lazy" decoding="async" onError={() => setBroken(true)} />
     </span>
@@ -192,11 +194,12 @@ export function useFreList(filters) {
 /** The filters in the address: ?para=mujer&talla=S,M&color=navy (a filtered page can be shared). */
 const listParam = (v) => String(v || '').split(',').map((x) => x.trim()).filter(Boolean)
 export function readFilters(params) {
-  return { para: paraFromSlug(params.get('para')), sizes: listParam(params.get('talla')), colors: listParam(params.get('color')).map((c) => c.toLowerCase()) }
+  return { para: paraFromSlug(params.get('para')), sizes: listParam(params.get('talla')), colors: listParam(params.get('color')).map((c) => c.toLowerCase()), q: (params.get('q') || '').slice(0, 60) }
 }
 
 /**
- * The shop itself: category tabs (in the address, ?cat=camisas), three filter menus (Para · Talla · Color), Mara's own
+ * The shop itself: one toolbar (category tabs in the address, ?cat=camisas; a search, ?q=; three filter menus Para ·
+ * Talla · Color, one "Filtros" sheet on phones; the heart and the bag), Mara's own
  * stock first ("Entrega inmediata en el club"), then the whole FreeRide catalog ("sobre pedido", 24 at a time), and the
  * product window (?p=<slug> or ?p=fre:<handle>, so a product can be shared on WhatsApp). Used by /tienda and the app.
  */
@@ -206,15 +209,19 @@ export function ShopCatalog({ products, inApp, onAsk, gridRef, actions }) {
   const cat = categoryFromSlug(params.get('cat')) || 'all'
   const open = params.get('p')
   const f = readFilters(params)
-  const fre = useFreList({ category: cat === 'all' ? null : cat, audience: f.para, sizes: f.sizes, colors: f.colors })
+  const words = useMemo(() => searchWords(f.q), [f.q])
+  const phone = usePhone()
+  const fre = useFreList({ category: cat === 'all' ? null : cat, audience: f.para, sizes: f.sizes, colors: f.colors, ...(words.length ? { words } : {}) })
   const freFacets = fre.facets || {}
   const freCats = freFacets.categories || {}
   const freOn = Object.values(freCats).some((n) => n > 0)
   // Mara's own pieces in this tab for this audience (what the size and color menus offer), then with every filter.
-  const tabMine = products.filter((p) => (cat === 'all' || p.category === cat) && forAudience(audienceOfProduct(p), f.para))
+  const tabMine = products.filter((p) => (cat === 'all' || p.category === cat) && forAudience(audienceOfProduct(p), f.para)
+    && (!words.length || matchesWords(`${p.name} ${p.colorName || ''} ${p.model || ''}`, words)))
   const mine = tabMine.filter((p) => (!f.sizes.length || (p.variants || []).some((v) => f.sizes.includes(v.size) && sizeOpen(p, v)))
     && (!f.colors.length || f.colors.includes((p.colorName || '').toLowerCase())))
   const filtered = Boolean(f.para || f.sizes.length || f.colors.length)
+  const searching = words.length > 0
   const counts = Object.fromEntries(CATEGORIES.map((c) => [c, products.filter((p) => p.category === c).length + (freCats[c] || 0)]))
   const allCount = products.length + Object.values(freCats).reduce((a, n) => a + n, 0)
   const tabs = ['all', ...CATEGORIES.filter((c) => counts[c] > 0)]
@@ -235,11 +242,24 @@ export function ShopCatalog({ products, inApp, onAsk, gridRef, actions }) {
     if ('para' in next) put('para', next.para ? PARA_SLUGS[lang][next.para] : '')
     if ('sizes' in next) put('talla', next.sizes.join(','))
     if ('colors' in next) put('color', next.colors.join(','))
+    if ('q' in next) put('q', next.q.trim())
     q.delete('p')
     return q
   }, { replace: true, preventScrollReset: true })
   const toggle = (list, v) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v])
   const results = mine.length + (fre.total || 0)
+  // The three filters, as menus on a computer and as one "Filtros" sheet on phones.
+  const filterGroups = [
+    { key: 'para', title: t('shop.para.label'), label: t('shop.filters.paraOn', { v: t(`shop.para.${f.para || 'all'}`) }), on: Boolean(f.para), badge: 0,
+      options: [{ value: null, label: t('shop.para.all') }, ...AUDIENCES.map((a) => ({ value: a, label: t(`shop.para.${a}`) }))],
+      selected: [f.para], onPick: (v) => setFilters({ para: v, sizes: v === f.para ? f.sizes : [] }) },
+    { key: 'size', title: t('shop.filters.size'), multiple: true, badge: f.sizes.length,
+      label: f.sizes.length ? t('shop.filters.sizeOn', { v: f.sizes.slice(0, 3).join(', ') + (f.sizes.length > 3 ? ` +${f.sizes.length - 3}` : '') }) : t('shop.filters.size'),
+      options: [...new Set([...sizeOptions, ...f.sizes])].map((x) => ({ value: x, label: x })), selected: f.sizes, onPick: (v) => setFilters({ sizes: toggle(f.sizes, v) }) },
+    { key: 'color', title: t('shop.filters.color'), multiple: true, badge: f.colors.length,
+      label: f.colors.length ? t('shop.filters.colorOn', { v: (colorMap.get(f.colors[0])?.label || f.colors[0]) + (f.colors.length > 1 ? ` +${f.colors.length - 1}` : '') }) : t('shop.filters.color'),
+      options: [...colorMap.entries()].map(([value, c]) => ({ value, label: c.label, swatch: c.swatch })), selected: f.colors, onPick: (v) => setFilters({ colors: toggle(f.colors, v) }) },
+  ]
   const setCat = (c) => {
     const next = new URLSearchParams(params)
     if (c === 'all') next.delete('cat'); else next.set('cat', CATEGORY_SLUGS[lang][c])
@@ -272,23 +292,24 @@ export function ShopCatalog({ products, inApp, onAsk, gridRef, actions }) {
             </button>
           ))}
         </div>
+        <div className="shoptools" role="group" aria-label={t('shop.filters.label')}>
+          <ShopSearch value={f.q} onChange={(v) => setFilters({ q: v })} />
+          {phone ? (
+            <FilterSheet inApp={inApp} results={results} groups={filterGroups} count={(f.para ? 1 : 0) + f.sizes.length + f.colors.length}
+              onClear={() => setFilters({ para: null, sizes: [], colors: [] })} />
+          ) : filterGroups.map((g) => (
+            <FilterMenu key={g.key} inApp={inApp} title={g.title} label={g.label} on={g.on} badge={g.badge} results={results}
+              options={g.options} selected={g.selected} multiple={g.multiple} onPick={g.onPick} />
+          ))}
+        </div>
         {actions}
       </div>
-      <div className="shopfilters" role="group" aria-label={t('shop.filters.label')}>
-        <FilterMenu inApp={inApp} title={t('shop.para.label')} label={t('shop.filters.paraOn', { v: t(`shop.para.${f.para || 'all'}`) })} on={Boolean(f.para)} results={results}
-          options={[{ value: null, label: t('shop.para.all') }, ...AUDIENCES.map((a) => ({ value: a, label: t(`shop.para.${a}`) }))]}
-          selected={[f.para]} onPick={(v) => setFilters({ para: v, sizes: v === f.para ? f.sizes : [] })} />
-        <FilterMenu inApp={inApp} multiple title={t('shop.filters.size')} results={results} badge={f.sizes.length}
-          label={f.sizes.length ? t('shop.filters.sizeOn', { v: f.sizes.slice(0, 3).join(', ') + (f.sizes.length > 3 ? ` +${f.sizes.length - 3}` : '') }) : t('shop.filters.size')}
-          options={[...new Set([...sizeOptions, ...f.sizes])].map((x) => ({ value: x, label: x }))} selected={f.sizes}
-          onPick={(v) => setFilters({ sizes: toggle(f.sizes, v) })} />
-        <FilterMenu inApp={inApp} multiple title={t('shop.filters.color')} results={results} badge={f.colors.length}
-          label={f.colors.length ? t('shop.filters.colorOn', { v: (colorMap.get(f.colors[0])?.label || f.colors[0]) + (f.colors.length > 1 ? ` +${f.colors.length - 1}` : '') }) : t('shop.filters.color')}
-          options={[...colorMap.entries()].map(([value, c]) => ({ value, label: c.label, swatch: c.swatch }))} selected={f.colors}
-          onPick={(v) => setFilters({ colors: toggle(f.colors, v) })} />
-        {filtered && <button type="button" className="tlink shopfilters__clear" onClick={() => setFilters({ para: null, sizes: [], colors: [] })}>{t('shop.filters.clear')}</button>}
-      </div>
-      <p className="shopresults" aria-live="polite">{fre.loading && !fre.items.length ? '\u00a0' : t('shop.filters.results', { n: results })}</p>
+      {(filtered || searching) && (
+        <p className="shopstate" aria-live="polite">
+          <span>{fre.loading && !fre.items.length ? '\u00a0' : t('shop.filters.results', { n: results })}</span>
+          <button type="button" className="tlink" onClick={() => setFilters({ para: null, sizes: [], colors: [], q: '' })}>{t('shop.filters.clear')}</button>
+        </p>
+      )}
       {groups.length > 0 && (
         <section className="shopsect" aria-labelledby="shop-mine">
           {freOn && <h2 id="shop-mine" className="shopsect__title">{t('shop.mine.title')} <span>{t('shop.mine.line')}</span></h2>}
@@ -315,8 +336,10 @@ export function ShopCatalog({ products, inApp, onAsk, gridRef, actions }) {
       {empty && (
         <div className="shopempty" ref={gridRef}>
           <SiteIcon name="hanger" size={40} />
-          <p>{filtered ? t('shop.filters.none') : t('shop.emptyCat', { cat: t(`shop.cat.${cat}`).toLowerCase() })}</p>
-          {onAsk && <button type="button" className="tlink" onClick={onAsk}>{t('shop.emptyAsk')}</button>}
+          <p>{searching ? t('shop.search.none', { q: f.q.trim() }) : filtered ? t('shop.filters.none') : t('shop.emptyCat', { cat: t(`shop.cat.${cat}`).toLowerCase() })}</p>
+          {searching ? (
+            <a className="tlink" href={waLink(t('shop.search.wa', { q: f.q.trim() }))} target="_blank" rel="noopener noreferrer"><SiteIcon name="whatsapp" size={16} /> {t('shop.search.waLink')}</a>
+          ) : onAsk && <button type="button" className="tlink" onClick={onAsk}>{t('shop.emptyAsk')}</button>}
         </div>
       )}
       {product && <ProductSheet key={product.model || product.slug} product={product} siblings={siblingsOf(products, product)} inApp={inApp} onClose={closeSheet} onSwitch={switchTo} onAsk={onAsk} />}
@@ -935,6 +958,94 @@ function usePhone() {
  * Para, checkboxes for Talla and Color); arrows move, Esc or a click outside closes. On phones it is a small bottom sheet
  * with "Ver N productos". Choices apply at once.
  */
+/** A filter's choices: radio dots (one) or boxes (several), a swatch for colors. */
+function OptionList({ label, options, selected, multiple, onPick, onKeyDown }) {
+  const { t } = useI18n()
+  return (
+    <div className="fmenu__list" role="menu" aria-label={label} onKeyDown={onKeyDown}>
+      {options.length ? options.map((o) => {
+        const sel = selected.includes(o.value)
+        return (
+          <button key={String(o.value)} type="button" role={multiple ? 'menuitemcheckbox' : 'menuitemradio'} aria-checked={sel} className={`fmenu__opt ${sel ? 'is-on' : ''}`}
+            onClick={() => onPick(o.value)}>
+            <span className={`fmenu__tick ${multiple ? 'is-box' : 'is-dot'}`} aria-hidden="true">{sel && <SiteIcon name="check" size={14} />}</span>
+            {o.swatch && <span className="fmenu__sw" style={{ '--sw': o.swatch }} aria-hidden="true" />}
+            <span className="fmenu__label">{o.label}</span>
+          </button>
+        )
+      }) : <p className="fmenu__none">{t('shop.filters.noneHere')}</p>}
+    </div>
+  )
+}
+
+/** "Buscar en la tienda": name and color of Mara's stock and FreeRide's, in the address (?q=) a moment after typing. */
+function ShopSearch({ value, onChange }) {
+  const { t } = useI18n()
+  const [text, setText] = useState(value)
+  const input = useRef(null)
+  useEffect(() => setText(value), [value])
+  useEffect(() => {
+    if (text.trim() === value.trim()) return undefined
+    const id = setTimeout(() => onChange(text), 300)
+    return () => clearTimeout(id)
+  }, [text, value, onChange])
+  return (
+    <form className={`shopsearch ${text ? 'has-text' : ''}`} role="search" onSubmit={(e) => { e.preventDefault(); onChange(text); input.current?.blur() }}>
+      <SiteIcon name="search" size={18} />
+      <input ref={input} type="search" value={text} maxLength={60} enterKeyHint="search" aria-label={t('shop.search.placeholder')} placeholder={t('shop.search.placeholder')}
+        onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape' && text) { e.stopPropagation(); setText(''); onChange('') } }} />
+      {text && <button type="button" className="shopsearch__x" aria-label={t('shop.search.clear')} onClick={() => { setText(''); onChange(''); input.current?.focus() }}><SiteIcon name="x" size={16} /></button>}
+    </form>
+  )
+}
+
+/** Phones: one "Filtros" button and one sheet with Para, Talla and Color; choices apply at once. */
+function FilterSheet({ groups, results, count, onClear, inApp }) {
+  const { t } = useI18n()
+  const [open, setOpen] = useState(false)
+  const btn = useRef(null)
+  const close = useCallback(() => { setOpen(false); btn.current?.focus() }, [])
+  useEffect(() => {
+    if (!open) return undefined
+    const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); close() } }
+    window.addEventListener('keydown', onKey)
+    const unlock = lockScroll()
+    return () => { window.removeEventListener('keydown', onKey); unlock() }
+  }, [open, close])
+  return (
+    <>
+      <button ref={btn} type="button" className={`fmenu__btn shopfilterbtn ${count ? 'is-on' : ''}`} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+        <SiteIcon name="sliders" size={16} /><span className="fmenu__text">{t('shop.filters.button')}</span>
+        {count > 0 && <span className="fmenu__n" aria-hidden="true">{count}</span>}
+      </button>
+      {open && createPortal(
+        <div className="fsheet" role="dialog" aria-modal="true" aria-label={t('shop.filters.button')}>
+          <button type="button" className="shopdlg__scrim" aria-hidden="true" tabIndex={-1} onClick={close} />
+          <div className="fsheet__panel">
+            <div className="fsheet__head">
+              <h2>{t('shop.filters.button')}</h2>
+              <button type="button" className="shopdlg__close" aria-label={t('common.close')} onClick={close}><SiteIcon name="x" size={22} /></button>
+            </div>
+            <div className="fsheet__body">
+              {groups.map((g) => (
+                <section key={g.key} className="fsheet__group">
+                  <h3>{g.title}</h3>
+                  <OptionList label={g.title} options={g.options} selected={g.selected} multiple={g.multiple} onPick={g.onPick} />
+                </section>
+              ))}
+            </div>
+            <div className="fsheet__foot">
+              {count > 0 && <button type="button" className="tlink" onClick={onClear}>{t('shop.filters.clear')}</button>}
+              <ShopBtn inApp={inApp} onClick={close}>{t('shop.filters.see', { n: results })}</ShopBtn>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
+    </>
+  )
+}
+
 export function FilterMenu({ title, label, options, selected, onPick, multiple, badge = 0, on, results, inApp }) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
@@ -961,21 +1072,8 @@ export function FilterMenu({ title, label, options, selected, onPick, multiple, 
     const next = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : (i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length
     items[next]?.focus()
   }
-  const list = (
-    <div className="fmenu__list" role="menu" aria-label={title} onKeyDown={onKeyDown}>
-      {options.length ? options.map((o) => {
-        const sel = selected.includes(o.value)
-        return (
-          <button key={String(o.value)} type="button" role={multiple ? 'menuitemcheckbox' : 'menuitemradio'} aria-checked={sel} className={`fmenu__opt ${sel ? 'is-on' : ''}`}
-            onClick={() => { onPick(o.value); if (!multiple && !phone) close(true) }}>
-            <span className={`fmenu__tick ${multiple ? 'is-box' : 'is-dot'}`} aria-hidden="true">{sel && <SiteIcon name="check" size={14} />}</span>
-            {o.swatch && <span className="fmenu__sw" style={{ '--sw': o.swatch }} aria-hidden="true" />}
-            <span className="fmenu__label">{o.label}</span>
-          </button>
-        )
-      }) : <p className="fmenu__none">{t('shop.filters.noneHere')}</p>}
-    </div>
-  )
+  const list = <OptionList label={title} options={options} selected={selected} multiple={multiple} onKeyDown={onKeyDown}
+    onPick={(v) => { onPick(v); if (!multiple && !phone) close(true) }} />
   return (
     <div className="fmenu">
       <button ref={btn} type="button" className={`fmenu__btn ${on || badge ? 'is-on' : ''} ${open ? 'is-open' : ''}`} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
