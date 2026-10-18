@@ -185,7 +185,7 @@ function LangMenu({ active, onDone, long, up }) {
     <div className={`langm ${up ? 'langm--up' : ''}`} ref={box}>
       {long && <span className="langm__label">{t('site.langLabel')}</span>}
       <button type="button" className="langm__btn" aria-haspopup="menu" aria-expanded={open} aria-label={t('common.language')} onClick={() => setOpen((o) => !o)}>
-        {long ? t(`site.langName.${lang}`) : lang.toUpperCase()}<SiteIcon name="chevronDown" size={14} />
+        {long ? t(`site.langName.${lang}`) : lang.toUpperCase()}<SiteIcon name="chevronDown" size={long ? 14 : 8} />
       </button>
       {open && (
         <div className="langm__card" role="menu">
@@ -209,7 +209,7 @@ function ShopNavLink({ onShop, onClick, sheet }) {
   return (
     <Link to={shopPath(lang)} data-key="shop" className={`sbar__shop ${onShop ? 'is-active' : ''}`} aria-current={onShop ? 'page' : undefined}
       aria-label={n ? `${t('shop.nav')} · ${t('shop.cart.open', { n })}` : undefined} onClick={go}>
-      <span className="sbar__shopicon"><SiteIcon name="bag" size={sheet ? 22 : 18} />{n > 0 && <span className="sbar__bagn">{n}</span>}</span>
+      <span className="sbar__shopicon"><SiteIcon name="bag" size={sheet ? 22 : 15} />{n > 0 && <span className="sbar__bagn">{n}</span>}</span>
       {t('shop.nav')}
       {isNew && <em className="sbar__new">{t('shop.newTag')}</em>}
     </Link>
@@ -251,7 +251,7 @@ function SiteBar({ scroll, progress, onShop, shopOn }) {
         <div className="sbar__inner">
           <a href={`${homePath(lang)}#top`} className="sbar__logo" aria-label={t('site.homeLabel')}><BrandLogo variant={scroll.dark ? 'white' : 'green'} height={40} /></a>
           <nav className="sbar__nav" ref={nav} aria-label={t('site.navLabel')}>
-            {SECTIONS.map((s) => sectionLink(s, { 'data-key': s.key, className: active === s.key ? 'is-active' : '', 'aria-current': active === s.key ? 'true' : undefined, children: t(`site.nav.${s.key}`) }))}
+            {SECTIONS.filter((s) => s.key !== 'app').map((s) => sectionLink(s, { 'data-key': s.key, className: active === s.key ? 'is-active' : '', 'aria-current': active === s.key ? 'true' : undefined, children: t(`site.nav.${s.key}`) }))}
             {shopOn && <span className="sbar__div" aria-hidden="true" />}
             {shopOn && <ShopNavLink onShop={onShop} />}
             <span className="sbar__line" style={line ? { transform: `translateX(${line.left}px)`, width: line.width } : { opacity: 0 }} aria-hidden="true" />

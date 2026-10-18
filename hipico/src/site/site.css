@@ -907,14 +907,20 @@
 .ssheet__nav a.sbar__shop { position: relative; align-items: center; color: var(--hover-text); }
 .ssheet__nav a.sbar__shop .sbar__new { position: static; margin-left: 4px; font-size: 10px; }
 .ssheet__nav a.sbar__shop .sbar__shopicon { margin-right: 2px; }
-/* The bar on one line from 1180 px: the button never wraps, and the sections sit closer below 1360 px. */
+/* A lighter bar (from 1180 px): 12 px items gathered on the right, open space after the logo; the button never wraps. */
 .sbar__end .sbtn, .sbar__end .sbtn__in { white-space: nowrap; }
-@media (min-width: 1180px) and (max-width: 1359px) {
-  .sbar__nav a { padding: 0 7px; letter-spacing: .06em; }
-  .sbar__nav a::after { left: 7px; right: 7px; }
-  .sbar__end { gap: 10px; }
-}
-@media (min-width: 1180px) and (max-width: 1279px) {
-  .sbar__nav a { padding: 0 6px; font-size: 13px; }
-  .sbar__nav a::after { left: 6px; right: 6px; }
+@media (min-width: 1180px) {
+  .sbar__inner { gap: 16px; }
+  .sbar__nav { flex: 0 1 auto; margin-left: auto; gap: 0; }
+  .sbar__nav a { padding: 0 8px; font-size: 12px; letter-spacing: .06em; }
+  .sbar__nav a::after { left: 8px; right: 8px; height: 1.5px; }
+  .sbar__line { height: 1.5px; }
+  .sbar__nav a.sbar__shop { gap: 6px; margin-right: 12px; }
+  .sbar__div { height: 14px; margin: 0 6px; }
+  .sbar__end { gap: 14px; }
+  .sbar__login { font-size: 12px; letter-spacing: .06em; }
+  .sbar__login::after { height: 1.5px; }
+  .sbar .langm__btn { font-size: 12px; letter-spacing: .06em; gap: 5px; background-size: 0 1.5px; }
+  .sbar .langm__btn:hover { background-size: 100% 1.5px; }
+  .sbar__end .sbtn { min-width: 0; min-height: 36px; height: 36px; padding: 0 16px; font-size: 12px; }
 }

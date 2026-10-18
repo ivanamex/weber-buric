@@ -1119,7 +1119,9 @@ select.input { padding-right: 38px; background: #fff url("data:image/svg+xml,%3C
 .wgrid__cell.is-drag { background: var(--accent-soft); }
 .wgrid__cell.is-drag .wgrid__add { border-color: var(--accent-strong); color: var(--accent-ink); }
 @media (min-width: 1024px) { .desk__content .schedtools > .btn--primary { display: none; } .desk__content .schedtools { grid-template-columns: 1fr; } }
-.lheader__login { color: #fff; font-weight: 600; font-size: .92rem; padding: 8px 6px; text-decoration: none; opacity: .9; }
+.lheader__login { color: #fff; font-family: var(--font-head); font-stretch: 80%; font-weight: 600; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; padding: 8px 6px; text-decoration: none; opacity: .9; }
+.lheader .lheader__cta { min-height: 36px; height: 36px; padding: 0 16px; font-size: 12px; }
+.lheader .lang button { font-size: 12px; }
 .lheader__login:hover { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }
 @media (min-width: 1024px) { .desk.is-small .logo__text { display: none; } }
 
