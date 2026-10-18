@@ -11,6 +11,7 @@ Replace STEP-81's yes/no white test with the photo's frame color:
 - **Not uniform** (lifestyle, outdoors): `images_bg[i] = 'blur'`, the STEP-78 blurred backdrop as now.
 - Mara's cut-outs on white → `#FFFFFF`; her two Cassidy photos → `blur`.
 - Old values (`white` / `photo`) still read as `#FFFFFF` / `blur`. Bump `FRE_RULES` so the next deploy recopies.
+- **Every photo gets read.** STEP-81 leaves photos unread (`''`, shown with the blur) when the time budget runs out, which is probably why the thongs still smudge. Until a photo has been read, show it with a plain light box (`#F4F2EE`, no blur) instead of the blur, and let each daily copy keep reading the unread ones until none are left. Report how many are still unread after the build.
 - In the report: 6 thumbnails per kind (solid / blur) with the color picked.
 
 ## 2. Products above the fold
