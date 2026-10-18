@@ -4,7 +4,8 @@ Live: https://hipico-riviera-maya.vercel.app · Specs: `hipico/steps/`, so type 
 
 ## Now
 
-1. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
+1. **STEP-81**: photos shot on white (belts, accessories) stay plain white: each photo checked as white or not during the copy, the blurred backdrop only for grey and lifestyle photos
+2. Present the app to Mara with the guide, then fill in what she gives us (bank details, prices, schedule, instructors, horses, her email)
 
 One at a time, check in the browser, then "ok".
 
