@@ -2318,7 +2318,8 @@
       "grip": "Grip",
       "length": "Length",
       "sleeve": "Sleeve",
-      "style": "Style"
+      "style": "Style",
+      "pockets": "Pockets"
     },
     "optv": {
       "fullSeat": "Full seat",
@@ -2328,7 +2329,8 @@
       "tall": "Tall",
       "long": "Long",
       "short": "Short",
-      "sleeveless": "Sleeveless"
+      "sleeveless": "Sleeveless",
+      "cellPhone": "Cell phone"
     },
     "see": "View"
   },

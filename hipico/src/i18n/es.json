@@ -2318,7 +2318,8 @@
       "grip": "Agarre",
       "length": "Largo",
       "sleeve": "Manga",
-      "style": "Estilo"
+      "style": "Estilo",
+      "pockets": "Bolsillos"
     },
     "optv": {
       "fullSeat": "Asiento completo",
@@ -2328,7 +2329,8 @@
       "tall": "Largo (Tall)",
       "long": "Larga",
       "short": "Corta",
-      "sleeveless": "Sin manga"
+      "sleeveless": "Sin manga",
+      "cellPhone": "Para celular"
     },
     "see": "Ver"
   },

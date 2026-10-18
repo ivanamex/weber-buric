@@ -140,8 +140,8 @@ export function whiteFrame(data, width, height, channels = 4, frame = 3) {
 export const PHOTO_BG = ['white', 'photo']
 
 /** FreeRide's options besides color and size, in the order the product window shows them (above Talla). */
-export const EXTRA_KEYS = ['grip', 'length', 'sleeve', 'style']
-const OPT_WORDS = { 'full seat': 'fullSeat', 'knee patch': 'kneePatch', petite: 'petite', regular: 'regular', tall: 'tall', long: 'long', short: 'short', sleeveless: 'sleeveless' }
+export const EXTRA_KEYS = ['grip', 'length', 'sleeve', 'pockets', 'style']
+const OPT_WORDS = { 'full seat': 'fullSeat', 'knee patch': 'kneePatch', 'cell phone': 'cellPhone', petite: 'petite', regular: 'regular', tall: 'tall', long: 'long', short: 'short', sleeveless: 'sleeveless' }
 /** One option value as the shop says it ("Knee Patch" → "Rodilla"); FreeRide's own words otherwise. */
 export const optText = (t, v) => { const k = OPT_WORDS[String(v || '').trim().toLowerCase()]; return k && typeof t === 'function' ? t(`shop.optv.${k}`) : String(v || '') }
 /** A variant's (or a line's) extra options, in order: { grip: 'Knee Patch', length: 'Regular' } → ['Knee Patch', 'Regular']. */

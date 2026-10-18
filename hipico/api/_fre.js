@@ -6,7 +6,7 @@ import { sizeKey, sortSizes, colorHexFor, EXTRA_KEYS, whiteFrame } from '../src/
 const STORE = 'https://shopfre.com'
 const MAX_PAGES = 20
 // Raise it when the rules below change: the next deploy copies the catalog again with them.
-export const FRE_RULES = 6
+export const FRE_RULES = 7
 
 // FreeRide's product types, titles and tags → the shop's categories. The product type decides first, then the title,
 // then the tags; within each, the first rule that matches wins. "horse" = things for the horse (a "Para tu caballo"
@@ -78,6 +78,7 @@ const GRIP_RE = /^(full[ -]?seat|knee[ -]?patch|knee[ -]?grip|full[ -]?grip|knee
 const SLEEVE_RE = /^((long|short|3\/4|cap)[ -]?sleeves?|sleeveless)$/i
 const LENGTH_RE = /^(petite|regular|tall|standard)( length| inseam)?$/i
 const LONG_SHORT_RE = /^(long|short)$/i
+const POCKET_RE = /^(cell ?phone|phone)( pockets?)?$/i
 
 const titleCase = (v) => v.replace(/\s+/g, ' ').trim().replace(/\b([a-z])/g, (c) => c.toUpperCase())
 const LETTERS_RE = new RegExp(`^(?:${LETTER})(?:\\s*/\\s*(?:${LETTER}))?$`, 'i')
@@ -92,13 +93,17 @@ const canonical = (key, v) => {
   if (key === 'grip') return /knee/.test(x) ? 'Knee Patch' : /full|seat/.test(x) ? 'Full Seat' : titleCase(v)
   if (key === 'length') return /petite/.test(x) ? 'Petite' : /tall/.test(x) ? 'Tall' : 'Regular'
   if (key === 'sleeve') return /sleeveless/.test(x) ? 'Sleeveless' : /long/.test(x) ? 'Long' : /short/.test(x) ? 'Short' : titleCase(v)
+  if (key === 'pockets') return /phone/.test(x) ? 'Cell Phone' : /regular|standard|^no\b/.test(x) ? 'Regular' : titleCase(v)
   if (key === 'size') return cleanSize(v)
   return titleCase(v)
 }
 
-/** What one option value is (color | size | grip | length | sleeve | style), or null when it can't be told. */
+/** What one option value is (color | size | grip | length | sleeve | pockets | style), or null when it can't be told. */
 function kindOf(v, name, category) {
   const n = String(name || '').toLowerCase()
+  // A Pockets option says "Regular" too: its name wins over the value's shape.
+  if (/pocket/.test(n) && !SIZE_RE.test(v)) return 'pockets'
+  if (POCKET_RE.test(v)) return 'pockets'
   if (SIZE_RE.test(v)) return 'size'
   if (GRIP_RE.test(v)) return 'grip'
   if (SLEEVE_RE.test(v)) return 'sleeve'
@@ -112,10 +117,11 @@ function kindOf(v, name, category) {
   return null
 }
 
-/** Split a value holding two options ("Full Seat / 26", "26 Petite", "Knee Patch-28") when both halves can be told. */
+/** Split a value holding two options ("Full Seat / 26", "26 Petite", "Knee Patch-28", "Cell Phone Full Seat") when both halves
+ *  can be told. */
 function partsOf(v, name, category) {
   if (kindOf(v, '', category)) return [v]
-  const tries = [/^(.+?)\s+\/\s+(.+)$/, /^(.*[a-z])\s*-\s*(\d.*)$/i, /^(.+?)\s+(-\s+)?(\d{1,2}(?:\s*\([^)]*\))?)$/, /^(\S+)\s+(petite|regular|tall|long|short)$/i]
+  const tries = [/^(.+?)\s+\/\s+(.+)$/, /^(.+?)\s+((?:full|knee)[ -]?(?:seat|patch|grip))$/i, /^(.*[a-z])\s*-\s*(\d.*)$/i, /^(.+?)\s+(-\s+)?(\d{1,2}(?:\s*\([^)]*\))?)$/, /^(\S+)\s+(petite|regular|tall|long|short)$/i]
   for (const re of tries) {
     const m = v.match(re)
     if (!m) continue
@@ -125,12 +131,23 @@ function partsOf(v, name, category) {
   return [v]
 }
 
+// A variant's values in the options' order. products.json only has option1..3, so a product with a 4th option (Pockets,
+// Length) loses one of them there, not always the same one; the product's own page data (`options`, every value) or the
+// variant's title ("Sand / Full Seat / 26 / Regular") has them all.
+function valuesOf(v, count) {
+  if (Array.isArray(v.options) && v.options.length === count) return v.options
+  const title = String(v.title || '').split(' / ')
+  if (count > 3 && title.length === count) return title
+  return [v.option1, v.option2, v.option3]
+}
+
 /** One Shopify variant → { color, size, extra: { grip?, length?, sleeve?, style? }, available, image } (image: index in images). */
 function variantOf(v, p, category, imageIndex) {
   const out = { color: '', size: '', extra: {}, available: Boolean(v.available), image: null }
   const loose = []
+  const values = valuesOf(v, (p.options || []).length)
   ;(p.options || []).forEach((o, i) => {
-    const raw = String(v[`option${i + 1}`] ?? '').trim()
+    const raw = String(values[i] ?? '').trim()
     if (!raw || /^default title$/i.test(raw)) return
     for (const part of partsOf(raw, o.name, category)) {
       const kind = kindOf(part, o.name, category)
@@ -151,7 +168,7 @@ function variantOf(v, p, category, imageIndex) {
   return out
 }
 
-const EXTRA_ORDER = { grip: ['Full Seat', 'Knee Patch'], length: ['Regular', 'Petite', 'Tall'], sleeve: ['Long', 'Short', 'Sleeveless'] }
+const EXTRA_ORDER = { grip: ['Full Seat', 'Knee Patch'], length: ['Regular', 'Petite', 'Tall'], sleeve: ['Long', 'Short', 'Sleeveless'], pockets: ['Regular', 'Cell Phone'] }
 const byKnown = (key) => (a, b) => {
   const o = EXTRA_ORDER[key] || []
   const ia = o.indexOf(a); const ib = o.indexOf(b)
@@ -191,7 +208,8 @@ export function toRow(p, position) {
     // FreeRide's own words, a few variants of them, so a product that reads oddly can be checked against the source.
     raw: {
       options: (p.options || []).map((o) => ({ name: o.name, values: (o.values || []).slice(0, 12) })),
-      variants: (p.variants || []).slice(0, 3).map((v) => ({ option1: v.option1, option2: v.option2, option3: v.option3, image: Boolean(v.featured_image) })),
+      variants: (p.variants || []).slice(0, 3).map((v) => ({ title: v.title, option1: v.option1, option2: v.option2, option3: v.option3, image: Boolean(v.featured_image) })),
+      count: (p.variants || []).length, full: Boolean(p.fullVariants),
     },
   }
 }
@@ -251,6 +269,34 @@ export async function readBackgrounds(rows, { known = new Map(), fetchImpl = fet
   return { read: Math.min(next, todo.length), left: Math.max(0, todo.length - next) }
 }
 
+// products.json gives at most 250 variants and 3 values per variant; a product with a 4th option or 250 variants gets its
+// variants from its own page data (shopfre.com/products/<handle>.js: every variant, every value). 4 at a time; when
+// that page can't be read the product keeps what products.json gave (the titles still carry the 4th value).
+async function fullVariants(list, fetchImpl, signal) {
+  let next = 0
+  const worker = async () => {
+    while (next < list.length && !signal?.aborted) {
+      const p = list[next++]
+      try {
+        const res = await fetchImpl(`${STORE}/products/${encodeURIComponent(p.handle)}.js`, { headers: { Accept: 'application/json', 'User-Agent': 'HipicoRivieraMaya/1.0' }, signal })
+        if (!res.ok) continue
+        const data = JSON.parse(await res.text())
+        if (!Array.isArray(data?.variants) || data.variants.length < (p.variants || []).length) continue
+        const before = new Map((p.variants || []).map((v) => [v.id, v]))
+        p.variants = data.variants.map((v) => ({
+          id: v.id, title: v.title, options: Array.isArray(v.options) ? v.options : undefined,
+          option1: v.option1, option2: v.option2, option3: v.option3, available: Boolean(v.available),
+          price: before.get(v.id)?.price ?? (Number(v.price) / 100).toFixed(2),
+          compare_at_price: before.get(v.id)?.compare_at_price ?? (v.compare_at_price ? (Number(v.compare_at_price) / 100).toFixed(2) : null),
+          featured_image: before.get(v.id)?.featured_image || (v.featured_image?.src ? { src: String(v.featured_image.src).replace(/^\/\//, 'https://') } : null),
+        }))
+        p.fullVariants = true
+      } catch { /* keeps products.json's variants */ }
+    }
+  }
+  await Promise.all(Array.from({ length: 4 }, worker))
+}
+
 /** Every page of the catalog; throws when FreeRide doesn't answer properly (the old catalog then stays). */
 export async function fetchCatalog(fetchImpl = fetch, { signal } = {}) {
   const all = []
@@ -263,6 +309,7 @@ export async function fetchCatalog(fetchImpl = fetch, { signal } = {}) {
     all.push(...data.products.filter((p) => p.handle && p.title))
   }
   if (!all.length) throw new Error('FreeRide sent an empty catalog')
+  await fullVariants(all.filter((p) => (p.options || []).length > 3 || (p.variants || []).length >= 250), fetchImpl, signal)
   return all.map((p, i) => toRow(p, i))
 }
 
