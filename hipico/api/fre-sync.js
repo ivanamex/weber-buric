@@ -2,7 +2,7 @@
 // ("Actualizar catálogo"). The copy itself lives in _fre.js (the production build runs it too). If FreeRide answers
 // with an error, yesterday's catalog stays and the error is shown in the panel.
 import { connect } from './_reminders.js'
-import { fetchCatalog, saveCatalog, tally } from './_fre.js'
+import { fetchCatalog, saveCatalog, tally, knownBackgrounds, readBackgrounds } from './_fre.js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || ''
 const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || ''
@@ -36,6 +36,8 @@ export default async function handler(req, res) {
       await client.query('update club_settings set fre_last_error = $1 where id = 1', [String(err.message).slice(0, 200)])
       return res.status(200).json({ ok: false, code: 'freDown', error: err.message })
     }
+    // Which photos are on white: the new ones only, at most 35 s (the function has 60); the rest on the next copy.
+    await readBackgrounds(rows, { known: await knownBackgrounds(client), budgetMs: 35000 })
     await saveCatalog(client, rows)
     const sum = tally(rows)
     console.log('[fre-sync] copied', JSON.stringify(sum))

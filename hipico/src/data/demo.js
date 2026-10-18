@@ -2,7 +2,7 @@
 import { createSeed, DEMO_FAMILY_ID } from './seed.js'
 import { planPrice, BOARDING_MONTHLY, CAMP, RENTAL_PER_HOUR, CLASS_PRICES, CLASS_KINDS, applyPrices, resetPrices } from './prices.js'
 import { monthKeyOf, currentMonthKey, nextMonthKey, hoursUntil, todayKey, periodOf, addDays, daysBetween, weekdayOf } from '../lib/time.js'
-import { shopProductsSeed, shopOrdersSeed, photosOf } from './shopSeed.js'
+import { shopProductsSeed, shopOrdersSeed, photosOf, bgOf } from './shopSeed.js'
 import { stockNum, unitPrice, listPrice, ORDER_MAX, frePrice, FRE_DEFAULTS, sizeKey } from './shop.js'
 import { freCatalogSeed, wishlistsSeed } from './freSeed.js'
 import { byId, isActiveBooking, getPlan, planRemaining, canCancel, boardingStatus, LEVELS, planStart, planEnd, planRenewal, HORSE_STATUSES, nextPayAfter, HEALTH_KINDS, slotRuns, isClosed, isOneOff, pickHorse, horseBusy, riderBusy, slotMinutes, closedWeekdays, horseStatus } from './queries.js'
@@ -93,7 +93,9 @@ export function activate(setState, inMemory = false) {
   // Demo states saved before "Para quién": the catalog sample again, now with who each piece is for.
   if (!memoryOnly && (state.freCatalog || []).some((r) => !r.audience)) state = persist({ ...state, freCatalog: freCatalogSeed() })
   // …and before FreeRide's other options (grip, length, sleeve): the sample again, with a breech and a shirt that have them.
-  if (!memoryOnly && (state.freCatalog || []).some((r) => !r.extras)) state = persist({ ...state, freCatalog: freCatalogSeed() })
+  if (!memoryOnly && (state.freCatalog || []).some((r) => !r.extras || !r.imagesBg)) state = persist({ ...state, freCatalog: freCatalogSeed() })
+  // …and before photos on white: each sample photo's background.
+  if (!memoryOnly && (state.shopProducts || []).some((p) => !p.photosBg)) state = persist({ ...state, shopProducts: state.shopProducts.map((p) => (p.photosBg ? p : { ...p, photosBg: bgOf(p.photos) })) })
   // Demo states saved before the website's contact form: add the sample messages once.
   if (!state.contactMessages && !memoryOnly) { state.contactMessages = createSeed().contactMessages; persist(state) }
   if (state.classPrices) applyPrices(Object.fromEntries(CLASS_KINDS.map((k) => [`class_${k}`, state.classPrices[k]])))
@@ -1325,7 +1327,7 @@ export function demoFre(p = {}) {
     items: structuredClone(filt.slice(off, off + lim)).map((r) => {
       const price = frePrice(r.priceUsd, r.compareUsd, factor, discount)
       return { handle: r.handle, title: r.title, category: r.category, audience: r.audience, colors: r.colors, sizes: r.sizes, extras: r.extras || [], variants: r.variants, priceUsd: r.priceUsd, compareUsd: r.compareUsd,
-        images: p.handle ? r.images : r.images.slice(0, 6), url: r.url, unit: price.unit, list: price.list, onSale: price.sale }
+        images: p.handle ? r.images : r.images.slice(0, 6), imagesBg: p.handle ? r.imagesBg || [] : (r.imagesBg || []).slice(0, 6), url: r.url, unit: price.unit, list: price.list, onSale: price.sale }
     }),
     categories: count(base.map((r) => r.category)),
     sizes: [...new Set(tab.filter((r) => (aud === 'kids') === (r.audience === 'kids')).flatMap((r) => r.sizeKeys))],
@@ -1530,7 +1532,7 @@ function saveShopProduct(p) {
       colorName: String(p.colorName || '').trim(), colorHex: p.colorHex || '#D5C7AD',
       descriptionEs: p.descriptionEs || '', descriptionEn: p.descriptionEn || '', features: p.features || { es: [], en: [] },
       price: Number(p.price), promoPrice: p.promoPrice === '' || p.promoPrice == null ? null : Number(p.promoPrice),
-      sticker: p.sticker || 'none', photos: [...(p.photos || [])], takesOrders: Boolean(p.takesOrders), active: p.active !== false,
+      sticker: p.sticker || 'none', photos: [...(p.photos || [])], photosBg: (p.photos || []).map((_, i) => (['white', 'photo'].includes(p.photosBg?.[i]) ? p.photosBg[i] : '')), takesOrders: Boolean(p.takesOrders), active: p.active !== false,
       audience: ['women', 'men', 'kids', 'all'].includes(p.audience) ? p.audience : row.audience || 'women',
       variants: sizes.map((v) => ({ size: String(v.size).trim(), stock: Math.max(0, Number(v.stock) || 0), price: v.price === '' || v.price == null ? null : Number(v.price) })),
     })

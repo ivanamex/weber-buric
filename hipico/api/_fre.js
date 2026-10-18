@@ -1,12 +1,12 @@
 // FreeRide's catalog, shared by the daily function (api/fre-sync.js) and the production build (scripts/fre-sync.mjs).
 // Their store runs on Shopify, so the catalog is public JSON (shopfre.com/products.json, 250 a page). A copy upserts
 // every product into fre_catalog; products that disappear are marked inactive, never deleted.
-import { sizeKey, sortSizes, colorHexFor, EXTRA_KEYS } from '../src/data/shop.js'
+import { sizeKey, sortSizes, colorHexFor, EXTRA_KEYS, whiteFrame } from '../src/data/shop.js'
 
 const STORE = 'https://shopfre.com'
 const MAX_PAGES = 20
 // Raise it when the rules below change: the next deploy copies the catalog again with them.
-export const FRE_RULES = 5
+export const FRE_RULES = 6
 
 // FreeRide's product types, titles and tags → the shop's categories. The product type decides first, then the title,
 // then the tags; within each, the first rule that matches wins. "horse" = things for the horse (a "Para tu caballo"
@@ -185,6 +185,7 @@ export function toRow(p, position) {
     price_usd: price,
     compare_usd: compare,
     images,
+    images_bg: images.map(() => ''),
     url: `${STORE}/products/${p.handle}`,
     position,
     // FreeRide's own words, a few variants of them, so a product that reads oddly can be checked against the source.
@@ -193,6 +194,61 @@ export function toRow(p, position) {
       variants: (p.variants || []).slice(0, 3).map((v) => ({ option1: v.option1, option2: v.option2, option3: v.option3, image: Boolean(v.featured_image) })),
     },
   }
+}
+
+// Which photos are shot on white (belts, socks, gloves…): the shop shows those on plain white, the rest with a blurred
+// copy of the photo behind it. A 48 px copy of each of a product's first 8 photos, its outer frame read (whiteFrame()
+// in data/shop.js). 6 at a time, 4 s each; a photo that can't be read stays '' (shown as "photo", the blurred look)
+// and is tried again on the next copy. Photos already read in an earlier copy (same address) keep their answer, so a
+// daily copy only reads the new ones.
+const BG_PHOTOS = 8
+const tiny = (src) => (/[?&]width=\d+/.test(src) ? src.replace(/([?&])width=\d+/, '$1width=48') : `${src}${src.includes('?') ? '&' : '?'}width=48`)
+async function readBg(src, fetchImpl, signal) {
+  const stop = new AbortController()
+  const timer = setTimeout(() => stop.abort(), 4000)
+  const onAbort = () => stop.abort()
+  signal?.addEventListener('abort', onAbort)
+  try {
+    const res = await fetchImpl(tiny(src), { signal: stop.signal })
+    if (!res.ok) return ''
+    const { default: sharp } = await import('sharp')
+    const { data, info } = await sharp(Buffer.from(await res.arrayBuffer())).resize({ height: 48, withoutEnlargement: true })
+      .flatten({ background: '#ffffff' }).removeAlpha().raw().toBuffer({ resolveWithObject: true })
+    return whiteFrame(data, info.width, info.height, info.channels) ? 'white' : 'photo'
+  } catch {
+    return ''
+  } finally {
+    clearTimeout(timer)
+    signal?.removeEventListener('abort', onAbort)
+  }
+}
+
+/** The answers of an earlier copy: photo address → 'white' | 'photo'. */
+export async function knownBackgrounds(client) {
+  const known = new Map()
+  try {
+    const { rows } = await client.query(`select images, images_bg from fre_catalog where cardinality(images_bg) > 0`)
+    for (const r of rows) (r.images || []).forEach((src, i) => { if (['white', 'photo'].includes(r.images_bg?.[i])) known.set(src, r.images_bg[i]) })
+  } catch { /* an older database: everything is read again */ }
+  return known
+}
+
+/** Gives every row images_bg (same order as images). Stops reading after budgetMs; what's left stays '' (read next time,
+ *  shown as "photo" meanwhile). Never throws. */
+export async function readBackgrounds(rows, { known = new Map(), fetchImpl = fetch, budgetMs = 60000, signal } = {}) {
+  const until = Date.now() + budgetMs
+  const todo = [...new Set(rows.flatMap((r) => r.images.slice(0, BG_PHOTOS)).filter((src) => !known.has(src)))]
+  const found = new Map(known)
+  let next = 0
+  const worker = async () => {
+    while (next < todo.length && Date.now() < until && !signal?.aborted) {
+      const src = todo[next++]
+      found.set(src, await readBg(src, fetchImpl, signal))
+    }
+  }
+  await Promise.all(Array.from({ length: 6 }, worker))
+  for (const r of rows) r.images_bg = r.images.map((src, i) => (i < BG_PHOTOS ? found.get(src) || '' : 'photo'))
+  return { read: Math.min(next, todo.length), left: Math.max(0, todo.length - next) }
 }
 
 /** Every page of the catalog; throws when FreeRide doesn't answer properly (the old catalog then stays). */
@@ -216,13 +272,13 @@ export async function saveCatalog(client, rows) {
   try {
     for (const r of rows) {
       await client.query(
-        `insert into fre_catalog (handle, title, type, tags, category, mapped, kids, colors, sizes, variants, price_usd, compare_usd, images, url, position, audience, size_keys, extras, raw, active, updated_at)
-         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12, $13, $14, $15, $16, $17, $18::jsonb, $19::jsonb, true, now())
+        `insert into fre_catalog (handle, title, type, tags, category, mapped, kids, colors, sizes, variants, price_usd, compare_usd, images, url, position, audience, size_keys, extras, raw, images_bg, active, updated_at)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12, $13, $14, $15, $16, $17, $18::jsonb, $19::jsonb, $20, true, now())
          on conflict (handle) do update set title = excluded.title, type = excluded.type, tags = excluded.tags, category = excluded.category,
            mapped = excluded.mapped, kids = excluded.kids, colors = excluded.colors, sizes = excluded.sizes, variants = excluded.variants,
            price_usd = excluded.price_usd, compare_usd = excluded.compare_usd, images = excluded.images, url = excluded.url,
-           position = excluded.position, audience = excluded.audience, size_keys = excluded.size_keys, extras = excluded.extras, raw = excluded.raw, active = true, updated_at = now()`,
-        [r.handle, r.title, r.type, r.tags, r.category, r.mapped, r.kids, r.colors, r.sizes, JSON.stringify(r.variants), r.price_usd, r.compare_usd, r.images, r.url, r.position, r.audience, r.size_keys, JSON.stringify(r.extras), JSON.stringify(r.raw)])
+           position = excluded.position, audience = excluded.audience, size_keys = excluded.size_keys, extras = excluded.extras, raw = excluded.raw, images_bg = excluded.images_bg, active = true, updated_at = now()`,
+        [r.handle, r.title, r.type, r.tags, r.category, r.mapped, r.kids, r.colors, r.sizes, JSON.stringify(r.variants), r.price_usd, r.compare_usd, r.images, r.url, r.position, r.audience, r.size_keys, JSON.stringify(r.extras), JSON.stringify(r.raw), r.images_bg])
     }
     await client.query('update fre_catalog set active = false, updated_at = now() where active and not (handle = any($1))', [rows.map((r) => r.handle)])
     await client.query('update club_settings set fre_last_sync = now(), fre_last_count = $1, fre_last_error = null, fre_rules = $2 where id = 1', [rows.length, FRE_RULES])
@@ -235,9 +291,10 @@ export async function saveCatalog(client, rows) {
 
 /** How many per category (and unclear) in a copy, for the logs. */
 export function tally(rows) {
-  const out = { total: rows.length, unmapped: 0, audience: {}, extras: {} }
+  const out = { total: rows.length, unmapped: 0, audience: {}, extras: {}, photos: {} }
   for (const r of rows) {
     for (const x of r.extras || []) if (x.values.length > 1) out.extras[x.key] = (out.extras[x.key] || 0) + 1
+    for (const bg of r.images_bg || []) out.photos[bg || 'unread'] = (out.photos[bg || 'unread'] || 0) + 1
     out[r.category] = (out[r.category] || 0) + 1
     out.audience[r.audience] = (out.audience[r.audience] || 0) + 1
     if (!r.mapped) out.unmapped++

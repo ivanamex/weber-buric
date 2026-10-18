@@ -56,10 +56,10 @@ export const productTitle = (p) => `${p.name} ${p.colorName}`.trim()
 /** The photo, or a sand card with the pictogram and the product's color while there's none. */
 // Phones that ask to save data get the photo alone (no blurred copy behind it).
 const SAVE_DATA = typeof navigator !== 'undefined' && Boolean(navigator.connection?.saveData)
-/** A shop photo filling its box: the same image blurred behind it (a grey studio photo extends into its grey, a white one
- *  stays white), the photo itself whole on top. Mara's own photos (cut 4:5 on white) fill a card's
- *  3:4 box (3 % off each side) and sit on white elsewhere;
- *  thumb: a small cart / list thumbnail, simply cropped to fill. */
+/** A shop photo filling its box. A photo shot on white (photosBg 'white', read when it was copied or uploaded) sits on
+ *  plain white; any other (or not known yet) has the same image blurred behind it, so a grey studio photo extends into
+ *  its grey and a lifestyle one into its colors; the photo itself always whole on top. thumb: a small cart / list
+ *  thumbnail, simply cropped to fill. */
 export function ProductPhoto({ product, index = 0, alt = '', thumb = false, className = '' }) {
   const src = shopPhoto(product.photos?.[index])
   const [broken, setBroken] = useState(false)
@@ -72,10 +72,10 @@ export function ProductPhoto({ product, index = 0, alt = '', thumb = false, clas
       </span>
     )
   }
-  const own = !/^https?:/.test(product.photos[index]) || src.includes('/shop-photos/')
-  const backdrop = !thumb && !own && !SAVE_DATA
+  const white = product.photosBg?.[index] === 'white'
+  const backdrop = !thumb && !white && !SAVE_DATA
   return (
-    <span className={`pimg ${thumb ? 'pimg--thumb' : own ? 'pimg--own' : backdrop ? '' : 'pimg--lite'} ${className}`}>
+    <span className={`pimg ${thumb ? 'pimg--thumb' : white ? 'pimg--white' : backdrop ? '' : 'pimg--lite'} ${className}`}>
       {backdrop && <img className="pimg__bg" src={src} alt="" aria-hidden="true" loading="lazy" decoding="async" />}
       <img className="pimg__fg" src={src} alt={alt} loading="lazy" decoding="async" onError={() => setBroken(true)} />
     </span>
@@ -383,8 +383,8 @@ function FreSheet({ handle, known, inApp, onClose, onAsk }) {
   const extras = item ? freExtras(item, current) : []
   const chosen = item ? freChosen(item, current, picked) : {}
   const sizes = item ? freSizes(item, current, chosen) : []
-  const shots = item ? frePhotos(item, current) : { photos: [], mine: 0 }
-  const p = item ? { ...freAsProduct(item, current), photos: shots.photos } : null
+  const shots = item ? frePhotos(item, current) : { photos: [], photosBg: [], mine: 0 }
+  const p = item ? { ...freAsProduct(item, current), photos: shots.photos, photosBg: shots.photosBg } : null
   const add = () => {
     if (!size && sizes.length && sizes.some((v) => v.size)) { setPulse((n) => n + 1); return }
     // The exact variant's options go with the line (a product's variants don't always all name every option).

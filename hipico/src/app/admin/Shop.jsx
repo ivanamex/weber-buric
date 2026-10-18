@@ -12,7 +12,7 @@ import { waTo } from '../../lib/phone.js'
 import { todayKey } from '../../lib/time.js'
 import { useBase } from '../Backend.jsx'
 import { useSave } from './useSave.js'
-import { CATEGORIES, STICKERS, SIZE_CHIPS, KID_SIZES, ORDER_FILTERS, nextStatus, orderLine, stockNum, shopPhoto, frePrice, FRE_DEFAULTS, wishText, newWishlists, extraList, optText } from '../../data/shop.js'
+import { CATEGORIES, STICKERS, SIZE_CHIPS, KID_SIZES, ORDER_FILTERS, nextStatus, orderLine, stockNum, shopPhoto, frePrice, FRE_DEFAULTS, wishText, newWishlists, extraList, optText, whiteFrame } from '../../data/shop.js'
 import { OrderPill, ProductCardPreview } from '../../site/shop/ShopParts.jsx'
 
 const FILTERS = Object.keys(ORDER_FILTERS)
@@ -511,10 +511,12 @@ const toForm = (p) => (p ? {
   descriptionEs: p.descriptionEs || '', descriptionEn: p.descriptionEn || '', featuresEs: (p.features?.es || []).join('\n'), featuresEn: (p.features?.en || []).join('\n'),
   price: p.price ?? '', promoPrice: p.promoPrice ?? '', sticker: p.sticker || 'none',
   variants: (p.variants || []).map((v) => ({ size: v.size, stock: stockNum(v), price: v.price ?? '' })), takesOrders: Boolean(p.takesOrders), photos: [...(p.photos || [])], active: p.active !== false, audience: p.audience || 'women',
-} : { ...BLANK })
+  photoBg: Object.fromEntries((p.photos || []).map((ph, i) => [ph, p.photosBg?.[i] || ''])),
+} : { ...BLANK, photoBg: {} })
 const slug = (x) => String(x || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
-/** A photo for the shop: at most 1200 px tall, WebP (~80), resized in the browser before it goes up. */
+/** A photo for the shop: at most 1200 px tall, WebP (~80), resized in the browser before it goes up; and whether it's
+ *  shot on white (the frame of a 48 px copy, as the FreeRide copy reads its photos): { file, bg: 'white' | 'photo' | '' }. */
 async function resizePhoto(file) {
   try {
     const bmp = await createImageBitmap(file)
@@ -523,10 +525,21 @@ async function resizePhoto(file) {
     c.width = Math.round(bmp.width * scale)
     c.height = Math.round(bmp.height * scale)
     c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height)
+    let bg = ''
+    try {
+      const tiny = document.createElement('canvas')
+      tiny.height = 48
+      tiny.width = Math.max(1, Math.round((48 * bmp.width) / bmp.height))
+      const g = tiny.getContext('2d', { willReadFrequently: true })
+      g.fillStyle = '#FFFFFF'
+      g.fillRect(0, 0, tiny.width, tiny.height)
+      g.drawImage(bmp, 0, 0, tiny.width, tiny.height)
+      bg = whiteFrame(g.getImageData(0, 0, tiny.width, tiny.height).data, tiny.width, tiny.height) ? 'white' : 'photo'
+    } catch { /* not known: shown as a photo */ }
     const blob = await new Promise((r) => c.toBlob(r, 'image/webp', 0.8))
-    return blob ? new File([blob], file.name.replace(/\.[^.]+$/, '') + '.webp', { type: 'image/webp' }) : file
+    return { file: blob ? new File([blob], file.name.replace(/\.[^.]+$/, '') + '.webp', { type: 'image/webp' }) : file, bg }
   } catch {
-    return file
+    return { file, bg: '' }
   }
 }
 
@@ -567,25 +580,27 @@ function ProductEditor({ product, models, onDone, onDuplicate }) {
     if (!list.length) return
     setUploading(list.length)
     const added = []
+    const bgs = {}
     for (const file of list) {
-      const res = await uploadShopPhoto(await resizePhoto(file))
-      if (res.ok) added.push(res.path)
+      const small = await resizePhoto(file)
+      const res = await uploadShopPhoto(small.file)
+      if (res.ok) { added.push(res.path); bgs[res.path] = small.bg }
       else toast(t(`errors.${res.code}`), 'error')
       setUploading((n) => n - 1)
     }
-    setF((cur) => ({ ...cur, photos: [...cur.photos, ...added] }))
+    setF((cur) => ({ ...cur, photos: [...cur.photos, ...added], photoBg: { ...cur.photoBg, ...bgs } }))
   }
   const payload = () => ({
     id: f.id, model: f.model.trim() || slug(f.name), name: f.name.trim(), colorName: f.colorName.trim(), colorHex: f.colorHex, category: f.category,
     descriptionEs: f.descriptionEs.trim(), descriptionEn: f.descriptionEn.trim(),
     features: { es: f.featuresEs.split('\n').map((x) => x.trim()).filter(Boolean), en: f.featuresEn.split('\n').map((x) => x.trim()).filter(Boolean) },
     price: f.price === '' ? null : Number(f.price), promoPrice: f.promoPrice === '' ? null : Number(f.promoPrice), sticker: f.sticker,
-    photos: f.photos, takesOrders: f.takesOrders, active: f.active, audience: f.audience,
+    photos: f.photos, photosBg: f.photos.map((ph) => f.photoBg?.[ph] || ''), takesOrders: f.takesOrders, active: f.active, audience: f.audience,
     variants: f.variants.filter((v) => String(v.size).trim()).map((v) => ({ size: String(v.size).trim(), stock: Number(v.stock) || 0, price: v.price === '' ? null : Number(v.price) })),
   })
   const preview = { ...payload(), slug: 'preview', price: Number(f.price) || 0, promoPrice: f.promoPrice === '' ? null : Number(f.promoPrice) }
   const submit = (e) => { e.preventDefault(); run(() => saveShopProduct(payload()), t('shop.panel.editor.saved'), onDone, { inline: true }) }
-  const duplicate = () => onDuplicate({ ...payload(), id: null, colorName: '', colorHex: '#D5C7AD', photos: [], variants: payload().variants.map((v) => ({ ...v, stock: 0 })) })
+  const duplicate = () => onDuplicate({ ...payload(), id: null, colorName: '', colorHex: '#D5C7AD', photos: [], photosBg: [], variants: payload().variants.map((v) => ({ ...v, stock: 0 })) })
   return (
     <form className="inline-form shopedit" onSubmit={submit}>
       <h3 className="shopedit__h">{t('shop.panel.editor.data')}</h3>

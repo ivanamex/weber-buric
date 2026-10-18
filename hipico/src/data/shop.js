@@ -120,6 +120,25 @@ export function frePrice(usd, compare, factor = FRE_DEFAULTS.factor, discount = 
   if (Number(compare) > Number(usd)) return { unit: mxn, list: to50(Number(compare) * Number(factor)), sale: true }
   return { unit: to50(mxn * (1 - Number(discount) / 100)), list: mxn, sale: false }
 }
+/** A photo shot on white (no blurred backdrop behind it in the shop): the outer 3-pixel frame of a ~48 px copy is at
+ *  least 92 % near-white pixels (every channel ≥ 238). data: raw pixels, `channels` per pixel (3 RGB or 4 RGBA, drawn
+ *  over white first so transparency counts as white). */
+export function whiteFrame(data, width, height, channels = 4, frame = 3) {
+  let white = 0
+  let all = 0
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (x >= frame && x < width - frame && y >= frame && y < height - frame) continue
+      const i = (y * width + x) * channels
+      all++
+      if (data[i] >= 238 && data[i + 1] >= 238 && data[i + 2] >= 238) white++
+    }
+  }
+  return all > 0 && white / all >= 0.92
+}
+/** A photo's background as the shop keeps it: 'white' | 'photo' ('' = not known yet, shown as 'photo'). */
+export const PHOTO_BG = ['white', 'photo']
+
 /** FreeRide's options besides color and size, in the order the product window shows them (above Talla). */
 export const EXTRA_KEYS = ['grip', 'length', 'sleeve', 'style']
 const OPT_WORDS = { 'full seat': 'fullSeat', 'knee patch': 'kneePatch', petite: 'petite', regular: 'regular', tall: 'tall', long: 'long', short: 'short', sleeveless: 'sleeveless' }
@@ -159,15 +178,18 @@ export function freChosen(item, color, picked = {}) {
   }
   return out
 }
-/** The photos of a FreeRide product with the chosen color's first: { photos, mine } (mine: how many are that color's). */
+/** The photos of a FreeRide product with the chosen color's first: { photos, photosBg, mine } (mine: how many are that
+ *  color's; photosBg: each photo's background, in the same order). */
 export function frePhotos(item, color) {
   const all = item.images || []
+  const bg = item.imagesBg || []
   const own = [...new Set((item.variants || []).filter((v) => (v.color || '') === (color || '') && Number.isInteger(v.image) && all[v.image]).map((v) => v.image))].sort((a, b) => a - b)
-  if (!own.length) return { photos: all, mine: all.length }
-  return { photos: [...own.map((i) => all[i]), ...all.filter((_, i) => !own.includes(i))], mine: own.length }
+  if (!own.length) return { photos: all, photosBg: bg, mine: all.length }
+  const order = [...own, ...all.map((_, i) => i).filter((i) => !own.includes(i))]
+  return { photos: order.map((i) => all[i]), photosBg: order.map((i) => bg[i] || ''), mine: own.length }
 }
 /** A FreeRide item as the shop's parts show a product (photo, name, color). */
-export const freAsProduct = (item, color) => ({ slug: `${FRE_PREFIX}${item.handle}`, name: item.title, colorName: color || '', colorHex: '#FFFFFF', category: item.category, photos: item.images || [] })
+export const freAsProduct = (item, color) => ({ slug: `${FRE_PREFIX}${item.handle}`, name: item.title, colorName: color || '', colorHex: '#FFFFFF', category: item.category, photos: item.images || [], photosBg: item.imagesBg || [] })
 
 /** A cart line, resolved against the catalog: { slug, size, qty } → with its product, price and whether it's ordered. */
 export function resolveLine(products, line) {

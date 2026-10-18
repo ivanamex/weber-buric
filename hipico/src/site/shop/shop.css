@@ -62,8 +62,8 @@
 .pimg__bg { object-fit: cover; filter: blur(28px) saturate(1.05); transform: scale(1.2); }
 .pimg__fg { object-fit: contain; }
 .pimg--lite { background: #EDEDED; }
-.pimg--thumb .pimg__fg, .pcard__photo .pimg--own .pimg__fg { object-fit: cover; }
-@media (prefers-reduced-data: reduce) { .pimg__bg { display: none; } .pimg { background: #EDEDED; } .pimg--thumb { background: #FFFFFF; } }
+.pimg--thumb .pimg__fg { object-fit: cover; }
+@media (prefers-reduced-data: reduce) { .pimg__bg { display: none; } .pimg:not(.pimg--white, .pimg--thumb) { background: #EDEDED; } }
 .pcard__color { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; font-size: 14px; color: var(--accent-ink); }
 .psizes { margin: 0; font-size: 13px; color: var(--accent-ink); }
 .psizes s { opacity: .65; }

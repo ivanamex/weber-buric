@@ -1,5 +1,7 @@
 // A small piece of FreeRide's catalog for the demo, in the shape fre_catalog keeps (the real one is copied every day
 // from shopfre.com). The pieces Mara also has in the club use her photos; the rest show the shop's pictogram.
+import { bgOf } from './shopSeed.js'
+
 const S = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']
 const KIDS = ['4-5', '6-7', '8-9', '10-11', '12-13']
 
@@ -8,7 +10,7 @@ const WAIST = ['22', '24', '26', '28', '30', '32', '34', '36']
 const row = (handle, title, type, category, colors, sizes, priceUsd, { compareUsd = null, kids = null, audience = kids ? 'kids' : 'women', mapped = true, images = [], missing = [], extras = {}, photoOf = {} } = {}) => {
   const combos = Object.entries(extras).reduce((all, [key, values]) => all.flatMap((e) => values.map((v) => ({ ...e, [key]: v }))), [{}])
   return {
-    handle, title, type, category, mapped, kids, audience, audienceOverride: null, colors, sizes, priceUsd, compareUsd, images,
+    handle, title, type, category, mapped, kids, audience, audienceOverride: null, colors, sizes, priceUsd, compareUsd, images, imagesBg: bgOf(images),
     extras: Object.entries(extras).map(([key, values]) => ({ key, values })),
     variants: colors.flatMap((color) => sizes.flatMap((size) => combos.map((extra) => ({
       color, size, extra, image: photoOf[color] ?? null,
